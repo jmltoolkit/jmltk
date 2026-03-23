@@ -86,7 +86,7 @@ jobs:
         run: "./mvnw --fail-at-end -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --activate-profiles AlsoSlowTests  -B --errors clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=wadoon_jmlparser"
 
       - name: Test reporting
-        uses: dorny/test-reporter@v2
+        uses: dorny/test-reporter@v3
         if: success() || failure()
         with:
           name: Test Report

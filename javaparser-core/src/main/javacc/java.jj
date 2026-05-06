@@ -5612,6 +5612,11 @@ SwitchEntry SwitchEntry():
             */
             LOOKAHEAD(PatternExpression())
             label = PatternExpression() { labels = add(labels, label); }
+            (
+                LOOKAHEAD("," PatternExpression())
+                ","
+                label = PatternExpression() { labels = add(labels, label); }
+            )*
             [
               "when"
               guard = ConditionalExpression()

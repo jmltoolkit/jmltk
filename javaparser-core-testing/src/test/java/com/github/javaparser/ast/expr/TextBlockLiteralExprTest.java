@@ -4,12 +4,13 @@
  */
 package com.github.javaparser.ast.expr;
 
-import org.junit.jupiter.api.Test;
-
+import static com.github.javaparser.utils.TestParser.parseExpression;
 import static com.github.javaparser.utils.TestParser.parseStatement;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 class TextBlockLiteralExprTest {
     @Test
@@ -179,5 +180,30 @@ class TextBlockLiteralExprTest {
                 .findFirst(TextBlockLiteralExpr.class)
                 .get();
         assertEquals("\nHello\n" + "World", textBlock.translateEscapes());
+    }
+
+    /**
+     * Regression test for <a href="https://github.com/javaparser/javaparser/issues/4894">issue #4894</a>.
+     * <p>
+     * A text block whose last content characters before the closing {@code """} are an
+     * escaped backslash ({@code \\}) on a separate line must parse successfully.
+     */
+    @Test
+    void textBlockEndingInDoubleBackslashOnSeparateLineParses() {
+        TextBlockLiteralExpr textBlock = parseExpression("\"\"\"\n" + "        foo\\\\\n" + "        \"\"\"");
+        assertEquals("foo\\\n", textBlock.translateEscapes());
+    }
+
+    /**
+     * Regression test for <a href="https://github.com/javaparser/javaparser/issues/4894">issue #4894</a>.
+     * <p>
+     * Canonical failing form: an escaped backslash ({@code \\}) sits immediately adjacent
+     * to the closing {@code """} (no intervening newline)
+     */
+    @Test
+    void textBlockEndingInDoubleBackslashAdjacentToCloserParses() {
+        TextBlockLiteralExpr textBlock =
+                parseExpression("\"\"\"\n" + "        arbitrary text\n" + "        \\\\\"\"\"");
+        assertEquals("arbitrary text\n\\", textBlock.translateEscapes());
     }
 }

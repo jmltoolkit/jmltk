@@ -1369,6 +1369,14 @@ public class MethodResolutionLogic {
                                 mappings);
                     }
                 }
+            } else {
+                // source may be a subtype of target — walk source's ancestors to find a match
+                for (ResolvedReferenceType ancestor : sourceRefType.getAllAncestors()) {
+                    if (ancestor.getQualifiedName().equals(targetRefType.getQualifiedName())) {
+                        inferTypes(ancestor, target, mappings);
+                        break;
+                    }
+                }
             }
             return;
         }

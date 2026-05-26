@@ -79,6 +79,4 @@ public class BlockStmtContext extends StatementContext<BlockStmt> {
         }
         return patternExprs;
     }
-
-
 }

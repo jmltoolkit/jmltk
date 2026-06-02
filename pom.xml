@@ -160,7 +160,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>21</java.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
-        <byte-buddy.version>1.18.5</byte-buddy.version>
+        <byte-buddy.version>1.18.9</byte-buddy.version>
         <!--
         <argLine>
             -javaagent:'${settings.localRepository}/net/bytebuddy/byte-buddy-agent/${byte-buddy.version}/byte-buddy-agent-${byte-buddy.version}.jar'
@@ -328,7 +328,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-resources-plugin</artifactId>
-					<version>3.4.0</version>
+					<version>3.5.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -390,17 +390,17 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>3.21.0</version>
+					<version>3.22.0</version>
 				</plugin>
 				<plugin>
 					<groupId>biz.aQute.bnd</groupId>
 					<artifactId>bnd-maven-plugin</artifactId>
-                    <version>7.2.1</version>
+                    <version>7.2.3</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-report-plugin</artifactId>
-                    <version>3.5.5</version>
+                    <version>3.5.6</version>
                     <configuration>
                         <aggregate>true</aggregate>
                         <!--also set this to link to generated source reports-->
@@ -410,7 +410,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.5.5</version>
+					<version>3.5.6</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
@@ -430,7 +430,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-dependency-plugin</artifactId>
-					<version>3.10.0</version>
+					<version>3.11.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
@@ -454,7 +454,7 @@
 						<dependency>
 							<groupId>com.puppycrawl.tools</groupId>
 							<artifactId>checkstyle</artifactId>
-                            <version>13.2.0</version>
+                            <version>13.5.0</version>
 						</dependency>
 					</dependencies>
 				</plugin>
@@ -462,7 +462,7 @@
 					<groupId>com.diffplug.spotless</groupId>
 					<artifactId>spotless-maven-plugin</artifactId>
 					<!-- This is the last version with Java 8 support -->
-					<version>3.2.1</version>
+					<version>3.6.0</version>
 					<configuration>
 						<java>
 							<!-- google-java-format, but better: see https://github.com/palantir/palantir-java-format -->
@@ -486,7 +486,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-report-plugin</artifactId>
-				<version>3.5.5</version>
+				<version>3.5.6</version>
 				<configuration>
 					<aggregate>true</aggregate>
 				</configuration>
@@ -505,12 +505,12 @@
 			<dependency>
 				<groupId>org.javassist</groupId>
 				<artifactId>javassist</artifactId>
-				<version>3.30.2-GA</version>
+				<version>3.31.0-GA</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>33.5.0-jre</version>
+				<version>33.6.0-jre</version>
 			</dependency>
 			<dependency>
                 <groupId>com.google.truth</groupId>
@@ -521,7 +521,7 @@
             <dependency>
 				<groupId>org.checkerframework</groupId>
 				<artifactId>checker-qual</artifactId>
-                <version>3.53.1</version>
+                <version>4.2.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.hamcrest</groupId>
@@ -532,7 +532,7 @@
 			<dependency>
 				<groupId>org.junit</groupId>
 				<artifactId>junit-bom</artifactId>
-                <version>6.0.3</version>
+                <version>6.1.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

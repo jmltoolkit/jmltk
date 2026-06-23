@@ -20,6 +20,8 @@
  */
 package com.github.javaparser.ast.stmt;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -33,10 +35,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
 import com.github.javaparser.metamodel.TryStmtMetaModel;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -115,7 +116,11 @@ public class TryStmt extends Statement {
     }
 
     @AllFieldsConstructor
-    public TryStmt(NodeList<Expression> resources, final BlockStmt tryBlock, final NodeList<CatchClause> catchClauses, final BlockStmt finallyBlock) {
+    public TryStmt(
+            NodeList<Expression> resources,
+            final BlockStmt tryBlock,
+            final NodeList<CatchClause> catchClauses,
+            final BlockStmt finallyBlock) {
         this(null, resources, tryBlock, catchClauses, finallyBlock);
     }
 
@@ -123,7 +128,12 @@ public class TryStmt extends Statement {
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public TryStmt(TokenRange tokenRange, NodeList<Expression> resources, BlockStmt tryBlock, NodeList<CatchClause> catchClauses, BlockStmt finallyBlock) {
+    public TryStmt(
+            TokenRange tokenRange,
+            NodeList<Expression> resources,
+            BlockStmt tryBlock,
+            NodeList<CatchClause> catchClauses,
+            BlockStmt finallyBlock) {
         super(tokenRange);
         setResources(resources);
         setTryBlock(tryBlock);
@@ -165,55 +175,51 @@ public class TryStmt extends Statement {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public TryStmt setCatchClauses(final NodeList<CatchClause> catchClauses) {
+    public TryStmt setCatchClauses(final @NonNull() NodeList<CatchClause> catchClauses) {
         assertNotNull(catchClauses);
         if (catchClauses == this.catchClauses) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.CATCH_CLAUSES, this.catchClauses, catchClauses);
-        if (this.catchClauses != null)
-            this.catchClauses.setParentNode(null);
+        if (this.catchClauses != null) this.catchClauses.setParentNode(null);
         this.catchClauses = catchClauses;
         setAsParentNodeOf(catchClauses);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public TryStmt setFinallyBlock(final BlockStmt finallyBlock) {
+    public TryStmt setFinallyBlock(final @Nullable() BlockStmt finallyBlock) {
         if (finallyBlock == this.finallyBlock) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.FINALLY_BLOCK, this.finallyBlock, finallyBlock);
-        if (this.finallyBlock != null)
-            this.finallyBlock.setParentNode(null);
+        if (this.finallyBlock != null) this.finallyBlock.setParentNode(null);
         this.finallyBlock = finallyBlock;
         setAsParentNodeOf(finallyBlock);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public TryStmt setTryBlock(final BlockStmt tryBlock) {
+    public TryStmt setTryBlock(final @NonNull() BlockStmt tryBlock) {
         assertNotNull(tryBlock);
         if (tryBlock == this.tryBlock) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.TRY_BLOCK, this.tryBlock, tryBlock);
-        if (this.tryBlock != null)
-            this.tryBlock.setParentNode(null);
+        if (this.tryBlock != null) this.tryBlock.setParentNode(null);
         this.tryBlock = tryBlock;
         setAsParentNodeOf(tryBlock);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public TryStmt setResources(final NodeList<Expression> resources) {
+    public TryStmt setResources(final @NonNull() NodeList<Expression> resources) {
         assertNotNull(resources);
         if (resources == this.resources) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.RESOURCES, this.resources, resources);
-        if (this.resources != null)
-            this.resources.setParentNode(null);
+        if (this.resources != null) this.resources.setParentNode(null);
         this.resources = resources;
         setAsParentNodeOf(resources);
         return this;
@@ -318,27 +324,27 @@ public class TryStmt extends Statement {
         return Optional.of(this);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<CatchClause> catchClauses() {
+    public @NonNull() NodeList<CatchClause> catchClauses() {
         return Objects.requireNonNull(catchClauses);
     }
 
-    @Nullable()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public BlockStmt finallyBlock() {
+    public @Nullable() BlockStmt finallyBlock() {
         return finallyBlock;
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<Expression> resources() {
+    public @NonNull() NodeList<Expression> resources() {
         return Objects.requireNonNull(resources);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public BlockStmt tryBlock() {
+    public @NonNull() BlockStmt tryBlock() {
         return Objects.requireNonNull(tryBlock);
     }
 }

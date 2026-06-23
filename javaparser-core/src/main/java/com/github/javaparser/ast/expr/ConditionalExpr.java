@@ -20,6 +20,8 @@
  */
 package com.github.javaparser.ast.expr;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -31,10 +33,9 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.ConditionalExprMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -100,42 +101,39 @@ public class ConditionalExpr extends Expression implements NodeWithCondition<Con
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ConditionalExpr setCondition(final Expression condition) {
+    public ConditionalExpr setCondition(final @NonNull() Expression condition) {
         assertNotNull(condition);
         if (condition == this.condition) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.CONDITION, this.condition, condition);
-        if (this.condition != null)
-            this.condition.setParentNode(null);
+        if (this.condition != null) this.condition.setParentNode(null);
         this.condition = condition;
         setAsParentNodeOf(condition);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ConditionalExpr setElseExpr(final Expression elseExpr) {
+    public ConditionalExpr setElseExpr(final @NonNull() Expression elseExpr) {
         assertNotNull(elseExpr);
         if (elseExpr == this.elseExpr) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.ELSE_EXPR, this.elseExpr, elseExpr);
-        if (this.elseExpr != null)
-            this.elseExpr.setParentNode(null);
+        if (this.elseExpr != null) this.elseExpr.setParentNode(null);
         this.elseExpr = elseExpr;
         setAsParentNodeOf(elseExpr);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ConditionalExpr setThenExpr(final Expression thenExpr) {
+    public ConditionalExpr setThenExpr(final @NonNull() Expression thenExpr) {
         assertNotNull(thenExpr);
         if (thenExpr == this.thenExpr) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.THEN_EXPR, this.thenExpr, thenExpr);
-        if (this.thenExpr != null)
-            this.thenExpr.setParentNode(null);
+        if (this.thenExpr != null) this.thenExpr.setParentNode(null);
         this.thenExpr = thenExpr;
         setAsParentNodeOf(thenExpr);
         return this;
@@ -207,21 +205,21 @@ public class ConditionalExpr extends Expression implements NodeWithCondition<Con
         return appearsInAssignmentContext() || appearsInInvocationContext();
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Expression condition() {
+    public @NonNull() Expression condition() {
         return Objects.requireNonNull(condition);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Expression elseExpr() {
+    public @NonNull() Expression elseExpr() {
         return Objects.requireNonNull(elseExpr);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Expression thenExpr() {
+    public @NonNull() Expression thenExpr() {
         return Objects.requireNonNull(thenExpr);
     }
 }

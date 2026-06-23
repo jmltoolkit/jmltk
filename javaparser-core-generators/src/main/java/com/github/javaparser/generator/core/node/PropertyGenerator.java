@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007-2010 Júlio Vilmar Gesser.
- * Copyright (C) 2011, 2013-2024 The JavaParser Team.
+ * Copyright (C) 2011, 2013-2025 The JavaParser Team.
  *
  * This file is part of JavaParser.
  *
@@ -29,7 +29,6 @@ import static com.github.javaparser.utils.CodeGenerationUtils.f;
 import static com.github.javaparser.utils.Utils.camelCaseToScreaming;
 
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.EnumConstantDeclaration;
@@ -43,10 +42,9 @@ import com.github.javaparser.metamodel.BaseNodeMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.PropertyMetaModel;
 import com.github.javaparser.utils.SourceRoot;
+import java.util.*;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-
-import java.util.*;
 
 public class PropertyGenerator extends NodeGenerator {
 
@@ -91,8 +89,24 @@ public class PropertyGenerator extends NodeGenerator {
         if (property.getContainingNodeMetaModel().hasWildcard()) {
             setter.setType(parseType("T"));
         }
-        setter.addAndGetParameter(property.getTypeNameForSetter(), property.getName())
+
+        var parameter = setter.addAndGetParameter(property.getTypeNameForSetter(), property.getName())
                 .addModifier(FINAL);
+
+        var compilationUnit = nodeCoid.findCompilationUnit().get();
+        var rtype = parameter.getType();
+        if (property.isOptional()) {
+            // Ensure imports have been included.
+            compilationUnit.addImport(Nullable.class);
+            if (rtype.isClassOrInterfaceType()) {
+                rtype.asClassOrInterfaceType().addAnnotation(Nullable.class);
+            }
+        } else {
+            compilationUnit.addImport(NonNull.class);
+            if (rtype.isClassOrInterfaceType()) {
+                rtype.asClassOrInterfaceType().addAnnotation(NonNull.class);
+            }
+        }
 
         final BlockStmt body = setter.getBody().get();
         body.getStatements().clear();
@@ -114,7 +128,11 @@ public class PropertyGenerator extends NodeGenerator {
 
         // Check if the new value is the same as the old value
         String returnValue = CodeUtils.castValue("this", setter.getType(), nodeMetaModel.getTypeName());
-        body.addStatement(f("if (%s == this.%s) { return %s; }", name, name, returnValue));
+        if (property.getType().equals(String.class)) {
+            body.addStatement(f("if (%s.equals(this.%s)) { return %s; }", name, name, returnValue));
+        } else {
+            body.addStatement(f("if (%s == this.%s) { return %s; }", name, name, returnValue));
+        }
 
         body.addStatement(f("notifyPropertyChange(ObservableProperty.%s, this.%s, %s);", observableName, name, name));
         if (property.isNode()) {
@@ -156,20 +174,28 @@ public class PropertyGenerator extends NodeGenerator {
     private void generateGetterWithAnnot(
             BaseNodeMetaModel nodeMetaModel, ClassOrInterfaceDeclaration nodeCoid, PropertyMetaModel property) {
         final MethodDeclaration getter = new MethodDeclaration(
-                createModifierList(Modifier.DefaultKeyword.PUBLIC), parseType(property.getTypeNameForSetter()), property.getName());
+                createModifierList(PUBLIC), parseType(property.getTypeNameForSetter()), property.getName());
         annotateWhenOverridden(nodeMetaModel, getter);
         final BlockStmt body = getter.getBody().get();
         body.getStatements().clear();
-        nodeCoid.findCompilationUnit().get().addImport(Objects.class);
+        final var compilationUnit = nodeCoid.findCompilationUnit().get();
+        compilationUnit.addImport(Objects.class);
 
+        getter.addAnnotation("com.github.javaparser.ast.key.IgnoreLexPrinting");
+
+        var rtype = getter.getType();
         if (property.isOptional()) {
             // Ensure imports have been included.
-            nodeCoid.findCompilationUnit().get().addImport(Nullable.class);
-            getter.addAnnotation(Nullable.class);
+            compilationUnit.addImport(Nullable.class);
+            if (rtype.isClassOrInterfaceType()) {
+                rtype.asClassOrInterfaceType().addAnnotation(Nullable.class);
+            }
             body.addStatement(f("return %s;", property.getName()));
         } else {
-            nodeCoid.findCompilationUnit().get().addImport(NonNull.class);
-            getter.addAnnotation(NonNull.class);
+            compilationUnit.addImport(NonNull.class);
+            if (rtype.isClassOrInterfaceType()) {
+                rtype.asClassOrInterfaceType().addAnnotation(NonNull.class);
+            }
             body.addStatement(f("return Objects.requireNonNull(%s);", property.getName()));
         }
 

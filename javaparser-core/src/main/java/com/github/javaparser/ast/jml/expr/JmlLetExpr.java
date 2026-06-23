@@ -1,5 +1,7 @@
 package com.github.javaparser.ast.jml.expr;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -13,10 +15,9 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlLetExprMetaModel;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -82,14 +83,13 @@ public class JmlLetExpr extends Expression implements Jmlish {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlLetExpr setBody(final Expression body) {
+    public JmlLetExpr setBody(final @NonNull() Expression body) {
         assertNotNull(body);
         if (body == this.body) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.BODY, this.body, body);
-        if (this.body != null)
-            this.body.setParentNode(null);
+        if (this.body != null) this.body.setParentNode(null);
         this.body = body;
         setAsParentNodeOf(body);
         return this;
@@ -101,14 +101,13 @@ public class JmlLetExpr extends Expression implements Jmlish {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlLetExpr setVariables(final VariableDeclarationExpr variables) {
+    public JmlLetExpr setVariables(final @NonNull() VariableDeclarationExpr variables) {
         assertNotNull(variables);
         if (variables == this.variables) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.VARIABLES, this.variables, variables);
-        if (this.variables != null)
-            this.variables.setParentNode(null);
+        if (this.variables != null) this.variables.setParentNode(null);
         this.variables = variables;
         setAsParentNodeOf(variables);
         return this;
@@ -154,15 +153,15 @@ public class JmlLetExpr extends Expression implements Jmlish {
         customInitialization();
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Expression body() {
+    public @NonNull() Expression body() {
         return Objects.requireNonNull(body);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public VariableDeclarationExpr variables() {
+    public @NonNull() VariableDeclarationExpr variables() {
         return Objects.requireNonNull(variables);
     }
 }

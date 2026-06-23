@@ -1,5 +1,7 @@
 package com.github.javaparser.ast.jml.doc;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.JavaToken;
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
@@ -14,10 +16,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlDocDeclarationMetaModel;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -53,30 +54,6 @@ public class JmlDocDeclaration extends BodyDeclaration<JmlDocDeclaration> implem
 
     public void setJmlComments(List<JavaToken> jmlComments) {
         // this.jmlComments = jmlComments;
-    }
-
-    @Override
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public boolean isJmlDocDeclaration() {
-        return true;
-    }
-
-    @Override
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public JmlDocDeclaration asJmlDocDeclaration() {
-        return this;
-    }
-
-    @Override
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public Optional<JmlDocDeclaration> toJmlDocDeclaration() {
-        return Optional.of(this);
-    }
-
-    @Override
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifJmlDocDeclaration(Consumer<JmlDocDeclaration> action) {
-        action.accept(this);
     }
 
     public JmlDocDeclaration setJmlComments(final JavaToken jmlComments) {
@@ -136,14 +113,13 @@ public class JmlDocDeclaration extends BodyDeclaration<JmlDocDeclaration> implem
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlDocDeclaration setJmlComments(final NodeList<JmlDoc> jmlComments) {
+    public JmlDocDeclaration setJmlComments(final @NonNull() NodeList<JmlDoc> jmlComments) {
         assertNotNull(jmlComments);
         if (jmlComments == this.jmlComments) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.JML_COMMENTS, this.jmlComments, jmlComments);
-        if (this.jmlComments != null)
-            this.jmlComments.setParentNode(null);
+        if (this.jmlComments != null) this.jmlComments.setParentNode(null);
         this.jmlComments = jmlComments;
         setAsParentNodeOf(jmlComments);
         return this;
@@ -159,9 +135,33 @@ public class JmlDocDeclaration extends BodyDeclaration<JmlDocDeclaration> implem
         customInitialization();
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<JmlDoc> jmlComments() {
+    public @NonNull() NodeList<JmlDoc> jmlComments() {
         return Objects.requireNonNull(jmlComments);
+    }
+
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
+    public boolean isJmlDocDeclaration() {
+        return true;
+    }
+
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
+    public JmlDocDeclaration asJmlDocDeclaration() {
+        return this;
+    }
+
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
+    public Optional<JmlDocDeclaration> toJmlDocDeclaration() {
+        return Optional.of(this);
+    }
+
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
+    public void ifJmlDocDeclaration(Consumer<JmlDocDeclaration> action) {
+        action.accept(this);
     }
 }

@@ -20,6 +20,8 @@
  */
 package com.github.javaparser.ast.expr;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -33,10 +35,9 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.TypeExprMetaModel;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -87,14 +88,13 @@ public class TypeExpr extends Expression implements NodeWithType<TypeExpr, Type>
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public TypeExpr setType(final Type type) {
+    public TypeExpr setType(final @NonNull() Type type) {
         assertNotNull(type);
         if (type == this.type) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.TYPE, this.type, type);
-        if (this.type != null)
-            this.type.setParentNode(null);
+        if (this.type != null) this.type.setParentNode(null);
         this.type = type;
         setAsParentNodeOf(type);
         return this;
@@ -149,9 +149,9 @@ public class TypeExpr extends Expression implements NodeWithType<TypeExpr, Type>
         return Optional.of(this);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Type type() {
+    public @NonNull() Type type() {
         return Objects.requireNonNull(type);
     }
 }

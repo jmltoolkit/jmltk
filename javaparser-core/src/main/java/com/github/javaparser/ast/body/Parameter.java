@@ -20,6 +20,8 @@
  */
 package com.github.javaparser.ast.body;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.expr.AnnotationExpr;
@@ -38,7 +40,6 @@ import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.ParameterMetaModel;
 import com.github.javaparser.resolution.Resolvable;
 import com.github.javaparser.resolution.declarations.ResolvedParameterDeclaration;
-import static com.github.javaparser.utils.Utils.assertNotNull;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
@@ -53,7 +54,12 @@ import org.jspecify.annotations.NonNull;
  *
  * @author Julio Vilmar Gesser
  */
-public class Parameter extends Node implements NodeWithType<Parameter, Type>, NodeWithAnnotations<Parameter>, NodeWithSimpleName<Parameter>, NodeWithFinalModifier<Parameter>, Resolvable<ResolvedParameterDeclaration> {
+public class Parameter extends Node
+        implements NodeWithType<Parameter, Type>,
+                NodeWithAnnotations<Parameter>,
+                NodeWithSimpleName<Parameter>,
+                NodeWithFinalModifier<Parameter>,
+                Resolvable<ResolvedParameterDeclaration> {
 
     private Type type;
 
@@ -68,7 +74,14 @@ public class Parameter extends Node implements NodeWithType<Parameter, Type>, No
     private SimpleName name;
 
     public Parameter() {
-        this(null, new NodeList<>(), new NodeList<>(), new ClassOrInterfaceType(), false, new NodeList<>(), new SimpleName());
+        this(
+                null,
+                new NodeList<>(),
+                new NodeList<>(),
+                new ClassOrInterfaceType(),
+                false,
+                new NodeList<>(),
+                new SimpleName());
     }
 
     public Parameter(Type type, SimpleName name) {
@@ -90,7 +103,13 @@ public class Parameter extends Node implements NodeWithType<Parameter, Type>, No
     }
 
     @AllFieldsConstructor
-    public Parameter(NodeList<Modifier> modifiers, NodeList<AnnotationExpr> annotations, Type type, boolean isVarArgs, NodeList<AnnotationExpr> varArgsAnnotations, SimpleName name) {
+    public Parameter(
+            NodeList<Modifier> modifiers,
+            NodeList<AnnotationExpr> annotations,
+            Type type,
+            boolean isVarArgs,
+            NodeList<AnnotationExpr> varArgsAnnotations,
+            SimpleName name) {
         this(null, modifiers, annotations, type, isVarArgs, varArgsAnnotations, name);
     }
 
@@ -98,7 +117,14 @@ public class Parameter extends Node implements NodeWithType<Parameter, Type>, No
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public Parameter(TokenRange tokenRange, NodeList<Modifier> modifiers, NodeList<AnnotationExpr> annotations, Type type, boolean isVarArgs, NodeList<AnnotationExpr> varArgsAnnotations, SimpleName name) {
+    public Parameter(
+            TokenRange tokenRange,
+            NodeList<Modifier> modifiers,
+            NodeList<AnnotationExpr> annotations,
+            Type type,
+            boolean isVarArgs,
+            NodeList<AnnotationExpr> varArgsAnnotations,
+            SimpleName name) {
         super(tokenRange);
         setModifiers(modifiers);
         setAnnotations(annotations);
@@ -126,21 +152,20 @@ public class Parameter extends Node implements NodeWithType<Parameter, Type>, No
         return type;
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
     public boolean isVarArgs() {
         return Objects.requireNonNull(isVarArgs);
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Parameter setType(final Type type) {
+    public Parameter setType(final @NonNull() Type type) {
         assertNotNull(type);
         if (type == this.type) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.TYPE, this.type, type);
-        if (this.type != null)
-            this.type.setParentNode(null);
+        if (this.type != null) this.type.setParentNode(null);
         this.type = type;
         setAsParentNodeOf(type);
         return this;
@@ -182,45 +207,42 @@ public class Parameter extends Node implements NodeWithType<Parameter, Type>, No
 
     /**
      * @param annotations a null value is currently treated as an empty list. This behavior could change in the future,
-     *                    so please avoid passing null
+     * so please avoid passing null
      */
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Parameter setAnnotations(final NodeList<AnnotationExpr> annotations) {
+    public Parameter setAnnotations(final @NonNull() NodeList<AnnotationExpr> annotations) {
         assertNotNull(annotations);
         if (annotations == this.annotations) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.ANNOTATIONS, this.annotations, annotations);
-        if (this.annotations != null)
-            this.annotations.setParentNode(null);
+        if (this.annotations != null) this.annotations.setParentNode(null);
         this.annotations = annotations;
         setAsParentNodeOf(annotations);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Parameter setName(final SimpleName name) {
+    public Parameter setName(final @NonNull() SimpleName name) {
         assertNotNull(name);
         if (name == this.name) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null)
-            this.name.setParentNode(null);
+        if (this.name != null) this.name.setParentNode(null);
         this.name = name;
         setAsParentNodeOf(name);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Parameter setModifiers(final NodeList<Modifier> modifiers) {
+    public Parameter setModifiers(final @NonNull() NodeList<Modifier> modifiers) {
         assertNotNull(modifiers);
         if (modifiers == this.modifiers) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.MODIFIERS, this.modifiers, modifiers);
-        if (this.modifiers != null)
-            this.modifiers.setParentNode(null);
+        if (this.modifiers != null) this.modifiers.setParentNode(null);
         this.modifiers = modifiers;
         setAsParentNodeOf(modifiers);
         return this;
@@ -259,14 +281,13 @@ public class Parameter extends Node implements NodeWithType<Parameter, Type>, No
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Parameter setVarArgsAnnotations(final NodeList<AnnotationExpr> varArgsAnnotations) {
+    public Parameter setVarArgsAnnotations(final @NonNull() NodeList<AnnotationExpr> varArgsAnnotations) {
         assertNotNull(varArgsAnnotations);
         if (varArgsAnnotations == this.varArgsAnnotations) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.VAR_ARGS_ANNOTATIONS, this.varArgsAnnotations, varArgsAnnotations);
-        if (this.varArgsAnnotations != null)
-            this.varArgsAnnotations.setParentNode(null);
+        if (this.varArgsAnnotations != null) this.varArgsAnnotations.setParentNode(null);
         this.varArgsAnnotations = varArgsAnnotations;
         setAsParentNodeOf(varArgsAnnotations);
         return this;
@@ -327,9 +348,9 @@ public class Parameter extends Node implements NodeWithType<Parameter, Type>, No
     /**
      * Record components (parameters here) are implicitly final, even without the explicitly-added modifier.
      * https://openjdk.java.net/jeps/359#Restrictions-on-records
-     * <p>
+     *
      * If wanting to find out if the keyword {@code final} has been explicitly added to this parameter,
-     * you should use {@code node.hasModifier(Modifier.DefaultKeyword.FINAL)}
+     * you should use {@code node.hasModifier(Modifier.Keyword.FINAL)}
      *
      * @return true if the node parameter is explicitly final (keyword attached) or implicitly final (e.g. parameters to a record)
      */
@@ -346,33 +367,33 @@ public class Parameter extends Node implements NodeWithType<Parameter, Type>, No
         return NodeWithFinalModifier.super.isFinal();
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<AnnotationExpr> annotations() {
+    public @NonNull() NodeList<AnnotationExpr> annotations() {
         return Objects.requireNonNull(annotations);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<Modifier> modifiers() {
+    public @NonNull() NodeList<Modifier> modifiers() {
         return Objects.requireNonNull(modifiers);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public SimpleName name() {
+    public @NonNull() SimpleName name() {
         return Objects.requireNonNull(name);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Type type() {
+    public @NonNull() Type type() {
         return Objects.requireNonNull(type);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<AnnotationExpr> varArgsAnnotations() {
+    public @NonNull() NodeList<AnnotationExpr> varArgsAnnotations() {
         return Objects.requireNonNull(varArgsAnnotations);
     }
 }

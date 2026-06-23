@@ -1,5 +1,7 @@
 package com.github.javaparser.ast.jml.doc;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.BodyDeclaration;
@@ -13,10 +15,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlDocTypeMetaModel;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -32,7 +33,12 @@ public class JmlDocType extends TypeDeclaration<JmlDocType> implements JmlDocCon
     }
 
     @AllFieldsConstructor
-    public JmlDocType(NodeList<Modifier> modifiers, NodeList<AnnotationExpr> annotations, SimpleName name, NodeList<BodyDeclaration<?>> members, NodeList<JmlDoc> jmlComments) {
+    public JmlDocType(
+            NodeList<Modifier> modifiers,
+            NodeList<AnnotationExpr> annotations,
+            SimpleName name,
+            NodeList<BodyDeclaration<?>> members,
+            NodeList<JmlDoc> jmlComments) {
         super(modifiers, annotations, name, members);
         this.jmlComments = jmlComments;
     }
@@ -63,44 +69,19 @@ public class JmlDocType extends TypeDeclaration<JmlDocType> implements JmlDocCon
         return null;
     }
 
-    @Override
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public boolean isJmlDocType() {
-        return true;
-    }
-
-    @Override
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public JmlDocType asJmlDocType() {
-        return this;
-    }
-
-    @Override
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public Optional<JmlDocType> toJmlDocType() {
-        return Optional.of(this);
-    }
-
-    @Override
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifJmlDocType(Consumer<JmlDocType> action) {
-        action.accept(this);
-    }
-
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
     public NodeList<JmlDoc> getJmlComments() {
         return jmlComments;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlDocType setJmlComments(final NodeList<JmlDoc> jmlComments) {
+    public JmlDocType setJmlComments(final @NonNull() NodeList<JmlDoc> jmlComments) {
         assertNotNull(jmlComments);
         if (jmlComments == this.jmlComments) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.JML_COMMENTS, this.jmlComments, jmlComments);
-        if (this.jmlComments != null)
-            this.jmlComments.setParentNode(null);
+        if (this.jmlComments != null) this.jmlComments.setParentNode(null);
         this.jmlComments = jmlComments;
         setAsParentNodeOf(jmlComments);
         return this;
@@ -152,15 +133,45 @@ public class JmlDocType extends TypeDeclaration<JmlDocType> implements JmlDocCon
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlDocType(TokenRange tokenRange, NodeList<Modifier> modifiers, NodeList<AnnotationExpr> annotations, SimpleName name, NodeList<BodyDeclaration<?>> members, NodeList<JmlDoc> jmlComments) {
+    public JmlDocType(
+            TokenRange tokenRange,
+            NodeList<Modifier> modifiers,
+            NodeList<AnnotationExpr> annotations,
+            SimpleName name,
+            NodeList<BodyDeclaration<?>> members,
+            NodeList<JmlDoc> jmlComments) {
         super(tokenRange, modifiers, annotations, name, members);
         setJmlComments(jmlComments);
         customInitialization();
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<JmlDoc> jmlComments() {
+    public @NonNull() NodeList<JmlDoc> jmlComments() {
         return Objects.requireNonNull(jmlComments);
+    }
+
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
+    public boolean isJmlDocType() {
+        return true;
+    }
+
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
+    public JmlDocType asJmlDocType() {
+        return this;
+    }
+
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
+    public Optional<JmlDocType> toJmlDocType() {
+        return Optional.of(this);
+    }
+
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
+    public void ifJmlDocType(Consumer<JmlDocType> action) {
+        action.accept(this);
     }
 }

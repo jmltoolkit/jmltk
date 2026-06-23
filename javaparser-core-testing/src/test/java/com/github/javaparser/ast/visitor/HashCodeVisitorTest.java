@@ -30,8 +30,8 @@ import static org.mockito.Mockito.*;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.comments.BlockComment;
-import com.github.javaparser.ast.comments.JavadocComment;
 import com.github.javaparser.ast.comments.LineComment;
+import com.github.javaparser.ast.comments.TraditionalJavadocComment;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.modules.*;
 import com.github.javaparser.ast.stmt.*;
@@ -281,6 +281,8 @@ class HashCodeVisitorTest {
         verify(node, times(1)).getTypeParameters();
         verify(node, times(1)).getAnnotations();
         verify(node, times(1)).getComment();
+        //JML
+        verify(node, times(1)).getContracts();
     }
 
     @Test
@@ -298,6 +300,8 @@ class HashCodeVisitorTest {
         verify(node, times(1)).getBody();
         verify(node, times(1)).getCondition();
         verify(node, times(1)).getComment();
+        //JML
+        verify(node, times(1)).getContracts();
     }
 
     @Test
@@ -394,6 +398,8 @@ class HashCodeVisitorTest {
         verify(node, times(1)).getIterable();
         verify(node, times(1)).getVariable();
         verify(node, times(1)).getComment();
+        //JML
+        verify(node, times(1)).getContracts();
     }
 
     @Test
@@ -468,7 +474,7 @@ class HashCodeVisitorTest {
 
     @Test
     void testVisitJavadocComment() {
-        JavadocComment node = spy(new JavadocComment());
+        TraditionalJavadocComment node = spy(new TraditionalJavadocComment());
         HashCodeVisitor.hashCode(node);
         verify(node, times(1)).getContent();
         verify(node, times(1)).getComment();
@@ -491,6 +497,8 @@ class HashCodeVisitorTest {
         verify(node, times(1)).isEnclosingParameters();
         verify(node, times(1)).getParameters();
         verify(node, times(1)).getComment();
+        //JML
+        verify(node, times(1)).getContracts();
     }
 
     @Test
@@ -567,6 +575,8 @@ class HashCodeVisitorTest {
         verify(node, times(1)).getTypeParameters();
         verify(node, times(1)).getAnnotations();
         verify(node, times(1)).getComment();
+        //JML
+        verify(node, times(1)).getContracts();
     }
 
     @Test

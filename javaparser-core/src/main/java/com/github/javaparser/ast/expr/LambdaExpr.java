@@ -21,8 +21,7 @@
 package com.github.javaparser.ast.expr;
 
 import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Optional;
-import java.util.function.Consumer;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -44,6 +43,8 @@ import com.github.javaparser.metamodel.DerivedProperty;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.LambdaExprMetaModel;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -113,7 +114,8 @@ public class LambdaExpr extends Expression implements NodeWithParameters<LambdaE
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public LambdaExpr(TokenRange tokenRange, NodeList<Parameter> parameters, Statement body, boolean isEnclosingParameters) {
+    public LambdaExpr(
+            TokenRange tokenRange, NodeList<Parameter> parameters, Statement body, boolean isEnclosingParameters) {
         super(tokenRange);
         setParameters(parameters);
         setBody(body);
@@ -127,14 +129,13 @@ public class LambdaExpr extends Expression implements NodeWithParameters<LambdaE
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public LambdaExpr setParameters(final NodeList<Parameter> parameters) {
+    public LambdaExpr setParameters(final @NonNull() NodeList<Parameter> parameters) {
         assertNotNull(parameters);
         if (parameters == this.parameters) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.PARAMETERS, this.parameters, parameters);
-        if (this.parameters != null)
-            this.parameters.setParentNode(null);
+        if (this.parameters != null) this.parameters.setParentNode(null);
         this.parameters = parameters;
         setAsParentNodeOf(parameters);
         return this;
@@ -149,14 +150,13 @@ public class LambdaExpr extends Expression implements NodeWithParameters<LambdaE
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public LambdaExpr setBody(final Statement body) {
+    public LambdaExpr setBody(final @NonNull() Statement body) {
         assertNotNull(body);
         if (body == this.body) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.BODY, this.body, body);
-        if (this.body != null)
-            this.body.setParentNode(null);
+        if (this.body != null) this.body.setParentNode(null);
         this.body = body;
         setAsParentNodeOf(body);
         return this;
@@ -174,7 +174,7 @@ public class LambdaExpr extends Expression implements NodeWithParameters<LambdaE
         v.visit(this, arg);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
     public boolean isEnclosingParameters() {
         return Objects.requireNonNull(isEnclosingParameters);
@@ -185,7 +185,8 @@ public class LambdaExpr extends Expression implements NodeWithParameters<LambdaE
         if (isEnclosingParameters == this.isEnclosingParameters) {
             return this;
         }
-        notifyPropertyChange(ObservableProperty.ENCLOSING_PARAMETERS, this.isEnclosingParameters, isEnclosingParameters);
+        notifyPropertyChange(
+                ObservableProperty.ENCLOSING_PARAMETERS, this.isEnclosingParameters, isEnclosingParameters);
         this.isEnclosingParameters = isEnclosingParameters;
         return this;
     }
@@ -305,34 +306,33 @@ public class LambdaExpr extends Expression implements NodeWithParameters<LambdaE
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public LambdaExpr setContracts(final NodeList<JmlContract> contracts) {
+    public LambdaExpr setContracts(final @NonNull() NodeList<JmlContract> contracts) {
         assertNotNull(contracts);
         if (contracts == this.contracts) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.CONTRACTS, this.contracts, contracts);
-        if (this.contracts != null)
-            this.contracts.setParentNode(null);
+        if (this.contracts != null) this.contracts.setParentNode(null);
         this.contracts = contracts;
         setAsParentNodeOf(contracts);
         return this;
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Statement body() {
+    public @NonNull() Statement body() {
         return Objects.requireNonNull(body);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<JmlContract> contracts() {
-        return Objects.requireNonNull(contracts);
+    public @NonNull() NodeList<Parameter> parameters() {
+        return Objects.requireNonNull(parameters);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<Parameter> parameters() {
-        return Objects.requireNonNull(parameters);
+    public @NonNull() NodeList<JmlContract> contracts() {
+        return Objects.requireNonNull(contracts);
     }
 }

@@ -1,5 +1,7 @@
 package com.github.javaparser.ast.jml.body;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.JavaToken;
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.*;
@@ -13,10 +15,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlClassExprDeclarationMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -24,7 +25,8 @@ import org.jspecify.annotations.Nullable;
  * @author Alexander Weigl
  * @version 1 (2/21/21)
  */
-public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassExprDeclaration> implements NodeWithModifiers<JmlClassExprDeclaration> {
+public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassExprDeclaration>
+        implements NodeWithModifiers<JmlClassExprDeclaration> {
 
     private SimpleName kind;
 
@@ -42,7 +44,12 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
     }
 
     @AllFieldsConstructor
-    public JmlClassExprDeclaration(NodeList<SimpleName> jmlTags, NodeList<Modifier> modifiers, SimpleName kind, SimpleName name, Expression invariant) {
+    public JmlClassExprDeclaration(
+            NodeList<SimpleName> jmlTags,
+            NodeList<Modifier> modifiers,
+            SimpleName kind,
+            SimpleName name,
+            Expression invariant) {
         this(null, jmlTags, modifiers, kind, name, invariant);
     }
 
@@ -68,14 +75,13 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlClassExprDeclaration setInvariant(final Expression invariant) {
+    public JmlClassExprDeclaration setInvariant(final @NonNull() Expression invariant) {
         assertNotNull(invariant);
         if (invariant == this.invariant) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.INVARIANT, this.invariant, invariant);
-        if (this.invariant != null)
-            this.invariant.setParentNode(null);
+        if (this.invariant != null) this.invariant.setParentNode(null);
         this.invariant = invariant;
         setAsParentNodeOf(invariant);
         return this;
@@ -153,7 +159,8 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlClassExprDeclaration(TokenRange tokenRange, NodeList<Modifier> modifiers, SimpleName kind, Expression invariant) {
+    public JmlClassExprDeclaration(
+            TokenRange tokenRange, NodeList<Modifier> modifiers, SimpleName kind, Expression invariant) {
         super(tokenRange);
         setModifiers(modifiers);
         setKind(kind);
@@ -167,41 +174,136 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlClassExprDeclaration setModifiers(final NodeList<Modifier> modifiers) {
+    public JmlClassExprDeclaration setModifiers(final @NonNull() NodeList<Modifier> modifiers) {
         assertNotNull(modifiers);
         if (modifiers == this.modifiers) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.MODIFIERS, this.modifiers, modifiers);
-        if (this.modifiers != null)
-            this.modifiers.setParentNode(null);
+        if (this.modifiers != null) this.modifiers.setParentNode(null);
         this.modifiers = modifiers;
         setAsParentNodeOf(modifiers);
         return this;
     }
 
-    @Override
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public boolean isJmlClassInvariantDeclaration() {
-        return true;
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public SimpleName getKind() {
+        return kind;
     }
 
-    @Override
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public JmlClassExprDeclaration asJmlClassInvariantDeclaration() {
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public JmlClassExprDeclaration setKind(final @NonNull() SimpleName kind) {
+        assertNotNull(kind);
+        if (kind == this.kind) {
+            return this;
+        }
+        notifyPropertyChange(ObservableProperty.KIND, this.kind, kind);
+        if (this.kind != null) this.kind.setParentNode(null);
+        this.kind = kind;
+        setAsParentNodeOf(kind);
         return this;
     }
 
-    @Override
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public Optional<JmlClassExprDeclaration> toJmlClassInvariantDeclaration() {
-        return Optional.of(this);
+    @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
+    public JmlClassExprDeclaration removeKind() {
+        return setKind(null);
     }
 
     @Override
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifJmlClassInvariantDeclaration(Consumer<JmlClassExprDeclaration> action) {
-        action.accept(this);
+    @Generated("com.github.javaparser.generator.core.node.GetMetaModelGenerator")
+    public JmlClassExprDeclarationMetaModel getMetaModel() {
+        return JavaParserMetaModel.jmlClassExprDeclarationMetaModel;
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public Optional<SimpleName> getName() {
+        return Optional.ofNullable(name);
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public JmlClassExprDeclaration setName(final @Nullable() SimpleName name) {
+        if (name == this.name) {
+            return this;
+        }
+        notifyPropertyChange(ObservableProperty.NAME, this.name, name);
+        if (this.name != null) this.name.setParentNode(null);
+        this.name = name;
+        setAsParentNodeOf(name);
+        return this;
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
+    public JmlClassExprDeclaration removeName() {
+        return setName((SimpleName) null);
+    }
+
+    /**
+     * This constructor is used by the parser and is considered private.
+     */
+    @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
+    public JmlClassExprDeclaration(
+            TokenRange tokenRange,
+            NodeList<SimpleName> jmlTags,
+            NodeList<Modifier> modifiers,
+            SimpleName kind,
+            SimpleName name,
+            Expression invariant) {
+        super(tokenRange);
+        setJmlTags(jmlTags);
+        setModifiers(modifiers);
+        setKind(kind);
+        setName(name);
+        setInvariant(invariant);
+        customInitialization();
+    }
+
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public NodeList<SimpleName> getJmlTags() {
+        return jmlTags;
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public JmlClassExprDeclaration setJmlTags(final @NonNull() NodeList<SimpleName> jmlTags) {
+        assertNotNull(jmlTags);
+        if (jmlTags == this.jmlTags) {
+            return this;
+        }
+        notifyPropertyChange(ObservableProperty.JML_TAGS, this.jmlTags, jmlTags);
+        if (this.jmlTags != null) this.jmlTags.setParentNode(null);
+        this.jmlTags = jmlTags;
+        setAsParentNodeOf(jmlTags);
+        return this;
+    }
+
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public @NonNull() Expression invariant() {
+        return Objects.requireNonNull(invariant);
+    }
+
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public @NonNull() NodeList<SimpleName> jmlTags() {
+        return Objects.requireNonNull(jmlTags);
+    }
+
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public @NonNull() SimpleName kind() {
+        return Objects.requireNonNull(kind);
+    }
+
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public @NonNull() NodeList<Modifier> modifiers() {
+        return Objects.requireNonNull(modifiers);
+    }
+
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public @Nullable() SimpleName name() {
+        return name;
     }
 
     @Override
@@ -226,122 +328,5 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public void ifJmlClassExprDeclaration(Consumer<JmlClassExprDeclaration> action) {
         action.accept(this);
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public SimpleName getKind() {
-        return kind;
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlClassExprDeclaration setKind(final SimpleName kind) {
-        assertNotNull(kind);
-        if (kind == this.kind) {
-            return this;
-        }
-        notifyPropertyChange(ObservableProperty.KIND, this.kind, kind);
-        if (this.kind != null)
-            this.kind.setParentNode(null);
-        this.kind = kind;
-        setAsParentNodeOf(kind);
-        return this;
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
-    public JmlClassExprDeclaration removeKind() {
-        return setKind(null);
-    }
-
-    @Override
-    @Generated("com.github.javaparser.generator.core.node.GetMetaModelGenerator")
-    public JmlClassExprDeclarationMetaModel getMetaModel() {
-        return JavaParserMetaModel.jmlClassExprDeclarationMetaModel;
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Optional<SimpleName> getName() {
-        return Optional.ofNullable(name);
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlClassExprDeclaration setName(final SimpleName name) {
-        if (name == this.name) {
-            return this;
-        }
-        notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null)
-            this.name.setParentNode(null);
-        this.name = name;
-        setAsParentNodeOf(name);
-        return this;
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
-    public JmlClassExprDeclaration removeName() {
-        return setName((SimpleName) null);
-    }
-
-    /**
-     * This constructor is used by the parser and is considered private.
-     */
-    @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlClassExprDeclaration(TokenRange tokenRange, NodeList<SimpleName> jmlTags, NodeList<Modifier> modifiers, SimpleName kind, SimpleName name, Expression invariant) {
-        super(tokenRange);
-        setJmlTags(jmlTags);
-        setModifiers(modifiers);
-        setKind(kind);
-        setName(name);
-        setInvariant(invariant);
-        customInitialization();
-    }
-
-    @Override
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<SimpleName> getJmlTags() {
-        return jmlTags;
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlClassExprDeclaration setJmlTags(final NodeList<SimpleName> jmlTags) {
-        assertNotNull(jmlTags);
-        if (jmlTags == this.jmlTags) {
-            return this;
-        }
-        notifyPropertyChange(ObservableProperty.JML_TAGS, this.jmlTags, jmlTags);
-        if (this.jmlTags != null)
-            this.jmlTags.setParentNode(null);
-        this.jmlTags = jmlTags;
-        setAsParentNodeOf(jmlTags);
-        return this;
-    }
-
-    @NonNull()
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Expression invariant() {
-        return Objects.requireNonNull(invariant);
-    }
-
-    @NonNull()
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<SimpleName> jmlTags() {
-        return Objects.requireNonNull(jmlTags);
-    }
-
-    @NonNull()
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public SimpleName kind() {
-        return Objects.requireNonNull(kind);
-    }
-
-    @NonNull()
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<Modifier> modifiers() {
-        return Objects.requireNonNull(modifiers);
-    }
-
-    @Nullable()
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public SimpleName name() {
-        return name;
     }
 }

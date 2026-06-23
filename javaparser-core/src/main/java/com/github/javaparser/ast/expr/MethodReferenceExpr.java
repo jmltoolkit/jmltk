@@ -20,6 +20,9 @@
  */
 package com.github.javaparser.ast.expr;
 
+import static com.github.javaparser.utils.Utils.assertNonEmpty;
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -38,11 +41,9 @@ import com.github.javaparser.metamodel.NonEmptyProperty;
 import com.github.javaparser.metamodel.OptionalProperty;
 import com.github.javaparser.resolution.Resolvable;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNonEmpty;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -57,7 +58,10 @@ import org.jspecify.annotations.Nullable;
  *
  * @author Raquel Pau
  */
-public class MethodReferenceExpr extends Expression implements NodeWithTypeArguments<MethodReferenceExpr>, NodeWithIdentifier<MethodReferenceExpr>, Resolvable<ResolvedMethodDeclaration> {
+public class MethodReferenceExpr extends Expression
+        implements NodeWithTypeArguments<MethodReferenceExpr>,
+                NodeWithIdentifier<MethodReferenceExpr>,
+                Resolvable<ResolvedMethodDeclaration> {
 
     private Expression scope;
 
@@ -80,7 +84,8 @@ public class MethodReferenceExpr extends Expression implements NodeWithTypeArgum
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public MethodReferenceExpr(TokenRange tokenRange, Expression scope, NodeList<Type> typeArguments, String identifier) {
+    public MethodReferenceExpr(
+            TokenRange tokenRange, Expression scope, NodeList<Type> typeArguments, String identifier) {
         super(tokenRange);
         setScope(scope);
         setTypeArguments(typeArguments);
@@ -106,14 +111,13 @@ public class MethodReferenceExpr extends Expression implements NodeWithTypeArgum
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public MethodReferenceExpr setScope(final Expression scope) {
+    public MethodReferenceExpr setScope(final @NonNull() Expression scope) {
         assertNotNull(scope);
         if (scope == this.scope) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.SCOPE, this.scope, scope);
-        if (this.scope != null)
-            this.scope.setParentNode(null);
+        if (this.scope != null) this.scope.setParentNode(null);
         this.scope = scope;
         setAsParentNodeOf(scope);
         return this;
@@ -131,13 +135,12 @@ public class MethodReferenceExpr extends Expression implements NodeWithTypeArgum
      * @return this, the MethodReferenceExpr
      */
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public MethodReferenceExpr setTypeArguments(final NodeList<Type> typeArguments) {
+    public MethodReferenceExpr setTypeArguments(final @Nullable() NodeList<Type> typeArguments) {
         if (typeArguments == this.typeArguments) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.TYPE_ARGUMENTS, this.typeArguments, typeArguments);
-        if (this.typeArguments != null)
-            this.typeArguments.setParentNode(null);
+        if (this.typeArguments != null) this.typeArguments.setParentNode(null);
         this.typeArguments = typeArguments;
         setAsParentNodeOf(typeArguments);
         return this;
@@ -149,9 +152,9 @@ public class MethodReferenceExpr extends Expression implements NodeWithTypeArgum
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public MethodReferenceExpr setIdentifier(final String identifier) {
+    public MethodReferenceExpr setIdentifier(final @NonNull() String identifier) {
         assertNonEmpty(identifier);
-        if (identifier == this.identifier) {
+        if (identifier.equals(this.identifier)) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.IDENTIFIER, this.identifier, identifier);
@@ -250,21 +253,39 @@ public class MethodReferenceExpr extends Expression implements NodeWithTypeArgum
         return true;
     }
 
-    @NonNull()
+    /*
+     * https://docs.oracle.com/javase/specs/jls/se8/html/jls-15.html#jls-15.13
+     * Workaround to handle cases where scope should have been parsed as a primary expression.
+     * A change to the grammar should lead to the removal of this method.
+     * This is the case, for example, in the following reference expression ‘foo:convert’,
+     * where foo is an instance of the Foo class and convert is a method of the Foo class.
+     * foo should not be considered a type expression as String could be in the expression String::length.
+     * This method compares the scope (e.g. foo) with the resolved type, e.g. Foo.
+     * If they are different, we consider it to be a primary expression.
+     */
+    public boolean isScopePrimaryExpr() {
+        return !getScope()
+                .calculateResolvedType()
+                .erasure()
+                .describe()
+                .endsWith(getScope().toString());
+    }
+
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public String identifier() {
+    public @NonNull() String identifier() {
         return Objects.requireNonNull(identifier);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Expression scope() {
+    public @NonNull() Expression scope() {
         return Objects.requireNonNull(scope);
     }
 
-    @Nullable()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<Type> typeArguments() {
+    public @Nullable() NodeList<Type> typeArguments() {
         return typeArguments;
     }
 }

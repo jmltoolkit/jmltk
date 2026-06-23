@@ -33,7 +33,6 @@ import com.github.javaparser.metamodel.OptionalProperty;
 import com.github.javaparser.metamodel.SuperExprMetaModel;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -89,13 +88,12 @@ public class SuperExpr extends Expression {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public SuperExpr setTypeName(final Name typeName) {
+    public SuperExpr setTypeName(final @Nullable() Name typeName) {
         if (typeName == this.typeName) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.TYPE_NAME, this.typeName, typeName);
-        if (this.typeName != null)
-            this.typeName.setParentNode(null);
+        if (this.typeName != null) this.typeName.setParentNode(null);
         this.typeName = typeName;
         setAsParentNodeOf(typeName);
         return this;
@@ -154,7 +152,7 @@ public class SuperExpr extends Expression {
 
     @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
     public SuperExpr removeClassName() {
-        return setTypeName(null);
+        return setTypeName((Name) null);
     }
 
     @Override
@@ -177,9 +175,9 @@ public class SuperExpr extends Expression {
         return setTypeName((Name) null);
     }
 
-    @Nullable()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Name typeName() {
+    public @Nullable() Name typeName() {
         return typeName;
     }
 }

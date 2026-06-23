@@ -1,5 +1,7 @@
 package com.github.javaparser.ast.jml.clauses;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.JavaToken;
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
@@ -15,10 +17,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlClauseLabelMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
-import java.util.Optional;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.function.Consumer;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -131,14 +132,13 @@ public class JmlClauseLabel extends JmlClause {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlClauseLabel setExpr(final Expression expr) {
+    public JmlClauseLabel setExpr(final @NonNull() Expression expr) {
         assertNotNull(expr);
         if (expr == this.expr) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.EXPR, this.expr, expr);
-        if (this.expr != null)
-            this.expr.setParentNode(null);
+        if (this.expr != null) this.expr.setParentNode(null);
         this.expr = expr;
         setAsParentNodeOf(expr);
         return this;
@@ -150,13 +150,12 @@ public class JmlClauseLabel extends JmlClause {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlClauseLabel setLabel(final SimpleName label) {
+    public JmlClauseLabel setLabel(final @Nullable() SimpleName label) {
         if (label == this.label) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.LABEL, this.label, label);
-        if (this.label != null)
-            this.label.setParentNode(null);
+        if (this.label != null) this.label.setParentNode(null);
         this.label = label;
         setAsParentNodeOf(label);
         return this;
@@ -180,7 +179,7 @@ public class JmlClauseLabel extends JmlClause {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlClauseLabel setKind(final JmlClauseKind kind) {
+    public JmlClauseLabel setKind(final @NonNull() JmlClauseKind kind) {
         assertNotNull(kind);
         if (kind == this.kind) {
             return this;
@@ -214,21 +213,21 @@ public class JmlClauseLabel extends JmlClause {
         action.accept(this);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Expression expr() {
+    public @NonNull() Expression expr() {
         return Objects.requireNonNull(expr);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlClauseKind kind() {
+    public @NonNull() JmlClauseKind kind() {
         return Objects.requireNonNull(kind);
     }
 
-    @Nullable()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public SimpleName label() {
+    public @Nullable() SimpleName label() {
         return label;
     }
 }

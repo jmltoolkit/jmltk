@@ -20,6 +20,9 @@
  */
 package com.github.javaparser.ast.type;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+import static java.util.stream.Collectors.joining;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -37,11 +40,9 @@ import com.github.javaparser.metamodel.NonEmptyProperty;
 import com.github.javaparser.resolution.Context;
 import com.github.javaparser.resolution.types.ResolvedIntersectionType;
 import com.github.javaparser.resolution.types.ResolvedType;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import static java.util.stream.Collectors.joining;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -94,14 +95,13 @@ public class IntersectionType extends Type implements NodeWithAnnotations<Inters
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public IntersectionType setElements(final NodeList<ReferenceType> elements) {
+    public IntersectionType setElements(final @NonNull() NodeList<ReferenceType> elements) {
         assertNotNull(elements);
         if (elements == this.elements) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.ELEMENTS, this.elements, elements);
-        if (this.elements != null)
-            this.elements.setParentNode(null);
+        if (this.elements != null) this.elements.setParentNode(null);
         this.elements = elements;
         setAsParentNodeOf(elements);
         return this;
@@ -193,9 +193,9 @@ public class IntersectionType extends Type implements NodeWithAnnotations<Inters
         throw new UnsupportedOperationException(getClass().getCanonicalName());
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<ReferenceType> elements() {
+    public @NonNull() NodeList<ReferenceType> elements() {
         return Objects.requireNonNull(elements);
     }
 }

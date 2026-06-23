@@ -20,6 +20,9 @@
  */
 package com.github.javaparser.ast.type;
 
+import static com.github.javaparser.StaticJavaParser.parseClassOrInterfaceType;
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -32,16 +35,14 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.PrimitiveTypeMetaModel;
+import com.github.javaparser.printer.Stringable;
 import com.github.javaparser.resolution.Context;
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
 import com.github.javaparser.resolution.types.ResolvedType;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.StaticJavaParser.parseClassOrInterfaceType;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import com.github.javaparser.ast.Node;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -86,8 +87,7 @@ public class PrimitiveType extends Type implements NodeWithAnnotations<Primitive
         return new PrimitiveType(Primitive.DOUBLE);
     }
 
-    public enum Primitive {
-
+    public enum Primitive implements Stringable {
         BOOLEAN("Boolean", "Z"),
         CHAR("Character", "C"),
         BYTE("Byte", "B"),
@@ -203,7 +203,7 @@ public class PrimitiveType extends Type implements NodeWithAnnotations<Primitive
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public PrimitiveType setType(final Primitive type) {
+    public PrimitiveType setType(final @NonNull() Primitive type) {
         assertNotNull(type);
         if (type == this.type) {
             return this;
@@ -269,9 +269,9 @@ public class PrimitiveType extends Type implements NodeWithAnnotations<Primitive
         return ResolvedPrimitiveType.byName(getType().name());
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Primitive type() {
+    public @NonNull() Primitive type() {
         return Objects.requireNonNull(type);
     }
 }

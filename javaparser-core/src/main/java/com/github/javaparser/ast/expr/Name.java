@@ -20,6 +20,8 @@
  */
 package com.github.javaparser.ast.expr;
 
+import static com.github.javaparser.utils.Utils.assertNonEmpty;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -33,9 +35,8 @@ import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.NameMetaModel;
 import com.github.javaparser.metamodel.NonEmptyProperty;
 import com.github.javaparser.metamodel.OptionalProperty;
-import java.util.Optional;
-import static com.github.javaparser.utils.Utils.assertNonEmpty;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -46,7 +47,7 @@ import org.jspecify.annotations.Nullable;
  * The rightmost identifier is "identifier",
  * The one to the left of it is "qualifier.identifier", etc.
  * <p>
- * You can construct one from a String with the name(...) method.
+ * You can construct one from a String with the {@link com.github.javaparser.StaticJavaParser#parseName(String)} method.
  *
  * @author Julio Vilmar Gesser
  * @see SimpleName
@@ -101,9 +102,9 @@ public class Name extends Node implements NodeWithIdentifier<Name> {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Name setIdentifier(final String identifier) {
+    public Name setIdentifier(final @NonNull() String identifier) {
         assertNonEmpty(identifier);
-        if (identifier == this.identifier) {
+        if (identifier.equals(this.identifier)) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.IDENTIFIER, this.identifier, identifier);
@@ -131,13 +132,12 @@ public class Name extends Node implements NodeWithIdentifier<Name> {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Name setQualifier(final Name qualifier) {
+    public Name setQualifier(final @Nullable() Name qualifier) {
         if (qualifier == this.qualifier) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.QUALIFIER, this.qualifier, qualifier);
-        if (this.qualifier != null)
-            this.qualifier.setParentNode(null);
+        if (this.qualifier != null) this.qualifier.setParentNode(null);
         this.qualifier = qualifier;
         setAsParentNodeOf(qualifier);
         return this;
@@ -204,15 +204,15 @@ public class Name extends Node implements NodeWithIdentifier<Name> {
         return getParentNode().filter(parent -> parent instanceof Name).isPresent();
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public String identifier() {
+    public @NonNull() String identifier() {
         return Objects.requireNonNull(identifier);
     }
 
-    @Nullable()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Name qualifier() {
+    public @Nullable() Name qualifier() {
         return qualifier;
     }
 }

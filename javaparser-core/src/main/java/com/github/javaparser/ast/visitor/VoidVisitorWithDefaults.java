@@ -22,19 +22,18 @@ package com.github.javaparser.ast.visitor;
 
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.*;
-import com.github.javaparser.ast.comments.BlockComment;
-import com.github.javaparser.ast.comments.JavadocComment;
-import com.github.javaparser.ast.comments.LineComment;
+import com.github.javaparser.ast.comments.*;
 import com.github.javaparser.ast.expr.*;
+import com.github.javaparser.ast.jml.body.*;
+import com.github.javaparser.ast.jml.clauses.*;
+import com.github.javaparser.ast.jml.doc.*;
+import com.github.javaparser.ast.jml.expr.*;
+import com.github.javaparser.ast.jml.stmt.*;
+import com.github.javaparser.ast.key.*;
+import com.github.javaparser.ast.key.sv.*;
 import com.github.javaparser.ast.modules.*;
 import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.type.*;
-import com.github.javaparser.ast.jml.clauses.*;
-import com.github.javaparser.ast.jml.body.*;
-import com.github.javaparser.ast.jml.doc.*;
-import com.github.javaparser.ast.jml.stmt.*;
-import com.github.javaparser.ast.jml.expr.*;
-import com.github.javaparser.ast.modules.*;
 
 /**
  * A visitor that returns nothing, and has default methods that are used when a specific visit method is not
@@ -45,14 +44,12 @@ public abstract class VoidVisitorWithDefaults<A> implements VoidVisitor<A> {
     /**
      * This will be called by every node visit method that is not overridden.
      */
-    public void defaultAction(Node n, A arg) {
-    }
+    public void defaultAction(Node n, A arg) {}
 
     /**
      * This will be called by the NodeList visit method when it is not overridden.
      */
-    public void defaultAction(NodeList n, A arg) {
-    }
+    public void defaultAction(NodeList n, A arg) {}
 
     @Override
     public void visit(final LocalRecordDeclarationStmt n, final A arg) {
@@ -250,7 +247,7 @@ public abstract class VoidVisitorWithDefaults<A> implements VoidVisitor<A> {
     }
 
     @Override
-    public void visit(final JavadocComment n, final A arg) {
+    public void visit(final TraditionalJavadocComment n, final A arg) {
         defaultAction(n, arg);
     }
 
@@ -654,6 +651,161 @@ public abstract class VoidVisitorWithDefaults<A> implements VoidVisitor<A> {
 
     @Override
     public void visit(final RecordPatternExpr n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final MatchAllPatternExpr n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final MarkdownComment n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyCcatchBreak n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyCcatchContinue n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyCcatchParameter n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyCcatchReturn n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyCatchAllStatement n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyEscapeExpression n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyExecStatement n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyExecutionContext n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyLoopScopeBlock n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyMergePointStatement n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyMethodBodyStatement n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyMethodCallStatement n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyMethodSignature n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyRangeExpression n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyTransactionStatement n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyContextStatementBlock n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyExecCtxtSV n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyExpressionSV n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyJumpLabelSV n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyMetaConstructExpression n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyMetaConstruct n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyMetaConstructType n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyMethodSignatureSV n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyPassiveExpression n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyProgramVariableSV n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyStatementSV n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyTypeSV n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyCcatchSV n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final KeyExecutionContextSV n, final A arg) {
         defaultAction(n, arg);
     }
 

@@ -1,5 +1,7 @@
 package com.github.javaparser.ast.jml.expr;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.JavaToken;
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
@@ -16,10 +18,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlLabelExprMetaModel;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -44,12 +45,16 @@ public class JmlLabelExpr extends Expression implements Jmlish {
     }
 
     private static Kind token2Kind(JavaToken token) {
-        return Arrays.stream(Kind.values()).filter(it -> it.jmlSymbol().equals(token.getText())).findFirst().get();
+        return Arrays.stream(Kind.values())
+                .filter(it -> it.jmlSymbol().equals(token.getText()))
+                .findFirst()
+                .get();
     }
 
     public enum Kind implements JmlKeyword {
-
-        NEUTRAL("\\lbl"), POSITIVE("\\lblpos"), NEGATIVE("\\lblneg");
+        NEUTRAL("\\lbl"),
+        POSITIVE("\\lblpos"),
+        NEGATIVE("\\lblneg");
 
         private final String symbol;
 
@@ -142,14 +147,13 @@ public class JmlLabelExpr extends Expression implements Jmlish {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlLabelExpr setExpression(final Expression expression) {
+    public JmlLabelExpr setExpression(final @NonNull() Expression expression) {
         assertNotNull(expression);
         if (expression == this.expression) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.EXPRESSION, this.expression, expression);
-        if (this.expression != null)
-            this.expression.setParentNode(null);
+        if (this.expression != null) this.expression.setParentNode(null);
         this.expression = expression;
         setAsParentNodeOf(expression);
         return this;
@@ -161,7 +165,7 @@ public class JmlLabelExpr extends Expression implements Jmlish {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlLabelExpr setKind(final Kind kind) {
+    public JmlLabelExpr setKind(final @NonNull() Kind kind) {
         assertNotNull(kind);
         if (kind == this.kind) {
             return this;
@@ -187,14 +191,13 @@ public class JmlLabelExpr extends Expression implements Jmlish {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlLabelExpr setLabel(final SimpleName label) {
+    public JmlLabelExpr setLabel(final @NonNull() SimpleName label) {
         assertNotNull(label);
         if (label == this.label) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.LABEL, this.label, label);
-        if (this.label != null)
-            this.label.setParentNode(null);
+        if (this.label != null) this.label.setParentNode(null);
         this.label = label;
         setAsParentNodeOf(label);
         return this;
@@ -242,21 +245,21 @@ public class JmlLabelExpr extends Expression implements Jmlish {
         return JavaParserMetaModel.jmlLabelExprMetaModel;
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Expression expression() {
+    public @NonNull() Expression expression() {
         return Objects.requireNonNull(expression);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Kind kind() {
+    public @NonNull() Kind kind() {
         return Objects.requireNonNull(kind);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public SimpleName label() {
+    public @NonNull() SimpleName label() {
         return Objects.requireNonNull(label);
     }
 }

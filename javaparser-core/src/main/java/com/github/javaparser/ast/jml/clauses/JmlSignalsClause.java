@@ -1,5 +1,7 @@
 package com.github.javaparser.ast.jml.clauses;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -13,10 +15,9 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlSignalsClauseMetaModel;
-import static com.github.javaparser.utils.Utils.assertNotNull;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -72,14 +73,13 @@ public class JmlSignalsClause extends JmlClause implements MethodContractable, B
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlSignalsClause setExpression(final Expression expression) {
+    public JmlSignalsClause setExpression(final @NonNull() Expression expression) {
         assertNotNull(expression);
         if (expression == this.expression) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.EXPRESSION, this.expression, expression);
-        if (this.expression != null)
-            this.expression.setParentNode(null);
+        if (this.expression != null) this.expression.setParentNode(null);
         this.expression = expression;
         setAsParentNodeOf(expression);
         return this;
@@ -102,14 +102,13 @@ public class JmlSignalsClause extends JmlClause implements MethodContractable, B
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlSignalsClause setParameter(final Parameter parameter) {
+    public JmlSignalsClause setParameter(final @NonNull() Parameter parameter) {
         assertNotNull(parameter);
         if (parameter == this.parameter) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.PARAMETER, this.parameter, parameter);
-        if (this.parameter != null)
-            this.parameter.setParentNode(null);
+        if (this.parameter != null) this.parameter.setParentNode(null);
         this.parameter = parameter;
         setAsParentNodeOf(parameter);
         return this;
@@ -162,15 +161,15 @@ public class JmlSignalsClause extends JmlClause implements MethodContractable, B
         action.accept(this);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Expression expression() {
+    public @NonNull() Expression expression() {
         return Objects.requireNonNull(expression);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Parameter parameter() {
+    public @NonNull() Parameter parameter() {
         return Objects.requireNonNull(parameter);
     }
 }

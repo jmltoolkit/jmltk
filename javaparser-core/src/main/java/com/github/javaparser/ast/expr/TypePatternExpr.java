@@ -21,6 +21,7 @@
 package com.github.javaparser.ast.expr;
 
 import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.nodeTypes.NodeWithSimpleName;
@@ -33,9 +34,9 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.TypePatternExprMetaModel;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -72,7 +73,8 @@ import org.jspecify.annotations.NonNull;
  * @see <a href="https://bugs.openjdk.java.net/browse/JDK-8181287">JEP305: https://bugs.openjdk.java.net/browse/JDK-8181287</a>
  * @see <a href="https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-15.20">https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-15.20</a>
  */
-public class TypePatternExpr extends PatternExpr implements NodeWithSimpleName<TypePatternExpr>, NodeWithFinalModifier<TypePatternExpr> {
+public class TypePatternExpr extends PatternExpr
+        implements NodeWithSimpleName<TypePatternExpr>, NodeWithFinalModifier<TypePatternExpr> {
 
     private NodeList<Modifier> modifiers;
 
@@ -116,14 +118,13 @@ public class TypePatternExpr extends PatternExpr implements NodeWithSimpleName<T
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public TypePatternExpr setName(final SimpleName name) {
+    public TypePatternExpr setName(final @NonNull() SimpleName name) {
         assertNotNull(name);
         if (name == this.name) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null)
-            this.name.setParentNode(null);
+        if (this.name != null) this.name.setParentNode(null);
         this.name = name;
         setAsParentNodeOf(name);
         return this;
@@ -166,14 +167,13 @@ public class TypePatternExpr extends PatternExpr implements NodeWithSimpleName<T
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public TypePatternExpr setModifiers(final NodeList<Modifier> modifiers) {
+    public TypePatternExpr setModifiers(final @NonNull() NodeList<Modifier> modifiers) {
         assertNotNull(modifiers);
         if (modifiers == this.modifiers) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.MODIFIERS, this.modifiers, modifiers);
-        if (this.modifiers != null)
-            this.modifiers.setParentNode(null);
+        if (this.modifiers != null) this.modifiers.setParentNode(null);
         this.modifiers = modifiers;
         setAsParentNodeOf(modifiers);
         return this;
@@ -218,15 +218,15 @@ public class TypePatternExpr extends PatternExpr implements NodeWithSimpleName<T
         action.accept(this);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<Modifier> modifiers() {
+    public @NonNull() NodeList<Modifier> modifiers() {
         return Objects.requireNonNull(modifiers);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public SimpleName name() {
+    public @NonNull() SimpleName name() {
         return Objects.requireNonNull(name);
     }
 }

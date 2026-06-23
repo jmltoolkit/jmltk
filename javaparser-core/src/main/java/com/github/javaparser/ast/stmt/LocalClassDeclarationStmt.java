@@ -20,6 +20,8 @@
  */
 package com.github.javaparser.ast.stmt;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -31,10 +33,9 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.LocalClassDeclarationStmtMetaModel;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -45,8 +46,8 @@ import org.jspecify.annotations.NonNull;
  * A statement consisting of a class declaration.
  * <br><code>class X { void m() { <b>class Y { }</b> } }</code>
  *
- * @author Julio Vilmar Gesser
  * @see ClassOrInterfaceDeclaration
+ * @author Julio Vilmar Gesser
  */
 public class LocalClassDeclarationStmt extends Statement {
 
@@ -89,14 +90,14 @@ public class LocalClassDeclarationStmt extends Statement {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public LocalClassDeclarationStmt setClassDeclaration(final ClassOrInterfaceDeclaration classDeclaration) {
+    public LocalClassDeclarationStmt setClassDeclaration(
+            final @NonNull() ClassOrInterfaceDeclaration classDeclaration) {
         assertNotNull(classDeclaration);
         if (classDeclaration == this.classDeclaration) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.CLASS_DECLARATION, this.classDeclaration, classDeclaration);
-        if (this.classDeclaration != null)
-            this.classDeclaration.setParentNode(null);
+        if (this.classDeclaration != null) this.classDeclaration.setParentNode(null);
         this.classDeclaration = classDeclaration;
         setAsParentNodeOf(classDeclaration);
         return this;
@@ -151,9 +152,9 @@ public class LocalClassDeclarationStmt extends Statement {
         return Optional.of(this);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ClassOrInterfaceDeclaration classDeclaration() {
+    public @NonNull() ClassOrInterfaceDeclaration classDeclaration() {
         return Objects.requireNonNull(classDeclaration);
     }
 }

@@ -8,30 +8,26 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>jmlparser-core</artifactId>
-	<packaging>jar</packaging>
+	<name>${project.groupId}:${project.artifactId}</name>
+	<url>https://github.com/jmltoolkit</url>
 	<description>The core parser functionality. This may be all you need.</description>
 
 	<licenses>
 		<license>
 			<name>GNU Lesser General Public License</name>
-			<url>http://www.gnu.org/licenses/lgpl-3.0.html</url>
+			<url>https://www.gnu.org/licenses/lgpl-3.0.html</url>
 			<distribution>repo</distribution>
 		</license>
 		<license>
 			<name>Apache License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
 			<distribution>repo</distribution>
 			<comments>A business-friendly OSS license</comments>
 		</license>
 	</licenses>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.jetbrains</groupId>
-			<artifactId>annotations</artifactId>
-			<version>24.1.0</version>
-		</dependency>
-		<dependency>
+ 		<dependency>
 			<groupId>org.jspecify</groupId>
 			<artifactId>jspecify</artifactId>
 			<version>1.0.0</version>
@@ -53,6 +49,7 @@
 			<plugin>
 				<groupId>com.helger.maven</groupId>
 				<artifactId>ph-javacc-maven-plugin</artifactId>
+				<version>5.0.1</version>
 				<executions>
 					<execution>
 						<id>javacc</id>
@@ -61,7 +58,7 @@
 						</goals>
 						<configuration>
 							<grammarEncoding>${project.build.sourceEncoding}</grammarEncoding>
-							<jdkVersion>${java.version}</jdkVersion>
+							<jdkVersion>1.5</jdkVersion>
 						</configuration>
 					</execution>
 				</executions>

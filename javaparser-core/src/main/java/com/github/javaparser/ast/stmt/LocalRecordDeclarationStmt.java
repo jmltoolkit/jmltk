@@ -20,6 +20,8 @@
  */
 package com.github.javaparser.ast.stmt;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -31,10 +33,9 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.LocalRecordDeclarationStmtMetaModel;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -84,14 +85,13 @@ public class LocalRecordDeclarationStmt extends Statement {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public LocalRecordDeclarationStmt setRecordDeclaration(final RecordDeclaration recordDeclaration) {
+    public LocalRecordDeclarationStmt setRecordDeclaration(final @NonNull() RecordDeclaration recordDeclaration) {
         assertNotNull(recordDeclaration);
         if (recordDeclaration == this.recordDeclaration) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.RECORD_DECLARATION, this.recordDeclaration, recordDeclaration);
-        if (this.recordDeclaration != null)
-            this.recordDeclaration.setParentNode(null);
+        if (this.recordDeclaration != null) this.recordDeclaration.setParentNode(null);
         this.recordDeclaration = recordDeclaration;
         setAsParentNodeOf(recordDeclaration);
         return this;
@@ -146,9 +146,9 @@ public class LocalRecordDeclarationStmt extends Statement {
         return Optional.of(this);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public RecordDeclaration recordDeclaration() {
+    public @NonNull() RecordDeclaration recordDeclaration() {
         return Objects.requireNonNull(recordDeclaration);
     }
 }

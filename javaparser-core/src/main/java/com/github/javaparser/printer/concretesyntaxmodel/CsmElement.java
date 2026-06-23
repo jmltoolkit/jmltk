@@ -22,8 +22,10 @@ package com.github.javaparser.printer.concretesyntaxmodel;
 
 import static com.github.javaparser.TokenTypes.eolTokenKind;
 import static com.github.javaparser.TokenTypes.spaceTokenKind;
+
 import com.github.javaparser.GeneratedJavaParserConstants;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.jml.expr.JmlMultiCompareExpr;
 import com.github.javaparser.ast.observer.ObservableProperty;
 import com.github.javaparser.printer.SourcePrinter;
 import com.github.javaparser.printer.lexicalpreservation.TextElement;
@@ -45,6 +47,22 @@ public interface CsmElement {
 
     static CsmElement sequence(CsmElement... elements) {
         return new CsmSequence(Arrays.asList(elements));
+    }
+
+    static CsmElement specialJmlMultiCompareExpr() {
+        return (node, printer) -> {
+            JmlMultiCompareExpr e = (JmlMultiCompareExpr) node;
+            for (int i = 0; i < e.getExpressions().size() - 1; i++) {
+                var term = e.getExpressions().get(i);
+                var op = e.getOperators().get(i);
+                printer.print(PrintingHelper.printToString(term));
+                space().prettyPrint(null, printer);
+                printer.print(PrintingHelper.printToString(op));
+                space().prettyPrint(null, printer);
+            }
+            var term = e.getExpressions().getLast();
+            printer.print(PrintingHelper.printToString(term));
+        };
     }
 
     static CsmElement string(int tokenType, String content) {
@@ -71,15 +89,24 @@ public interface CsmElement {
         return new CsmToken(tokenType);
     }
 
-    static CsmElement conditional(ObservableProperty property, CsmConditional.Condition condition, CsmElement thenElement) {
+    static CsmElement conditional(
+            ObservableProperty property, CsmConditional.Condition condition, CsmElement thenElement) {
         return new CsmConditional(property, condition, thenElement);
     }
 
-    static CsmElement conditional(ObservableProperty property, CsmConditional.Condition condition, CsmElement thenElement, CsmElement elseElement) {
+    static CsmElement conditional(
+            ObservableProperty property,
+            CsmConditional.Condition condition,
+            CsmElement thenElement,
+            CsmElement elseElement) {
         return new CsmConditional(property, condition, thenElement, elseElement);
     }
 
-    static CsmElement conditional(List<ObservableProperty> properties, CsmConditional.Condition condition, CsmElement thenElement, CsmElement elseElement) {
+    static CsmElement conditional(
+            List<ObservableProperty> properties,
+            CsmConditional.Condition condition,
+            CsmElement thenElement,
+            CsmElement elseElement) {
         return new CsmConditional(properties, condition, thenElement, elseElement);
     }
 
@@ -119,11 +146,17 @@ public interface CsmElement {
         return new CsmList(property, CsmElement.none(), separator, new CsmNone(), new CsmNone());
     }
 
-    static CsmElement list(ObservableProperty property, CsmElement separator, CsmElement preceeding, CsmElement following) {
+    static CsmElement list(
+            ObservableProperty property, CsmElement separator, CsmElement preceeding, CsmElement following) {
         return new CsmList(property, none(), separator, preceeding, following);
     }
 
-    static CsmElement list(ObservableProperty property, CsmElement separatorPre, CsmElement separatorPost, CsmElement preceeding, CsmElement following) {
+    static CsmElement list(
+            ObservableProperty property,
+            CsmElement separatorPre,
+            CsmElement separatorPost,
+            CsmElement preceeding,
+            CsmElement following) {
         return new CsmList(property, separatorPre, separatorPost, preceeding, following);
     }
 
@@ -145,7 +178,12 @@ public interface CsmElement {
     }
 
     static CsmElement block(CsmElement content) {
-        return sequence(token(GeneratedJavaParserConstants.LBRACE), indent(), content, unindent(), token(GeneratedJavaParserConstants.RBRACE));
+        return sequence(
+                token(GeneratedJavaParserConstants.LBRACE),
+                indent(),
+                content,
+                unindent(),
+                token(GeneratedJavaParserConstants.RBRACE));
     }
 
     /*

@@ -21,6 +21,7 @@
 package com.github.javaparser.ast.expr;
 
 import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -41,9 +42,9 @@ import com.github.javaparser.metamodel.OptionalProperty;
 import com.github.javaparser.resolution.Resolvable;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -53,7 +54,11 @@ import org.jspecify.annotations.Nullable;
  *
  * @author Julio Vilmar Gesser
  */
-public class FieldAccessExpr extends Expression implements NodeWithSimpleName<FieldAccessExpr>, NodeWithTypeArguments<FieldAccessExpr>, NodeWithScope<FieldAccessExpr>, Resolvable<ResolvedValueDeclaration> {
+public class FieldAccessExpr extends Expression
+        implements NodeWithSimpleName<FieldAccessExpr>,
+                NodeWithTypeArguments<FieldAccessExpr>,
+                NodeWithScope<FieldAccessExpr>,
+                Resolvable<ResolvedValueDeclaration> {
 
     private Expression scope;
 
@@ -110,14 +115,13 @@ public class FieldAccessExpr extends Expression implements NodeWithSimpleName<Fi
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public FieldAccessExpr setName(final SimpleName name) {
+    public FieldAccessExpr setName(final @NonNull() SimpleName name) {
         assertNotNull(name);
         if (name == this.name) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null)
-            this.name.setParentNode(null);
+        if (this.name != null) this.name.setParentNode(null);
         this.name = name;
         setAsParentNodeOf(name);
         return this;
@@ -135,14 +139,13 @@ public class FieldAccessExpr extends Expression implements NodeWithSimpleName<Fi
      * @return this, the FieldAccessExpr
      */
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public FieldAccessExpr setScope(final Expression scope) {
+    public FieldAccessExpr setScope(final @NonNull() Expression scope) {
         assertNotNull(scope);
         if (scope == this.scope) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.SCOPE, this.scope, scope);
-        if (this.scope != null)
-            this.scope.setParentNode(null);
+        if (this.scope != null) this.scope.setParentNode(null);
         this.scope = scope;
         setAsParentNodeOf(scope);
         return this;
@@ -160,13 +163,12 @@ public class FieldAccessExpr extends Expression implements NodeWithSimpleName<Fi
      * @return this, the FieldAccessExpr
      */
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public FieldAccessExpr setTypeArguments(final NodeList<Type> typeArguments) {
+    public FieldAccessExpr setTypeArguments(final @Nullable() NodeList<Type> typeArguments) {
         if (typeArguments == this.typeArguments) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.TYPE_ARGUMENTS, this.typeArguments, typeArguments);
-        if (this.typeArguments != null)
-            this.typeArguments.setParentNode(null);
+        if (this.typeArguments != null) this.typeArguments.setParentNode(null);
         this.typeArguments = typeArguments;
         setAsParentNodeOf(typeArguments);
         return this;
@@ -282,21 +284,21 @@ public class FieldAccessExpr extends Expression implements NodeWithSimpleName<Fi
         return !isInternal();
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public SimpleName name() {
+    public @NonNull() SimpleName name() {
         return Objects.requireNonNull(name);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Expression scope() {
+    public @NonNull() Expression scope() {
         return Objects.requireNonNull(scope);
     }
 
-    @Nullable()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<Type> typeArguments() {
+    public @Nullable() NodeList<Type> typeArguments() {
         return typeArguments;
     }
 }

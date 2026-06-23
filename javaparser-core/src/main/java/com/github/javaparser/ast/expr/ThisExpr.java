@@ -35,7 +35,6 @@ import com.github.javaparser.resolution.Resolvable;
 import com.github.javaparser.resolution.declarations.ResolvedTypeDeclaration;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -91,13 +90,12 @@ public class ThisExpr extends Expression implements Resolvable<ResolvedTypeDecla
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ThisExpr setTypeName(final Name typeName) {
+    public ThisExpr setTypeName(final @Nullable() Name typeName) {
         if (typeName == this.typeName) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.TYPE_NAME, this.typeName, typeName);
-        if (this.typeName != null)
-            this.typeName.setParentNode(null);
+        if (this.typeName != null) this.typeName.setParentNode(null);
         this.typeName = typeName;
         setAsParentNodeOf(typeName);
         return this;
@@ -120,7 +118,7 @@ public class ThisExpr extends Expression implements Resolvable<ResolvedTypeDecla
 
     @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
     public ThisExpr removeClassName() {
-        return setTypeName(null);
+        return setTypeName((Name) null);
     }
 
     @Override
@@ -184,9 +182,9 @@ public class ThisExpr extends Expression implements Resolvable<ResolvedTypeDecla
         return setTypeName((Name) null);
     }
 
-    @Nullable()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Name typeName() {
+    public @Nullable() Name typeName() {
         return typeName;
     }
 }

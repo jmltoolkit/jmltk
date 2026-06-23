@@ -1,5 +1,7 @@
 package com.github.javaparser.ast.jml.clauses;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -11,10 +13,9 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlOldClauseMetaModel;
-import static com.github.javaparser.utils.Utils.assertNotNull;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -63,14 +64,13 @@ public class JmlOldClause extends JmlClause {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlOldClause setDeclarations(final VariableDeclarationExpr declarations) {
+    public JmlOldClause setDeclarations(final @NonNull() VariableDeclarationExpr declarations) {
         assertNotNull(declarations);
         if (declarations == this.declarations) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.DECLARATIONS, this.declarations, declarations);
-        if (this.declarations != null)
-            this.declarations.setParentNode(null);
+        if (this.declarations != null) this.declarations.setParentNode(null);
         this.declarations = declarations;
         setAsParentNodeOf(declarations);
         return this;
@@ -130,9 +130,9 @@ public class JmlOldClause extends JmlClause {
         action.accept(this);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public VariableDeclarationExpr declarations() {
+    public @NonNull() VariableDeclarationExpr declarations() {
         return Objects.requireNonNull(declarations);
     }
 }

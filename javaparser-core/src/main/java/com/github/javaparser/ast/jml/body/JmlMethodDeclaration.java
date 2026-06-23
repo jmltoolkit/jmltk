@@ -1,5 +1,7 @@
 package com.github.javaparser.ast.jml.body;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -15,12 +17,11 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlMethodDeclarationMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
-import org.jspecify.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * @author Alexander Weigl
@@ -40,7 +41,8 @@ public class JmlMethodDeclaration extends JmlClassLevelDeclaration<JmlMethodDecl
     }
 
     @AllFieldsConstructor
-    public JmlMethodDeclaration(NodeList<SimpleName> jmlTags, MethodDeclaration methodDeclaration, JmlContract contract) {
+    public JmlMethodDeclaration(
+            NodeList<SimpleName> jmlTags, MethodDeclaration methodDeclaration, JmlContract contract) {
         this(null, jmlTags, methodDeclaration, contract);
     }
 
@@ -48,7 +50,11 @@ public class JmlMethodDeclaration extends JmlClassLevelDeclaration<JmlMethodDecl
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlMethodDeclaration(TokenRange tokenRange, NodeList<SimpleName> jmlTags, MethodDeclaration methodDeclaration, JmlContract contract) {
+    public JmlMethodDeclaration(
+            TokenRange tokenRange,
+            NodeList<SimpleName> jmlTags,
+            MethodDeclaration methodDeclaration,
+            JmlContract contract) {
         super(tokenRange);
         setJmlTags(jmlTags);
         setMethodDeclaration(methodDeclaration);
@@ -74,14 +80,13 @@ public class JmlMethodDeclaration extends JmlClassLevelDeclaration<JmlMethodDecl
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlMethodDeclaration setMethodDeclaration(final MethodDeclaration methodDeclaration) {
+    public JmlMethodDeclaration setMethodDeclaration(final @NonNull() MethodDeclaration methodDeclaration) {
         assertNotNull(methodDeclaration);
         if (methodDeclaration == this.methodDeclaration) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.METHOD_DECLARATION, this.methodDeclaration, methodDeclaration);
-        if (this.methodDeclaration != null)
-            this.methodDeclaration.setParentNode(null);
+        if (this.methodDeclaration != null) this.methodDeclaration.setParentNode(null);
         this.methodDeclaration = methodDeclaration;
         setAsParentNodeOf(methodDeclaration);
         return this;
@@ -145,13 +150,12 @@ public class JmlMethodDeclaration extends JmlClassLevelDeclaration<JmlMethodDecl
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlMethodDeclaration setContract(final JmlContract contract) {
+    public JmlMethodDeclaration setContract(final @Nullable() JmlContract contract) {
         if (contract == this.contract) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.CONTRACT, this.contract, contract);
-        if (this.contract != null)
-            this.contract.setParentNode(null);
+        if (this.contract != null) this.contract.setParentNode(null);
         this.contract = contract;
         setAsParentNodeOf(contract);
         return this;
@@ -160,6 +164,49 @@ public class JmlMethodDeclaration extends JmlClassLevelDeclaration<JmlMethodDecl
     @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
     public JmlMethodDeclaration removeContract() {
         return setContract((JmlContract) null);
+    }
+
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.GetMetaModelGenerator")
+    public JmlMethodDeclarationMetaModel getMetaModel() {
+        return JavaParserMetaModel.jmlMethodDeclarationMetaModel;
+    }
+
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public NodeList<SimpleName> getJmlTags() {
+        return jmlTags;
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public JmlMethodDeclaration setJmlTags(final @NonNull() NodeList<SimpleName> jmlTags) {
+        assertNotNull(jmlTags);
+        if (jmlTags == this.jmlTags) {
+            return this;
+        }
+        notifyPropertyChange(ObservableProperty.JML_TAGS, this.jmlTags, jmlTags);
+        if (this.jmlTags != null) this.jmlTags.setParentNode(null);
+        this.jmlTags = jmlTags;
+        setAsParentNodeOf(jmlTags);
+        return this;
+    }
+
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public @Nullable() JmlContract contract() {
+        return contract;
+    }
+
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public @NonNull() NodeList<SimpleName> jmlTags() {
+        return Objects.requireNonNull(jmlTags);
+    }
+
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public @NonNull() MethodDeclaration methodDeclaration() {
+        return Objects.requireNonNull(methodDeclaration);
     }
 
     @Override
@@ -184,49 +231,5 @@ public class JmlMethodDeclaration extends JmlClassLevelDeclaration<JmlMethodDecl
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public void ifJmlMethodDeclaration(Consumer<JmlMethodDeclaration> action) {
         action.accept(this);
-    }
-
-    @Override
-    @Generated("com.github.javaparser.generator.core.node.GetMetaModelGenerator")
-    public JmlMethodDeclarationMetaModel getMetaModel() {
-        return JavaParserMetaModel.jmlMethodDeclarationMetaModel;
-    }
-
-    @Override
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<SimpleName> getJmlTags() {
-        return jmlTags;
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlMethodDeclaration setJmlTags(final NodeList<SimpleName> jmlTags) {
-        assertNotNull(jmlTags);
-        if (jmlTags == this.jmlTags) {
-            return this;
-        }
-        notifyPropertyChange(ObservableProperty.JML_TAGS, this.jmlTags, jmlTags);
-        if (this.jmlTags != null)
-            this.jmlTags.setParentNode(null);
-        this.jmlTags = jmlTags;
-        setAsParentNodeOf(jmlTags);
-        return this;
-    }
-
-    @Nullable()
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlContract contract() {
-        return contract;
-    }
-
-    @NonNull()
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<SimpleName> jmlTags() {
-        return Objects.requireNonNull(jmlTags);
-    }
-
-    @NonNull()
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public MethodDeclaration methodDeclaration() {
-        return Objects.requireNonNull(methodDeclaration);
     }
 }

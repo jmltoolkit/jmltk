@@ -21,6 +21,7 @@
 package com.github.javaparser.ast.expr;
 
 import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -94,28 +95,26 @@ public class MemberValuePair extends Node implements NodeWithSimpleName<MemberVa
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public MemberValuePair setName(final SimpleName name) {
+    public MemberValuePair setName(final @NonNull() SimpleName name) {
         assertNotNull(name);
         if (name == this.name) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null)
-            this.name.setParentNode(null);
+        if (this.name != null) this.name.setParentNode(null);
         this.name = name;
         setAsParentNodeOf(name);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public MemberValuePair setValue(final Expression value) {
+    public MemberValuePair setValue(final @NonNull() Expression value) {
         assertNotNull(value);
         if (value == this.value) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.VALUE, this.value, value);
-        if (this.value != null)
-            this.value.setParentNode(null);
+        if (this.value != null) this.value.setParentNode(null);
         this.value = value;
         setAsParentNodeOf(value);
         return this;
@@ -150,15 +149,15 @@ public class MemberValuePair extends Node implements NodeWithSimpleName<MemberVa
         return super.replace(node, replacementNode);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public SimpleName name() {
+    public @NonNull() SimpleName name() {
         return Objects.requireNonNull(name);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Expression value() {
+    public @NonNull() Expression value() {
         return Objects.requireNonNull(value);
     }
 }

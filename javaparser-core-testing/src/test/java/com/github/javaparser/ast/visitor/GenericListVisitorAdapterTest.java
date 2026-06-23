@@ -28,8 +28,8 @@ import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.comments.BlockComment;
 import com.github.javaparser.ast.comments.Comment;
-import com.github.javaparser.ast.comments.JavadocComment;
 import com.github.javaparser.ast.comments.LineComment;
+import com.github.javaparser.ast.comments.TraditionalJavadocComment;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.modules.*;
 import com.github.javaparser.ast.stmt.*;
@@ -335,6 +335,7 @@ class GenericListVisitorAdapterTest {
         // When
         Mockito.when(node.getStatements()).thenReturn(mock(NodeList.class));
         Mockito.when(node.getComment()).thenReturn(Optional.of(mock(Comment.class)));
+        Mockito.when(node.getContracts()).thenReturn(mock(NodeList.class));
 
         // Then
         List<Object> result = visitor.visit(node, argument);
@@ -616,7 +617,7 @@ class GenericListVisitorAdapterTest {
         ConstructorDeclaration node = mock(ConstructorDeclaration.class);
 
         // When
-        Mockito.when(node.getBody()).thenReturn(mock(BlockStmt.class));
+        Mockito.when(node.getBody()).thenReturn(Optional.of(mock(BlockStmt.class)));
         Mockito.when(node.getModifiers()).thenReturn(mock(NodeList.class));
         Mockito.when(node.getName()).thenReturn(mock(SimpleName.class));
         Mockito.when(node.getParameters()).thenReturn(mock(NodeList.class));
@@ -625,6 +626,7 @@ class GenericListVisitorAdapterTest {
         Mockito.when(node.getTypeParameters()).thenReturn(mock(NodeList.class));
         Mockito.when(node.getAnnotations()).thenReturn(mock(NodeList.class));
         Mockito.when(node.getComment()).thenReturn(Optional.of(mock(Comment.class)));
+        Mockito.when(node.getContracts()).thenReturn(mock(NodeList.class));
 
         // Then
         List<Object> result = visitor.visit(node, argument);
@@ -679,6 +681,7 @@ class GenericListVisitorAdapterTest {
         Mockito.when(node.getBody()).thenReturn(mock(Statement.class));
         Mockito.when(node.getCondition()).thenReturn(mock(Expression.class));
         Mockito.when(node.getComment()).thenReturn(Optional.of(mock(Comment.class)));
+        Mockito.when(node.getContracts()).thenReturn(mock(NodeList.class));
 
         // Then
         List<Object> result = visitor.visit(node, argument);
@@ -937,6 +940,7 @@ class GenericListVisitorAdapterTest {
         Mockito.when(node.getInitialization()).thenReturn(mock(NodeList.class));
         Mockito.when(node.getUpdate()).thenReturn(mock(NodeList.class));
         Mockito.when(node.getComment()).thenReturn(Optional.of(mock(Comment.class)));
+        Mockito.when(node.getContracts()).thenReturn(mock(NodeList.class));
 
         // Then
         List<Object> result = visitor.visit(node, argument);
@@ -965,6 +969,7 @@ class GenericListVisitorAdapterTest {
         Mockito.when(node.getIterable()).thenReturn(mock(Expression.class));
         Mockito.when(node.getVariable()).thenReturn(mock(VariableDeclarationExpr.class));
         Mockito.when(node.getComment()).thenReturn(Optional.of(mock(Comment.class)));
+        Mockito.when(node.getContracts()).thenReturn(mock(NodeList.class));
 
         // Then
         List<Object> result = visitor.visit(node, argument);
@@ -1133,7 +1138,7 @@ class GenericListVisitorAdapterTest {
     void visit_GivenJavadocComment() {
         // Given
         Object argument = mock(Object.class);
-        JavadocComment node = mock(JavadocComment.class);
+        TraditionalJavadocComment node = mock(TraditionalJavadocComment.class);
 
         // When
         Mockito.when(node.getComment()).thenReturn(Optional.of(mock(Comment.class)));
@@ -1185,6 +1190,7 @@ class GenericListVisitorAdapterTest {
         Mockito.when(node.getBody()).thenReturn(mock(Statement.class));
         Mockito.when(node.getParameters()).thenReturn(mock(NodeList.class));
         Mockito.when(node.getComment()).thenReturn(Optional.of(mock(Comment.class)));
+        Mockito.when(node.getContracts()).thenReturn(mock(NodeList.class));
 
         // Then
         List<Object> result = visitor.visit(node, argument);
@@ -1381,6 +1387,7 @@ class GenericListVisitorAdapterTest {
         Mockito.when(node.getTypeParameters()).thenReturn(mock(NodeList.class));
         Mockito.when(node.getAnnotations()).thenReturn(mock(NodeList.class));
         Mockito.when(node.getComment()).thenReturn(Optional.of(mock(Comment.class)));
+        Mockito.when(node.getContracts()).thenReturn(mock(NodeList.class));
 
         // Then
         List<Object> result = visitor.visit(node, argument);
@@ -2100,6 +2107,7 @@ class GenericListVisitorAdapterTest {
         Mockito.when(node.getBody()).thenReturn(mock(Statement.class));
         Mockito.when(node.getCondition()).thenReturn(mock(Expression.class));
         Mockito.when(node.getComment()).thenReturn(Optional.of(mock(Comment.class)));
+        Mockito.when(node.getContracts()).thenReturn(mock(NodeList.class));
 
         // Then
         List<Object> result = visitor.visit(node, argument);
@@ -2575,5 +2583,12 @@ class GenericListVisitorAdapterTest {
         order.verify(node).getAnnotations();
         order.verify(node, times(2)).getComment();
         order.verifyNoMoreInteractions();
+    }
+
+    @SuppressWarnings("unchecked")
+    // Non type-safe mock method to avoid unchecked warnings
+    // Its use is trivial and systematic enough to not be a problem
+    private <T> T mock(Class<?> classToMock) {
+        return (T) Mockito.mock(classToMock);
     }
 }

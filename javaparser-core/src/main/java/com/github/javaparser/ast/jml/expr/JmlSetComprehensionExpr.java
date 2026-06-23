@@ -1,5 +1,7 @@
 package com.github.javaparser.ast.jml.expr;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -13,10 +15,9 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlSetComprehensionExprMetaModel;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -35,8 +36,7 @@ public class JmlSetComprehensionExpr extends Expression implements Jmlish {
 
     private Expression predicate;
 
-    public JmlSetComprehensionExpr() {
-    }
+    public JmlSetComprehensionExpr() {}
 
     @AllFieldsConstructor
     public JmlSetComprehensionExpr(VariableDeclarator binding, Expression predicate) {
@@ -97,14 +97,13 @@ public class JmlSetComprehensionExpr extends Expression implements Jmlish {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlSetComprehensionExpr setBinding(final VariableDeclarator binding) {
+    public JmlSetComprehensionExpr setBinding(final @NonNull() VariableDeclarator binding) {
         assertNotNull(binding);
         if (binding == this.binding) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.BINDING, this.binding, binding);
-        if (this.binding != null)
-            this.binding.setParentNode(null);
+        if (this.binding != null) this.binding.setParentNode(null);
         this.binding = binding;
         setAsParentNodeOf(binding);
         return this;
@@ -116,14 +115,13 @@ public class JmlSetComprehensionExpr extends Expression implements Jmlish {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlSetComprehensionExpr setPredicate(final Expression predicate) {
+    public JmlSetComprehensionExpr setPredicate(final @NonNull() Expression predicate) {
         assertNotNull(predicate);
         if (predicate == this.predicate) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.PREDICATE, this.predicate, predicate);
-        if (this.predicate != null)
-            this.predicate.setParentNode(null);
+        if (this.predicate != null) this.predicate.setParentNode(null);
         this.predicate = predicate;
         setAsParentNodeOf(predicate);
         return this;
@@ -182,15 +180,15 @@ public class JmlSetComprehensionExpr extends Expression implements Jmlish {
         action.accept(this);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public VariableDeclarator binding() {
+    public @NonNull() VariableDeclarator binding() {
         return Objects.requireNonNull(binding);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Expression predicate() {
+    public @NonNull() Expression predicate() {
         return Objects.requireNonNull(predicate);
     }
 }

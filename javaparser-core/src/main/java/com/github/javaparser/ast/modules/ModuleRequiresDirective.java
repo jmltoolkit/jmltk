@@ -20,9 +20,9 @@
  */
 package com.github.javaparser.ast.modules;
 
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.STATIC;
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.TRANSITIVE;
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.*;
 import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.expr.Name;
@@ -34,15 +34,16 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.ModuleRequiresDirectiveMetaModel;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
  * A require directive in module-info.java. {@code require a.b.C;}
  */
-public class ModuleRequiresDirective extends ModuleDirective implements NodeWithStaticModifier<ModuleRequiresDirective>, NodeWithName<ModuleRequiresDirective> {
+public class ModuleRequiresDirective extends ModuleDirective
+        implements NodeWithStaticModifier<ModuleRequiresDirective>, NodeWithName<ModuleRequiresDirective> {
 
     private NodeList<Modifier> modifiers;
 
@@ -86,14 +87,13 @@ public class ModuleRequiresDirective extends ModuleDirective implements NodeWith
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ModuleRequiresDirective setModifiers(final NodeList<Modifier> modifiers) {
+    public ModuleRequiresDirective setModifiers(final @NonNull() NodeList<Modifier> modifiers) {
         assertNotNull(modifiers);
         if (modifiers == this.modifiers) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.MODIFIERS, this.modifiers, modifiers);
-        if (this.modifiers != null)
-            this.modifiers.setParentNode(null);
+        if (this.modifiers != null) this.modifiers.setParentNode(null);
         this.modifiers = modifiers;
         setAsParentNodeOf(modifiers);
         return this;
@@ -105,14 +105,13 @@ public class ModuleRequiresDirective extends ModuleDirective implements NodeWith
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ModuleRequiresDirective setName(final Name name) {
+    public ModuleRequiresDirective setName(final @NonNull() Name name) {
         assertNotNull(name);
         if (name == this.name) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null)
-            this.name.setParentNode(null);
+        if (this.name != null) this.name.setParentNode(null);
         this.name = name;
         setAsParentNodeOf(name);
         return this;
@@ -230,15 +229,15 @@ public class ModuleRequiresDirective extends ModuleDirective implements NodeWith
         return JavaParserMetaModel.moduleRequiresDirectiveMetaModel;
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<Modifier> modifiers() {
+    public @NonNull() NodeList<Modifier> modifiers() {
         return Objects.requireNonNull(modifiers);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Name name() {
+    public @NonNull() Name name() {
         return Objects.requireNonNull(name);
     }
 }

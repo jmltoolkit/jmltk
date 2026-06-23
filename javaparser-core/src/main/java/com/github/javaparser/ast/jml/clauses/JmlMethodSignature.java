@@ -1,22 +1,23 @@
 package com.github.javaparser.ast.jml.clauses;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
+import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
+import com.github.javaparser.ast.Generated;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.SimpleName;
+import com.github.javaparser.ast.observer.ObservableProperty;
 import com.github.javaparser.ast.type.Type;
+import com.github.javaparser.ast.visitor.CloneVisitor;
 import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
-import com.github.javaparser.metamodel.OptionalProperty;
-import com.github.javaparser.ast.observer.ObservableProperty;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Optional;
-import com.github.javaparser.ast.visitor.CloneVisitor;
-import com.github.javaparser.metamodel.JmlMethodSignatureMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
-import com.github.javaparser.TokenRange;
-import com.github.javaparser.ast.Generated;
+import com.github.javaparser.metamodel.JmlMethodSignatureMetaModel;
+import com.github.javaparser.metamodel.OptionalProperty;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -56,14 +57,13 @@ public class JmlMethodSignature extends Node {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlMethodSignature setArgumentTypes(final NodeList<Type> argumentTypes) {
+    public JmlMethodSignature setArgumentTypes(final @NonNull() NodeList<Type> argumentTypes) {
         assertNotNull(argumentTypes);
         if (argumentTypes == this.argumentTypes) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.ARGUMENT_TYPES, this.argumentTypes, argumentTypes);
-        if (this.argumentTypes != null)
-            this.argumentTypes.setParentNode(null);
+        if (this.argumentTypes != null) this.argumentTypes.setParentNode(null);
         this.argumentTypes = argumentTypes;
         setAsParentNodeOf(argumentTypes);
         return this;
@@ -75,14 +75,13 @@ public class JmlMethodSignature extends Node {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlMethodSignature setName(final SimpleName name) {
+    public JmlMethodSignature setName(final @NonNull() SimpleName name) {
         assertNotNull(name);
         if (name == this.name) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null)
-            this.name.setParentNode(null);
+        if (this.name != null) this.name.setParentNode(null);
         this.name = name;
         setAsParentNodeOf(name);
         return this;
@@ -94,13 +93,12 @@ public class JmlMethodSignature extends Node {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlMethodSignature setReceiver(final Type receiver) {
+    public JmlMethodSignature setReceiver(final @Nullable() Type receiver) {
         if (receiver == this.receiver) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.RECEIVER, this.receiver, receiver);
-        if (this.receiver != null)
-            this.receiver.setParentNode(null);
+        if (this.receiver != null) this.receiver.setParentNode(null);
         this.receiver = receiver;
         setAsParentNodeOf(receiver);
         return this;
@@ -181,21 +179,21 @@ public class JmlMethodSignature extends Node {
         customInitialization();
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<Type> argumentTypes() {
+    public @NonNull() NodeList<Type> argumentTypes() {
         return Objects.requireNonNull(argumentTypes);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public SimpleName name() {
+    public @NonNull() SimpleName name() {
         return Objects.requireNonNull(name);
     }
 
-    @Nullable()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Type receiver() {
+    public @Nullable() Type receiver() {
         return receiver;
     }
 }

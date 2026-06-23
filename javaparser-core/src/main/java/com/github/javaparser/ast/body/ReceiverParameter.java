@@ -20,6 +20,8 @@
  */
 package com.github.javaparser.ast.body;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -38,7 +40,6 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.ReceiverParameterMetaModel;
-import static com.github.javaparser.utils.Utils.assertNotNull;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
@@ -50,7 +51,10 @@ import org.jspecify.annotations.NonNull;
  *
  * @author Julio Vilmar Gesser
  */
-public class ReceiverParameter extends Node implements NodeWithType<ReceiverParameter, Type>, NodeWithAnnotations<ReceiverParameter>, NodeWithName<ReceiverParameter> {
+public class ReceiverParameter extends Node
+        implements NodeWithType<ReceiverParameter, Type>,
+                NodeWithAnnotations<ReceiverParameter>,
+                NodeWithName<ReceiverParameter> {
 
     private Type type;
 
@@ -111,14 +115,13 @@ public class ReceiverParameter extends Node implements NodeWithType<ReceiverPara
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ReceiverParameter setType(final Type type) {
+    public ReceiverParameter setType(final @NonNull() Type type) {
         assertNotNull(type);
         if (type == this.type) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.TYPE, this.type, type);
-        if (this.type != null)
-            this.type.setParentNode(null);
+        if (this.type != null) this.type.setParentNode(null);
         this.type = type;
         setAsParentNodeOf(type);
         return this;
@@ -134,17 +137,16 @@ public class ReceiverParameter extends Node implements NodeWithType<ReceiverPara
 
     /**
      * @param annotations a null value is currently treated as an empty list. This behavior could change in the future,
-     *                    so please avoid passing null
+     * so please avoid passing null
      */
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ReceiverParameter setAnnotations(final NodeList<AnnotationExpr> annotations) {
+    public ReceiverParameter setAnnotations(final @NonNull() NodeList<AnnotationExpr> annotations) {
         assertNotNull(annotations);
         if (annotations == this.annotations) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.ANNOTATIONS, this.annotations, annotations);
-        if (this.annotations != null)
-            this.annotations.setParentNode(null);
+        if (this.annotations != null) this.annotations.setParentNode(null);
         this.annotations = annotations;
         setAsParentNodeOf(annotations);
         return this;
@@ -168,14 +170,13 @@ public class ReceiverParameter extends Node implements NodeWithType<ReceiverPara
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ReceiverParameter setName(final Name name) {
+    public ReceiverParameter setName(final @NonNull() Name name) {
         assertNotNull(name);
         if (name == this.name) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null)
-            this.name.setParentNode(null);
+        if (this.name != null) this.name.setParentNode(null);
         this.name = name;
         setAsParentNodeOf(name);
         return this;
@@ -219,21 +220,21 @@ public class ReceiverParameter extends Node implements NodeWithType<ReceiverPara
         return super.replace(node, replacementNode);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<AnnotationExpr> annotations() {
+    public @NonNull() NodeList<AnnotationExpr> annotations() {
         return Objects.requireNonNull(annotations);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Name name() {
+    public @NonNull() Name name() {
         return Objects.requireNonNull(name);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Type type() {
+    public @NonNull() Type type() {
         return Objects.requireNonNull(type);
     }
 }

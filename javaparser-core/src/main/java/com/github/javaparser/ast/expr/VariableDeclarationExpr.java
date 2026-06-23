@@ -20,6 +20,9 @@
  */
 package com.github.javaparser.ast.expr;
 
+import static com.github.javaparser.ast.NodeList.nodeList;
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.VariableDeclarator;
@@ -35,12 +38,10 @@ import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.NonEmptyProperty;
 import com.github.javaparser.metamodel.VariableDeclarationExprMetaModel;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import static com.github.javaparser.ast.NodeList.nodeList;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -54,7 +55,10 @@ import org.jspecify.annotations.NonNull;
  *
  * @author Julio Vilmar Gesser
  */
-public class VariableDeclarationExpr extends Expression implements NodeWithFinalModifier<VariableDeclarationExpr>, NodeWithAnnotations<VariableDeclarationExpr>, NodeWithVariables<VariableDeclarationExpr> {
+public class VariableDeclarationExpr extends Expression
+        implements NodeWithFinalModifier<VariableDeclarationExpr>,
+                NodeWithAnnotations<VariableDeclarationExpr>,
+                NodeWithVariables<VariableDeclarationExpr> {
 
     private NodeList<Modifier> modifiers;
 
@@ -76,11 +80,19 @@ public class VariableDeclarationExpr extends Expression implements NodeWithFinal
     }
 
     public VariableDeclarationExpr(final Type type, String variableName, Modifier... modifiers) {
-        this(null, Arrays.stream(modifiers).collect(Collectors.toCollection(() -> new NodeList<>())), new NodeList<>(), nodeList(new VariableDeclarator(type, variableName)));
+        this(
+                null,
+                Arrays.stream(modifiers).collect(Collectors.toCollection(() -> new NodeList<>())),
+                new NodeList<>(),
+                nodeList(new VariableDeclarator(type, variableName)));
     }
 
     public VariableDeclarationExpr(VariableDeclarator var, Modifier... modifiers) {
-        this(null, Arrays.stream(modifiers).collect(Collectors.toCollection(() -> new NodeList<>())), new NodeList<>(), nodeList(var));
+        this(
+                null,
+                Arrays.stream(modifiers).collect(Collectors.toCollection(() -> new NodeList<>())),
+                new NodeList<>(),
+                nodeList(var));
     }
 
     public VariableDeclarationExpr(final NodeList<VariableDeclarator> variables) {
@@ -92,7 +104,10 @@ public class VariableDeclarationExpr extends Expression implements NodeWithFinal
     }
 
     @AllFieldsConstructor
-    public VariableDeclarationExpr(final NodeList<Modifier> modifiers, final NodeList<AnnotationExpr> annotations, final NodeList<VariableDeclarator> variables) {
+    public VariableDeclarationExpr(
+            final NodeList<Modifier> modifiers,
+            final NodeList<AnnotationExpr> annotations,
+            final NodeList<VariableDeclarator> variables) {
         this(null, modifiers, annotations, variables);
     }
 
@@ -100,7 +115,11 @@ public class VariableDeclarationExpr extends Expression implements NodeWithFinal
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public VariableDeclarationExpr(TokenRange tokenRange, NodeList<Modifier> modifiers, NodeList<AnnotationExpr> annotations, NodeList<VariableDeclarator> variables) {
+    public VariableDeclarationExpr(
+            TokenRange tokenRange,
+            NodeList<Modifier> modifiers,
+            NodeList<AnnotationExpr> annotations,
+            NodeList<VariableDeclarator> variables) {
         super(tokenRange);
         setModifiers(modifiers);
         setAnnotations(annotations);
@@ -142,42 +161,39 @@ public class VariableDeclarationExpr extends Expression implements NodeWithFinal
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public VariableDeclarationExpr setAnnotations(final NodeList<AnnotationExpr> annotations) {
+    public VariableDeclarationExpr setAnnotations(final @NonNull() NodeList<AnnotationExpr> annotations) {
         assertNotNull(annotations);
         if (annotations == this.annotations) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.ANNOTATIONS, this.annotations, annotations);
-        if (this.annotations != null)
-            this.annotations.setParentNode(null);
+        if (this.annotations != null) this.annotations.setParentNode(null);
         this.annotations = annotations;
         setAsParentNodeOf(annotations);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public VariableDeclarationExpr setModifiers(final NodeList<Modifier> modifiers) {
+    public VariableDeclarationExpr setModifiers(final @NonNull() NodeList<Modifier> modifiers) {
         assertNotNull(modifiers);
         if (modifiers == this.modifiers) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.MODIFIERS, this.modifiers, modifiers);
-        if (this.modifiers != null)
-            this.modifiers.setParentNode(null);
+        if (this.modifiers != null) this.modifiers.setParentNode(null);
         this.modifiers = modifiers;
         setAsParentNodeOf(modifiers);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public VariableDeclarationExpr setVariables(final NodeList<VariableDeclarator> variables) {
+    public VariableDeclarationExpr setVariables(final @NonNull() NodeList<VariableDeclarator> variables) {
         assertNotNull(variables);
         if (variables == this.variables) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.VARIABLES, this.variables, variables);
-        if (this.variables != null)
-            this.variables.setParentNode(null);
+        if (this.variables != null) this.variables.setParentNode(null);
         this.variables = variables;
         setAsParentNodeOf(variables);
         return this;
@@ -273,21 +289,21 @@ public class VariableDeclarationExpr extends Expression implements NodeWithFinal
         return Optional.of(this);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<AnnotationExpr> annotations() {
+    public @NonNull() NodeList<AnnotationExpr> annotations() {
         return Objects.requireNonNull(annotations);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<Modifier> modifiers() {
+    public @NonNull() NodeList<Modifier> modifiers() {
         return Objects.requireNonNull(modifiers);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<VariableDeclarator> variables() {
+    public @NonNull() NodeList<VariableDeclarator> variables() {
         return Objects.requireNonNull(variables);
     }
 }

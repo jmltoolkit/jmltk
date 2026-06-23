@@ -20,6 +20,8 @@
  */
 package com.github.javaparser.ast.stmt;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -31,10 +33,9 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.LabeledStmtMetaModel;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -90,14 +91,13 @@ public class LabeledStmt extends Statement {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public LabeledStmt setStatement(final Statement statement) {
+    public LabeledStmt setStatement(final @NonNull() Statement statement) {
         assertNotNull(statement);
         if (statement == this.statement) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.STATEMENT, this.statement, statement);
-        if (this.statement != null)
-            this.statement.setParentNode(null);
+        if (this.statement != null) this.statement.setParentNode(null);
         this.statement = statement;
         setAsParentNodeOf(statement);
         return this;
@@ -109,14 +109,13 @@ public class LabeledStmt extends Statement {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public LabeledStmt setLabel(final SimpleName label) {
+    public LabeledStmt setLabel(final @NonNull() SimpleName label) {
         assertNotNull(label);
         if (label == this.label) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.LABEL, this.label, label);
-        if (this.label != null)
-            this.label.setParentNode(null);
+        if (this.label != null) this.label.setParentNode(null);
         this.label = label;
         setAsParentNodeOf(label);
         return this;
@@ -175,15 +174,15 @@ public class LabeledStmt extends Statement {
         return Optional.of(this);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public SimpleName label() {
+    public @NonNull() SimpleName label() {
         return Objects.requireNonNull(label);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Statement statement() {
+    public @NonNull() Statement statement() {
         return Objects.requireNonNull(statement);
     }
 }

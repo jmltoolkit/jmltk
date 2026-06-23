@@ -20,6 +20,9 @@
  */
 package com.github.javaparser.ast;
 
+import static com.github.javaparser.ast.NodeList.toNodeList;
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.observer.ObservableProperty;
 import com.github.javaparser.ast.visitor.CloneVisitor;
@@ -28,8 +31,6 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.ModifierMetaModel;
 import java.util.Arrays;
-import static com.github.javaparser.ast.NodeList.toNodeList;
-import static com.github.javaparser.utils.Utils.assertNotNull;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
@@ -141,7 +142,6 @@ public class Modifier extends Node {
      * The Java modifier keywords.
      */
     public enum DefaultKeyword implements Keyword {
-
         DEFAULT("default"),
         PUBLIC("public"),
         PROTECTED("protected"),
@@ -239,7 +239,7 @@ public class Modifier extends Node {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Modifier setKeyword(final Keyword keyword) {
+    public Modifier setKeyword(final @NonNull() Keyword keyword) {
         assertNotNull(keyword);
         if (keyword == this.keyword) {
             return this;
@@ -269,6 +269,12 @@ public class Modifier extends Node {
         return JavaParserMetaModel.modifierMetaModel;
     }
 
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public @NonNull() Keyword keyword() {
+        return Objects.requireNonNull(keyword);
+    }
+
     /**
      * This constructor is used by the parser and is considered private.
      */
@@ -276,11 +282,5 @@ public class Modifier extends Node {
     public Modifier(TokenRange tokenRange) {
         super(tokenRange);
         customInitialization();
-    }
-
-    @NonNull()
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Keyword keyword() {
-        return Objects.requireNonNull(keyword);
     }
 }

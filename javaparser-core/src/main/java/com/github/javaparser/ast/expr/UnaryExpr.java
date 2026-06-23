@@ -20,6 +20,8 @@
  */
 package com.github.javaparser.ast.expr;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -33,10 +35,9 @@ import com.github.javaparser.metamodel.DerivedProperty;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.UnaryExprMetaModel;
 import com.github.javaparser.printer.Stringable;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -52,7 +53,6 @@ import org.jspecify.annotations.NonNull;
 public class UnaryExpr extends Expression implements NodeWithExpression<UnaryExpr> {
 
     public enum Operator implements Stringable {
-
         PLUS("+", false),
         MINUS("-", false),
         PREFIX_INCREMENT("++", false),
@@ -131,21 +131,20 @@ public class UnaryExpr extends Expression implements NodeWithExpression<UnaryExp
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public UnaryExpr setExpression(final Expression expression) {
+    public UnaryExpr setExpression(final @NonNull() Expression expression) {
         assertNotNull(expression);
         if (expression == this.expression) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.EXPRESSION, this.expression, expression);
-        if (this.expression != null)
-            this.expression.setParentNode(null);
+        if (this.expression != null) this.expression.setParentNode(null);
         this.expression = expression;
         setAsParentNodeOf(expression);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public UnaryExpr setOperator(final Operator operator) {
+    public UnaryExpr setOperator(final @NonNull() Operator operator) {
         assertNotNull(operator);
         if (operator == this.operator) {
             return this;
@@ -214,15 +213,15 @@ public class UnaryExpr extends Expression implements NodeWithExpression<UnaryExp
         return Optional.of(this);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Expression expression() {
+    public @NonNull() Expression expression() {
         return Objects.requireNonNull(expression);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Operator operator() {
+    public @NonNull() Operator operator() {
         return Objects.requireNonNull(operator);
     }
 }

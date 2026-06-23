@@ -20,6 +20,10 @@
  */
 package com.github.javaparser.ast.body;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+import static java.util.Collections.unmodifiableList;
+import static java.util.stream.Collectors.toList;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.expr.AnnotationExpr;
@@ -41,12 +45,9 @@ import com.github.javaparser.metamodel.RecordDeclarationMetaModel;
 import com.github.javaparser.resolution.Resolvable;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import static java.util.Collections.unmodifiableList;
-import static java.util.stream.Collectors.toList;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -91,7 +92,12 @@ import org.jspecify.annotations.Nullable;
  * @see <a href="https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-8.10">JLS 8.10 - Record Classes</a>
  * @since 3.22.0
  */
-public class RecordDeclaration extends TypeDeclaration<RecordDeclaration> implements NodeWithParameters<RecordDeclaration>, NodeWithImplements<RecordDeclaration>, NodeWithTypeParameters<RecordDeclaration>, NodeWithFinalModifier<RecordDeclaration>, Resolvable<ResolvedReferenceTypeDeclaration> {
+public class RecordDeclaration extends TypeDeclaration<RecordDeclaration>
+        implements NodeWithParameters<RecordDeclaration>,
+                NodeWithImplements<RecordDeclaration>,
+                NodeWithTypeParameters<RecordDeclaration>,
+                NodeWithFinalModifier<RecordDeclaration>,
+                Resolvable<ResolvedReferenceTypeDeclaration> {
 
     private NodeList<TypeParameter> typeParameters;
 
@@ -103,23 +109,67 @@ public class RecordDeclaration extends TypeDeclaration<RecordDeclaration> implem
     private NodeList<Parameter> parameters;
 
     public RecordDeclaration() {
-        this(null, new NodeList<>(), new NodeList<>(), new SimpleName(), new NodeList<>(), new NodeList<>(), new NodeList<>(), new NodeList<>(), null);
+        this(
+                null,
+                new NodeList<>(),
+                new NodeList<>(),
+                new SimpleName(),
+                new NodeList<>(),
+                new NodeList<>(),
+                new NodeList<>(),
+                new NodeList<>(),
+                null);
     }
 
     public RecordDeclaration(final NodeList<Modifier> modifiers, final String name) {
-        this(null, modifiers, new NodeList<>(), new SimpleName(name), new NodeList<>(), new NodeList<>(), new NodeList<>(), new NodeList<>(), null);
+        this(
+                null,
+                modifiers,
+                new NodeList<>(),
+                new SimpleName(name),
+                new NodeList<>(),
+                new NodeList<>(),
+                new NodeList<>(),
+                new NodeList<>(),
+                null);
     }
 
     @AllFieldsConstructor
-    public RecordDeclaration(final NodeList<Modifier> modifiers, final NodeList<AnnotationExpr> annotations, final SimpleName name, final NodeList<Parameter> parameters, final NodeList<TypeParameter> typeParameters, final NodeList<ClassOrInterfaceType> implementedTypes, final NodeList<BodyDeclaration<?>> members, final ReceiverParameter receiverParameter) {
-        this(null, modifiers, annotations, name, parameters, typeParameters, implementedTypes, members, receiverParameter);
+    public RecordDeclaration(
+            final NodeList<Modifier> modifiers,
+            final NodeList<AnnotationExpr> annotations,
+            final SimpleName name,
+            final NodeList<Parameter> parameters,
+            final NodeList<TypeParameter> typeParameters,
+            final NodeList<ClassOrInterfaceType> implementedTypes,
+            final NodeList<BodyDeclaration<?>> members,
+            final ReceiverParameter receiverParameter) {
+        this(
+                null,
+                modifiers,
+                annotations,
+                name,
+                parameters,
+                typeParameters,
+                implementedTypes,
+                members,
+                receiverParameter);
     }
 
     /**
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public RecordDeclaration(TokenRange tokenRange, NodeList<Modifier> modifiers, NodeList<AnnotationExpr> annotations, SimpleName name, NodeList<Parameter> parameters, NodeList<TypeParameter> typeParameters, NodeList<ClassOrInterfaceType> implementedTypes, NodeList<BodyDeclaration<?>> members, ReceiverParameter receiverParameter) {
+    public RecordDeclaration(
+            TokenRange tokenRange,
+            NodeList<Modifier> modifiers,
+            NodeList<AnnotationExpr> annotations,
+            SimpleName name,
+            NodeList<Parameter> parameters,
+            NodeList<TypeParameter> typeParameters,
+            NodeList<ClassOrInterfaceType> implementedTypes,
+            NodeList<BodyDeclaration<?>> members,
+            ReceiverParameter receiverParameter) {
         super(tokenRange, modifiers, annotations, name, members);
         setParameters(parameters);
         setTypeParameters(typeParameters);
@@ -151,28 +201,26 @@ public class RecordDeclaration extends TypeDeclaration<RecordDeclaration> implem
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public RecordDeclaration setImplementedTypes(final NodeList<ClassOrInterfaceType> implementedTypes) {
+    public RecordDeclaration setImplementedTypes(final @NonNull() NodeList<ClassOrInterfaceType> implementedTypes) {
         assertNotNull(implementedTypes);
         if (implementedTypes == this.implementedTypes) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.IMPLEMENTED_TYPES, this.implementedTypes, implementedTypes);
-        if (this.implementedTypes != null)
-            this.implementedTypes.setParentNode(null);
+        if (this.implementedTypes != null) this.implementedTypes.setParentNode(null);
         this.implementedTypes = implementedTypes;
         setAsParentNodeOf(implementedTypes);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public RecordDeclaration setTypeParameters(final NodeList<TypeParameter> typeParameters) {
+    public RecordDeclaration setTypeParameters(final @NonNull() NodeList<TypeParameter> typeParameters) {
         assertNotNull(typeParameters);
         if (typeParameters == this.typeParameters) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.TYPE_PARAMETERS, this.typeParameters, typeParameters);
-        if (this.typeParameters != null)
-            this.typeParameters.setParentNode(null);
+        if (this.typeParameters != null) this.typeParameters.setParentNode(null);
         this.typeParameters = typeParameters;
         setAsParentNodeOf(typeParameters);
         return this;
@@ -316,14 +364,13 @@ public class RecordDeclaration extends TypeDeclaration<RecordDeclaration> implem
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public RecordDeclaration setParameters(final NodeList<Parameter> parameters) {
+    public RecordDeclaration setParameters(final @NonNull() NodeList<Parameter> parameters) {
         assertNotNull(parameters);
         if (parameters == this.parameters) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.PARAMETERS, this.parameters, parameters);
-        if (this.parameters != null)
-            this.parameters.setParentNode(null);
+        if (this.parameters != null) this.parameters.setParentNode(null);
         this.parameters = parameters;
         setAsParentNodeOf(parameters);
         return this;
@@ -335,13 +382,12 @@ public class RecordDeclaration extends TypeDeclaration<RecordDeclaration> implem
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public RecordDeclaration setReceiverParameter(final ReceiverParameter receiverParameter) {
+    public RecordDeclaration setReceiverParameter(final @Nullable() ReceiverParameter receiverParameter) {
         if (receiverParameter == this.receiverParameter) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.RECEIVER_PARAMETER, this.receiverParameter, receiverParameter);
-        if (this.receiverParameter != null)
-            this.receiverParameter.setParentNode(null);
+        if (this.receiverParameter != null) this.receiverParameter.setParentNode(null);
         this.receiverParameter = receiverParameter;
         setAsParentNodeOf(receiverParameter);
         return this;
@@ -355,9 +401,9 @@ public class RecordDeclaration extends TypeDeclaration<RecordDeclaration> implem
     /**
      * Records are implicitly final, even without the explicit modifier.
      * https://openjdk.java.net/jeps/359#Restrictions-on-records
-     * <p>
+     *
      * If wanting to find out if the keyword {@code final} is explicitly added to this parameter,
-     * you should use {@code node.hasModifier(Modifier.DefaultKeyword.FINAL)}
+     * you should use {@code node.hasModifier(Modifier.Keyword.FINAL)}
      *
      * @return always true -- Records are always implicitly final, therefore can never not be final.
      */
@@ -389,30 +435,33 @@ public class RecordDeclaration extends TypeDeclaration<RecordDeclaration> implem
      * not "normal" constructors (which are obtainable via {@link #getConstructors()}).
      */
     public List<CompactConstructorDeclaration> getCompactConstructors() {
-        return unmodifiableList(getMembers().stream().filter(m -> m instanceof CompactConstructorDeclaration).map(m -> (CompactConstructorDeclaration) m).collect(toList()));
+        return unmodifiableList(getMembers().stream()
+                .filter(m -> m instanceof CompactConstructorDeclaration)
+                .map(m -> (CompactConstructorDeclaration) m)
+                .collect(toList()));
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<ClassOrInterfaceType> implementedTypes() {
+    public @NonNull() NodeList<ClassOrInterfaceType> implementedTypes() {
         return Objects.requireNonNull(implementedTypes);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<Parameter> parameters() {
+    public @NonNull() NodeList<Parameter> parameters() {
         return Objects.requireNonNull(parameters);
     }
 
-    @Nullable()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ReceiverParameter receiverParameter() {
+    public @Nullable() ReceiverParameter receiverParameter() {
         return receiverParameter;
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<TypeParameter> typeParameters() {
+    public @NonNull() NodeList<TypeParameter> typeParameters() {
         return Objects.requireNonNull(typeParameters);
     }
 }

@@ -20,6 +20,8 @@
  */
 package com.github.javaparser.ast.expr;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -33,10 +35,9 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.SwitchExprMetaModel;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -112,28 +113,26 @@ public class SwitchExpr extends Expression implements SwitchNode {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public SwitchExpr setEntries(final NodeList<SwitchEntry> entries) {
+    public SwitchExpr setEntries(final @NonNull() NodeList<SwitchEntry> entries) {
         assertNotNull(entries);
         if (entries == this.entries) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.ENTRIES, this.entries, entries);
-        if (this.entries != null)
-            this.entries.setParentNode(null);
+        if (this.entries != null) this.entries.setParentNode(null);
         this.entries = entries;
         setAsParentNodeOf(entries);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public SwitchExpr setSelector(final Expression selector) {
+    public SwitchExpr setSelector(final @NonNull() Expression selector) {
         assertNotNull(selector);
         if (selector == this.selector) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.SELECTOR, this.selector, selector);
-        if (this.selector != null)
-            this.selector.setParentNode(null);
+        if (this.selector != null) this.selector.setParentNode(null);
         this.selector = selector;
         setAsParentNodeOf(selector);
         return this;
@@ -209,15 +208,15 @@ public class SwitchExpr extends Expression implements SwitchNode {
         return JavaParserMetaModel.switchExprMetaModel;
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<SwitchEntry> entries() {
+    public @NonNull() NodeList<SwitchEntry> entries() {
         return Objects.requireNonNull(entries);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Expression selector() {
+    public @NonNull() Expression selector() {
         return Objects.requireNonNull(selector);
     }
 }

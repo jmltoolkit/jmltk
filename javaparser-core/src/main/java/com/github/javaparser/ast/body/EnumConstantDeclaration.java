@@ -20,6 +20,8 @@
  */
 package com.github.javaparser.ast.body;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -39,10 +41,9 @@ import com.github.javaparser.metamodel.EnumConstantDeclarationMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.resolution.Resolvable;
 import com.github.javaparser.resolution.declarations.ResolvedEnumConstantDeclaration;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -50,7 +51,11 @@ import org.jspecify.annotations.NonNull;
  *
  * @author Julio Vilmar Gesser
  */
-public class EnumConstantDeclaration extends BodyDeclaration<EnumConstantDeclaration> implements NodeWithJavadoc<EnumConstantDeclaration>, NodeWithSimpleName<EnumConstantDeclaration>, NodeWithArguments<EnumConstantDeclaration>, Resolvable<ResolvedEnumConstantDeclaration> {
+public class EnumConstantDeclaration extends BodyDeclaration<EnumConstantDeclaration>
+        implements NodeWithJavadoc<EnumConstantDeclaration>,
+                NodeWithSimpleName<EnumConstantDeclaration>,
+                NodeWithArguments<EnumConstantDeclaration>,
+                Resolvable<ResolvedEnumConstantDeclaration> {
 
     private SimpleName name;
 
@@ -67,7 +72,11 @@ public class EnumConstantDeclaration extends BodyDeclaration<EnumConstantDeclara
     }
 
     @AllFieldsConstructor
-    public EnumConstantDeclaration(NodeList<AnnotationExpr> annotations, SimpleName name, NodeList<Expression> arguments, NodeList<BodyDeclaration<?>> classBody) {
+    public EnumConstantDeclaration(
+            NodeList<AnnotationExpr> annotations,
+            SimpleName name,
+            NodeList<Expression> arguments,
+            NodeList<BodyDeclaration<?>> classBody) {
         this(null, annotations, name, arguments, classBody);
     }
 
@@ -75,7 +84,12 @@ public class EnumConstantDeclaration extends BodyDeclaration<EnumConstantDeclara
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public EnumConstantDeclaration(TokenRange tokenRange, NodeList<AnnotationExpr> annotations, SimpleName name, NodeList<Expression> arguments, NodeList<BodyDeclaration<?>> classBody) {
+    public EnumConstantDeclaration(
+            TokenRange tokenRange,
+            NodeList<AnnotationExpr> annotations,
+            SimpleName name,
+            NodeList<Expression> arguments,
+            NodeList<BodyDeclaration<?>> classBody) {
         super(tokenRange, annotations);
         setName(name);
         setArguments(arguments);
@@ -111,42 +125,39 @@ public class EnumConstantDeclaration extends BodyDeclaration<EnumConstantDeclara
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public EnumConstantDeclaration setArguments(final NodeList<Expression> arguments) {
+    public EnumConstantDeclaration setArguments(final @NonNull() NodeList<Expression> arguments) {
         assertNotNull(arguments);
         if (arguments == this.arguments) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.ARGUMENTS, this.arguments, arguments);
-        if (this.arguments != null)
-            this.arguments.setParentNode(null);
+        if (this.arguments != null) this.arguments.setParentNode(null);
         this.arguments = arguments;
         setAsParentNodeOf(arguments);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public EnumConstantDeclaration setClassBody(final NodeList<BodyDeclaration<?>> classBody) {
+    public EnumConstantDeclaration setClassBody(final @NonNull() NodeList<BodyDeclaration<?>> classBody) {
         assertNotNull(classBody);
         if (classBody == this.classBody) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.CLASS_BODY, this.classBody, classBody);
-        if (this.classBody != null)
-            this.classBody.setParentNode(null);
+        if (this.classBody != null) this.classBody.setParentNode(null);
         this.classBody = classBody;
         setAsParentNodeOf(classBody);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public EnumConstantDeclaration setName(final SimpleName name) {
+    public EnumConstantDeclaration setName(final @NonNull() SimpleName name) {
         assertNotNull(name);
         if (name == this.name) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null)
-            this.name.setParentNode(null);
+        if (this.name != null) this.name.setParentNode(null);
         this.name = name;
         setAsParentNodeOf(name);
         return this;
@@ -239,21 +250,21 @@ public class EnumConstantDeclaration extends BodyDeclaration<EnumConstantDeclara
         return Optional.of(this);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<Expression> arguments() {
+    public @NonNull() NodeList<Expression> arguments() {
         return Objects.requireNonNull(arguments);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<BodyDeclaration<?>> classBody() {
+    public @NonNull() NodeList<BodyDeclaration<?>> classBody() {
         return Objects.requireNonNull(classBody);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public SimpleName name() {
+    public @NonNull() SimpleName name() {
         return Objects.requireNonNull(name);
     }
 }

@@ -1,5 +1,7 @@
 package com.github.javaparser.ast.jml.clauses;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -12,10 +14,9 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlSignalsOnlyClauseMetaModel;
-import static com.github.javaparser.utils.Utils.assertNotNull;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -41,8 +42,7 @@ public class JmlSignalsOnlyClause extends JmlClause implements MethodContractabl
         customInitialization();
     }
 
-    public JmlSignalsOnlyClause() {
-    }
+    public JmlSignalsOnlyClause() {}
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.AcceptGenerator")
@@ -112,14 +112,13 @@ public class JmlSignalsOnlyClause extends JmlClause implements MethodContractabl
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlSignalsOnlyClause setTypes(final NodeList<Type> types) {
+    public JmlSignalsOnlyClause setTypes(final @NonNull() NodeList<Type> types) {
         assertNotNull(types);
         if (types == this.types) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.TYPES, this.types, types);
-        if (this.types != null)
-            this.types.setParentNode(null);
+        if (this.types != null) this.types.setParentNode(null);
         this.types = types;
         setAsParentNodeOf(types);
         return this;
@@ -160,9 +159,9 @@ public class JmlSignalsOnlyClause extends JmlClause implements MethodContractabl
         action.accept(this);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<Type> types() {
+    public @NonNull() NodeList<Type> types() {
         return Objects.requireNonNull(types);
     }
 }

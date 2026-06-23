@@ -21,6 +21,7 @@
 package com.github.javaparser.ast.expr;
 
 import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -31,9 +32,9 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.ArrayAccessExprMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -96,28 +97,26 @@ public class ArrayAccessExpr extends Expression {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ArrayAccessExpr setIndex(final Expression index) {
+    public ArrayAccessExpr setIndex(final @NonNull() Expression index) {
         assertNotNull(index);
         if (index == this.index) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.INDEX, this.index, index);
-        if (this.index != null)
-            this.index.setParentNode(null);
+        if (this.index != null) this.index.setParentNode(null);
         this.index = index;
         setAsParentNodeOf(index);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ArrayAccessExpr setName(final Expression name) {
+    public ArrayAccessExpr setName(final @NonNull() Expression name) {
         assertNotNull(name);
         if (name == this.name) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null)
-            this.name.setParentNode(null);
+        if (this.name != null) this.name.setParentNode(null);
         this.name = name;
         setAsParentNodeOf(name);
         return this;
@@ -176,15 +175,15 @@ public class ArrayAccessExpr extends Expression {
         return Optional.of(this);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Expression index() {
+    public @NonNull() Expression index() {
         return Objects.requireNonNull(index);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Expression name() {
+    public @NonNull() Expression name() {
         return Objects.requireNonNull(name);
     }
 }

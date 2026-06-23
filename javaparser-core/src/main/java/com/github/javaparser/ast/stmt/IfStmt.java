@@ -20,6 +20,8 @@
  */
 package com.github.javaparser.ast.stmt;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -35,10 +37,9 @@ import com.github.javaparser.metamodel.DerivedProperty;
 import com.github.javaparser.metamodel.IfStmtMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -107,14 +108,13 @@ public class IfStmt extends Statement implements NodeWithCondition<IfStmt> {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public IfStmt setCondition(final Expression condition) {
+    public IfStmt setCondition(final @NonNull() Expression condition) {
         assertNotNull(condition);
         if (condition == this.condition) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.CONDITION, this.condition, condition);
-        if (this.condition != null)
-            this.condition.setParentNode(null);
+        if (this.condition != null) this.condition.setParentNode(null);
         this.condition = condition;
         setAsParentNodeOf(condition);
         return this;
@@ -127,27 +127,25 @@ public class IfStmt extends Statement implements NodeWithCondition<IfStmt> {
      * @return this, the IfStmt
      */
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public IfStmt setElseStmt(final Statement elseStmt) {
+    public IfStmt setElseStmt(final @Nullable() Statement elseStmt) {
         if (elseStmt == this.elseStmt) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.ELSE_STMT, this.elseStmt, elseStmt);
-        if (this.elseStmt != null)
-            this.elseStmt.setParentNode(null);
+        if (this.elseStmt != null) this.elseStmt.setParentNode(null);
         this.elseStmt = elseStmt;
         setAsParentNodeOf(elseStmt);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public IfStmt setThenStmt(final Statement thenStmt) {
+    public IfStmt setThenStmt(final @NonNull() Statement thenStmt) {
         assertNotNull(thenStmt);
         if (thenStmt == this.thenStmt) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.THEN_STMT, this.thenStmt, thenStmt);
-        if (this.thenStmt != null)
-            this.thenStmt.setParentNode(null);
+        if (this.thenStmt != null) this.thenStmt.setParentNode(null);
         this.thenStmt = thenStmt;
         setAsParentNodeOf(thenStmt);
         return this;
@@ -264,21 +262,21 @@ public class IfStmt extends Statement implements NodeWithCondition<IfStmt> {
         return Optional.of(this);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Expression condition() {
+    public @NonNull() Expression condition() {
         return Objects.requireNonNull(condition);
     }
 
-    @Nullable()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Statement elseStmt() {
+    public @Nullable() Statement elseStmt() {
         return elseStmt;
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Statement thenStmt() {
+    public @NonNull() Statement thenStmt() {
         return Objects.requireNonNull(thenStmt);
     }
 }

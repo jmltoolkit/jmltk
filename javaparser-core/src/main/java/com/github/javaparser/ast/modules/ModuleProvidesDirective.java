@@ -21,6 +21,7 @@
 package com.github.javaparser.ast.modules;
 
 import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -34,9 +35,9 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.ModuleProvidesDirectiveMetaModel;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -130,28 +131,26 @@ public class ModuleProvidesDirective extends ModuleDirective implements NodeWith
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ModuleProvidesDirective setName(final Name name) {
+    public ModuleProvidesDirective setName(final @NonNull() Name name) {
         assertNotNull(name);
         if (name == this.name) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null)
-            this.name.setParentNode(null);
+        if (this.name != null) this.name.setParentNode(null);
         this.name = name;
         setAsParentNodeOf(name);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ModuleProvidesDirective setWith(final NodeList<Name> with) {
+    public ModuleProvidesDirective setWith(final @NonNull() NodeList<Name> with) {
         assertNotNull(with);
         if (with == this.with) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.WITH, this.with, with);
-        if (this.with != null)
-            this.with.setParentNode(null);
+        if (this.with != null) this.with.setParentNode(null);
         this.with = with;
         setAsParentNodeOf(with);
         return this;
@@ -211,15 +210,15 @@ public class ModuleProvidesDirective extends ModuleDirective implements NodeWith
         return JavaParserMetaModel.moduleProvidesDirectiveMetaModel;
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Name name() {
+    public @NonNull() Name name() {
         return Objects.requireNonNull(name);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<Name> with() {
+    public @NonNull() NodeList<Name> with() {
         return Objects.requireNonNull(with);
     }
 }

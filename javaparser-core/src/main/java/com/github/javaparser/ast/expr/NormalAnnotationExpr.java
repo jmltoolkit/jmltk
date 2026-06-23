@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007-2010 Júlio Vilmar Gesser.
- * Copyright (C) 2011, 2013-2024 The JavaParser Team.
+ * Copyright (C) 2011, 2013-2025 The JavaParser Team.
  *
  * This file is part of JavaParser.
  *
@@ -20,6 +20,8 @@
  */
 package com.github.javaparser.ast.expr;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -31,15 +33,13 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.NormalAnnotationExprMetaModel;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
- * An annotation that has zero or more key-value pairs.<br>{@code @Mapping(a=5, d=10)}
- *
+ * An annotation that has one or more key-value pairs.<br>{@code @Mapping(a=5, d=10)}
  * @author Julio Vilmar Gesser
  */
 public class NormalAnnotationExpr extends AnnotationExpr {
@@ -83,14 +83,13 @@ public class NormalAnnotationExpr extends AnnotationExpr {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NormalAnnotationExpr setPairs(final NodeList<MemberValuePair> pairs) {
+    public NormalAnnotationExpr setPairs(final @NonNull() NodeList<MemberValuePair> pairs) {
         assertNotNull(pairs);
         if (pairs == this.pairs) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.PAIRS, this.pairs, pairs);
-        if (this.pairs != null)
-            this.pairs.setParentNode(null);
+        if (this.pairs != null) this.pairs.setParentNode(null);
         this.pairs = pairs;
         setAsParentNodeOf(pairs);
         return this;
@@ -182,9 +181,9 @@ public class NormalAnnotationExpr extends AnnotationExpr {
         return Optional.of(this);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<MemberValuePair> pairs() {
+    public @NonNull() NodeList<MemberValuePair> pairs() {
         return Objects.requireNonNull(pairs);
     }
 }

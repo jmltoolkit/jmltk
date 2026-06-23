@@ -21,6 +21,7 @@
 package com.github.javaparser.ast.modules;
 
 import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -34,9 +35,9 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.ModuleOpensDirectiveMetaModel;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -101,14 +102,13 @@ public class ModuleOpensDirective extends ModuleDirective implements NodeWithNam
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ModuleOpensDirective setName(final Name name) {
+    public ModuleOpensDirective setName(final @NonNull() Name name) {
         assertNotNull(name);
         if (name == this.name) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null)
-            this.name.setParentNode(null);
+        if (this.name != null) this.name.setParentNode(null);
         this.name = name;
         setAsParentNodeOf(name);
         return this;
@@ -120,14 +120,13 @@ public class ModuleOpensDirective extends ModuleDirective implements NodeWithNam
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ModuleOpensDirective setModuleNames(final NodeList<Name> moduleNames) {
+    public ModuleOpensDirective setModuleNames(final @NonNull() NodeList<Name> moduleNames) {
         assertNotNull(moduleNames);
         if (moduleNames == this.moduleNames) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.MODULE_NAMES, this.moduleNames, moduleNames);
-        if (this.moduleNames != null)
-            this.moduleNames.setParentNode(null);
+        if (this.moduleNames != null) this.moduleNames.setParentNode(null);
         this.moduleNames = moduleNames;
         setAsParentNodeOf(moduleNames);
         return this;
@@ -211,15 +210,15 @@ public class ModuleOpensDirective extends ModuleDirective implements NodeWithNam
         return JavaParserMetaModel.moduleOpensDirectiveMetaModel;
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<Name> moduleNames() {
+    public @NonNull() NodeList<Name> moduleNames() {
         return Objects.requireNonNull(moduleNames);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Name name() {
+    public @NonNull() Name name() {
         return Objects.requireNonNull(name);
     }
 }

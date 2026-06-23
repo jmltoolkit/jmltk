@@ -21,6 +21,7 @@
 package com.github.javaparser.printer.lexicalpreservation;
 
 import com.github.javaparser.ast.Node;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -91,7 +92,8 @@ class NodeText {
     int findElement(TextElementMatcher matcher, int from) {
         int res = tryToFindElement(matcher, from);
         if (res == NOT_FOUND) {
-            throw new IllegalArgumentException(String.format("I could not find child '%s' from position %d. Elements: %s", matcher, from, elements));
+            throw new IllegalArgumentException(String.format(
+                    "I could not find child '%s' from position %d. Elements: %s", matcher, from, elements));
         }
         return res;
     }
@@ -159,6 +161,12 @@ class NodeText {
         int index = findElement(position, 0);
         elements.remove(index);
         elements.add(index, newElement);
+    }
+
+    void replace(TextElementMatcher position, Collection<? extends TextElement> newElements) {
+        int index = findElement(position, 0);
+        elements.remove(index);
+        elements.addAll(index, newElements);
     }
 
     //

@@ -1,5 +1,7 @@
 package com.github.javaparser.ast.jml.clauses;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.JavaToken;
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
@@ -15,10 +17,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlSimpleExprClauseMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
-import java.util.Optional;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.function.Consumer;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -35,8 +36,7 @@ public class JmlSimpleExprClause extends JmlClause implements MethodContractable
 
     private Expression expression;
 
-    public JmlSimpleExprClause() {
-    }
+    public JmlSimpleExprClause() {}
 
     @AllFieldsConstructor
     public JmlSimpleExprClause(JmlClauseKind kind, SimpleName name, NodeList<SimpleName> heaps, Expression expression) {
@@ -55,7 +55,8 @@ public class JmlSimpleExprClause extends JmlClause implements MethodContractable
         this(range, JmlClauseKind.getKindByToken(kind), name, null, expr);
     }
 
-    public JmlSimpleExprClause(TokenRange range, JavaToken kind, SimpleName name, NodeList<SimpleName> heaps, Expression expr) {
+    public JmlSimpleExprClause(
+            TokenRange range, JavaToken kind, SimpleName name, NodeList<SimpleName> heaps, Expression expr) {
         this(range, JmlClauseKind.getKindByToken(kind), name, heaps, expr);
     }
 
@@ -133,8 +134,7 @@ public class JmlSimpleExprClause extends JmlClause implements MethodContractable
     public JmlSimpleExprClause setExpression(final NodeList<Expression> expression) {
         assertNotNull(expression);
         notifyPropertyChange(ObservableProperty.EXPRESSION, this.expression, expression);
-        if (this.expression != null)
-            this.expression.setParentNode(null);
+        if (this.expression != null) this.expression.setParentNode(null);
         setAsParentNodeOf(expression);
         return this;
     }
@@ -145,13 +145,12 @@ public class JmlSimpleExprClause extends JmlClause implements MethodContractable
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlSimpleExprClause setHeaps(final NodeList<SimpleName> heaps) {
+    public JmlSimpleExprClause setHeaps(final @Nullable() NodeList<SimpleName> heaps) {
         if (heaps == this.heaps) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.HEAPS, this.heaps, heaps);
-        if (this.heaps != null)
-            this.heaps.setParentNode(null);
+        if (this.heaps != null) this.heaps.setParentNode(null);
         this.heaps = heaps;
         setAsParentNodeOf(heaps);
         return this;
@@ -167,7 +166,12 @@ public class JmlSimpleExprClause extends JmlClause implements MethodContractable
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlSimpleExprClause(TokenRange tokenRange, JmlClauseKind kind, SimpleName name, NodeList<SimpleName> heaps, Expression expression) {
+    public JmlSimpleExprClause(
+            TokenRange tokenRange,
+            JmlClauseKind kind,
+            SimpleName name,
+            NodeList<SimpleName> heaps,
+            Expression expression) {
         super(tokenRange, name);
         setKind(kind);
         setHeaps(heaps);
@@ -176,7 +180,7 @@ public class JmlSimpleExprClause extends JmlClause implements MethodContractable
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlSimpleExprClause setKind(final JmlClauseKind kind) {
+    public JmlSimpleExprClause setKind(final @NonNull() JmlClauseKind kind) {
         assertNotNull(kind);
         if (kind == this.kind) {
             return this;
@@ -187,14 +191,13 @@ public class JmlSimpleExprClause extends JmlClause implements MethodContractable
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlSimpleExprClause setExpression(final Expression expression) {
+    public JmlSimpleExprClause setExpression(final @NonNull() Expression expression) {
         assertNotNull(expression);
         if (expression == this.expression) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.EXPRESSION, this.expression, expression);
-        if (this.expression != null)
-            this.expression.setParentNode(null);
+        if (this.expression != null) this.expression.setParentNode(null);
         this.expression = expression;
         setAsParentNodeOf(expression);
         return this;
@@ -230,21 +233,21 @@ public class JmlSimpleExprClause extends JmlClause implements MethodContractable
         action.accept(this);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Expression expression() {
+    public @NonNull() Expression expression() {
         return Objects.requireNonNull(expression);
     }
 
-    @Nullable()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<SimpleName> heaps() {
+    public @Nullable() NodeList<SimpleName> heaps() {
         return heaps;
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlClauseKind kind() {
+    public @NonNull() JmlClauseKind kind() {
         return Objects.requireNonNull(kind);
     }
 }

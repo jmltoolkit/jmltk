@@ -21,6 +21,7 @@
 package com.github.javaparser.ast.expr;
 
 import static com.github.javaparser.utils.Utils.assertNonEmpty;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -84,9 +85,9 @@ public class SimpleName extends Node implements NodeWithIdentifier<SimpleName> {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public SimpleName setIdentifier(final String identifier) {
+    public SimpleName setIdentifier(final @NonNull() String identifier) {
         assertNonEmpty(identifier);
-        if (identifier == this.identifier) {
+        if (identifier.equals(this.identifier)) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.IDENTIFIER, this.identifier, identifier);
@@ -110,9 +111,9 @@ public class SimpleName extends Node implements NodeWithIdentifier<SimpleName> {
         return JavaParserMetaModel.simpleNameMetaModel;
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public String identifier() {
+    public @NonNull() String identifier() {
         return Objects.requireNonNull(identifier);
     }
 }

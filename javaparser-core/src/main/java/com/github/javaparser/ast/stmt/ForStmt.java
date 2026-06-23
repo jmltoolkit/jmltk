@@ -20,6 +20,8 @@
  */
 package com.github.javaparser.ast.stmt;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -37,10 +39,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.ForStmtMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -88,16 +89,30 @@ public class ForStmt extends Statement implements NodeWithBody<ForStmt>, NodeWit
         this(new NodeList<>(), new BooleanLiteralExpr(), new NodeList<>(), new ReturnStmt());
     }
 
-    public ForStmt(final NodeList<Expression> initialization, final Expression compare, final NodeList<Expression> update, final Statement body) {
+    public ForStmt(
+            final NodeList<Expression> initialization,
+            final Expression compare,
+            final NodeList<Expression> update,
+            final Statement body) {
         this(initialization, compare, update, body, new NodeList<>());
     }
 
     @AllFieldsConstructor
-    public ForStmt(final NodeList<Expression> initialization, final Expression compare, final NodeList<Expression> update, final Statement body, final NodeList<JmlContract> contracts) {
+    public ForStmt(
+            final NodeList<Expression> initialization,
+            final Expression compare,
+            final NodeList<Expression> update,
+            final Statement body,
+            final NodeList<JmlContract> contracts) {
         this(null, initialization, compare, update, body, contracts);
     }
 
-    public ForStmt(TokenRange tokenRange, NodeList<Expression> initialization, Expression compare, NodeList<Expression> update, Statement body) {
+    public ForStmt(
+            TokenRange tokenRange,
+            NodeList<Expression> initialization,
+            Expression compare,
+            NodeList<Expression> update,
+            Statement body) {
         this(tokenRange, initialization, compare, update, body, new NodeList<>());
     }
 
@@ -105,7 +120,13 @@ public class ForStmt extends Statement implements NodeWithBody<ForStmt>, NodeWit
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public ForStmt(TokenRange tokenRange, NodeList<Expression> initialization, Expression compare, NodeList<Expression> update, Statement body, NodeList<JmlContract> contracts) {
+    public ForStmt(
+            TokenRange tokenRange,
+            NodeList<Expression> initialization,
+            Expression compare,
+            NodeList<Expression> update,
+            Statement body,
+            NodeList<JmlContract> contracts) {
         super(tokenRange);
         setInitialization(initialization);
         setCompare(compare);
@@ -148,14 +169,13 @@ public class ForStmt extends Statement implements NodeWithBody<ForStmt>, NodeWit
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ForStmt setBody(final Statement body) {
+    public ForStmt setBody(final @NonNull() Statement body) {
         assertNotNull(body);
         if (body == this.body) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.BODY, this.body, body);
-        if (this.body != null)
-            this.body.setParentNode(null);
+        if (this.body != null) this.body.setParentNode(null);
         this.body = body;
         setAsParentNodeOf(body);
         return this;
@@ -168,41 +188,38 @@ public class ForStmt extends Statement implements NodeWithBody<ForStmt>, NodeWit
      * @return this, the ForStmt
      */
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ForStmt setCompare(final Expression compare) {
+    public ForStmt setCompare(final @Nullable() Expression compare) {
         if (compare == this.compare) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.COMPARE, this.compare, compare);
-        if (this.compare != null)
-            this.compare.setParentNode(null);
+        if (this.compare != null) this.compare.setParentNode(null);
         this.compare = compare;
         setAsParentNodeOf(compare);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ForStmt setInitialization(final NodeList<Expression> initialization) {
+    public ForStmt setInitialization(final @NonNull() NodeList<Expression> initialization) {
         assertNotNull(initialization);
         if (initialization == this.initialization) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.INITIALIZATION, this.initialization, initialization);
-        if (this.initialization != null)
-            this.initialization.setParentNode(null);
+        if (this.initialization != null) this.initialization.setParentNode(null);
         this.initialization = initialization;
         setAsParentNodeOf(initialization);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ForStmt setUpdate(final NodeList<Expression> update) {
+    public ForStmt setUpdate(final @NonNull() NodeList<Expression> update) {
         assertNotNull(update);
         if (update == this.update) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.UPDATE, this.update, update);
-        if (this.update != null)
-            this.update.setParentNode(null);
+        if (this.update != null) this.update.setParentNode(null);
         this.update = update;
         setAsParentNodeOf(update);
         return this;
@@ -325,46 +342,45 @@ public class ForStmt extends Statement implements NodeWithBody<ForStmt>, NodeWit
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public ForStmt setContracts(final NodeList<JmlContract> contracts) {
+    public ForStmt setContracts(final @NonNull() NodeList<JmlContract> contracts) {
         assertNotNull(contracts);
         if (contracts == this.contracts) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.CONTRACTS, this.contracts, contracts);
-        if (this.contracts != null)
-            this.contracts.setParentNode(null);
+        if (this.contracts != null) this.contracts.setParentNode(null);
         this.contracts = contracts;
         setAsParentNodeOf(contracts);
         return this;
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Statement body() {
+    public @NonNull() Statement body() {
         return Objects.requireNonNull(body);
     }
 
-    @Nullable()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Expression compare() {
+    public @Nullable() Expression compare() {
         return compare;
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<JmlContract> contracts() {
+    public @NonNull() NodeList<JmlContract> contracts() {
         return Objects.requireNonNull(contracts);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<Expression> initialization() {
+    public @NonNull() NodeList<Expression> initialization() {
         return Objects.requireNonNull(initialization);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<Expression> update() {
+    public @NonNull() NodeList<Expression> update() {
         return Objects.requireNonNull(update);
     }
 }

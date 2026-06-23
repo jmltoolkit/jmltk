@@ -20,6 +20,8 @@
  */
 package com.github.javaparser.ast.expr;
 
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -31,16 +33,15 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.AssignExprMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.printer.Stringable;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
  * An assignment expression. It supports the operators that are found the AssignExpr.Operator enum.
  * <br>{@code a=5}
- * <br>{@code time+=500}AssignExpr
+ * <br>{@code time+=500}
  * <br>{@code watch.time+=500}
  * <br>{@code (((time)))=100*60}
  * <br>{@code peanut[a]=true}
@@ -50,7 +51,6 @@ import org.jspecify.annotations.NonNull;
 public class AssignExpr extends Expression {
 
     public enum Operator implements Stringable {
-
         ASSIGN("="),
         PLUS("+="),
         MINUS("-="),
@@ -75,7 +75,7 @@ public class AssignExpr extends Expression {
         }
 
         public Optional<BinaryExpr.Operator> toBinaryOperator() {
-            switch(this) {
+            switch (this) {
                 case PLUS:
                     return Optional.of(BinaryExpr.Operator.PLUS);
                 case MINUS:
@@ -159,7 +159,7 @@ public class AssignExpr extends Expression {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public AssignExpr setOperator(final Operator operator) {
+    public AssignExpr setOperator(final @NonNull() Operator operator) {
         assertNotNull(operator);
         if (operator == this.operator) {
             return this;
@@ -170,28 +170,26 @@ public class AssignExpr extends Expression {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public AssignExpr setTarget(final Expression target) {
+    public AssignExpr setTarget(final @NonNull() Expression target) {
         assertNotNull(target);
         if (target == this.target) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.TARGET, this.target, target);
-        if (this.target != null)
-            this.target.setParentNode(null);
+        if (this.target != null) this.target.setParentNode(null);
         this.target = target;
         setAsParentNodeOf(target);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public AssignExpr setValue(final Expression value) {
+    public AssignExpr setValue(final @NonNull() Expression value) {
         assertNotNull(value);
         if (value == this.value) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.VALUE, this.value, value);
-        if (this.value != null)
-            this.value.setParentNode(null);
+        if (this.value != null) this.value.setParentNode(null);
         this.value = value;
         setAsParentNodeOf(value);
         return this;
@@ -260,21 +258,21 @@ public class AssignExpr extends Expression {
         return true;
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Operator operator() {
+    public @NonNull() Operator operator() {
         return Objects.requireNonNull(operator);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Expression target() {
+    public @NonNull() Expression target() {
         return Objects.requireNonNull(target);
     }
 
-    @NonNull()
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Expression value() {
+    public @NonNull() Expression value() {
         return Objects.requireNonNull(value);
     }
 }

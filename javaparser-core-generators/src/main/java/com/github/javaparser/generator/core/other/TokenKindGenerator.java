@@ -97,7 +97,7 @@ public class TokenKindGenerator extends Generator {
                 new NodeList<>(new ReturnStmt(name)),
                 false,
                 null);
-        valueOfSwitch.getEntries().addFirst(entry);
+        valueOfSwitch.getEntries().addNFirst(entry);
     }
 
     private void generateEnumEntry(EnumDeclaration kindEnum, String name, IntegerLiteralExpr kind) {

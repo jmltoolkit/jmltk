@@ -1890,7 +1890,6 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
   public void visit(final CompactConstructorDeclaration n, final Void arg) {
     printOrphanCommentsBeforeThisChildNode(n);
     printComment(n.getComment(), arg);
-    printList(n.getContracts(), "\n");
     printMemberAnnotations(n.getAnnotations(), arg);
     printModifiers(n.getModifiers());
     printTypeParameters(n.getTypeParameters(), arg);

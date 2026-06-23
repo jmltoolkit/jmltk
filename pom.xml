@@ -11,10 +11,7 @@
 		<module>javaparser-symbol-solver-core</module>
 		<module>javaparser-symbol-solver-testing</module>
 
-    <groupId>io.github.jmltoolkit</groupId>
-    <artifactId>jmlparser-parent</artifactId>
-    <packaging>pom</packaging>
-    <version>3.27.0-c1-SNAPSHOT</version>
+    <module>jmlparser-jml-tests</module>
 
 		<module>javaparser-key-testing</module>
 		<!--<module>javaparser-key-generator</module>-->

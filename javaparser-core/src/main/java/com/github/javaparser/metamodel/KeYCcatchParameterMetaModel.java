@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007-2010 Júlio Vilmar Gesser.
- * Copyright (C) 2011, 2013-2021 The JavaParser Team.
+ * Copyright (C) 2011, 2013-2024 The JavaParser Team.
  *
  * This file is part of JavaParser.
  *
@@ -34,20 +34,20 @@ import java.util.Optional;
  * For this reason, any changes made directly to this file will be overwritten the next time generators are run.
  */
 @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
-public class KeYCcatchParameterMetaModel extends KeYCcatchBranchMetaModel {
+public class KeyCcatchParameterMetaModel extends KeyCcatchBranchMetaModel {
 
-    @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
-    KeYCcatchParameterMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
-        super(
-                superBaseNodeMetaModel,
-                KeyCcatchParameter.class,
-                "KeYCcatchParameter",
-                "com.github.javaparser.ast.key",
-                false,
-                false);
-    }
+  @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
+  KeyCcatchParameterMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
+    super(
+        superBaseNodeMetaModel,
+        KeyCcatchParameter.class,
+        "KeyCcatchParameter",
+        "com.github.javaparser.ast.key",
+        false,
+        false);
+  }
 
-    public PropertyMetaModel blockPropertyMetaModel;
+  public PropertyMetaModel blockPropertyMetaModel;
 
-    public PropertyMetaModel parameterPropertyMetaModel;
+  public PropertyMetaModel parameterPropertyMetaModel;
 }

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007-2010 Júlio Vilmar Gesser.
- * Copyright (C) 2011, 2013-2021 The JavaParser Team.
+ * Copyright (C) 2011, 2013-2024 The JavaParser Team.
  *
  * This file is part of JavaParser.
  *
@@ -35,27 +35,27 @@ import java.util.Optional;
  * For this reason, any changes made directly to this file will be overwritten the next time generators are run.
  */
 @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
-public class KeYCcatchBranchMetaModel extends NodeMetaModel {
+public class KeyCcatchBranchMetaModel extends NodeMetaModel {
 
-    @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
-    KeYCcatchBranchMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
-        super(
-                superBaseNodeMetaModel,
-                KeyCcatchBranch.class,
-                "KeYCcatchBranch",
-                "com.github.javaparser.ast.key",
-                true,
-                false);
-    }
+  @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
+  KeyCcatchBranchMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
+    super(
+        superBaseNodeMetaModel,
+        KeyCcatchBranch.class,
+        "KeyCcatchBranch",
+        "com.github.javaparser.ast.key",
+        true,
+        false);
+  }
 
-    @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
-    protected KeYCcatchBranchMetaModel(
-            Optional<BaseNodeMetaModel> superNodeMetaModel,
-            Class<? extends Node> type,
-            String name,
-            String packageName,
-            boolean isAbstract,
-            boolean hasWildcard) {
-        super(superNodeMetaModel, type, name, packageName, isAbstract, hasWildcard);
-    }
+  @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
+  protected KeyCcatchBranchMetaModel(
+      Optional<BaseNodeMetaModel> superNodeMetaModel,
+      Class<? extends Node> type,
+      String name,
+      String packageName,
+      boolean isAbstract,
+      boolean hasWildcard) {
+    super(superNodeMetaModel, type, name, packageName, isAbstract, hasWildcard);
+  }
 }

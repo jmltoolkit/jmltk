@@ -75,6 +75,7 @@ ktor-html = { module = "io.ktor:ktor-html-builder", version = "1.6.8" }
 ktor-statuspages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
 ktor-severhtml = { module = "io.ktor:ktor-server-html-builder", version.ref = "ktor" }
 
+jacoco-cobertura = { module = "name.remal.jacoco-to-cobertura:name.remal.jacoco-to-cobertura.gradle.plugin", version = "2.0.4" }
 
 [bundles]
 

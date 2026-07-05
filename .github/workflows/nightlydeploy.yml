@@ -1,4 +1,4 @@
-name: Weekly Builds of KeY
+name: Weekly Builds of JMLtk
 
 on:
   workflow_dispatch:
@@ -35,25 +35,35 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
 
-      - run: ./gradlew --parallel :dokkaGeneratePublicationHtml assemble
-
-      - run: mv -v build/dokka/html/ out/dokka
+      - run: ./gradlew --parallel :dokkaGeneratePublicationHtml
 
       - name: "Upload GitHub Pages artifact"
         uses: actions/upload-pages-artifact@v5
         with:
-          path: out/
+          path: build/dokka/html/
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
 
+      - run: ./gradlew --parallel assemble
 
       - name: Upload ShadowJar
         uses: actions/upload-artifact@v7
         with:
-          name: shadowjars
+          name: distribution
           path: "tools/cli/build/distributions/*.zip"
-          retention-days: 1
+          retention-days: 7
+
+      - name: Upload JavaDoc
+        uses: actions/upload-artifact@v7
+        with:
+            path: "build/dokka/html/"
+            compression-level: '9'
+            retention-days: 7
+
+      - name: Pack JavaDoc
+        run: tar cvfj dokka.tar.xz build/dokka/html/
 
       - name: Delete previous nightly release
         continue-on-error: true
@@ -69,9 +79,10 @@ jobs:
         #--notes-start-tag KEY-2.12.3 \
         run: |
           gh release create --generate-notes --title "Nightly Release" \
-             --prerelease nightly */build/libs/*-all.jar */build/distributions/keyext.api.app.zip
+             --prerelease nightly dokka.tar.xz tools/cli/build/distributions/*.zip
 
       - name: Upload to SNAPSHOT repository
+        if: false
         run: ./gradlew --parallel publishMavenJavaPublicationToKEYLABRepository
         env:
           BUILD_NUMBER: "SNAPSHOT"

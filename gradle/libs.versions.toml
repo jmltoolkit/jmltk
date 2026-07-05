@@ -86,3 +86,4 @@ testing-runtime = ["org-junit-jupiter-junit-jupiter-engine"]
 
 [plugins]
 jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }

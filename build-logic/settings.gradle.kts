@@ -1,12 +1,6 @@
 dependencyResolutionManagement {
+    // Reuse version catalog from the main build.
     versionCatalogs {
-        create("libs") {
-            from(files("../gradle/libs.versions.toml"))
-        }
-    }
-    @Suppress("UnstableApiUsage")
-    repositories {
-        mavenCentral()
-        gradlePluginPortal()
+        create("libs", { from(files("../gradle/libs.versions.toml")) })
     }
 }

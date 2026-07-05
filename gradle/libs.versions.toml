@@ -18,7 +18,9 @@ org-jbehave-jbehave-core = "5.2.0"
 org-jspecify-jspecify = "1.0.0"
 org-junit = "6.0.3"
 org-mockito-mockito-inline = "5.2.0"
-
+dokka = "2.2.0"
+kotlin-gradle-plugin = "2.4.0"
+spotless = "8.8.0"
 gson = "2.13.2"
 logback = "1.5.32"
 clickt = "5.1.0"
@@ -31,6 +33,13 @@ checkstyleVersion = "13.1.0"
 jdk = "21"
 
 [libraries]
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin-gradle-plugin" }
+spotless = { module = "com.diffplug.spotless:com.diffplug.spotless.gradle.plugin", version.ref = "spotless" }
+dokka = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }
+dokka-mermaid = { module = "com.glureau:html-mermaid-dokka-plugin", version = "0.6.0" }
+vanniktech-maven = { module = "com.vanniktech.maven.publish:com.vanniktech.maven.publish.gradle.plugin", version = "0.36.0" }
+gradle-versions = { module = "com.github.ben-manes:gradle-versions-plugin", version = "0.53.0" }
+
 com-google-guava-guava = { module = "com.google.guava:guava", version.ref = "com-google-guava-guava" }
 com-squareup-okhttp3-okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "com-squareup-okhttp3-okhttp" }
 com-squareup-okhttp3-okhttp-jvm = { module = "com.squareup.okhttp3:okhttp-jvm", version.ref = "com-squareup-okhttp3-okhttp-jvm" }

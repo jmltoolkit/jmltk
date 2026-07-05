@@ -1,5 +1,10 @@
 plugins {
     id("standard-kotlin")
+    application
+}
+
+application {
+    mainClass = "io.github.jmltoolkit.cli.MainKt"
 }
 
 dependencies {

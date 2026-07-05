@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-import gradle.kotlin.dsl.accessors._ae9e0b2037dda18deae2e3c073f1e076.compileJava
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 
 
 plugins {
@@ -9,6 +9,7 @@ plugins {
     id("com.diffplug.spotless")
     checkstyle
     id("com.github.ben-manes.versions")
+    id("org.jetbrains.dokka")
 }
 
 val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
@@ -75,7 +76,8 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         toggleOffOn()
         removeUnusedImports()
         trimTrailingWhitespace()
-        palantirJavaFormat(libs.findVersion("palantirJavaFormat").get().toString()).formatJavadoc(false).style("PALANTIR")
+        palantirJavaFormat(libs.findVersion("palantirJavaFormat").get().toString()).formatJavadoc(false)
+            .style("PALANTIR")
         licenseHeaderFile("$rootDir/gradle/header", "(package|import|//)")
     }
 }
@@ -89,4 +91,47 @@ configure<CheckstyleExtension> {
 tasks.checkstyleMain {
     source("src/main/java")
     exclude("**/build/generated-src/**")
+}
+
+dokka {
+    dokkaSourceSets {
+        configureEach {
+            documentedVisibilities.set(setOf(VisibilityModifier.Protected))
+            reportUndocumented.set(true)
+            skipEmptyPackages.set(true)
+            skipDeprecated.set(false)
+            suppressGeneratedFiles.set(false)
+            //samples.from("samples/Basic.kt", "samples/Advanced.kt")
+
+            sourceLink {
+                remoteUrl("https://github.com/jmltoolkit/jmltk/tree/main/")
+                remoteLineSuffix.set("#L")
+                localDirectory.set(rootDir)
+            }
+            perPackageOption {
+                // Package options section
+            }
+            externalDocumentationLinks {
+                externalDocumentationLinks.register("guava") {
+                    url("https://javadoc.io/doc/com.google.guava/guava/latest/")
+                    packageListUrl("https://javadoc.io/doc/com.google.guava/guava/33.0.0-jre/element-list")
+                }
+            }
+        }
+    }
+
+    dokkaPublications.html {
+        //moduleName.set()
+        val exists = layout.projectDirectory.file("README.md").asFile
+        if (exists.exists()) {
+            includes.from("README.md")
+        }
+    }
+}
+
+// To generate documentation in HTML
+val dokkaHtmlJar by tasks.registering(Jar::class) {
+    description = "A HTML Documentation JAR containing Dokka HTML"
+    from(tasks.dokkaGeneratePublicationHtml.flatMap { it.outputDirectory })
+    archiveClassifier.set("html-doc")
 }

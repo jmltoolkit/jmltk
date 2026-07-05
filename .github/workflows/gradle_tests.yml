@@ -35,8 +35,8 @@ jobs:
       ## Optionally cancel all other combinations if one fails
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ] #, macos-latest, windows-latest ]
-        jdk: [ 21 ]
+        os: [ ubuntu-latest , macos-latest, windows-latest ]
+        jdk: [ 21, 25 ]
 
     env:
       OS: ${{ matrix.os }}

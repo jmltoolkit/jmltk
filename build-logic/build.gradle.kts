@@ -12,7 +12,7 @@ repositories {
 
 dependencies {
     implementation("com.diffplug.spotless:com.diffplug.spotless.gradle.plugin:8.8.0")
-    implementation("com.vanniktech.maven.publish:com.vanniktech.maven.publish.gradle.plugin:0.36.0")
+    implementation("com.vanniktech.maven.publish:com.vanniktech.maven.publish.gradle.plugin:0.37.0")
     implementation("com.github.ben-manes:gradle-versions-plugin:0.53.0")
 
 

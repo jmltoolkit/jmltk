@@ -1,7 +1,7 @@
 plugins {
     id("standard-kotlin")
     kotlin("plugin.serialization") version libs.versions.kotlin.get()
-    id("com.gradleup.shadow") version "9.3.2"
+    id("com.gradleup.shadow") version "9.4.3"
     id("application")
 }
 
@@ -11,12 +11,12 @@ dependencies {
     api(project(":jmlparser-symbol-solver-core"))
 
     testImplementation(kotlin("test"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.10.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.11.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
     //implementation(kotlin("serialization"))
     implementation(kotlin("serialization"))
-    runtimeOnly("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
+    runtimeOnly("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
 
     implementation(project(":tools:utils"))
     implementation(project(":tools:smt"))

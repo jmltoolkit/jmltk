@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.xpath
 
 import com.github.javaparser.ast.CompilationUnit
@@ -21,19 +25,15 @@ object DocumentFactories {
 
     fun getElement(it: Node, parent: Element): JPElement = JPElement(it, parent)
 
-
-    fun <T : org.w3c.dom.Node> wrap(list: List<T>): NodeList {
-        return object : NodeList {
+    fun <T : org.w3c.dom.Node> wrap(list: List<T>): NodeList = object : NodeList {
             override fun item(index: Int): org.w3c.dom.Node = list[index]
 
             override fun getLength(): Int = list.size
         }
-    }
 
     fun wrap(vararg seq: Element): NodeList = wrap(listOf(*seq))
 
-    fun emptyNodeMap(): NamedNodeMap {
-        return object : NamedNodeMap {
+    fun emptyNodeMap(): NamedNodeMap = object : NamedNodeMap {
             override fun getNamedItem(name: String): org.w3c.dom.Node? = null
 
             @Throws(DOMException::class)
@@ -55,43 +55,30 @@ object DocumentFactories {
             @Throws(DOMException::class)
             override fun removeNamedItemNS(namespaceURI: String, localName: String): org.w3c.dom.Node? = null
         }
-    }
 
     fun getAttribute(jpElement: JPElement, it: PropertyMetaModel): Attr = JPAttr(jpElement, it)
 
-    fun nodeMap(jpElement: JPElement): NamedNodeMap {
-        return object : NamedNodeMap {
+    fun nodeMap(jpElement: JPElement): NamedNodeMap = object : NamedNodeMap {
             override fun getNamedItem(name: String) =
                 jpElement.attributes.firstOrNull { it.name.equals(name) }
 
             @Throws(DOMException::class)
-            override fun setNamedItem(arg: org.w3c.dom.Node): org.w3c.dom.Node {
-                throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
-            }
+            override fun setNamedItem(arg: org.w3c.dom.Node): org.w3c.dom.Node = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
 
             @Throws(DOMException::class)
-            override fun removeNamedItem(name: String): org.w3c.dom.Node {
-                throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
-            }
+            override fun removeNamedItem(name: String): org.w3c.dom.Node = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
 
             override fun item(index: Int): org.w3c.dom.Node = jpElement.attributes[index]
 
             override fun getLength(): Int = jpElement.attributes.size
 
             @Throws(DOMException::class)
-            override fun getNamedItemNS(namespaceURI: String, localName: String): org.w3c.dom.Node {
-                throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
-            }
+            override fun getNamedItemNS(namespaceURI: String, localName: String): org.w3c.dom.Node = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
 
             @Throws(DOMException::class)
-            override fun setNamedItemNS(arg: org.w3c.dom.Node): org.w3c.dom.Node {
-                throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
-            }
+            override fun setNamedItemNS(arg: org.w3c.dom.Node): org.w3c.dom.Node = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
 
             @Throws(DOMException::class)
-            override fun removeNamedItemNS(namespaceURI: String, localName: String): org.w3c.dom.Node {
-                throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
-            }
+            override fun removeNamedItemNS(namespaceURI: String, localName: String): org.w3c.dom.Node = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
         }
-    }
 }

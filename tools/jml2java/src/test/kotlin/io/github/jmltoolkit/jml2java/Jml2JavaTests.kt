@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.jml2java
 
 import com.github.javaparser.ParseResult
@@ -18,15 +22,13 @@ data class ExprTestCase(
     val result: String,
     val disabled: Boolean = false
 ) {
-    constructor(m: Map<String, Any?>)
-            : this(
+    constructor(m: Map<String, Any?>) :
+            this(
         m["expr"] as String,
         m["result"] as String,
         m["disabled"] as? Boolean ?: false
     )
-
 }
-
 
 /**
  * @author Alexander Weigl

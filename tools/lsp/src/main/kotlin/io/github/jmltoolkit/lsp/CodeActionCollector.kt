@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.lsp
 
 import com.github.javaparser.ast.Node
@@ -17,8 +21,7 @@ import kotlin.jvm.optionals.getOrNull
 /**
  * This visitor gathers actions, that can be executed on nodes within the given range.
  */
-class CodeActionCollector(val context: CodeActionContext?, private val range: com.github.javaparser.Range) :
-    ResultingVisitor<MutableList<Either<Command, CodeAction>>>() {
+class CodeActionCollector(val context: CodeActionContext?, private val range: com.github.javaparser.Range) : ResultingVisitor<MutableList<Either<Command, CodeAction>>>() {
     override val result = arrayListOf<Either<Command, CodeAction>>()
     fun add(x: Command) = result.add(Either.forLeft(x))
     fun add(x: CodeAction) = result.add(Either.forRight(x))
@@ -51,9 +54,7 @@ class CodeActionCollector(val context: CodeActionContext?, private val range: co
         return false
     }
 
-    private fun inRange(n: Node): Boolean {
-        return n.range.getOrNull()?.contains(range) ?: false
-    }
+    private fun inRange(n: Node): Boolean = n.range.getOrNull()?.contains(range) ?: false
 
     override fun visit(n: JmlQuantifiedExpr, arg: Unit?) {
         if (n.binder == JmlDefaultBinder.FORALL || n.binder == JmlDefaultBinder.EXISTS) {

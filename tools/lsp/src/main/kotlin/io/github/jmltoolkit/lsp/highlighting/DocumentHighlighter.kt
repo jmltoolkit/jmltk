@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.lsp.highlighting
 
 import com.github.javaparser.Token
@@ -36,7 +40,6 @@ val tokenTypes = SupportedTokenTypes.entries.map { it.kind }
 val tokenModifiers = SupportedTokenModifier.entries.map { it.kind }
 val LEGEND: SemanticTokensLegend = SemanticTokensLegend(tokenTypes, tokenModifiers)
 
-
 /*
     There are different ways how the position of a token can be expressed in a file.
     Absolute positions or relative positions. The protocol for the token format relative uses
@@ -61,8 +64,9 @@ data class SemanticTokensBuilder(val data: ArrayList<Int> = ArrayList(4096)) {
 
     fun add(beginLine: Int, beginColumn: Int, length: Int, tokenType: Int, modifiers: Int) {
         data.ensureCapacity(data.size + 5)
-        if (beginLine != lastLineStart)
+        if (beginLine != lastLineStart) {
             lastColumnStart = 0
+        }
 
         data.add(beginLine - lastLineStart)
         data.add(beginColumn - lastColumnStart)

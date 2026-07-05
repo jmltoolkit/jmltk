@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.lsp
 
 import com.github.javaparser.JavaToken
@@ -7,7 +11,6 @@ import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.Range
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
-
 
 val com.github.javaparser.Position.asPosition: Position
     get() = Position(line - 1, column - 1)
@@ -42,10 +45,8 @@ val Position?.toPosition: com.github.javaparser.Position?
 val Position.asPosition: com.github.javaparser.Position
     get() = com.github.javaparser.Position(this.line + 1, this.character + 1)
 
-
 private val JavaToken.asStartPosition: Position?
     get() = this.range.getOrNull()?.asStartPosition
-
 
 val com.github.javaparser.Range.asStartPosition: Position
     get() = this.begin.asPosition

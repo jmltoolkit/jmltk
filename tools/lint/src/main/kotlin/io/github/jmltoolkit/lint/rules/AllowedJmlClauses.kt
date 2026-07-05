@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package com.github.jmlparser.lint.rules
 
 import com.github.javaparser.ast.NodeList
@@ -147,18 +151,21 @@ class AllowedJmlClauses : LintRuleVisitor() {
         val a: Optional<NodeWithContracts<*>> = n.findAncestor(NodeWithContracts::class.java)
         if (a.isPresent) {
             val owner: NodeWithContracts<*> = a.get()
-            if (owner is ForEachStmt
-                || owner is ForStmt
-                || owner is WhileStmt
-                || owner is DoStmt
+            if (owner is ForEachStmt ||
+                owner is ForStmt ||
+                owner is WhileStmt ||
+                owner is DoStmt
             ) {
-                if (n.type === ContractType.LOOP_INV) checkClauses(
+                if (n.type === ContractType.LOOP_INV) {
+                    checkClauses(
                     arg,
                     n.clauses,
                     LOOP_INVARIANT_CLAUSES,
                     "loop_invariant"
                 )
-                else checkClauses(arg, n.clauses, LOOP_CONTRACT_CLAUSES, "loop")
+                } else {
+                    checkClauses(arg, n.clauses, LOOP_CONTRACT_CLAUSES, "loop")
+                }
             } else if (owner is MethodDeclaration) {
                 checkClauses(arg, n.clauses, METHOD_CONTRACT_CLAUSES, "method")
             } else if (owner is BlockStmt) {

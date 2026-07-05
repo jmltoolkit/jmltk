@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.utils
 
 import com.github.javaparser.Position
@@ -21,13 +25,9 @@ class LineColumnIndex(private val content: String) {
         }
     }
 
-    fun substring(range: Range): String {
-        return substring(range.begin, range.end)
-    }
+    fun substring(range: Range): String = substring(range.begin, range.end)
 
-    private fun substring(begin: Position, end: Position): String {
-        return substring(begin.line, begin.column, end.line, end.column)
-    }
+    private fun substring(begin: Position, end: Position): String = substring(begin.line, begin.column, end.line, end.column)
 
     fun substring(beginLine: Int, beginColumn: Int, endLine: Int, endColumn: Int): String {
         val a = positionToOffset(beginLine, beginColumn)
@@ -35,11 +35,7 @@ class LineColumnIndex(private val content: String) {
         return content.substring(a, b + 1)
     }
 
-    fun positionToOffset(p: Position): Int {
-        return positionToOffset(p.line, p.column)
-    }
+    fun positionToOffset(p: Position): Int = positionToOffset(p.line, p.column)
 
-    fun positionToOffset(line: Int, column: Int): Int {
-        return lineOffsets[line - 1] + column - 1
-    }
+    fun positionToOffset(line: Int, column: Int): Int = lineOffsets[line - 1] + column - 1
 }

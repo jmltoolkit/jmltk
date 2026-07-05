@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.lsp
 
 import io.github.jmltoolkit.lsp.actions.LspAction
@@ -11,8 +15,9 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.ForkJoinPool
 import kotlin.system.exitProcess
 
-
-class JmlLanguageServer : LanguageServer, LanguageClientAware {
+class JmlLanguageServer :
+    LanguageServer,
+    LanguageClientAware {
     internal val executorService: ExecutorService = ForkJoinPool.commonPool()
     internal val jmlTextDocumentService by lazy { JmlTextDocumentService(this) }
     internal val jmlWorkspaceService by lazy { JmlWorkspaceService(this) }
@@ -49,9 +54,9 @@ class JmlLanguageServer : LanguageServer, LanguageClientAware {
             // capabilities.codeLensProvider = CodeLensOptions(false)
             capabilities.setSelectionRangeProvider(true)
 
-            //capabilities.setDefinitionProvider(true)
-            //capabilities.setDocumentHighlightProvider(true)
-            //capabilities.completionProvider = CompletionOptions(true, null)
+            // capabilities.setDefinitionProvider(true)
+            // capabilities.setDocumentHighlightProvider(true)
+            // capabilities.completionProvider = CompletionOptions(true, null)
 
             capabilities.semanticTokensProvider = SemanticTokensWithRegistrationOptions(
                 LEGEND, SemanticTokensServerFull(false), false,

@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.lsp.highlighting
 
 import de.uka.ilkd.key.nparser.KeYLexer
@@ -22,10 +26,11 @@ class KeyDocumentHighlighter : DocumentHighlighter {
         return SemanticTokens(tb.data)
     }
 
-    private fun tokenType(token: Token): Int? {
-        return when (token.type) {
+    private fun tokenType(token: Token): Int? = when (token.type) {
             KeYLexer.COMMENT -> SupportedTokenTypes.COMMENT.ordinal
+
             KeYLexer.VARIABLE -> SupportedTokenTypes.VARIABLE.ordinal
+
             KeYLexer.VARCOND,
             KeYLexer.IF,
             KeYLexer.IFEX,
@@ -77,12 +82,11 @@ class KeyDocumentHighlighter : DocumentHighlighter {
             KeYLexer.STRING_LITERAL,
             KeYLexer.QUOTED_STRING_LITERAL,
             -> SupportedTokenTypes.NUMBER.ordinal
+
             else -> null
         }
-    }
 
     private fun tokenModifier(token: Token): Int = when (token.type) {
         else -> 0
     }
-
 }

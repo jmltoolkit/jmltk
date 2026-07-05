@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.jml2java
 
 import com.github.javaparser.ast.Modifier
@@ -54,9 +58,7 @@ class Jml2JavaTranslator {
         return targetForAssignment
     }
 
-    fun findPredicate(n: JmlQuantifiedExpr): Expression {
-        return n.expressions[n.expressions.size - 1]
-    }
+    fun findPredicate(n: JmlQuantifiedExpr): Expression = n.expressions[n.expressions.size - 1]
 
     fun findUpperBound(n: JmlQuantifiedExpr, variable: String): Expression? {
         if (n.expressions.size == 3) return n.expressions[1]
@@ -68,11 +70,13 @@ class Jml2JavaTranslator {
                 (e.expressions[1] as? NameExpr)?.nameAsString == variable
             ) {
                 if (e.operators[0] == BinaryExpr.Operator.LESS_EQUALS) return e.expressions[0]
-                if (e.operators[0] == BinaryExpr.Operator.LESS) return BinaryExpr(
+                if (e.operators[0] == BinaryExpr.Operator.LESS) {
+                    return BinaryExpr(
                     e.expressions[0],
                     IntegerLiteralExpr("1"),
                     BinaryExpr.Operator.PLUS
                 )
+                }
                 throw IllegalStateException()
             }
         }
@@ -91,11 +95,13 @@ class Jml2JavaTranslator {
             val pattern = Pattern(be)
             pattern.addPlaceholder(ph, "min")
             val result = pattern.find(n)
-            if (result != null) return BinaryExpr(
+            if (result != null) {
+                return BinaryExpr(
                 result["min"] as Expression?,
                 IntegerLiteralExpr("1"),
                 BinaryExpr.Operator.PLUS
             )
+            }
         }
 
         run {
@@ -111,11 +117,13 @@ class Jml2JavaTranslator {
             val pattern = Pattern(be)
             pattern.addPlaceholder(ph, "min")
             val result = pattern.find(n)
-            if (result != null) return BinaryExpr(
+            if (result != null) {
+                return BinaryExpr(
                 result["min"] as Expression?,
                 IntegerLiteralExpr("1"),
                 BinaryExpr.Operator.PLUS
             )
+            }
         }
 
         return null
@@ -231,14 +239,9 @@ class Jml2JavaTranslator {
             return NameExpr(rvalue)
         }
 
-        private fun newSymbol(prefix: String): String {
-            return prefix + counter.getAndIncrement()
-        }
+        private fun newSymbol(prefix: String): String = prefix + counter.getAndIncrement()
 
-        private fun visitExists(n: JmlQuantifiedExpr, arg: BlockStmt): Expression {
-            return UnaryExpr(visitForall(n, arg), UnaryExpr.Operator.LOGICAL_COMPLEMENT)
-        }
-
+        private fun visitExists(n: JmlQuantifiedExpr, arg: BlockStmt): Expression = UnaryExpr(visitForall(n, arg), UnaryExpr.Operator.LOGICAL_COMPLEMENT)
 
         override fun visit(n: JmlLetExpr, arg: BlockStmt): Expression {
             val inner = BlockStmt()
@@ -298,29 +301,24 @@ class Jml2JavaTranslator {
             }
         }
 
-        override fun visit(n: ArrayAccessExpr, arg: BlockStmt): Expression {
-            return super.visit(n, arg)
-        }
+        override fun visit(n: ArrayAccessExpr, arg: BlockStmt): Expression = super.visit(n, arg)
 
-        override fun visit(n: ArrayCreationExpr, arg: BlockStmt): Expression {
-            return super.visit(n, arg)
-        }
+        override fun visit(n: ArrayCreationExpr, arg: BlockStmt): Expression = super.visit(n, arg)
 
-        override fun visit(n: ArrayInitializerExpr, arg: BlockStmt): Expression {
-            return super.visit(n, arg)
-        }
+        override fun visit(n: ArrayInitializerExpr, arg: BlockStmt): Expression = super.visit(n, arg)
 
-        override fun visit(n: AssignExpr, arg: BlockStmt): Expression {
-            return super.visit(n, arg)
-        }
+        override fun visit(n: AssignExpr, arg: BlockStmt): Expression = super.visit(n, arg)
     }
 
     companion object {
         fun findBound(n: JmlQuantifiedExpr): Expression {
-            if (n.expressions.size == 2) return n.expressions[0]
-            else
-                if (n.expressions.size == 1 && n.expressions.first() is BinaryExpr)
+            if (n.expressions.size == 2) {
+                return n.expressions[0]
+            } else {
+                if (n.expressions.size == 1 && n.expressions.first() is BinaryExpr) {
                     return n.expressions.first()
+                }
+            }
             throw IllegalArgumentException("Could not determine bound.")
         }
 
@@ -334,9 +332,11 @@ class Jml2JavaTranslator {
                     (e.expressions[1] as? NameExpr)?.nameAsString == variable
                 ) {
                     if (e.operators[0] == BinaryExpr.Operator.LESS_EQUALS) return e.expressions[0]
-                    if (e.operators[0] == BinaryExpr.Operator.LESS) return BinaryExpr(
+                    if (e.operators[0] == BinaryExpr.Operator.LESS) {
+                        return BinaryExpr(
                         e.expressions[0], IntegerLiteralExpr("1"), BinaryExpr.Operator.PLUS
                     )
+                    }
                     throw IllegalStateException()
                 }
             }
@@ -355,11 +355,13 @@ class Jml2JavaTranslator {
                 val pattern = Pattern(be)
                 pattern.addPlaceholder(ph, "min")
                 val result = pattern.find(n)
-                if (result != null) return BinaryExpr(
+                if (result != null) {
+                    return BinaryExpr(
                     result["min"] as Expression?,
                     IntegerLiteralExpr("1"),
                     BinaryExpr.Operator.PLUS
                 )
+                }
             }
 
             run {
@@ -375,11 +377,13 @@ class Jml2JavaTranslator {
                 val pattern = Pattern(be)
                 pattern.addPlaceholder(ph, "min")
                 val result = pattern.find(n)
-                if (result != null) return BinaryExpr(
+                if (result != null) {
+                    return BinaryExpr(
                     result["min"] as Expression?,
                     IntegerLiteralExpr("1"),
                     BinaryExpr.Operator.PLUS
                 )
+                }
             }
 
             return null

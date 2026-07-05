@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.stat
 
 import com.github.javaparser.ast.CompilationUnit
@@ -161,8 +165,9 @@ class StatVisitor(
     private fun numberOfVariables(expr: Expression): Int {
         var sum = 0
         for (childNode in expr.childNodes) {
-            if (childNode is NameExpr) sum++
-            else if (childNode is Expression && !childNode.getChildNodes().isEmpty()) {
+            if (childNode is NameExpr) {
+                sum++
+            } else if (childNode is Expression && !childNode.getChildNodes().isEmpty()) {
                 sum += numberOfVariables(childNode)
             }
         }
@@ -176,7 +181,6 @@ class StatVisitor(
     }
 
     private fun active(n: NodeWithJmlTags<*>): Boolean = equal(keys, n.jmlTags)
-
 
     override fun visit(n: JmlRepresentsDeclaration, arg: Element) {
         if (active(n)) {
@@ -194,7 +198,6 @@ class StatVisitor(
             super.visit(n.methodDeclaration, e)
         }
     }
-
 
     override fun visit(n: JmlContract, arg: Element) {
         if (active(n)) {
@@ -242,7 +245,6 @@ class StatVisitor(
             super.visit(n, e)
         }
     }
-
 
     override fun visit(n: JmlLabelStmt, arg: Element) {
         if (active(n)) {
@@ -296,7 +298,7 @@ class StatVisitor(
     }
 
     override fun visit(n: JmlFieldDeclaration, arg: Element) {
-        //update(n, this::update)
+        // update(n, this::update)
     }
 
     interface Update<R> {
@@ -314,7 +316,6 @@ class StatVisitor(
         }
          */
     }
-
 
     private fun count(e: Expression): Map<Class<*>, Int> {
         val occCounter: MutableMap<Class<*>, Int> = HashMap()
@@ -345,7 +346,6 @@ class StatVisitor(
             return n
         }
 
-
         private fun equal(keySet: List<String>, jmlTags: NodeList<SimpleName>): Boolean {
             if (keySet.size != jmlTags.size) {
                 return false
@@ -372,7 +372,7 @@ internal class ExpressionComplexity : GenericVisitorAdapter<Int, ExpressionCosts
         arg.assign + n.target.accept(this, arg) + n.value.accept(this, arg)
 
     override fun visit(n: BinaryExpr, arg: ExpressionCosts): Int =
-        //TODO distinguish by operator
+        // TODO distinguish by operator
         arg.minus + n.left.accept(this, arg) + n.right.accept(this, arg)
 
     override fun visit(n: UnaryExpr, arg: ExpressionCosts): Int = super.visit(n, arg)
@@ -383,12 +383,10 @@ internal class ExpressionComplexity : GenericVisitorAdapter<Int, ExpressionCosts
 
     override fun visit(n: CharLiteralExpr, arg: ExpressionCosts): Int = arg.charLiteral
 
-    override fun visit(n: ConditionalExpr, arg: ExpressionCosts): Int {
-        return arg.conditional + n.condition.accept(this, arg) + n.thenExpr
+    override fun visit(n: ConditionalExpr, arg: ExpressionCosts): Int = arg.conditional + n.condition.accept(this, arg) + n.thenExpr
             .accept(this, arg) + n.elseExpr.accept(
             this, arg
         )
-    }
 
     override fun visit(n: EnclosedExpr, arg: ExpressionCosts): Int = n.inner.accept(this, arg)
 
@@ -405,20 +403,16 @@ internal class ExpressionComplexity : GenericVisitorAdapter<Int, ExpressionCosts
     override fun visit(n: JmlQuantifiedExpr, arg: ExpressionCosts): Int =
         arg.quantor + n.variables.size * arg.binderCostsPerVariable + sum(n.expressions, arg)
 
-    private fun sum(n: NodeList<Expression>, arg: ExpressionCosts): Int {
-        return n.stream().mapToInt { it -> Objects.requireNonNull(it.accept(this, arg), it.javaClass.getSimpleName()) }
+    private fun sum(n: NodeList<Expression>, arg: ExpressionCosts): Int = n.stream().mapToInt { it -> Objects.requireNonNull(it.accept(this, arg), it.javaClass.getSimpleName()) }
             .sum()
-    }
 
     override fun visit(n: JmlTypeExpr, arg: ExpressionCosts): Int = 1
 
     override fun visit(n: SuperExpr, arg: ExpressionCosts): Int = 0
 
-    override fun visit(n: SwitchExpr, arg: ExpressionCosts): Int {
-        return n.selector.accept(this, arg) + n.entries.stream()
+    override fun visit(n: SwitchExpr, arg: ExpressionCosts): Int = n.selector.accept(this, arg) + n.entries.stream()
             .mapToInt { it -> sum(it.labels, arg) + 1 }
             .sum()
-    }
 
     override fun visit(n: TypePatternExpr, arg: ExpressionCosts): Int = 0
     override fun visit(n: RecordPatternExpr, arg: ExpressionCosts?): Int = super.visit(n, arg)

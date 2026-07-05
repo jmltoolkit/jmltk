@@ -2,7 +2,6 @@ plugins {
     id("standard-kotlin")
 }
 
-
 dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     api(project(":jmlparser-symbol-solver-core"))

@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.xpath
 
 import com.github.javaparser.ast.CompilationUnit
@@ -13,9 +17,7 @@ class JPDocument(node: CompilationUnit) : Document {
     override fun getDocumentElement(): Element = root
 
     @Throws(DOMException::class)
-    override fun createElement(tagName: String): Element {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun createElement(tagName: String): Element = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     override fun createDocumentFragment(): DocumentFragment? = null
 
@@ -24,47 +26,29 @@ class JPDocument(node: CompilationUnit) : Document {
     override fun createComment(data: String): Comment? = null
 
     @Throws(DOMException::class)
-    override fun createCDATASection(data: String): CDATASection {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun createCDATASection(data: String): CDATASection = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
-    override fun createProcessingInstruction(target: String, data: String): ProcessingInstruction {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun createProcessingInstruction(target: String, data: String): ProcessingInstruction = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
-    override fun createAttribute(name: String): Attr {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun createAttribute(name: String): Attr = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
-    override fun createEntityReference(name: String): EntityReference {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun createEntityReference(name: String): EntityReference = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
-    override fun getElementsByTagName(tagname: String): NodeList {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun getElementsByTagName(tagname: String): NodeList = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
-    override fun importNode(importedNode: Node, deep: Boolean): Node {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun importNode(importedNode: Node, deep: Boolean): Node = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
-    override fun createElementNS(namespaceURI: String, qualifiedName: String): Element {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun createElementNS(namespaceURI: String, qualifiedName: String): Element = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
-    override fun createAttributeNS(namespaceURI: String, qualifiedName: String): Attr {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun createAttributeNS(namespaceURI: String, qualifiedName: String): Attr = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
-    override fun getElementsByTagNameNS(namespaceURI: String, localName: String): NodeList {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun getElementsByTagNameNS(namespaceURI: String, localName: String): NodeList = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     override fun getElementById(elementId: String): Element? = null
 
@@ -75,22 +59,16 @@ class JPDocument(node: CompilationUnit) : Document {
     override fun getXmlStandalone(): Boolean = true
 
     @Throws(DOMException::class)
-    override fun setXmlStandalone(xmlStandalone: Boolean) {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun setXmlStandalone(xmlStandalone: Boolean): Unit = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     override fun getXmlVersion(): String = "1.0"
 
     @Throws(DOMException::class)
-    override fun setXmlVersion(xmlVersion: String) {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun setXmlVersion(xmlVersion: String): Unit = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     override fun getStrictErrorChecking(): Boolean = false
 
-    override fun setStrictErrorChecking(strictErrorChecking: Boolean) {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun setStrictErrorChecking(strictErrorChecking: Boolean): Unit = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     override fun getDocumentURI(): String? = null
 
@@ -106,21 +84,15 @@ class JPDocument(node: CompilationUnit) : Document {
     }
 
     @Throws(DOMException::class)
-    override fun renameNode(n: Node, namespaceURI: String, qualifiedName: String): Node {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun renameNode(n: Node, namespaceURI: String, qualifiedName: String): Node = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     override fun getNodeName(): String = "#document"
 
     @Throws(DOMException::class)
-    override fun getNodeValue(): String {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun getNodeValue(): String = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
-    override fun setNodeValue(nodeValue: String) {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun setNodeValue(nodeValue: String): Unit = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     override fun getNodeType(): Short = Node.DOCUMENT_TYPE_NODE
 
@@ -141,24 +113,16 @@ class JPDocument(node: CompilationUnit) : Document {
     override fun getOwnerDocument(): Document = this
 
     @Throws(DOMException::class)
-    override fun insertBefore(newChild: Node, refChild: Node): Node {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun insertBefore(newChild: Node, refChild: Node): Node = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
-    override fun replaceChild(newChild: Node, oldChild: Node): Node {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun replaceChild(newChild: Node, oldChild: Node): Node = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
-    override fun removeChild(oldChild: Node): Node {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun removeChild(oldChild: Node): Node = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
-    override fun appendChild(newChild: Node): Node {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun appendChild(newChild: Node): Node = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     override fun hasChildNodes(): Boolean = root != null
 
@@ -184,9 +148,7 @@ class JPDocument(node: CompilationUnit) : Document {
     override fun getBaseURI(): String? = null
 
     @Throws(DOMException::class)
-    override fun compareDocumentPosition(other: Node): Short {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun compareDocumentPosition(other: Node): Short = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
     override fun getTextContent(): String? = null

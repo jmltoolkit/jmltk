@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.smt
 
 import com.github.javaparser.ast.body.Parameter
@@ -50,9 +54,7 @@ open class BitVectorArithmeticTranslator(val smtLog: SmtQuery) : ArithmeticTrans
             REMAINDER -> term.modulo(left, right, true)
         }
 
-    override fun makeChar(n: CharLiteralExpr): SExpr {
-        return term.makeBitvector(16, n.value!![0].code.toLong())
-    }
+    override fun makeChar(n: CharLiteralExpr): SExpr = term.makeBitvector(16, n.value!![0].code.toLong())
 
     override fun unary(operator: UnaryExpr.Operator, accept: SExpr) =
         when (operator) {
@@ -103,13 +105,9 @@ open class BitVectorArithmeticTranslator(val smtLog: SmtQuery) : ArithmeticTrans
         throw RuntimeException("Unsupported type")
     }
 
-    override fun arrayLength(obj: SExpr): SExpr {
-        return term.list(INT, SmtType.BV32, term.symbol("bv\$length"), obj)
-    }
+    override fun arrayLength(obj: SExpr): SExpr = term.list(INT, SmtType.BV32, term.symbol("bv\$length"), obj)
 
-    override fun makeInt(i: Long): SExpr {
-        return makeInt(BigInteger.valueOf(i))
-    }
+    override fun makeInt(i: Long): SExpr = makeInt(BigInteger.valueOf(i))
 
     override fun makeVar(rtype: ResolvedType): SExpr {
         TODO("Not yet implemented")

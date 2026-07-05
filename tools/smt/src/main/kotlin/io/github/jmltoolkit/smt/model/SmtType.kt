@@ -1,12 +1,13 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.smt.model
 
 open class SmtType private constructor(private val name: String) {
     class BitVec internal constructor(val width: Int) : SmtType("(_ BitVec $width)")
 
-
-    override fun toString(): String {
-        return name
-    }
+    override fun toString(): String = name
 
     class Array(val from: SmtType, val to: SmtType) : SmtType("(Array " + from.name + " " + to.name + ")")
 
@@ -30,9 +31,6 @@ open class SmtType private constructor(private val name: String) {
 
         val JAVA_OBJECT: SmtType = SmtType("_TYPE_")
 
-
-        fun getBitVec(width: Int): BitVec {
-            return bvCache.computeIfAbsent(width) { width: Int -> BitVec(width) }
-        }
+        fun getBitVec(width: Int): BitVec = bvCache.computeIfAbsent(width) { width: Int -> BitVec(width) }
     }
 }

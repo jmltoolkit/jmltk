@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.xpath
 
 import com.github.javaparser.ast.Node
@@ -53,21 +57,15 @@ class JPElement(val astNode: Node, private val parent: Element) : Element {
         return prop.getValue(astNode).toString()
     }
 
-    fun getProperty(name: String): PropertyMetaModel {
-        return meta.allPropertyMetaModels.stream()
+    fun getProperty(name: String): PropertyMetaModel = meta.allPropertyMetaModels.stream()
             .filter { it: PropertyMetaModel -> it.name == name }
             .findFirst().orElse(null)
-    }
 
     @Throws(DOMException::class)
-    override fun setAttribute(name: String, value: String) {
-        throw IllegalStateException()
-    }
+    override fun setAttribute(name: String, value: String): Unit = throw IllegalStateException()
 
     @Throws(DOMException::class)
-    override fun removeAttribute(name: String) {
-        throw IllegalStateException()
-    }
+    override fun removeAttribute(name: String): Unit = throw IllegalStateException()
 
     override fun getAttributeNode(name: String) = attributes.asSequence()
         .filter { it: Attr -> it.name == name }
@@ -79,46 +77,30 @@ class JPElement(val astNode: Node, private val parent: Element) : Element {
     @Throws(DOMException::class)
     override fun removeAttributeNode(oldAttr: Attr): Attr? = null
 
-    override fun getElementsByTagName(name: String): org.w3c.dom.NodeList {
-        throw IllegalStateException()
-    }
+    override fun getElementsByTagName(name: String): org.w3c.dom.NodeList = throw IllegalStateException()
 
     @Throws(DOMException::class)
-    override fun getAttributeNS(namespaceURI: String, localName: String): String {
-        throw IllegalStateException()
-    }
+    override fun getAttributeNS(namespaceURI: String, localName: String): String = throw IllegalStateException()
 
     @Throws(DOMException::class)
-    override fun setAttributeNS(namespaceURI: String, qualifiedName: String, value: String) {
-        throw IllegalStateException()
-    }
+    override fun setAttributeNS(namespaceURI: String, qualifiedName: String, value: String): Unit = throw IllegalStateException()
 
     @Throws(DOMException::class)
-    override fun removeAttributeNS(namespaceURI: String, localName: String) {
-        throw IllegalStateException()
-    }
+    override fun removeAttributeNS(namespaceURI: String, localName: String): Unit = throw IllegalStateException()
 
     @Throws(DOMException::class)
-    override fun getAttributeNodeNS(namespaceURI: String, localName: String): Attr {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
-    }
+    override fun getAttributeNodeNS(namespaceURI: String, localName: String): Attr = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
 
     @Throws(DOMException::class)
-    override fun setAttributeNodeNS(newAttr: Attr): Attr {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
-    }
+    override fun setAttributeNodeNS(newAttr: Attr): Attr = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
 
     @Throws(DOMException::class)
-    override fun getElementsByTagNameNS(namespaceURI: String, localName: String): org.w3c.dom.NodeList {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
-    }
+    override fun getElementsByTagNameNS(namespaceURI: String, localName: String): org.w3c.dom.NodeList = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
 
     override fun hasAttribute(name: String): Boolean = !meta.allPropertyMetaModels.isEmpty()
 
     @Throws(DOMException::class)
-    override fun hasAttributeNS(namespaceURI: String, localName: String): Boolean {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
-    }
+    override fun hasAttributeNS(namespaceURI: String, localName: String): Boolean = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
 
     override fun getSchemaTypeInfo(): TypeInfo? = null
 
@@ -140,9 +122,7 @@ class JPElement(val astNode: Node, private val parent: Element) : Element {
     override fun getNodeValue(): String = ""
 
     @Throws(DOMException::class)
-    override fun setNodeValue(nodeValue: String) {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
-    }
+    override fun setNodeValue(nodeValue: String): Unit = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
 
     override fun getNodeType(): Short = org.w3c.dom.Node.ELEMENT_NODE
 
@@ -172,24 +152,16 @@ class JPElement(val astNode: Node, private val parent: Element) : Element {
     override fun getOwnerDocument(): Document? = parent.ownerDocument
 
     @Throws(DOMException::class)
-    override fun insertBefore(newChild: org.w3c.dom.Node, refChild: org.w3c.dom.Node): org.w3c.dom.Node {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
-    }
+    override fun insertBefore(newChild: org.w3c.dom.Node, refChild: org.w3c.dom.Node): org.w3c.dom.Node = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
 
     @Throws(DOMException::class)
-    override fun replaceChild(newChild: org.w3c.dom.Node, oldChild: org.w3c.dom.Node): org.w3c.dom.Node {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
-    }
+    override fun replaceChild(newChild: org.w3c.dom.Node, oldChild: org.w3c.dom.Node): org.w3c.dom.Node = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
 
     @Throws(DOMException::class)
-    override fun removeChild(oldChild: org.w3c.dom.Node): org.w3c.dom.Node {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
-    }
+    override fun removeChild(oldChild: org.w3c.dom.Node): org.w3c.dom.Node = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
 
     @Throws(DOMException::class)
-    override fun appendChild(newChild: org.w3c.dom.Node): org.w3c.dom.Node {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
-    }
+    override fun appendChild(newChild: org.w3c.dom.Node): org.w3c.dom.Node = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
 
     override fun hasChildNodes(): Boolean = children.isNotEmpty()
 

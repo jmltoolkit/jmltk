@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.smt
 
 import com.github.javaparser.ast.expr.CharLiteralExpr
@@ -15,21 +19,13 @@ import java.math.BigInteger
 class IntArithmeticTranslator(smtLog: SmtQuery) : BitVectorArithmeticTranslator((smtLog)) {
     private val term: SmtTermFactory = SmtTermFactory
 
-    override fun makeChar(n: CharLiteralExpr): SExpr {
-        return term.makeInt("" + n.asChar().code)
-    }
+    override fun makeChar(n: CharLiteralExpr): SExpr = term.makeInt("" + n.asChar().code)
 
-    override fun makeLong(n: LongLiteralExpr): SExpr {
-        return term.makeInt("" + n.value)
-    }
+    override fun makeLong(n: LongLiteralExpr): SExpr = term.makeInt("" + n.value)
 
-    override fun makeInt(n: IntegerLiteralExpr): SExpr {
-        return term.makeInt("" + n.value)
-    }
+    override fun makeInt(n: IntegerLiteralExpr): SExpr = term.makeInt("" + n.value)
 
-    override fun makeInt(i: BigInteger): SExpr {
-        return term.makeInt(i.toString())
-    }
+    override fun makeInt(i: BigInteger): SExpr = term.makeInt(i.toString())
 
     override fun makeIntVar(): SExpr {
         val name = "__RAND_" + (++cnt)
@@ -42,7 +38,5 @@ class IntArithmeticTranslator(smtLog: SmtQuery) : BitVectorArithmeticTranslator(
         else -> SmtType.INT
     }
 
-    override fun arrayLength(obj: SExpr): SExpr {
-        return term.list(ResolvedPrimitiveType.INT, SmtType.INT, term.symbol("int\$length"), obj)
-    }
+    override fun arrayLength(obj: SExpr): SExpr = term.list(ResolvedPrimitiveType.INT, SmtType.INT, term.symbol("int\$length"), obj)
 }

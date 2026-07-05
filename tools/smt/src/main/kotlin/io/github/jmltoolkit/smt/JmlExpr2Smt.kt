@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.smt
 
 import com.github.javaparser.ast.ArrayCreationLevel
@@ -19,8 +23,7 @@ import kotlin.jvm.optionals.getOrNull
  * @author Alexander Weigl
  * @version 1 (01.07.22)
  */
-class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTranslator) :
-    GenericVisitorAdapter<SExpr, Any?>() {
+class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTranslator) : GenericVisitorAdapter<SExpr, Any?>() {
 
     private val boundedVars = VariableStack()
 
@@ -33,8 +36,9 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
     }
 
     override fun visit(n: ArrayCreationExpr, arg: Any?): SExpr? {
-        if (n.initializer.isPresent)
+        if (n.initializer.isPresent) {
             return n.initializer.get().accept(this, arg)
+        }
 
         val name = "anon_array_" + (++anonCnt)
         val rType = n.calculateResolvedType()
@@ -89,7 +93,7 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
         smtLog.declareConst(name, myType)
         val `var`: SExpr = termFactory.variable(myType, null, name)
         for (i in seq.indices) {
-            smtLog.addAssert( //(store ary idx sub)
+            smtLog.addAssert( // (store ary idx sub)
                 termFactory.store(`var`, translator.makeInt(i.toLong()), seq[i])
             )
         }
@@ -100,9 +104,7 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
         return `var`
     }
 
-    override fun visit(n: AssignExpr?, arg: Any?): SExpr? {
-        return super.visit(n, arg)
-    }
+    override fun visit(n: AssignExpr?, arg: Any?): SExpr? = super.visit(n, arg)
 
     override fun visit(n: BinaryExpr, arg: Any?): SExpr {
         val left = n.left.accept(this, arg)
@@ -110,13 +112,9 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
         return translator.binary(n.operator, left, right)
     }
 
-    override fun visit(n: ThisExpr?, arg: Any?): SExpr {
-        return termFactory.makeThis()
-    }
+    override fun visit(n: ThisExpr?, arg: Any?): SExpr = termFactory.makeThis()
 
-    override fun visit(n: SuperExpr?, arg: Any?): SExpr {
-        return termFactory.makeSuper()
-    }
+    override fun visit(n: SuperExpr?, arg: Any?): SExpr = termFactory.makeSuper()
 
     override fun visit(n: NameExpr, arg: Any?): SExpr {
         val resolved = n.resolve()
@@ -128,42 +126,25 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
         return termFactory.variable(type, rType, n.nameAsString)
     }
 
-    private fun isBound(nameAsString: String): Boolean {
-        return boundedVars.contains(nameAsString)
-    }
+    private fun isBound(nameAsString: String): Boolean = boundedVars.contains(nameAsString)
 
+    override fun visit(n: NullLiteralExpr?, arg: Any?): SExpr = termFactory.makeNull()
 
-    override fun visit(n: NullLiteralExpr?, arg: Any?): SExpr {
-        return termFactory.makeNull()
-    }
+    override fun visit(n: BooleanLiteralExpr, arg: Any?): SExpr = translator.makeBoolean(n.value)
 
-    override fun visit(n: BooleanLiteralExpr, arg: Any?): SExpr {
-        return translator.makeBoolean(n.value)
-    }
+    override fun visit(n: CastExpr?, arg: Any?): SExpr = super.visit(n, arg)
 
-    override fun visit(n: CastExpr?, arg: Any?): SExpr {
-        return super.visit(n, arg)
-    }
+    override fun visit(n: CharLiteralExpr, arg: Any?): SExpr = translator.makeChar(n)
 
-    override fun visit(n: CharLiteralExpr, arg: Any?): SExpr {
-        return translator.makeChar(n)
-    }
+    override fun visit(n: ClassExpr?, arg: Any?): SExpr = super.visit(n, arg)
 
-    override fun visit(n: ClassExpr?, arg: Any?): SExpr {
-        return super.visit(n, arg)
-    }
-
-    override fun visit(n: ConditionalExpr, arg: Any?): SExpr {
-        return termFactory.ite(
+    override fun visit(n: ConditionalExpr, arg: Any?): SExpr = termFactory.ite(
             n.condition.accept(this, arg),
             n.thenExpr.accept(this, arg),
             n.elseExpr.accept(this, arg)
         )
-    }
 
-    override fun visit(n: DoubleLiteralExpr?, arg: Any?): SExpr {
-        return super.visit(n, arg)
-    }
+    override fun visit(n: DoubleLiteralExpr?, arg: Any?): SExpr = super.visit(n, arg)
 
     override fun visit(n: FieldAccessExpr, arg: Any?): SExpr {
         val scopeType = n.scope.calculateResolvedType()
@@ -182,18 +163,14 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
         val leftType = n.expression.calculateResolvedType()
         val rightType = n.type.resolve()
 
-        //TODO weigl return leftType.asReferenceType()
-        //Pattern matching
+        // TODO weigl return leftType.asReferenceType()
+        // Pattern matching
         return termFactory.makeTrue()
     }
 
-    override fun visit(n: IntegerLiteralExpr, arg: Any?): SExpr {
-        return translator.makeInt(n)
-    }
+    override fun visit(n: IntegerLiteralExpr, arg: Any?): SExpr = translator.makeInt(n)
 
-    override fun visit(n: LongLiteralExpr, arg: Any?): SExpr {
-        return translator.makeLong(n)
-    }
+    override fun visit(n: LongLiteralExpr, arg: Any?): SExpr = translator.makeLong(n)
 
     override fun visit(n: MethodCallExpr, arg: Any?): SExpr {
         val method = n.resolve()
@@ -201,8 +178,8 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
         val ast = method.toAst().getOrNull()
         if (ast is NodeWithContracts<*>) {
             val contract = JMLUtils.createJointContract(ast.contracts)
-            //TODO weigl add assertion for the return variable
-            //TODO weigl add assertion for each parameter
+            // TODO weigl add assertion for the return variable
+            // TODO weigl add assertion for each parameter
             // smtLog.addAssert();
         }
         return variable
@@ -218,38 +195,21 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
         return `var`
     }
 
-    override fun visit(n: StringLiteralExpr, arg: Any?): SExpr {
-        return SAtom(SmtType.STRING, null, ("\"" + n.asString()).toString() + "\"")
-    }
+    override fun visit(n: StringLiteralExpr, arg: Any?): SExpr = SAtom(SmtType.STRING, null, ("\"" + n.asString()).toString() + "\"")
 
-    override fun visit(n: UnaryExpr, arg: Any?): SExpr {
-        return translator.unary(n.operator, n.expression.accept(this, arg))
-    }
+    override fun visit(n: UnaryExpr, arg: Any?): SExpr = translator.unary(n.operator, n.expression.accept(this, arg))
 
-    override fun visit(n: LambdaExpr?, arg: Any?): SExpr {
-        return super.visit(n, arg)
-    }
+    override fun visit(n: LambdaExpr?, arg: Any?): SExpr = super.visit(n, arg)
 
-    override fun visit(n: TypeExpr?, arg: Any?): SExpr {
-        return super.visit(n, arg)
-    }
+    override fun visit(n: TypeExpr?, arg: Any?): SExpr = super.visit(n, arg)
 
-    override fun visit(n: SwitchExpr?, arg: Any?): SExpr {
-        return super.visit(n, arg)
-    }
+    override fun visit(n: SwitchExpr?, arg: Any?): SExpr = super.visit(n, arg)
 
-    override fun visit(n: TextBlockLiteralExpr, arg: Any?): SExpr {
-        return SAtom(SmtType.STRING, null, ("\"" + n.asString()).toString() + "\"")
-    }
+    override fun visit(n: TextBlockLiteralExpr, arg: Any?): SExpr = SAtom(SmtType.STRING, null, ("\"" + n.asString()).toString() + "\"")
 
+    override fun visit(n: RecordPatternExpr, arg: Any?): SExpr = super.visit(n, arg)
 
-    override fun visit(n: RecordPatternExpr, arg: Any?): SExpr {
-        return super.visit(n, arg)
-    }
-
-    override fun visit(n: TypePatternExpr, arg: Any?): SExpr {
-        return super.visit(n, arg)
-    }
+    override fun visit(n: TypePatternExpr, arg: Any?): SExpr = super.visit(n, arg)
 
     override fun visit(n: JmlQuantifiedExpr, arg: Any?): SExpr? {
         return boundedVars.bind(n.variables) {
@@ -257,12 +217,15 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
                 JmlDefaultBinder.FORALL -> {
                     val e: Expression =
                         if (n.expressions.size == 2
-                        ) BinaryExpr(
+                        ) {
+                            BinaryExpr(
                             n.expressions[0],
                             n.expressions[1],
                             BinaryExpr.Operator.IMPLICATION
                         )
-                        else n.expressions[0]
+                        } else {
+                            n.expressions[0]
+                        }
                     e.setParentNode(n)
                     return@bind termFactory.forall(
                         translator.getVariable(n.variables),
@@ -273,8 +236,11 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
                 JmlDefaultBinder.EXISTS -> {
                     val e1: Expression =
                         if (n.expressions.size == 2
-                        ) BinaryExpr(n.expressions[0], n.expressions[1], BinaryExpr.Operator.AND)
-                        else n.expressions[0]
+                        ) {
+                            BinaryExpr(n.expressions[0], n.expressions[1], BinaryExpr.Operator.AND)
+                        } else {
+                            n.expressions[0]
+                        }
                     e1.setParentNode(n)
                     return@bind termFactory.forall(
                         translator.getVariable(n.variables),
@@ -290,9 +256,7 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
         }
     }
 
-    override fun visit(n: JmlLabelExpr, arg: Any?): SExpr {
-        return n.expression.accept(this, arg)
-    }
+    override fun visit(n: JmlLabelExpr, arg: Any?): SExpr = n.expression.accept(this, arg)
 
     override fun visit(n: JmlLetExpr, arg: Any?): SExpr {
         return boundedVars.bind(n.variables) {
@@ -310,9 +274,7 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
         }
     }
 
-    override fun visit(n: JmlMultiCompareExpr, arg: Any?): SExpr {
-        return JMLUtils.unroll(n).accept(this, arg)
-    }
+    override fun visit(n: JmlMultiCompareExpr, arg: Any?): SExpr = JMLUtils.unroll(n).accept(this, arg)
 
     override fun visit(n: JmlBinaryInfixExpr, arg: Any?): SExpr {
         val left: SExpr = n.left.accept(this, arg)
@@ -320,9 +282,7 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
         return termFactory.list(null, SmtType.BOOL, n.operator.identifier, left, right)
     }
 
-    override fun visit(n: JmlTypeExpr?, arg: Any?): SExpr {
-        return super.visit(n, arg)
-    }
+    override fun visit(n: JmlTypeExpr?, arg: Any?): SExpr = super.visit(n, arg)
 
     companion object {
         private val termFactory: SmtTermFactory = SmtTermFactory
@@ -354,7 +314,5 @@ internal class VariableStack {
         }
     }
 
-    fun contains(nameAsString: String): Boolean {
-        return seq.contains(nameAsString)
-    }
+    fun contains(nameAsString: String): Boolean = seq.contains(nameAsString)
 }

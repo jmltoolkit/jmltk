@@ -1,5 +1,8 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.redux
-
 
 /**
  * Configuration for the Redux transformation pipeline.
@@ -15,11 +18,7 @@ class ReduxConfig {
         disabled.add(clazz.toString())
     }
 
-    fun getDisabled(): Set<String> {
-        return disabled
-    }
+    fun getDisabled(): Set<String> = disabled
 
-    fun isEnabled(clazz: String): Boolean {
-        return !disabled.contains(clazz)
-    }
+    fun isEnabled(clazz: String): Boolean = !disabled.contains(clazz)
 }

@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 import com.github.javaparser.JavaParser
 import com.github.javaparser.JavaParserBuild
 import com.github.javaparser.ParserConfiguration
@@ -69,8 +73,7 @@ private suspend fun RoutingContext.renderPage(params: Parameters? = null) {
                         if (inputText != null) {
                             +inputText
                         } else {
-                            +
-                                """
+                            +"""
                                 public class JmlTest {
                                     /*@
                                         requires true;
@@ -78,7 +81,7 @@ private suspend fun RoutingContext.renderPage(params: Parameters? = null) {
                                         assignable \strictly_nothing;
                                     */
                                     public void foo() {
-                                    
+
                                     }
                                 }
                                 """.trimIndent()
@@ -264,7 +267,7 @@ open class DefaultPage : io.ktor.server.html.Template<HTML> {
             script {
                 unsafe {
                     +"""
-                        var editor = CodeMirror.fromTextArea(document.getElementById('input'), 
+                        var editor = CodeMirror.fromTextArea(document.getElementById('input'),
                             { lineNumbers: true, mode: "text/x-java", matchBrackets: true });
                         editor.setSize("100%", "90%");
                         function select(l1, c1, l2, c2) {

@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package com.github.jmlparser.lint.rules
 
 import com.github.javaparser.ast.Modifier
@@ -27,7 +31,6 @@ class PurityValidator : LintRuleVisitor() {
         }
     }
 
-
     override fun visit(n: JmlClassExprDeclaration, arg: LintProblemReporter) {
         val r = PurityVisitor()
         n.invariant.accept(r, null)
@@ -43,7 +46,6 @@ class PurityValidator : LintRuleVisitor() {
             arg.error(r.reason!!, "", "", "Expression in JML statements must be pure." + r.text)
         }
     }
-
 
     private class PurityVisitor : VoidVisitorAdapter<Void?>() {
         var reason: Node? = null
@@ -73,8 +75,8 @@ class PurityValidator : LintRuleVisitor() {
             val r = n.resolve().toAst().getOrNull()
             val mods = r as? NodeWithModifiers<*>
 
-            if (mods?.hasModifier(Modifier.DefaultKeyword.JML_PURE) == true
-                || mods?.hasModifier(Modifier.DefaultKeyword.JML_STRICTLY_PURE) == true
+            if (mods?.hasModifier(Modifier.DefaultKeyword.JML_PURE) == true ||
+                mods?.hasModifier(Modifier.DefaultKeyword.JML_STRICTLY_PURE) == true
             ) {
                 super.visit(n, arg)
             } else {

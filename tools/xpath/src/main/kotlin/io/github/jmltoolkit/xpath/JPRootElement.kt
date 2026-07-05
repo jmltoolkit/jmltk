@@ -1,8 +1,11 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.xpath
 
 import com.github.javaparser.ast.CompilationUnit
 import org.w3c.dom.*
-
 
 class JPRootElement(private val nodes: List<CompilationUnit>, private val document: JPDocument) : Element {
     private val elements: List<Element> by lazy {
@@ -14,56 +17,38 @@ class JPRootElement(private val nodes: List<CompilationUnit>, private val docume
     override fun getAttribute(name: String): String = ""
 
     @Throws(DOMException::class)
-    override fun setAttribute(name: String, value: String) {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun setAttribute(name: String, value: String): Unit = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
-    override fun removeAttribute(name: String) {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun removeAttribute(name: String): Unit = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     override fun getAttributeNode(name: String): Attr? = null
 
     @Throws(DOMException::class)
-    override fun setAttributeNode(newAttr: Attr): Attr {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun setAttributeNode(newAttr: Attr): Attr = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
-    override fun removeAttributeNode(oldAttr: Attr): Attr {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun removeAttributeNode(oldAttr: Attr): Attr = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
-    override fun getElementsByTagName(name: String): NodeList {
-        throw IllegalStateException()
-    }
+    override fun getElementsByTagName(name: String): NodeList = throw IllegalStateException()
 
     @Throws(DOMException::class)
     override fun getAttributeNS(namespaceURI: String, localName: String): String = ""
 
     @Throws(DOMException::class)
-    override fun setAttributeNS(namespaceURI: String, qualifiedName: String, value: String) {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun setAttributeNS(namespaceURI: String, qualifiedName: String, value: String): Unit = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
-    override fun removeAttributeNS(namespaceURI: String, localName: String) {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun removeAttributeNS(namespaceURI: String, localName: String): Unit = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
     override fun getAttributeNodeNS(namespaceURI: String, localName: String): Attr? = null
 
     @Throws(DOMException::class)
-    override fun setAttributeNodeNS(newAttr: Attr): Attr {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun setAttributeNodeNS(newAttr: Attr): Attr = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
-    override fun getElementsByTagNameNS(namespaceURI: String, localName: String): NodeList {
-        throw IllegalStateException()
-    }
+    override fun getElementsByTagNameNS(namespaceURI: String, localName: String): NodeList = throw IllegalStateException()
 
     override fun hasAttribute(name: String): Boolean = false
 
@@ -73,31 +58,21 @@ class JPRootElement(private val nodes: List<CompilationUnit>, private val docume
     override fun getSchemaTypeInfo(): TypeInfo? = null
 
     @Throws(DOMException::class)
-    override fun setIdAttribute(name: String, isId: Boolean) {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun setIdAttribute(name: String, isId: Boolean): Unit = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
-    override fun setIdAttributeNS(namespaceURI: String, localName: String, isId: Boolean) {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun setIdAttributeNS(namespaceURI: String, localName: String, isId: Boolean): Unit = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
-    override fun setIdAttributeNode(idAttr: Attr, isId: Boolean) {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun setIdAttributeNode(idAttr: Attr, isId: Boolean): Unit = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     override fun getNodeName(): String = tagName
 
     @Throws(DOMException::class)
-    override fun getNodeValue(): String {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun getNodeValue(): String = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
-    override fun setNodeValue(nodeValue: String) {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun setNodeValue(nodeValue: String): Unit = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     override fun getNodeType(): Short = Node.ELEMENT_NODE
 
@@ -118,24 +93,16 @@ class JPRootElement(private val nodes: List<CompilationUnit>, private val docume
     override fun getOwnerDocument(): Document = document
 
     @Throws(DOMException::class)
-    override fun insertBefore(newChild: Node, refChild: Node): Node {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun insertBefore(newChild: Node, refChild: Node): Node = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
-    override fun replaceChild(newChild: Node, oldChild: Node): Node {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun replaceChild(newChild: Node, oldChild: Node): Node = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
-    override fun removeChild(oldChild: Node): Node {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun removeChild(oldChild: Node): Node = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     @Throws(DOMException::class)
-    override fun appendChild(newChild: Node): Node {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun appendChild(newChild: Node): Node = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     override fun hasChildNodes(): Boolean = elements.isNotEmpty()
 
@@ -151,9 +118,7 @@ class JPRootElement(private val nodes: List<CompilationUnit>, private val docume
     override fun getPrefix(): String? = null
 
     @Throws(DOMException::class)
-    override fun setPrefix(prefix: String) {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun setPrefix(prefix: String): Unit = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
     override fun getLocalName(): String? = null
 
@@ -168,14 +133,10 @@ class JPRootElement(private val nodes: List<CompilationUnit>, private val docume
     override fun getTextContent(): String = ""
 
     @Throws(DOMException::class)
-    override fun setTextContent(textContent: String) {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
-    }
+    override fun setTextContent(textContent: String): Unit = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "Not Supported")
 
-    override fun isSameNode(other: Node): Boolean {
-        return other is JPRootElement &&
+    override fun isSameNode(other: Node): Boolean = other is JPRootElement &&
                 this.document === other.document
-    }
 
     override fun lookupPrefix(namespaceURI: String): String = ""
 

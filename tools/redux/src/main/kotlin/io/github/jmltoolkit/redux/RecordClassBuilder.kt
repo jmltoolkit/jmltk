@@ -1,6 +1,7 @@
-/* This file is part of KeY - https://key-project.org
- * KeY is licensed under the GNU General Public License Version 2
- * SPDX-License-Identifier: GPL-2.0-only */
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.redux
 
 import com.github.javaparser.StaticJavaParser.parseStatement
@@ -27,7 +28,7 @@ import java.util.*
 
 /** This transformation is made to transform any found [RecordDeclaration] into a corresponding
  * [ClassOrInterfaceDeclaration].
- * 
+ *
  * @author weigl
  * @see [Java SE 25](https://docs.oracle.com/en/java/javase/25/language/records.html)
  * @since 2026-03-11
@@ -126,7 +127,7 @@ class RecordClassBuilder(
                 invariant = q
 
                 this
-                //"public static invariant_free (\\forall %s a,b; a.equals(b); b.equals(a));"
+                // "public static invariant_free (\\forall %s a,b; a.equals(b); b.equals(a));"
             }
 
             attachTypeSpecExpr(clazz) {
@@ -147,7 +148,7 @@ class RecordClassBuilder(
                 invariant = q
 
                 this
-                //"public static invariant_free (\\forall $typeName a,b,c; a.equals(b) && b.equals(c); a.equals(c));"
+                // "public static invariant_free (\\forall $typeName a,b,c; a.equals(b) && b.equals(c); a.equals(c));"
             }
 
             attachTypeSpecExpr(clazz) {
@@ -167,7 +168,7 @@ class RecordClassBuilder(
                 invariant = q
 
                 this
-                //"public static invariant_free (\\forall $typeName a,b; a.equals(b); a.hashCode() == b.hashCode());"
+                // "public static invariant_free (\\forall $typeName a,b; a.equals(b); a.hashCode() == b.hashCode());"
             }
         }
 
@@ -223,8 +224,8 @@ class RecordClassBuilder(
             """
                 public normal_behavior
                 requires true;
-                ensures ${fieldParamEqual};
-                assignable this.*;             
+                ensures $fieldParamEqual;
+                assignable this.*;
             """
         )
         clazz.addMember(fullConstructor)
@@ -281,7 +282,7 @@ class RecordClassBuilder(
                 """
                 public normal_behavior
                 ensures true; requires true;
-                assignable \strictly_nothing;                  
+                assignable \strictly_nothing;
                 """
             )
         }
@@ -293,8 +294,8 @@ class RecordClassBuilder(
         clazz: ClassOrInterfaceDeclaration
     ): Boolean {
         val hasNoEquals =
-            recordDeclaration.getMethodsBySignature("equals", "java.lang.Object").isEmpty()
-                    && recordDeclaration.getMethodsBySignature("equals", "Object").isEmpty()
+            recordDeclaration.getMethodsBySignature("equals", "java.lang.Object").isEmpty() &&
+                    recordDeclaration.getMethodsBySignature("equals", "Object").isEmpty()
         if (hasNoEquals) {
             val equals = clazz.addMethod("equals", PUBLIC, DefaultKeyword.FINAL)
             equals.addAnnotation(Override::class.java)
@@ -309,16 +310,19 @@ class RecordClassBuilder(
                 .map { it.nameAsString }
                 .joinToString(" && ") { "this.$it==(($typeName)o).$it" }
 
-
             val eq2 = recordDeclaration.parameters
                 .joinToString(" && ") {
                     val pname = it!!.nameAsString
-                    if (it.type is PrimitiveType) "($pname == (($typeName)o).$pname)"
-                    else "( this.$pname != null ? (this.$pname.equals((($typeName)o).$pname)) : (o.$pname == null))"
+                    if (it.type is PrimitiveType) {
+                        "($pname == (($typeName)o).$pname)"
+                    } else {
+                        "( this.$pname != null ? (this.$pname.equals((($typeName)o).$pname)) : (o.$pname == null))"
+                    }
                 }
 
             attachContract(
-                equals, """
+                equals,
+                    """
                     public normal_behavior
                     requires true;
                     ensures (
@@ -328,10 +332,9 @@ class RecordClassBuilder(
                             ) <==> \result;
                     ensures hashCode() != o.hashCode() ==> !\result;
                     ensures o == null ==> !\result;
-                    assignable \strictly_nothing;                  
+                    assignable \strictly_nothing;
                     """
             )
-
 
             val body = equals.body.get()
             body.addStatement(parseStatement("if(this == o) return true;"))
@@ -348,9 +351,7 @@ class RecordClassBuilder(
         return hasNoEquals
     }
 
-    private fun callObjects(method: String?, vararg exprs: Expression?): Expression {
-        return callObjects(method, Arrays.stream<Expression?>(exprs).toList())
-    }
+    private fun callObjects(method: String?, vararg exprs: Expression?): Expression = callObjects(method, Arrays.stream<Expression?>(exprs).toList())
 
     private fun callObjects(method: String?, exprs: MutableList<Expression?>?): Expression {
         val objects =
@@ -361,10 +362,7 @@ class RecordClassBuilder(
     private class ConcatBuilder {
         var expr: Expression? = null
 
-
-        fun addStr(s: String?): ConcatBuilder {
-            return concat(StringLiteralExpr(s))
-        }
+        fun addStr(s: String?): ConcatBuilder = concat(StringLiteralExpr(s))
 
         fun concat(expr: Expression?): ConcatBuilder {
             if (this.expr == null) {
@@ -375,9 +373,7 @@ class RecordClassBuilder(
             return this
         }
 
-        fun addVar(s: String?): ConcatBuilder {
-            return concat(NameExpr(s))
-        }
+        fun addVar(s: String?): ConcatBuilder = concat(NameExpr(s))
     }
 
     private fun equalFieldsEqualRecords(
@@ -387,7 +383,6 @@ class RecordClassBuilder(
         if (recordDeclaration.parameters.isEmpty()) {
             return null
         }
-
 
         invariant.addModifier(PUBLIC)
         invariant.kind = SimpleName("invariant_free")

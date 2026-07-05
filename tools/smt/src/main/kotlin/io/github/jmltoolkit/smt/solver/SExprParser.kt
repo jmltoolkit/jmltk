@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.smt.solver
 
 import io.github.jmltoolkit.smt.model.SAtom
@@ -11,22 +15,19 @@ import java.util.function.Predicate
 
 object SExprParser {
     @Throws(IOException::class)
-    fun parse(input: String): SExpr? {
-        return parse(StringReader(input))
-    }
+    fun parse(input: String): SExpr? = parse(StringReader(input))
 
     @Throws(IOException::class)
-    fun parse(reader: Reader): SExpr? {
-        return parse(PushbackReader(reader))
-    }
+    fun parse(reader: Reader): SExpr? = parse(PushbackReader(reader))
 
     @Throws(IOException::class)
     fun parse(reader: PushbackReader): SExpr? {
         val eof = (-1).toChar().code
         var c = peekChar(reader)
-        if (c == eof) // end of input
+        if (c == eof) {
+                // end of input
             return null
-        else if (c == '('.code) {
+        } else if (c == '('.code) {
             consumeChar(reader) // consume '('
             val seq = arrayListOf<SExpr>()
             do {
@@ -64,9 +65,7 @@ object SExprParser {
     }
 
     @Throws(IOException::class)
-    private fun consumeChar(reader: PushbackReader): Int {
-        return reader.read()
-    }
+    private fun consumeChar(reader: PushbackReader): Int = reader.read()
 
     @Throws(IOException::class)
     private fun peekChar(reader: PushbackReader): Int {

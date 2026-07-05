@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package mlpp
 
 import com.github.javaparser.JavaParser
@@ -74,7 +78,6 @@ class FeatureExtractor {
             val followedByNewline = next != null && cur.range.get().end.line != next.range.get().begin.line
             val followedByIndent = next?.range?.get()?.begin?.column ?: 0
 
-
             out.format(
                 "%d\t%d\t%d\t%d\t%d\t%d\t%s\t%d\n",
                 tokenid0,
@@ -100,9 +103,7 @@ class FeatureExtractor {
 }
 
 private class FillNull(private val iter: Iterator<JavaToken>) : Iterator<JavaToken?> {
-    override fun hasNext(): Boolean {
-        return iter.hasNext()
-    }
+    override fun hasNext(): Boolean = iter.hasNext()
 
     override fun next(): JavaToken? {
         if (iter.hasNext()) return iter.next()

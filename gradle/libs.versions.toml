@@ -37,7 +37,7 @@ kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", v
 spotless = { module = "com.diffplug.spotless:com.diffplug.spotless.gradle.plugin", version.ref = "spotless" }
 dokka = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }
 dokka-mermaid = { module = "com.glureau:html-mermaid-dokka-plugin", version = "0.6.0" }
-vanniktech-maven = { module = "com.vanniktech.maven.publish:com.vanniktech.maven.publish.gradle.plugin", version = "0.36.0" }
+vanniktech-maven = { module = "com.vanniktech.maven.publish:com.vanniktech.maven.publish.gradle.plugin", version = "0.37.0" }
 gradle-versions = { module = "com.github.ben-manes:gradle-versions-plugin", version = "0.53.0" }
 
 com-google-guava-guava = { module = "com.google.guava:guava", version.ref = "com-google-guava-guava" }

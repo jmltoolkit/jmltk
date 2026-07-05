@@ -64,7 +64,7 @@ internal class TestTokenRangesPreciseness : TestWithJavaParser() {
     @TestFactory
     @Throws(Throwable::class)
     fun test(): Stream<DynamicTest> {
-        val content = Files.readString(Paths.get("src/test/kotlin/TokenTest.java"))
+        val content = Files.readString(Paths.get("src/test/resources/TokenTest.java"))
         val result = parser.parse(content)
         Assertions.assertTrue(result.isSuccessful)
         return testTokenRanges(result.result.get(), content)

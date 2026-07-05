@@ -32,7 +32,7 @@ jobs:
     steps:
       - &checkout
         name: Checkout latest code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.0
         with:
           fetch-depth: "0"
       - &setupjava
@@ -65,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout latest code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.0
         with:
           fetch-depth: "0"
           ref: ${{github.event.pull_request.head.sha}}

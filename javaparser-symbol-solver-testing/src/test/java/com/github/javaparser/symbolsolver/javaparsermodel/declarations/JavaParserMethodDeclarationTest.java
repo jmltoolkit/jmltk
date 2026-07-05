@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.javaparsermodel.declarations;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.JavaParserAdapter;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -18,9 +16,12 @@ import com.github.javaparser.resolution.declarations.ResolvedMethodDeclarationTe
 import com.github.javaparser.symbolsolver.core.resolution.TypeVariableResolutionCapabilityTest;
 import com.github.javaparser.symbolsolver.resolution.AbstractResolutionTest;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+import org.junit.jupiter.api.Test;
+
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JavaParserMethodDeclarationTest extends AbstractResolutionTest
         implements ResolvedMethodDeclarationTest, TypeVariableResolutionCapabilityTest {

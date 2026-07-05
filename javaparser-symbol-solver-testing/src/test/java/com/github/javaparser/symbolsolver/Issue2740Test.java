@@ -11,8 +11,9 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.symbolsolver.resolution.AbstractResolutionTest;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
-import java.util.List;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 public class Issue2740Test extends AbstractResolutionTest {
 

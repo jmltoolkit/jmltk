@@ -4,14 +4,13 @@
  */
 package com.github.javaparser.symbolsolver.reflectionmodel;
 
-import static com.github.javaparser.symbolsolver.logic.AbstractTypeDeclaration.isRecordType;
-
 import com.github.javaparser.ast.AccessSpecifier;
 import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedTypeParameterDeclaration;
 import com.github.javaparser.resolution.model.typesystem.ReferenceTypeImpl;
 import com.github.javaparser.resolution.types.*;
+
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -19,6 +18,8 @@ import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static com.github.javaparser.symbolsolver.logic.AbstractTypeDeclaration.isRecordType;
 
 /**
  * @author Federico Tomassetti

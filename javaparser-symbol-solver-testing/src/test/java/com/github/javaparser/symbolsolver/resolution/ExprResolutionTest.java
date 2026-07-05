@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.resolution;
 
-import static com.github.javaparser.StaticJavaParser.parse;
-import static com.github.javaparser.resolution.types.ResolvedPrimitiveType.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.resolution.TypeSolver;
@@ -15,9 +11,14 @@ import com.github.javaparser.resolution.model.typesystem.ReferenceTypeImpl;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static com.github.javaparser.StaticJavaParser.parse;
+import static com.github.javaparser.resolution.types.ResolvedPrimitiveType.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ExprResolutionTest extends AbstractResolutionTest {
 

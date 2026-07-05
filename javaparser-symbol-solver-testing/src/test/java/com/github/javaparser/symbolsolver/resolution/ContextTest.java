@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.resolution;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.github.javaparser.*;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
@@ -28,13 +24,18 @@ import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFactory;
 import com.github.javaparser.symbolsolver.reflectionmodel.ReflectionClassDeclaration;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.*;
 import com.github.javaparser.symbolsolver.utils.LeanParserConfiguration;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class ContextTest extends AbstractSymbolResolutionTest {
 

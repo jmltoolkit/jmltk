@@ -20,6 +20,7 @@ import com.github.javaparser.printer.Stringable;
 import com.github.javaparser.printer.concretesyntaxmodel.*;
 import com.github.javaparser.printer.lexicalpreservation.changes.*;
 import com.github.javaparser.utils.LineSeparator;
+
 import java.util.*;
 
 class LexicalDifferenceCalculator {

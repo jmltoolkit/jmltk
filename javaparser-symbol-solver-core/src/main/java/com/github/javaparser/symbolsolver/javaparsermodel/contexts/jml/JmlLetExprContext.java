@@ -12,6 +12,7 @@ import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration;
 import com.github.javaparser.resolution.model.SymbolReference;
 import com.github.javaparser.symbolsolver.javaparsermodel.contexts.AbstractJavaParserContext;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserSymbolDeclaration;
+
 import java.util.ArrayList;
 import java.util.List;
 

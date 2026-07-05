@@ -11,6 +11,7 @@ import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.symbolsolver.javaparsermodel.NormalCompletionVisitor;
 import com.github.javaparser.symbolsolver.javaparsermodel.PatternVariableResult;
 import com.github.javaparser.symbolsolver.javaparsermodel.PatternVariableVisitor;
+
 import java.util.LinkedList;
 import java.util.List;
 

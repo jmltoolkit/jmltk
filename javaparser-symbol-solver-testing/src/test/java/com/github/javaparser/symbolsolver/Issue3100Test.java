@@ -15,8 +15,9 @@ import com.github.javaparser.symbolsolver.resolution.AbstractResolutionTest;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
-import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
+
+import java.nio.file.Path;
 
 public class Issue3100Test extends AbstractResolutionTest {
 

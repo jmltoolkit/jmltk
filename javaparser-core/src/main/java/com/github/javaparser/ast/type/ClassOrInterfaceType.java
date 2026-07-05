@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.ast.type;
 
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import static java.util.stream.Collectors.joining;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -32,14 +29,18 @@ import com.github.javaparser.resolution.model.SymbolReference;
 import com.github.javaparser.resolution.model.typesystem.ReferenceTypeImpl;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.resolution.types.ResolvedTypeVariable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+
+import static com.github.javaparser.utils.Utils.assertNotNull;
+import static java.util.stream.Collectors.joining;
 
 /**
  * A class or an interface type.

@@ -7,6 +7,7 @@ package com.github.javaparser.ast.jml.clauses;
 import com.github.javaparser.GeneratedJavaParserConstants;
 import com.github.javaparser.JavaToken;
 import com.github.javaparser.ast.jml.JmlKeyword;
+
 import java.util.Arrays;
 import java.util.Optional;
 

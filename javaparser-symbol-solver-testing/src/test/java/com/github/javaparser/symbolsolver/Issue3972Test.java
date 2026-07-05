@@ -4,13 +4,13 @@
  */
 package com.github.javaparser.symbolsolver;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import com.github.javaparser.JavaParserAdapter;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.symbolsolver.resolution.AbstractResolutionTest;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class Issue3972Test extends AbstractResolutionTest {
 

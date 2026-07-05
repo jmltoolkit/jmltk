@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.symbolsolver;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseStart;
 import com.github.javaparser.StreamProvider;
@@ -16,11 +14,14 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSol
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import com.github.javaparser.symbolsolver.utils.LeanParserConfiguration;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Issue1485Test extends AbstractSymbolResolutionTest {
 

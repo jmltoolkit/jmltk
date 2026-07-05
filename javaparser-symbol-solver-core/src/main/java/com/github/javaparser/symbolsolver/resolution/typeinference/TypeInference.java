@@ -16,6 +16,7 @@ import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.resolution.typeinference.bounds.SubtypeOfBound;
 import com.github.javaparser.symbolsolver.resolution.typeinference.bounds.ThrowsBound;
 import com.github.javaparser.symbolsolver.resolution.typeinference.constraintformulas.ExpressionCompatibleWithType;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;

@@ -7,6 +7,7 @@ package com.github.javaparser.resolution.model;
 import com.github.javaparser.quality.Nullable;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.declarations.ResolvedDeclaration;
+
 import java.util.Optional;
 
 /**

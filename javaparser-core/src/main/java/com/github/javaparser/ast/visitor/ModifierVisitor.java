@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.ast.visitor;
 
-import static com.github.javaparser.utils.Utils.removeElementByObjectIdentity;
-import static com.github.javaparser.utils.Utils.replaceElementByObjectIdentity;
-
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.comments.BlockComment;
@@ -27,9 +24,13 @@ import com.github.javaparser.ast.modules.*;
 import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.type.*;
 import com.github.javaparser.utils.Pair;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static com.github.javaparser.utils.Utils.removeElementByObjectIdentity;
+import static com.github.javaparser.utils.Utils.replaceElementByObjectIdentity;
 
 /**
  * This visitor can be used to save time when some specific nodes needs

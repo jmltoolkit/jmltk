@@ -4,9 +4,9 @@
  */
 package com.github.javaparser.ast.jml.clauses;
 
-import static com.github.javaparser.ast.jml.clauses.JmlClauseKind.*;
-
 import java.util.EnumSet;
+
+import static com.github.javaparser.ast.jml.clauses.JmlClauseKind.*;
 
 /**
  * @author Alexander Weigl

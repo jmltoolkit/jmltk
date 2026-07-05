@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.printer.lexicalpreservation.transformations.ast.body;
 
-import static com.github.javaparser.StaticJavaParser.parseStatement;
-import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.Range;
 import com.github.javaparser.StaticJavaParser;
@@ -21,6 +17,10 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.printer.lexicalpreservation.AbstractLexicalPreservingTest;
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter;
 import org.junit.jupiter.api.*;
+
+import static com.github.javaparser.StaticJavaParser.parseStatement;
+import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Transforming Statement and verifying the LexicalPreservation works as expected.

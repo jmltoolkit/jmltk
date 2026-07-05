@@ -19,6 +19,7 @@ import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserClassDeclaration;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserInterfaceDeclaration;
 import com.github.javaparser.symbolsolver.resolution.SymbolSolver;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;

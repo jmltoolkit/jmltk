@@ -4,20 +4,21 @@
  */
 package com.github.javaparser.generator.metamodel;
 
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.stmt.Statement;
+import com.github.javaparser.metamodel.NonEmptyProperty;
+import com.github.javaparser.metamodel.OptionalProperty;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 import static com.github.javaparser.StaticJavaParser.parseStatement;
 import static com.github.javaparser.ast.Modifier.DefaultKeyword.PUBLIC;
 import static com.github.javaparser.generator.metamodel.MetaModelGenerator.isNode;
 import static com.github.javaparser.generator.metamodel.MetaModelGenerator.nodeMetaModelName;
 import static com.github.javaparser.utils.CodeGenerationUtils.*;
 import static com.github.javaparser.utils.Utils.decapitalize;
-
-import com.github.javaparser.ast.NodeList;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.stmt.Statement;
-import com.github.javaparser.metamodel.NonEmptyProperty;
-import com.github.javaparser.metamodel.OptionalProperty;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 class InitializePropertyMetaModelsStatementsGenerator {
     void generate(

@@ -4,6 +4,13 @@
  */
 package com.github.javaparser.ast.validator;
 
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseResult;
+import com.github.javaparser.ParserConfiguration;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.stmt.Statement;
+import org.junit.jupiter.api.Test;
+
 import static com.github.javaparser.ParseStart.COMPILATION_UNIT;
 import static com.github.javaparser.ParseStart.STATEMENT;
 import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_9;
@@ -11,13 +18,6 @@ import static com.github.javaparser.Providers.provider;
 import static com.github.javaparser.ast.validator.Java1_1ValidatorTest.allModifiers;
 import static com.github.javaparser.utils.TestUtils.assertNoProblems;
 import static com.github.javaparser.utils.TestUtils.assertProblems;
-
-import com.github.javaparser.JavaParser;
-import com.github.javaparser.ParseResult;
-import com.github.javaparser.ParserConfiguration;
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.stmt.Statement;
-import org.junit.jupiter.api.Test;
 
 class Java9ValidatorTest {
     public static final JavaParser javaParser = new JavaParser(new ParserConfiguration().setLanguageLevel(JAVA_9));

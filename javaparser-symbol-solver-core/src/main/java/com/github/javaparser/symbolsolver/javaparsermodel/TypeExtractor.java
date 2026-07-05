@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.javaparsermodel;
 
-import static com.github.javaparser.ast.expr.Expression.EXCLUDE_ENCLOSED_EXPR;
-import static com.github.javaparser.ast.expr.Expression.IS_NOT_ENCLOSED_EXPR;
-import static com.github.javaparser.resolution.Navigator.demandParentNode;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
@@ -39,11 +35,16 @@ import com.github.javaparser.symbolsolver.resolution.typeinference.TypeHelper;
 import com.github.javaparser.utils.Log;
 import com.github.javaparser.utils.Pair;
 import com.google.common.collect.ImmutableList;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.github.javaparser.ast.expr.Expression.EXCLUDE_ENCLOSED_EXPR;
+import static com.github.javaparser.ast.expr.Expression.IS_NOT_ENCLOSED_EXPR;
+import static com.github.javaparser.resolution.Navigator.demandParentNode;
 
 public class TypeExtractor extends DefaultVisitorAdapter {
 
@@ -451,10 +452,12 @@ public class TypeExtractor extends DefaultVisitorAdapter {
      * Finds the first YieldStmt that belongs to the given SwitchExpr (not to a nested switch).
      */
     private Optional<YieldStmt> findYieldForSwitch(Node searchRoot, SwitchExpr targetSwitch) {
-        return searchRoot.findFirst(YieldStmt.class, yieldStmt -> yieldStmt
-                .findAncestor(SwitchExpr.class)
-                .map(ancestor -> ancestor == targetSwitch)
-                .orElse(false));
+        return searchRoot.findFirst(
+                YieldStmt.class,
+                yieldStmt -> yieldStmt
+                        .findAncestor(SwitchExpr.class)
+                        .map(ancestor -> ancestor == targetSwitch)
+                        .orElse(false));
     }
 
     @Override

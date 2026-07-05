@@ -4,11 +4,12 @@
  */
 package com.github.javaparser;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.ast.CompilationUnit;
-import java.io.StringReader;
 import org.junit.jupiter.api.Test;
+
+import java.io.StringReader;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Issue3064Test {
 

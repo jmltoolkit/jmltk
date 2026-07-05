@@ -4,14 +4,14 @@
  */
 package com.github.javaparser;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.javadoc.Javadoc;
 import com.github.javaparser.javadoc.JavadocBlockTag;
 import com.github.javaparser.javadoc.description.JavadocDescription;
 import com.github.javaparser.utils.LineSeparator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JavadocParserTest {
 

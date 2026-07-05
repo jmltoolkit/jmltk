@@ -4,16 +4,16 @@
  */
 package com.github.javaparser;
 
-import static com.github.javaparser.Providers.provider;
-import static com.github.javaparser.ast.Node.Parsedness.UNPARSABLE;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.stmt.LabeledStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.stmt.UnparsableStmt;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.Providers.provider;
+import static com.github.javaparser.ast.Node.Parsedness.UNPARSABLE;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ParseErrorRecoveryTest {
     private final JavaParser parser = new JavaParser();

@@ -4,10 +4,10 @@
  */
 package com.github.javaparser.printer.lexicalpreservation;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.github.javaparser.ast.Modifier;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Issue3358Test extends AbstractLexicalPreservingTest {
 

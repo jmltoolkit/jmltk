@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.ast.stmt;
 
-import static com.github.javaparser.utils.CodeGenerationUtils.f;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -20,8 +18,11 @@ import com.github.javaparser.ast.key.sv.KeyStatementSV;
 import com.github.javaparser.ast.visitor.CloneVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.StatementMetaModel;
+
 import java.util.Optional;
 import java.util.function.Consumer;
+
+import static com.github.javaparser.utils.CodeGenerationUtils.f;
 
 /**
  * A base class for all statements.

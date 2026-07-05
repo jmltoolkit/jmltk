@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.generator;
 
-import static com.github.javaparser.ast.NodeList.toNodeList;
-import static com.github.javaparser.utils.CodeGenerationUtils.f;
-
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.Problem;
 import com.github.javaparser.StaticJavaParser;
@@ -26,10 +23,14 @@ import com.github.javaparser.ast.stmt.SwitchStmt;
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter;
 import com.github.javaparser.utils.Log;
 import com.github.javaparser.utils.SourceRoot;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.github.javaparser.ast.NodeList.toNodeList;
+import static com.github.javaparser.utils.CodeGenerationUtils.f;
 
 /**
  * A general pattern that the generators in this module will follow.

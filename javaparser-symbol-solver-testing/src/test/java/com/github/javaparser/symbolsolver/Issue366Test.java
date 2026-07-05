@@ -4,17 +4,18 @@
  */
 package com.github.javaparser.symbolsolver;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.resolution.AbstractResolutionTest;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+import org.junit.jupiter.api.Test;
+
 import java.io.FileNotFoundException;
 import java.util.List;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Issue366Test extends AbstractResolutionTest {
 

@@ -13,6 +13,7 @@ import com.github.javaparser.resolution.declarations.ResolvedTypeParameterDeclar
 import com.github.javaparser.symbolsolver.logic.AbstractTypeDeclaration;
 import com.github.javaparser.symbolsolver.logic.AbstractTypeDeclarationTest;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+
 import java.util.Optional;
 
 class JavaParserTypeParameterTest extends AbstractTypeDeclarationTest implements ResolvedTypeParameterDeclarationTest {

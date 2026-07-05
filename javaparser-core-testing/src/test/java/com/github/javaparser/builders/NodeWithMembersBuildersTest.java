@@ -4,16 +4,17 @@
  */
 package com.github.javaparser.builders;
 
-import static com.github.javaparser.StaticJavaParser.*;
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.*;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import org.junit.jupiter.api.Test;
+
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.*;
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class NodeWithMembersBuildersTest {
     private final CompilationUnit cu = new CompilationUnit();

@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.serialization;
 
-import static com.github.javaparser.ast.NodeList.toNodeList;
-import static com.github.javaparser.metamodel.JavaParserMetaModel.getNodeMetaModel;
-import static com.github.javaparser.serialization.JavaParserJsonSerializer.*;
-
 import com.github.javaparser.*;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
@@ -23,9 +19,14 @@ import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
 import jakarta.json.JsonValue;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.github.javaparser.ast.NodeList.toNodeList;
+import static com.github.javaparser.metamodel.JavaParserMetaModel.getNodeMetaModel;
+import static com.github.javaparser.serialization.JavaParserJsonSerializer.*;
 
 /**
  * Deserializes the JSON file that was built by {@link JavaParserJsonSerializer}.

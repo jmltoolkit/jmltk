@@ -8,11 +8,12 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.Providers;
 import com.github.javaparser.ast.jml.ArbitraryNodeContainer;
+import org.junit.jupiter.api.*;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.*;
 
 /**
  * @author Alexander Weigl

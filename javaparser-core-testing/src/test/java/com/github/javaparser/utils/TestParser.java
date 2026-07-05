@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.utils;
 
-import static com.github.javaparser.ParserConfiguration.LanguageLevel;
-import static com.github.javaparser.ParserConfiguration.LanguageLevel.BLEEDING_EDGE;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
@@ -16,8 +12,13 @@ import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.Statement;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.github.javaparser.ParserConfiguration.LanguageLevel;
+import static com.github.javaparser.ParserConfiguration.LanguageLevel.BLEEDING_EDGE;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TestParser {
 

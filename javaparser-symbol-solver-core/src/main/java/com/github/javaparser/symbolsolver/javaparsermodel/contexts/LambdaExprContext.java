@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.javaparsermodel.contexts;
 
-import static com.github.javaparser.ast.expr.Expression.EXCLUDE_ENCLOSED_EXPR;
-import static com.github.javaparser.ast.expr.Expression.IS_NOT_ENCLOSED_EXPR;
-import static com.github.javaparser.resolution.Navigator.demandParentNode;
-
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
@@ -34,7 +30,12 @@ import com.github.javaparser.resolution.types.ResolvedLambdaConstraintType;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFactory;
+
 import java.util.*;
+
+import static com.github.javaparser.ast.expr.Expression.EXCLUDE_ENCLOSED_EXPR;
+import static com.github.javaparser.ast.expr.Expression.IS_NOT_ENCLOSED_EXPR;
+import static com.github.javaparser.resolution.Navigator.demandParentNode;
 
 /**
  * @author Federico Tomassetti

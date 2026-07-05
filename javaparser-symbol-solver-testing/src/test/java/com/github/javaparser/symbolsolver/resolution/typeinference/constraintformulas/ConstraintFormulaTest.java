@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.resolution.typeinference.constraintformulas;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.resolution.TypeSolver;
@@ -18,6 +15,9 @@ import com.github.javaparser.symbolsolver.resolution.typeinference.ConstraintFor
 import com.github.javaparser.symbolsolver.resolution.typeinference.InferenceVariable;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 
 class ConstraintFormulaTest {
 

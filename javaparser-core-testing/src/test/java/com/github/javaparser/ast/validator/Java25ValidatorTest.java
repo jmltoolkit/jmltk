@@ -4,17 +4,17 @@
  */
 package com.github.javaparser.ast.validator;
 
-import static com.github.javaparser.ParseStart.*;
-import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_25;
-import static com.github.javaparser.Providers.provider;
-import static com.github.javaparser.utils.TestUtils.assertNoProblems;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.ParseStart.*;
+import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_25;
+import static com.github.javaparser.Providers.provider;
+import static com.github.javaparser.utils.TestUtils.assertNoProblems;
 
 /**
  * Test for Java 25 language level support.

@@ -17,6 +17,7 @@ import com.github.javaparser.resolution.declarations.ResolvedTypeDeclaration;
 import com.github.javaparser.resolution.model.SymbolReference;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFactory;
 import com.google.common.collect.ImmutableList;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

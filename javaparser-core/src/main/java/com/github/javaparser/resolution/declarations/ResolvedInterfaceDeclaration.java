@@ -5,6 +5,7 @@
 package com.github.javaparser.resolution.declarations;
 
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
+
 import java.util.ArrayList;
 import java.util.List;
 

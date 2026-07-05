@@ -4,12 +4,6 @@
  */
 package com.github.javaparser.ast;
 
-import static com.github.javaparser.StaticJavaParser.parse;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.github.javaparser.Position;
 import com.github.javaparser.Range;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -25,12 +19,19 @@ import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.utils.LineSeparator;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.parse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NodeTest {
     @Test

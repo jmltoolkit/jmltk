@@ -5,6 +5,7 @@
 package com.github.javaparser.symbolsolver.resolution.typesolvers;
 
 import com.github.javaparser.symbolsolver.utils.ModuleLayerHelper;
+
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Predicate;

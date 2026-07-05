@@ -4,16 +4,17 @@
  */
 package com.github.javaparser.ast.expr;
 
+import com.github.javaparser.ast.observer.AstObserver;
+import org.assertj.core.data.Percentage;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigInteger;
+
 import static com.github.javaparser.StaticJavaParser.parseExpression;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
-
-import com.github.javaparser.ast.observer.AstObserver;
-import java.math.BigInteger;
-import org.assertj.core.data.Percentage;
-import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("OctalInteger")
 class LiteralStringValueExprTest {

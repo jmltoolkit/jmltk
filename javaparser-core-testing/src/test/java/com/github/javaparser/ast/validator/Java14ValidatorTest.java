@@ -4,14 +4,6 @@
  */
 package com.github.javaparser.ast.validator;
 
-import static com.github.javaparser.ParseStart.COMPILATION_UNIT;
-import static com.github.javaparser.ParseStart.EXPRESSION;
-import static com.github.javaparser.ParseStart.STATEMENT;
-import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_14;
-import static com.github.javaparser.Providers.provider;
-import static com.github.javaparser.utils.TestUtils.assertNoProblems;
-import static com.github.javaparser.utils.TestUtils.assertProblems;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
@@ -21,6 +13,14 @@ import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.utils.TestUtils;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.ParseStart.COMPILATION_UNIT;
+import static com.github.javaparser.ParseStart.EXPRESSION;
+import static com.github.javaparser.ParseStart.STATEMENT;
+import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_14;
+import static com.github.javaparser.Providers.provider;
+import static com.github.javaparser.utils.TestUtils.assertNoProblems;
+import static com.github.javaparser.utils.TestUtils.assertProblems;
 
 class Java14ValidatorTest {
 

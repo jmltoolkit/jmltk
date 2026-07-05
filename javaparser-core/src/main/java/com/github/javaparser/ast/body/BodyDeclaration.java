@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.ast.body;
 
-import static com.github.javaparser.utils.CodeGenerationUtils.f;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -25,10 +22,14 @@ import com.github.javaparser.ast.observer.ObservableProperty;
 import com.github.javaparser.ast.visitor.CloneVisitor;
 import com.github.javaparser.metamodel.BodyDeclarationMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
+import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NonNull;
+
+import static com.github.javaparser.utils.CodeGenerationUtils.f;
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * Any declaration that can appear between the { and } of a class, interface, enum, or record.

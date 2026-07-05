@@ -7,6 +7,7 @@ package com.github.javaparser.symbolsolver.resolution.typesolvers;
 import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
 import com.github.javaparser.resolution.model.SymbolReference;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;

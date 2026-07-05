@@ -4,10 +4,10 @@
  */
 package com.github.javaparser;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-
 import com.github.javaparser.ParserConfiguration.LanguageLevel;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class Issue3577Test {
 

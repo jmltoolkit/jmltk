@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.utils;
 
-import static java.lang.Integer.signum;
-
 import com.github.javaparser.Position;
 import com.github.javaparser.Range;
 import com.github.javaparser.ast.Modifier;
@@ -16,8 +14,11 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.nodeTypes.NodeWithAnnotations;
+
 import java.util.Comparator;
 import java.util.List;
+
+import static java.lang.Integer.signum;
 
 public final class PositionUtils {
 

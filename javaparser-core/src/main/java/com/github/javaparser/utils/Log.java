@@ -4,12 +4,12 @@
  */
 package com.github.javaparser.utils;
 
-import static com.github.javaparser.utils.CodeGenerationUtils.f;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.function.Supplier;
+
+import static com.github.javaparser.utils.CodeGenerationUtils.f;
 
 /**
  * To avoid dependencies on logging frameworks, we have invented yet another logging framework :-)

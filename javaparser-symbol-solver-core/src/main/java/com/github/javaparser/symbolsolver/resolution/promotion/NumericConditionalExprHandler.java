@@ -7,6 +7,7 @@ package com.github.javaparser.symbolsolver.resolution.promotion;
 import com.github.javaparser.resolution.promotion.ConditionalExprHandler;
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
 import com.github.javaparser.resolution.types.ResolvedType;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -149,9 +150,10 @@ public class NumericConditionalExprHandler implements ConditionalExprHandler {
     protected boolean relaxMatch(ResolvedType type, ResolvedPrimitiveType... types) {
         return exactMatch(type, types)
                 || (type.isReferenceType()
-                        && Arrays.stream(types).anyMatch(t -> type.asReferenceType()
-                                .getQualifiedName()
-                                .equals(t.getBoxTypeQName())));
+                        && Arrays.stream(types)
+                                .anyMatch(t -> type.asReferenceType()
+                                        .getQualifiedName()
+                                        .equals(t.getBoxTypeQName())));
     }
 
     /*

@@ -4,18 +4,19 @@
  */
 package com.github.javaparser.generator.metamodel;
 
-import static com.github.javaparser.StaticJavaParser.parseStatement;
-import static com.github.javaparser.generator.metamodel.MetaModelGenerator.nodeMetaModelFieldName;
-import static com.github.javaparser.generator.metamodel.MetaModelGenerator.propertyMetaModelFieldName;
-import static com.github.javaparser.utils.CodeGenerationUtils.f;
-
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.stmt.Statement;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+
+import static com.github.javaparser.StaticJavaParser.parseStatement;
+import static com.github.javaparser.generator.metamodel.MetaModelGenerator.nodeMetaModelFieldName;
+import static com.github.javaparser.generator.metamodel.MetaModelGenerator.propertyMetaModelFieldName;
+import static com.github.javaparser.utils.CodeGenerationUtils.f;
 
 class InitializeConstructorParametersStatementsGenerator {
     void generate(Class<? extends Node> nodeClass, NodeList<Statement> initializeConstructorParametersStatements) {

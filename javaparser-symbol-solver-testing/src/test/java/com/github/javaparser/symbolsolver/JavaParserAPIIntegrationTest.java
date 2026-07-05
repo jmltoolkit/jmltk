@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.symbolsolver;
 
-import static com.github.javaparser.Providers.provider;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.JavaParserAdapter;
 import com.github.javaparser.ParseStart;
@@ -24,11 +20,16 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeS
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import com.github.javaparser.symbolsolver.utils.LeanParserConfiguration;
 import com.google.common.collect.ImmutableList;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.Providers.provider;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JavaParserAPIIntegrationTest extends AbstractSymbolResolutionTest {
 

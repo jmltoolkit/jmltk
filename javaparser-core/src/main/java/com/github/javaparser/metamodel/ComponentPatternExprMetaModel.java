@@ -7,6 +7,7 @@ package com.github.javaparser.metamodel;
 import com.github.javaparser.ast.Generated;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.expr.ComponentPatternExpr;
+
 import java.util.Optional;
 
 /**

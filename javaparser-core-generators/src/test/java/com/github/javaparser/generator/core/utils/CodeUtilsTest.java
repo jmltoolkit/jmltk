@@ -4,13 +4,13 @@
  */
 package com.github.javaparser.generator.core.utils;
 
-import static com.github.javaparser.generator.core.utils.CodeUtils.castValue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.type.Type;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.generator.core.utils.CodeUtils.castValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CodeUtilsTest {
 

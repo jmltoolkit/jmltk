@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.printer.lexicalpreservation;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.ParserConfiguration.LanguageLevel;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -15,6 +13,8 @@ import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.type.*;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for TokenOwnerDetector and its strategies.

@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.printer.lexicalpreservation;
 
-import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
-
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -17,6 +15,8 @@ import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
 import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration.ConfigOption;
 import com.github.javaparser.printer.configuration.PrinterConfiguration;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
 
 public class Issue4163Test extends AbstractLexicalPreservingTest {
 

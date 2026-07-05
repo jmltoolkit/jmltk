@@ -4,23 +4,24 @@
  */
 package com.github.javaparser.steps;
 
-import static com.github.javaparser.StaticJavaParser.*;
-import static com.github.javaparser.utils.Utils.normalizeEolInTextBlock;
-import static com.github.javaparser.utils.Utils.readerToString;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.github.javaparser.utils.LineSeparator;
+import org.jbehave.core.annotations.Given;
+import org.jbehave.core.annotations.Then;
+import org.jbehave.core.annotations.When;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import org.jbehave.core.annotations.Given;
-import org.jbehave.core.annotations.Then;
-import org.jbehave.core.annotations.When;
+
+import static com.github.javaparser.StaticJavaParser.*;
+import static com.github.javaparser.utils.Utils.normalizeEolInTextBlock;
+import static com.github.javaparser.utils.Utils.readerToString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PrettyPrintingSteps {
 

@@ -12,8 +12,9 @@ import com.github.javaparser.resolution.declarations.AssociableToAST;
 import com.github.javaparser.resolution.declarations.ResolvedTypePatternDeclarationTest;
 import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
+
+import java.util.Optional;
 
 class JavaParserTypePatternDeclarationTest implements ResolvedTypePatternDeclarationTest {
 

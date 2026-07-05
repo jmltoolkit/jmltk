@@ -4,11 +4,12 @@
  */
 package com.github.javaparser;
 
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.utils.LineSeparator;
+
 import java.util.Comparator;
 import java.util.Optional;
+
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * A problem that was encountered during parsing.

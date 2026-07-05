@@ -4,12 +4,6 @@
  */
 package com.github.javaparser.serialization;
 
-import static com.github.javaparser.StaticJavaParser.*;
-import static com.github.javaparser.serialization.JavaParserJsonSerializerTest.serialize;
-import static com.github.javaparser.utils.Utils.normalizeEolInTextBlock;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.Range;
 import com.github.javaparser.StaticJavaParser;
@@ -28,9 +22,16 @@ import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclar
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.utils.LineSeparator;
 import jakarta.json.Json;
-import java.io.StringReader;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
+
+import java.io.StringReader;
+
+import static com.github.javaparser.StaticJavaParser.*;
+import static com.github.javaparser.serialization.JavaParserJsonSerializerTest.serialize;
+import static com.github.javaparser.utils.Utils.normalizeEolInTextBlock;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JavaParserJsonDeserializerTest {
     private final JavaParserJsonDeserializer deserializer = new JavaParserJsonDeserializer();

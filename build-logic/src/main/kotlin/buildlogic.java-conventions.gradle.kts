@@ -1,5 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
+import com.diffplug.spotless.LineEnding
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 
 
@@ -79,11 +80,14 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
     java {
         targetExclude("build/generated-src/**")
         toggleOffOn()
-        removeUnusedImports()
-        trimTrailingWhitespace()
-        palantirJavaFormat(libs.findVersion("palantirJavaFormat").get().toString()).formatJavadoc(false)
+        lineEndings = LineEnding.UNIX
+        palantirJavaFormat(libs.findVersion("palantirJavaFormat").get().toString())
+            .formatJavadoc(false)
             .style("PALANTIR")
+        importOrder("", "java", "javax", "\\#")
         licenseHeaderFile("$rootDir/gradle/header", "(package|import|//)")
+        trimTrailingWhitespace()
+        endWithNewline()
     }
 }
 
@@ -95,7 +99,7 @@ configure<CheckstyleExtension> {
 
 tasks.checkstyleMain {
     source("src/main/java")
-    exclude("**/build/generated-src/**")
+    exclude("*/build/*")
 }
 
 dokka {

@@ -7,6 +7,7 @@ package com.github.javaparser.generator.core.other;
 import com.github.javaparser.generator.Generator;
 import com.github.javaparser.utils.Log;
 import com.github.javaparser.utils.SourceRoot;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;

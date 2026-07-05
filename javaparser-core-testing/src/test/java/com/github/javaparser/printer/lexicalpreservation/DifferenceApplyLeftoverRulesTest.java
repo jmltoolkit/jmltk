@@ -4,14 +4,14 @@
  */
 package com.github.javaparser.printer.lexicalpreservation;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test suite for LEFTOVER rules in Difference.apply()

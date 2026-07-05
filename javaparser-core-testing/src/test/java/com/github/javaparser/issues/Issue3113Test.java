@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.issues;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -13,6 +11,8 @@ import com.github.javaparser.ast.stmt.SwitchStmt;
 import com.github.javaparser.printer.lexicalpreservation.AbstractLexicalPreservingTest;
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Issue3113Test extends AbstractLexicalPreservingTest {
     @Test

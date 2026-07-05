@@ -9,6 +9,7 @@ import com.github.javaparser.resolution.MethodUsage;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.github.javaparser.resolution.types.ResolvedType;
+
 import java.io.Serializable;
 import java.util.*;
 import java.util.function.Function;
@@ -136,16 +137,17 @@ public interface ResolvedReferenceTypeDeclaration extends ResolvedTypeDeclaratio
             ancestors.addAll(queuedAncestors);
             while (!queuedAncestors.isEmpty()) {
                 ResolvedReferenceType queuedAncestor = queuedAncestors.removeFirst();
-                queuedAncestor.getTypeDeclaration().ifPresent(rtd -> new LinkedHashSet<>(
-                                queuedAncestor.getDirectAncestors())
-                        .stream().forEach(ancestor -> {
-                            // add this ancestor to the queue (for a deferred search)
-                            queuedAncestors.add(ancestor);
-                            // add this ancestor to the list of ancestors
-                            if (!ancestors.contains(ancestor)) {
-                                ancestors.add(ancestor);
-                            }
-                        }));
+                queuedAncestor
+                        .getTypeDeclaration()
+                        .ifPresent(rtd -> new LinkedHashSet<>(queuedAncestor.getDirectAncestors())
+                                .stream().forEach(ancestor -> {
+                                    // add this ancestor to the queue (for a deferred search)
+                                    queuedAncestors.add(ancestor);
+                                    // add this ancestor to the list of ancestors
+                                    if (!ancestors.contains(ancestor)) {
+                                        ancestors.add(ancestor);
+                                    }
+                                }));
             }
         }
         return ancestors;

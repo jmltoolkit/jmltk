@@ -4,12 +4,12 @@
  */
 package com.github.javaparser.ast.expr;
 
+import com.github.javaparser.utils.TestParser;
+import org.junit.jupiter.api.Test;
+
 import static com.github.javaparser.ParserConfiguration.LanguageLevel;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-
-import com.github.javaparser.utils.TestParser;
-import org.junit.jupiter.api.Test;
 
 /**
  * See the following JEPs: "Pattern Matching for instanceof"

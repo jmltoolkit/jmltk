@@ -4,14 +4,15 @@
  */
 package com.github.javaparser.ast.nodeTypes;
 
-import static com.github.javaparser.utils.Utils.assertNonEmpty;
-
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.SimpleName;
-import java.util.Optional;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+
+import java.util.Optional;
+
+import static com.github.javaparser.utils.Utils.assertNonEmpty;
 
 /**
  * A node with a name.

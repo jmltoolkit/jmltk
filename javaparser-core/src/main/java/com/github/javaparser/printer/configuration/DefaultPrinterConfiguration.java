@@ -7,6 +7,7 @@ package com.github.javaparser.printer.configuration;
 import com.github.javaparser.printer.Printer;
 import com.github.javaparser.printer.configuration.Indentation.IndentType;
 import com.github.javaparser.utils.LineSeparator;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;

@@ -4,13 +4,14 @@
  */
 package com.github.javaparser.printer.lexicalpreservation;
 
+import com.github.javaparser.GeneratedJavaParserConstants;
+import org.junit.jupiter.api.Test;
+
+import java.util.NoSuchElementException;
+
 import static com.github.javaparser.GeneratedJavaParserConstants.SPACE;
 import static com.github.javaparser.GeneratedJavaParserConstants.UNIX_EOL;
 import static org.junit.jupiter.api.Assertions.*;
-
-import com.github.javaparser.GeneratedJavaParserConstants;
-import java.util.NoSuchElementException;
-import org.junit.jupiter.api.Test;
 
 class TextElementIteratorTest {
 

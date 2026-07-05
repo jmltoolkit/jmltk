@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.ast.type;
 
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import static java.util.stream.Collectors.joining;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -24,10 +21,14 @@ import com.github.javaparser.metamodel.NonEmptyProperty;
 import com.github.javaparser.resolution.Context;
 import com.github.javaparser.resolution.types.ResolvedIntersectionType;
 import com.github.javaparser.resolution.types.ResolvedType;
+import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NonNull;
+
+import static com.github.javaparser.utils.Utils.assertNotNull;
+import static java.util.stream.Collectors.joining;
 
 /**
  * Represents a set of types. A given value of this type has to be assignable to at all of the element types.

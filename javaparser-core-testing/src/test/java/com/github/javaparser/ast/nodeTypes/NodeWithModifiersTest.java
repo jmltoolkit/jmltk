@@ -4,19 +4,20 @@
  */
 package com.github.javaparser.ast.nodeTypes;
 
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.*;
-import static com.github.javaparser.ast.Modifier.createModifierList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.observer.AstObserverAdapter;
 import com.github.javaparser.ast.observer.ObservableProperty;
+import org.junit.jupiter.api.Test;
+
 import java.util.LinkedList;
 import java.util.List;
-import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.*;
+import static com.github.javaparser.ast.Modifier.createModifierList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class NodeWithModifiersTest {
 

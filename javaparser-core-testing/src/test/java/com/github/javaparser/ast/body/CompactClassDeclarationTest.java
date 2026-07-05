@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.ast.body;
 
-import static com.github.javaparser.utils.TestParser.parseCompilationUnit;
-import static com.github.javaparser.utils.TestUtils.assertNoProblems;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
@@ -19,6 +15,10 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.type.TypeParameter;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.utils.TestParser.parseCompilationUnit;
+import static com.github.javaparser.utils.TestUtils.assertNoProblems;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for JEP 512: Unnamed Classes and Instance Main Methods (Compact Classes).

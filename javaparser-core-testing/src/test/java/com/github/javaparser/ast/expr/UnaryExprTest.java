@@ -4,11 +4,6 @@
  */
 package com.github.javaparser.ast.expr;
 
-import static com.github.javaparser.StaticJavaParser.parseExpression;
-import static com.github.javaparser.StaticJavaParser.parseStatement;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.stmt.AssertStmt;
@@ -16,6 +11,11 @@ import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.parseExpression;
+import static com.github.javaparser.StaticJavaParser.parseStatement;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 class UnaryExprTest {
     @BeforeEach

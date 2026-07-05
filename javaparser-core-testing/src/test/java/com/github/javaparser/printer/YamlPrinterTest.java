@@ -4,14 +4,14 @@
  */
 package com.github.javaparser.printer;
 
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.expr.Expression;
+import org.junit.jupiter.api.Test;
+
 import static com.github.javaparser.StaticJavaParser.parse;
 import static com.github.javaparser.StaticJavaParser.parseExpression;
 import static com.github.javaparser.utils.TestUtils.readTextResource;
 import static org.assertj.core.api.Assertions.assertThat;
-
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.expr.Expression;
-import org.junit.jupiter.api.Test;
 
 class YamlPrinterTest {
 

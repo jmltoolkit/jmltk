@@ -4,17 +4,6 @@
  */
 package com.github.javaparser.steps;
 
-import static com.github.javaparser.StaticJavaParser.*;
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.PUBLIC;
-import static com.github.javaparser.ast.Modifier.createModifierList;
-import static com.github.javaparser.ast.Modifier.staticModifier;
-import static com.github.javaparser.ast.NodeList.nodeList;
-import static com.github.javaparser.ast.type.PrimitiveType.intType;
-import static com.github.javaparser.steps.SharedSteps.getMethodByPositionAndClassPosition;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
@@ -29,11 +18,23 @@ import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.stmt.TryStmt;
 import com.github.javaparser.ast.type.VoidType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-import java.util.Map;
 import org.jbehave.core.annotations.Alias;
 import org.jbehave.core.annotations.Given;
 import org.jbehave.core.annotations.Then;
 import org.jbehave.core.annotations.When;
+
+import java.util.Map;
+
+import static com.github.javaparser.StaticJavaParser.*;
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.PUBLIC;
+import static com.github.javaparser.ast.Modifier.createModifierList;
+import static com.github.javaparser.ast.Modifier.staticModifier;
+import static com.github.javaparser.ast.NodeList.nodeList;
+import static com.github.javaparser.ast.type.PrimitiveType.intType;
+import static com.github.javaparser.steps.SharedSteps.getMethodByPositionAndClassPosition;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class ManipulationSteps {
 

@@ -4,13 +4,14 @@
  */
 package com.github.javaparser.builders;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.utils.LineSeparator;
-import java.util.function.Function;
 import org.junit.jupiter.api.Test;
+
+import java.util.function.Function;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class EnumDeclarationBuildersTest {
     private final CompilationUnit cu = new CompilationUnit();

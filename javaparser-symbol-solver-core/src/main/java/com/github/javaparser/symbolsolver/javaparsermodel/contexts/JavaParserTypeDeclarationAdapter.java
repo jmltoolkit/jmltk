@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.javaparsermodel.contexts;
 
-import static com.github.javaparser.symbolsolver.javaparsermodel.contexts.ClassOrInterfaceDeclarationContext.JAVA_BASE_MODULE_NAME;
-
 import com.github.javaparser.ast.AccessSpecifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.BodyDeclaration;
@@ -28,9 +26,12 @@ import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFactory;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserTypeParameter;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.github.javaparser.symbolsolver.javaparsermodel.contexts.ClassOrInterfaceDeclarationContext.JAVA_BASE_MODULE_NAME;
 
 /**
  * @author Federico Tomassetti

@@ -4,11 +4,6 @@
  */
 package com.github.javaparser.ast.visitor;
 
-import static com.github.javaparser.StaticJavaParser.parseBodyDeclaration;
-import static com.github.javaparser.StaticJavaParser.parseExpression;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
@@ -19,6 +14,11 @@ import com.github.javaparser.printer.lexicalpreservation.AbstractLexicalPreservi
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter;
 import com.github.javaparser.utils.LineSeparator;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.parseBodyDeclaration;
+import static com.github.javaparser.StaticJavaParser.parseExpression;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class ModifierVisitorTest extends AbstractLexicalPreservingTest {
     @Test

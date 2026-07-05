@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.javaparsermodel;
 
-import static com.github.javaparser.resolution.Navigator.demandParentNode;
-import static com.github.javaparser.resolution.model.SymbolReference.solved;
-import static com.github.javaparser.resolution.model.SymbolReference.unsolved;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.DataKey;
 import com.github.javaparser.ast.Node;
@@ -37,9 +33,14 @@ import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParse
 import com.github.javaparser.symbolsolver.resolution.SymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import com.github.javaparser.utils.Log;
+
 import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.github.javaparser.resolution.Navigator.demandParentNode;
+import static com.github.javaparser.resolution.model.SymbolReference.solved;
+import static com.github.javaparser.resolution.model.SymbolReference.unsolved;
 
 /**
  * Class to be used by final users to solve symbols for JavaParser ASTs.

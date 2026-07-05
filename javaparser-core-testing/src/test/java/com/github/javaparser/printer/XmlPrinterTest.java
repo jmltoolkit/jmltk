@@ -4,12 +4,15 @@
  */
 package com.github.javaparser.printer;
 
-import static com.github.javaparser.StaticJavaParser.parseExpression;
-import static com.github.javaparser.StaticJavaParser.parseType;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.type.Type;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
@@ -19,6 +22,7 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -32,12 +36,10 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
+
+import static com.github.javaparser.StaticJavaParser.parseExpression;
+import static com.github.javaparser.StaticJavaParser.parseType;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class XmlPrinterTest {
 

@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.ast.jml.clauses;
 
-import static com.github.javaparser.utils.CodeGenerationUtils.f;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -18,10 +16,13 @@ import com.github.javaparser.ast.visitor.CloneVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlClauseMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
-import java.util.Optional;
-import java.util.function.Consumer;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+
+import java.util.Optional;
+import java.util.function.Consumer;
+
+import static com.github.javaparser.utils.CodeGenerationUtils.f;
 
 /**
  * @author Alexander Weigl

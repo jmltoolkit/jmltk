@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.resolution;
 
-import static com.github.javaparser.StaticJavaParser.parse;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.JavaParserAdapter;
 import com.github.javaparser.ParseStart;
@@ -35,6 +32,9 @@ import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.parse;
+import static org.junit.jupiter.api.Assertions.*;
 
 class JavaParserFacadeResolutionTest extends AbstractResolutionTest {
 

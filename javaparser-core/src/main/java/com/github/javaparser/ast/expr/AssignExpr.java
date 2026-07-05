@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.ast.expr;
 
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -17,10 +15,13 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.AssignExprMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.printer.Stringable;
+import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NonNull;
+
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * An assignment expression. It supports the operators that are found the AssignExpr.Operator enum.

@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.ast.expr;
 
-import static com.github.javaparser.StaticJavaParser.parseExpression;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.Modifier;
@@ -14,10 +11,14 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.comments.*;
 import com.github.javaparser.ast.key.*;
 import com.github.javaparser.ast.key.sv.*;
-import java.util.function.Consumer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import java.util.function.Consumer;
+
+import static com.github.javaparser.StaticJavaParser.parseExpression;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This class exists to test the generated methods for the various Pattern expression

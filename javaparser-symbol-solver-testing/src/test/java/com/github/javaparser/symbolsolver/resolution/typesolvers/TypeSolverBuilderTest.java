@@ -4,14 +4,15 @@
  */
 package com.github.javaparser.symbolsolver.resolution.typesolvers;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import com.github.javaparser.resolution.TypeSolver;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class TypeSolverBuilderTest {
 

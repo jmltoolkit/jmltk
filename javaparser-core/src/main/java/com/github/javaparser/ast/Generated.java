@@ -4,11 +4,11 @@
  */
 package com.github.javaparser.ast;
 
-import static java.lang.annotation.ElementType.*;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 /**
  * Copied from javax.annotation.Generated and reduced a bit.

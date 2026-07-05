@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.printer.lexicalpreservation;
 
-import static com.github.javaparser.GeneratedJavaParserConstants.LBRACE;
-import static com.github.javaparser.GeneratedJavaParserConstants.RBRACE;
-
 import com.github.javaparser.GeneratedJavaParserConstants;
 import com.github.javaparser.JavaToken;
 import com.github.javaparser.JavaToken.Kind;
@@ -22,7 +19,11 @@ import com.github.javaparser.printer.concretesyntaxmodel.CsmElement;
 import com.github.javaparser.printer.concretesyntaxmodel.CsmIndent;
 import com.github.javaparser.printer.concretesyntaxmodel.CsmUnindent;
 import com.github.javaparser.printer.lexicalpreservation.LexicalDifferenceCalculator.CsmChild;
+
 import java.util.*;
+
+import static com.github.javaparser.GeneratedJavaParserConstants.LBRACE;
+import static com.github.javaparser.GeneratedJavaParserConstants.RBRACE;
 
 /**
  * A Difference should give me a sequence of elements I should find (to indicate the context) followed by a list of elements

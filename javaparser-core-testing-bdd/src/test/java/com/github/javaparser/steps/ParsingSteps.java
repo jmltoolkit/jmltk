@@ -4,16 +4,6 @@
  */
 package com.github.javaparser.steps;
 
-import static com.github.javaparser.ParseStart.COMPILATION_UNIT;
-import static com.github.javaparser.Providers.provider;
-import static com.github.javaparser.steps.SharedSteps.getMemberByTypeAndPosition;
-import static com.github.javaparser.steps.SharedSteps.getMethodByPositionAndClassPosition;
-import static java.lang.String.format;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.notNullValue;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
@@ -25,11 +15,22 @@ import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.stmt.Statement;
-import java.util.List;
-import java.util.Map;
 import org.jbehave.core.annotations.Given;
 import org.jbehave.core.annotations.Then;
 import org.jbehave.core.annotations.When;
+
+import java.util.List;
+import java.util.Map;
+
+import static com.github.javaparser.ParseStart.COMPILATION_UNIT;
+import static com.github.javaparser.Providers.provider;
+import static com.github.javaparser.steps.SharedSteps.getMemberByTypeAndPosition;
+import static com.github.javaparser.steps.SharedSteps.getMethodByPositionAndClassPosition;
+import static java.lang.String.format;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.notNullValue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ParsingSteps {
 

@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.ast.modules;
 
-import static com.github.javaparser.StaticJavaParser.parseModuleDirective;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -22,8 +19,12 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.ModuleDeclarationMetaModel;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
+
+import java.util.Objects;
+
+import static com.github.javaparser.StaticJavaParser.parseModuleDirective;
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * A Java 9 Jigsaw module declaration. {@code @Foo module com.github.abc { requires a.B; }}

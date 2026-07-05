@@ -4,16 +4,17 @@
  */
 package com.github.javaparser;
 
+import com.github.javaparser.ast.expr.Expression;
+import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Field;
+import java.util.Iterator;
+
 import static com.github.javaparser.GeneratedJavaParserConstants.*;
 import static com.github.javaparser.JavaToken.Category.*;
 import static com.github.javaparser.Providers.provider;
 import static com.github.javaparser.Range.range;
 import static org.junit.jupiter.api.Assertions.*;
-
-import com.github.javaparser.ast.expr.Expression;
-import java.lang.reflect.Field;
-import java.util.Iterator;
-import org.junit.jupiter.api.Test;
 
 class JavaTokenTest {
 

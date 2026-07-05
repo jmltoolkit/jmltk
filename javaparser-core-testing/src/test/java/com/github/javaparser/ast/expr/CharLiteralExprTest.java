@@ -4,14 +4,14 @@
  */
 package com.github.javaparser.ast.expr;
 
-import static com.github.javaparser.Providers.provider;
-import static com.github.javaparser.StaticJavaParser.parseExpression;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseStart;
 import com.github.javaparser.ParserConfiguration;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.Providers.provider;
+import static com.github.javaparser.StaticJavaParser.parseExpression;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CharLiteralExprTest {
     @Test

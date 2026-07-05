@@ -4,9 +4,9 @@
  */
 package com.github.javaparser.utils;
 
-import static com.github.javaparser.utils.CodeGenerationUtils.f;
-
 import java.util.Objects;
+
+import static com.github.javaparser.utils.CodeGenerationUtils.f;
 
 /**
  * Simply a pair of objects.

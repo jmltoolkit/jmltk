@@ -4,20 +4,21 @@
  */
 package com.github.javaparser;
 
-import static com.github.javaparser.StaticJavaParser.parse;
-import static com.github.javaparser.utils.CodeGenerationUtils.mavenModuleRoot;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.stmt.SwitchEntry;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.DynamicTest;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestFactory;
+
+import static com.github.javaparser.StaticJavaParser.parse;
+import static com.github.javaparser.utils.CodeGenerationUtils.mavenModuleRoot;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TokenTypesTest {
 

@@ -5,6 +5,7 @@
 package com.github.javaparser.symbolsolver.javaparsermodel;
 
 import com.github.javaparser.ast.expr.TypePatternExpr;
+
 import java.util.LinkedList;
 import java.util.List;
 

@@ -4,12 +4,12 @@
  */
 package com.github.javaparser.ast.key;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.github.javaparser.*;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static com.google.common.truth.Truth.assertThat;
 
 /**
  * Test for the conflicts between DOUBLE_LITERAL and RANGE_OPERATOR.

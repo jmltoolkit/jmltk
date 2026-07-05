@@ -4,16 +4,16 @@
  */
 package com.github.javaparser.ast.body;
 
-import static com.github.javaparser.StaticJavaParser.parse;
-import static com.github.javaparser.StaticJavaParser.parseBodyDeclaration;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.parse;
+import static com.github.javaparser.StaticJavaParser.parseBodyDeclaration;
+import static org.junit.jupiter.api.Assertions.*;
 
 class FieldDeclarationTest {
     @Test

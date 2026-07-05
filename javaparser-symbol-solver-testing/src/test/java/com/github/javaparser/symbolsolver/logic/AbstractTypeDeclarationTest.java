@@ -4,12 +4,12 @@
  */
 package com.github.javaparser.symbolsolver.logic;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclarationTest;
 import com.github.javaparser.symbolsolver.AbstractSymbolResolutionTest;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class AbstractTypeDeclarationTest extends AbstractSymbolResolutionTest
         implements ResolvedReferenceTypeDeclarationTest {

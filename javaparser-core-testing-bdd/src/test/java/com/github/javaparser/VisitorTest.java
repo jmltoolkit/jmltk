@@ -6,12 +6,13 @@ package com.github.javaparser;
 
 import com.github.javaparser.steps.SharedSteps;
 import com.github.javaparser.steps.VisitorSteps;
-import java.util.HashMap;
-import java.util.Map;
 import org.jbehave.core.junit.JUnit4StoryRunner;
 import org.jbehave.core.steps.InjectableStepsFactory;
 import org.jbehave.core.steps.InstanceStepsFactory;
 import org.junit.runner.RunWith;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RunWith(JUnit4StoryRunner.class)
 public class VisitorTest extends BasicJBehaveTest {

@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.symbolsolver;
 
-import static org.junit.jupiter.api.Assertions.fail;
-
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -13,6 +11,8 @@ import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclar
 import com.github.javaparser.symbolsolver.resolution.AbstractResolutionTest;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class Issue3087Test extends AbstractResolutionTest {
 
@@ -34,8 +34,9 @@ public class Issue3087Test extends AbstractResolutionTest {
         CompilationUnit cu = StaticJavaParser.parse(sourceCode);
 
         // Resolve the EntrySetImpl class and try to get its ancestors
-        ClassOrInterfaceDeclaration coid = cu.findFirst(ClassOrInterfaceDeclaration.class, c -> c.getNameAsString()
-                        .equals("EntrySetImpl"))
+        ClassOrInterfaceDeclaration coid = cu.findFirst(
+                        ClassOrInterfaceDeclaration.class,
+                        c -> c.getNameAsString().equals("EntrySetImpl"))
                 .get();
 
         ResolvedReferenceTypeDeclaration resolvedClass = coid.resolve();

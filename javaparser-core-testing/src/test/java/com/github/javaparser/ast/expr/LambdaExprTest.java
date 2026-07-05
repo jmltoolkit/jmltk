@@ -4,17 +4,17 @@
  */
 package com.github.javaparser.ast.expr;
 
-import static com.github.javaparser.StaticJavaParser.parseBlock;
-import static com.github.javaparser.StaticJavaParser.parseExpression;
-import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.type.UnknownType;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.parseBlock;
+import static com.github.javaparser.StaticJavaParser.parseExpression;
+import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class LambdaExprTest {
     @Test

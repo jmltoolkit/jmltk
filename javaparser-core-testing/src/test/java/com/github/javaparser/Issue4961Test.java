@@ -4,10 +4,10 @@
  */
 package com.github.javaparser;
 
-import static com.github.javaparser.utils.TestUtils.assertNoProblems;
-
 import com.github.javaparser.ast.CompilationUnit;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.utils.TestUtils.assertNoProblems;
 
 public class Issue4961Test {
 

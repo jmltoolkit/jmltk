@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.generator.metamodel;
 
-import static com.github.javaparser.utils.Utils.decapitalize;
-
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -31,12 +29,15 @@ import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
 import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration.ConfigOption;
 import com.github.javaparser.printer.configuration.PrinterConfiguration;
 import com.github.javaparser.utils.SourceRoot;
+
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
+import static com.github.javaparser.utils.Utils.decapitalize;
 
 public class MetaModelGenerator extends AbstractGenerator {
 

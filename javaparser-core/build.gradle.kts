@@ -59,3 +59,9 @@ sourceSets.main {
         srcDirs(javaccOutput, "src/main/javacc-support")
     }
 }
+
+tasks.checkstyleMain {
+    //source("src/main/java")
+    //exclude("*/build/*")
+    exclude("/home/weigl/work/javaparser/javaparser-core/build/generated-src/main/javacc/com/github/javaparser/GeneratedJavaParserTokenManager.java")
+}

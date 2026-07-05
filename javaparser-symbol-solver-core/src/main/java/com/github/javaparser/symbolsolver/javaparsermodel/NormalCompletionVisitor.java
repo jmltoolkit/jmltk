@@ -11,6 +11,7 @@ import com.github.javaparser.ast.visitor.GenericVisitorWithDefaults;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.github.javaparser.resolution.types.ResolvedType;
+
 import java.util.List;
 import java.util.Optional;
 

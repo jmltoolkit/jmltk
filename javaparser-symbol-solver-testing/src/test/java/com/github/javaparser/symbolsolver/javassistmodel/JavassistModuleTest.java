@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.javassistmodel;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
 import com.github.javaparser.resolution.model.SymbolReference;
@@ -13,12 +11,15 @@ import com.github.javaparser.symbolsolver.AbstractSymbolResolutionTest;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
-import java.io.IOException;
-import java.nio.file.Path;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
+
+import java.io.IOException;
+import java.nio.file.Path;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class JavassistModuleTest extends AbstractSymbolResolutionTest {
 

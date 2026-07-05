@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.ast.body;
 
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.*;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.expr.AnnotationExpr;
@@ -28,12 +25,16 @@ import com.github.javaparser.metamodel.MethodDeclarationMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
 import com.github.javaparser.resolution.Resolvable;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.*;
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * A method declaration. "public int abc() {return 1;}" in this example: {@code class X { public int abc() {return 1;}

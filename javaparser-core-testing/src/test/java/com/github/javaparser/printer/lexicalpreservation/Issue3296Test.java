@@ -4,14 +4,15 @@
  */
 package com.github.javaparser.printer.lexicalpreservation;
 
-import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
+
+import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Issue3296Test extends AbstractLexicalPreservingTest {
 

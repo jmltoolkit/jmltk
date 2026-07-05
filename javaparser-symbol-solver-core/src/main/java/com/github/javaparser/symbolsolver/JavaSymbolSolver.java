@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.symbolsolver;
 
-import static com.github.javaparser.resolution.Navigator.demandParentNode;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.*;
@@ -27,7 +25,10 @@ import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFactory;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.*;
+
 import java.util.Optional;
+
+import static com.github.javaparser.resolution.Navigator.demandParentNode;
 
 /**
  * This implementation of the SymbolResolver wraps the functionality of the library to make them easily usable

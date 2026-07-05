@@ -4,12 +4,6 @@
  */
 package com.github.javaparser.ast.validator;
 
-import static com.github.javaparser.ParseStart.EXPRESSION;
-import static com.github.javaparser.ParseStart.STATEMENT;
-import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_21;
-import static com.github.javaparser.Providers.provider;
-import static com.github.javaparser.utils.TestUtils.assertNoProblems;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
@@ -17,6 +11,12 @@ import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.utils.TestUtils;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.ParseStart.EXPRESSION;
+import static com.github.javaparser.ParseStart.STATEMENT;
+import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_21;
+import static com.github.javaparser.Providers.provider;
+import static com.github.javaparser.utils.TestUtils.assertNoProblems;
 
 class Java21ValidatorTest {
 

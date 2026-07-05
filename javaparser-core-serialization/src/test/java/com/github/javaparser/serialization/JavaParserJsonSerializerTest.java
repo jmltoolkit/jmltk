@@ -4,19 +4,20 @@
  */
 package com.github.javaparser.serialization;
 
-import static com.github.javaparser.StaticJavaParser.parse;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import jakarta.json.Json;
 import jakarta.json.stream.JsonGenerator;
 import jakarta.json.stream.JsonGeneratorFactory;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.parse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JavaParserJsonSerializerTest {
     @Test

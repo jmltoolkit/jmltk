@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.ast.validator.language_level_validations.chunks;
 
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.*;
-import static java.util.Arrays.asList;
-
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.LambdaExpr;
@@ -19,8 +16,12 @@ import com.github.javaparser.ast.stmt.CatchClause;
 import com.github.javaparser.ast.validator.ProblemReporter;
 import com.github.javaparser.ast.validator.VisitorValidator;
 import com.github.javaparser.utils.SeparatedItemStringBuilder;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.*;
+import static java.util.Arrays.asList;
 
 /**
  * Verifies that only allowed modifiers are used where modifiers are expected.

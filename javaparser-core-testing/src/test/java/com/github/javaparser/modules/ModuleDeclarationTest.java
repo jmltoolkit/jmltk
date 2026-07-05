@@ -4,14 +4,6 @@
  */
 package com.github.javaparser.modules;
 
-import static com.github.javaparser.GeneratedJavaParserConstants.IDENTIFIER;
-import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_9;
-import static com.github.javaparser.Providers.provider;
-import static com.github.javaparser.StaticJavaParser.parseName;
-import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.*;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
@@ -22,6 +14,14 @@ import com.github.javaparser.ast.modules.*;
 import com.github.javaparser.printer.ConcreteSyntaxModel;
 import com.github.javaparser.utils.LineSeparator;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.GeneratedJavaParserConstants.IDENTIFIER;
+import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_9;
+import static com.github.javaparser.Providers.provider;
+import static com.github.javaparser.StaticJavaParser.parseName;
+import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ModuleDeclarationTest {
     public static final JavaParser javaParser = new JavaParser(new ParserConfiguration().setLanguageLevel(JAVA_9));

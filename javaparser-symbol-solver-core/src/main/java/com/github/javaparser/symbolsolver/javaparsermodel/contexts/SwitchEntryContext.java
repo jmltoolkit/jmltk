@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.javaparsermodel.contexts;
 
-import static com.github.javaparser.resolution.Navigator.demandParentNode;
-
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.expr.TypePatternExpr;
 import com.github.javaparser.ast.nodeTypes.SwitchNode;
@@ -21,8 +19,11 @@ import com.github.javaparser.resolution.model.typesystem.ReferenceTypeImpl;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFactory;
+
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.github.javaparser.resolution.Navigator.demandParentNode;
 
 /**
  * @author Federico Tomassetti

@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.ast.stmt;
 
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -21,11 +19,14 @@ import com.github.javaparser.metamodel.DerivedProperty;
 import com.github.javaparser.metamodel.IfStmtMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * An if-then-else statement. The else is optional.

@@ -4,15 +4,6 @@
  */
 package com.github.javaparser.printer;
 
-import static com.github.javaparser.ParseStart.COMPILATION_UNIT;
-import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_9;
-import static com.github.javaparser.Providers.provider;
-import static com.github.javaparser.StaticJavaParser.*;
-import static com.github.javaparser.printer.configuration.Indentation.IndentType.TABS;
-import static com.github.javaparser.printer.configuration.Indentation.IndentType.TABS_WITH_SPACE_ALIGN;
-import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.*;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -25,11 +16,21 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.printer.configuration.*;
 import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration.ConfigOption;
 import com.github.javaparser.printer.configuration.Indentation.IndentType;
-import java.util.Optional;
-import java.util.function.Function;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
+import java.util.function.Function;
+
+import static com.github.javaparser.ParseStart.COMPILATION_UNIT;
+import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_9;
+import static com.github.javaparser.Providers.provider;
+import static com.github.javaparser.StaticJavaParser.*;
+import static com.github.javaparser.printer.configuration.Indentation.IndentType.TABS;
+import static com.github.javaparser.printer.configuration.Indentation.IndentType.TABS_WITH_SPACE_ALIGN;
+import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
+import static org.junit.jupiter.api.Assertions.*;
 
 class PrettyPrinterTest {
 

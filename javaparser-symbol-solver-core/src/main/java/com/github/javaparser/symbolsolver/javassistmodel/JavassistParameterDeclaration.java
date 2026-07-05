@@ -7,6 +7,7 @@ package com.github.javaparser.symbolsolver.javassistmodel;
 import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.resolution.declarations.ResolvedParameterDeclaration;
 import com.github.javaparser.resolution.types.ResolvedType;
+
 import javassist.CtClass;
 
 /**

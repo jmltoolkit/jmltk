@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.ast;
 
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.Expression;
@@ -18,10 +16,13 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.ArrayCreationLevelMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
-import java.util.Objects;
-import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
+import java.util.Objects;
+import java.util.Optional;
+
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * In {@code new int[1][2];} there are two ArrayCreationLevel objects,

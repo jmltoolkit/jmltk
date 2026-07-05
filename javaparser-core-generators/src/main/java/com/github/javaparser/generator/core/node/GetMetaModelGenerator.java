@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.generator.core.node;
 
-import static com.github.javaparser.StaticJavaParser.parseBodyDeclaration;
-import static com.github.javaparser.utils.CodeGenerationUtils.f;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -14,6 +11,9 @@ import com.github.javaparser.generator.NodeGenerator;
 import com.github.javaparser.metamodel.BaseNodeMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.utils.SourceRoot;
+
+import static com.github.javaparser.StaticJavaParser.parseBodyDeclaration;
+import static com.github.javaparser.utils.CodeGenerationUtils.f;
 
 public class GetMetaModelGenerator extends NodeGenerator {
     public GetMetaModelGenerator(SourceRoot sourceRoot) {

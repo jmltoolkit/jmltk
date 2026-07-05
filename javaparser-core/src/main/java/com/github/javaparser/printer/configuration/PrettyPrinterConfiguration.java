@@ -4,13 +4,14 @@
  */
 package com.github.javaparser.printer.configuration;
 
-import static com.github.javaparser.utils.Utils.*;
-
 import com.github.javaparser.printer.PrettyPrinter;
 import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration.ConfigOption;
 import com.github.javaparser.printer.configuration.Indentation.IndentType;
+
 import java.util.Optional;
 import java.util.Set;
+
+import static com.github.javaparser.utils.Utils.*;
 
 /**
  * Configuration options for the {@link PrettyPrinter}.

@@ -4,8 +4,6 @@
  */
 package com.github.jml;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
@@ -20,6 +18,8 @@ import com.github.javaparser.ast.jml.doc.JmlDocType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.ast.visitor.VoidVisitorWithDefaults;
 import com.github.javaparser.jml.JmlDocSanitizer;
+import org.junit.jupiter.api.*;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -32,7 +32,8 @@ import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Alexander Weigl

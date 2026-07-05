@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.javaparsermodel.declarations;
 
-import static com.github.javaparser.StaticJavaParser.*;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.TypePatternExpr;
@@ -16,6 +12,10 @@ import com.github.javaparser.resolution.declarations.ResolvedTypePatternDeclarat
 import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JavaParserSymbolDeclarationTest {
 

@@ -4,8 +4,6 @@
  */
 package com.github.javaparser;
 
-import static com.github.javaparser.ParserConfiguration.LanguageLevel.POPULAR;
-
 import com.github.javaparser.UnicodeEscapeProcessingProvider.PositionMapping;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
@@ -18,12 +16,15 @@ import com.github.javaparser.printer.lexicalpreservation.DefaultLexicalPreservin
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter;
 import com.github.javaparser.resolution.SymbolResolver;
 import com.github.javaparser.utils.LineSeparator;
+
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+
+import static com.github.javaparser.ParserConfiguration.LanguageLevel.POPULAR;
 
 /**
  * The configuration that is used by the parser.
@@ -386,8 +387,9 @@ public class ParserConfiguration {
                     }
                     if (languageLevel.validator != null) {
                         languageLevel.validator.accept(
-                                result.getResult().get(), new ProblemReporter(newProblem -> result.getProblems()
-                                        .add(newProblem)));
+                                result.getResult().get(),
+                                new ProblemReporter(
+                                        newProblem -> result.getProblems().add(newProblem)));
                     }
                 }
             }

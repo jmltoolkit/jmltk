@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.ast.body;
 
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import static java.util.Collections.unmodifiableList;
-import static java.util.stream.Collectors.toList;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.expr.AnnotationExpr;
@@ -28,12 +24,17 @@ import com.github.javaparser.metamodel.OptionalProperty;
 import com.github.javaparser.metamodel.RecordDeclarationMetaModel;
 import com.github.javaparser.resolution.Resolvable;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+
+import static com.github.javaparser.utils.Utils.assertNotNull;
+import static java.util.Collections.unmodifiableList;
+import static java.util.stream.Collectors.toList;
 
 /**
  * <h1>The record declaration</h1>

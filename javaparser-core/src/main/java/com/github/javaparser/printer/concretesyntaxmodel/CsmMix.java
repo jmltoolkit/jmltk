@@ -6,6 +6,7 @@ package com.github.javaparser.printer.concretesyntaxmodel;
 
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.printer.SourcePrinter;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;

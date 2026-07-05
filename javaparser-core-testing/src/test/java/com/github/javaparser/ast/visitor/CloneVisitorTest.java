@@ -4,17 +4,18 @@
  */
 package com.github.javaparser.ast.visitor;
 
-import static com.github.javaparser.StaticJavaParser.parseType;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.type.Type;
-import java.util.Iterator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.Iterator;
+
+import static com.github.javaparser.StaticJavaParser.parseType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CloneVisitorTest {
     CompilationUnit cu;

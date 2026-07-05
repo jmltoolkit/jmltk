@@ -4,12 +4,13 @@
  */
 package com.github.javaparser.symbolsolver.javaparsermodel;
 
-import static com.github.javaparser.ast.expr.MatchAllPatternExpr.UNNAMED_PLACEHOLDER;
-
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.visitor.GenericVisitorWithDefaults;
+
 import java.util.*;
+
+import static com.github.javaparser.ast.expr.MatchAllPatternExpr.UNNAMED_PLACEHOLDER;
 
 public class PatternVariableVisitor extends GenericVisitorWithDefaults<PatternVariableResult, Void> {
 

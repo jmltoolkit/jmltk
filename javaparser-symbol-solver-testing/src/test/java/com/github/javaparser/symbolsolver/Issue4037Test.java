@@ -4,14 +4,15 @@
  */
 package com.github.javaparser.symbolsolver;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-
 import com.github.javaparser.JavaParserAdapter;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.expr.MethodReferenceExpr;
 import com.github.javaparser.symbolsolver.resolution.AbstractResolutionTest;
-import java.util.List;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class Issue4037Test extends AbstractResolutionTest {
 

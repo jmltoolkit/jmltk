@@ -6,6 +6,7 @@ package com.github.javaparser.symbolsolver.cache;
 
 import com.github.javaparser.resolution.cache.Cache;
 import com.github.javaparser.resolution.cache.CacheStats;
+
 import java.util.Optional;
 
 /**

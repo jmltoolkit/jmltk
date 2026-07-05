@@ -4,17 +4,18 @@
  */
 package com.github.javaparser.ast;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParseStart;
 import com.github.javaparser.Providers;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NodePositionTest {
 

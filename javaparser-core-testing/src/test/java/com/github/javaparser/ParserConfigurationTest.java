@@ -4,16 +4,16 @@
  */
 package com.github.javaparser;
 
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.stmt.Statement;
+import org.junit.jupiter.api.Test;
+
 import static com.github.javaparser.ParseStart.STATEMENT;
 import static com.github.javaparser.ParserConfiguration.LanguageLevel.RAW;
 import static com.github.javaparser.Providers.provider;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.stmt.Statement;
-import org.junit.jupiter.api.Test;
 
 class ParserConfigurationTest {
     @Test

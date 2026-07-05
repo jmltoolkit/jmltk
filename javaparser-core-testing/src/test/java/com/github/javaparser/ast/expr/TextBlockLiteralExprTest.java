@@ -4,12 +4,12 @@
  */
 package com.github.javaparser.ast.expr;
 
+import org.junit.jupiter.api.Test;
+
 import static com.github.javaparser.utils.TestParser.parseStatement;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.junit.jupiter.api.Test;
 
 class TextBlockLiteralExprTest {
     @Test

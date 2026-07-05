@@ -4,11 +4,6 @@
  */
 package com.github.javaparser.builders;
 
-import static com.github.javaparser.StaticJavaParser.parseImport;
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.PRIVATE;
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.PUBLIC;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Modifier;
@@ -19,11 +14,17 @@ import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.RecordDeclaration;
 import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.utils.LineSeparator;
+import org.junit.jupiter.api.Test;
+
 import java.lang.annotation.ElementType;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.parseImport;
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.PRIVATE;
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.PUBLIC;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CompilationUnitBuildersTest {
     private final CompilationUnit cu = new CompilationUnit();

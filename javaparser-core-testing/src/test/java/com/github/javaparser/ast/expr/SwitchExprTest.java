@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.ast.expr;
 
-import static com.github.javaparser.ast.stmt.SwitchEntry.Type.*;
-import static com.github.javaparser.utils.TestParser.*;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
@@ -21,6 +17,10 @@ import com.github.javaparser.ast.stmt.SwitchEntry;
 import com.github.javaparser.ast.stmt.SwitchStmt;
 import com.github.javaparser.resolution.Navigator;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.ast.stmt.SwitchEntry.Type.*;
+import static com.github.javaparser.utils.TestParser.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class SwitchExprTest {
     @Test

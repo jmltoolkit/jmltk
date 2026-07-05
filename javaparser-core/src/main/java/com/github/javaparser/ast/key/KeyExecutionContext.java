@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.ast.key;
 
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -19,10 +17,13 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.KeyExecutionContextMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
-import java.util.Objects;
-import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
+import java.util.Objects;
+import java.util.Optional;
+
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /// An execution context re-defines the context in which a given java block is executed.
 ///

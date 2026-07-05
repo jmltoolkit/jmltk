@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.symbolsolver;
 
-import static com.github.javaparser.StaticJavaParser.parse;
-
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -19,9 +17,12 @@ import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.io.FileNotFoundException;
-import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.parse;
 
 class Issue1491Test {
 

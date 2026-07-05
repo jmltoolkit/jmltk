@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.ast.key.sv;
 
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.JavaToken;
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
@@ -18,10 +16,13 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.KeyMetaConstructExpressionMetaModel;
+import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NonNull;
+
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 public class KeyMetaConstructExpression extends Expression {
 

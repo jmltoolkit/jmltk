@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.javaparsermodel;
 
-import static com.github.javaparser.resolution.Navigator.demandParentNode;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.*;
@@ -20,7 +18,10 @@ import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.symbolsolver.javaparsermodel.contexts.*;
 import com.github.javaparser.symbolsolver.javaparsermodel.contexts.key.KeyCcatchReturnContext;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarators.*;
+
 import java.util.Optional;
+
+import static com.github.javaparser.resolution.Navigator.demandParentNode;
 
 /**
  * @author Federico Tomassetti

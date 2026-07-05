@@ -12,10 +12,11 @@ import com.github.javaparser.ast.nodeTypes.NodeWithStatements;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.symbolsolver.resolution.AbstractResolutionTest;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Timeout;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * An issue when resolving some name when there are a series of many prior {@link NodeWithStatements}s.

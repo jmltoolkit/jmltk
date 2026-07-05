@@ -4,11 +4,6 @@
  */
 package com.github.javaparser.printer.lexicalpreservation.transformations.ast.body;
 
-import static com.github.javaparser.StaticJavaParser.parseClassOrInterfaceType;
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.PROTECTED;
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.PUBLIC;
-import static com.github.javaparser.ast.Modifier.createModifierList;
-
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.NodeList;
@@ -20,6 +15,11 @@ import com.github.javaparser.ast.type.TypeParameter;
 import com.github.javaparser.printer.lexicalpreservation.AbstractLexicalPreservingTest;
 import com.github.javaparser.utils.LineSeparator;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.parseClassOrInterfaceType;
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.PROTECTED;
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.PUBLIC;
+import static com.github.javaparser.ast.Modifier.createModifierList;
 
 /**
  * Transforming ClassOrInterfaceDeclaration and verifying the LexicalPreservation works as expected.

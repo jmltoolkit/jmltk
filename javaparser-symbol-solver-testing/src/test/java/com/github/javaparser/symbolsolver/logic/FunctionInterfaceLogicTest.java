@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.logic;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.resolution.logic.FunctionalInterfaceLogic;
 import com.github.javaparser.resolution.model.typesystem.ReferenceTypeImpl;
@@ -13,9 +11,12 @@ import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.reflectionmodel.ReflectionClassDeclaration;
 import com.github.javaparser.symbolsolver.reflectionmodel.ReflectionInterfaceDeclaration;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+import org.junit.jupiter.api.Test;
+
 import java.util.function.Consumer;
 import java.util.function.Function;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FunctionInterfaceLogicTest {
 

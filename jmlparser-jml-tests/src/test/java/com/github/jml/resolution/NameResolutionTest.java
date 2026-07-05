@@ -17,15 +17,16 @@ import com.github.javaparser.symbolsolver.JavaRefersToJmlException;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ClassLoaderTypeSolver;
 import com.google.common.truth.Truth;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 
 /**
  * @author Alexander Weigl

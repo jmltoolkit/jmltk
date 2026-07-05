@@ -4,18 +4,18 @@
  */
 package com.github.javaparser.ast;
 
-import static com.github.javaparser.ParseStart.COMPILATION_UNIT;
-import static com.github.javaparser.Providers.provider;
-import static com.github.javaparser.ast.Node.Parsedness.PARSED;
-import static com.github.javaparser.ast.Node.Parsedness.UNPARSABLE;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.Problem;
 import com.github.javaparser.utils.LineSeparator;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.ParseStart.COMPILATION_UNIT;
+import static com.github.javaparser.Providers.provider;
+import static com.github.javaparser.ast.Node.Parsedness.PARSED;
+import static com.github.javaparser.ast.Node.Parsedness.UNPARSABLE;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ParseResultTest {
     private final JavaParser javaParser = new JavaParser(new ParserConfiguration());

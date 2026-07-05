@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.ast.key;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
@@ -21,6 +19,9 @@ import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ClassLoaderTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,8 +30,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MethodFrameTests {
     @Test

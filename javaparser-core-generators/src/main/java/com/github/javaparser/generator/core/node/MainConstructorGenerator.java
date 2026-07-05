@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.generator.core.node;
 
-import static com.github.javaparser.StaticJavaParser.parseExplicitConstructorInvocationStmt;
-import static com.github.javaparser.utils.CodeGenerationUtils.f;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
@@ -18,6 +15,9 @@ import com.github.javaparser.metamodel.BaseNodeMetaModel;
 import com.github.javaparser.metamodel.PropertyMetaModel;
 import com.github.javaparser.utils.SeparatedItemStringBuilder;
 import com.github.javaparser.utils.SourceRoot;
+
+import static com.github.javaparser.StaticJavaParser.parseExplicitConstructorInvocationStmt;
+import static com.github.javaparser.utils.CodeGenerationUtils.f;
 
 public class MainConstructorGenerator extends NodeGenerator {
     public MainConstructorGenerator(SourceRoot sourceRoot) {

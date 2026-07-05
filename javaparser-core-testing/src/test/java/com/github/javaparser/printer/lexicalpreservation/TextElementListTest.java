@@ -4,17 +4,18 @@
  */
 package com.github.javaparser.printer.lexicalpreservation;
 
-import static com.github.javaparser.GeneratedJavaParserConstants.SPACE;
-import static com.github.javaparser.GeneratedJavaParserConstants.UNIX_EOL;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.GeneratedJavaParserTokenManager;
+import org.junit.jupiter.api.Test;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
-import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.GeneratedJavaParserConstants.SPACE;
+import static com.github.javaparser.GeneratedJavaParserConstants.UNIX_EOL;
+import static org.junit.jupiter.api.Assertions.*;
 
 class TextElementListTest {
 

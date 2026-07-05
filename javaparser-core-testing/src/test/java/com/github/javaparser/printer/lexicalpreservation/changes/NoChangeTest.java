@@ -4,12 +4,12 @@
  */
 package com.github.javaparser.printer.lexicalpreservation.changes;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import com.github.javaparser.ast.observer.ObservableProperty;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import org.junit.jupiter.api.*;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class NoChangeTest {
 

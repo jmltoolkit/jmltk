@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.ast.jml.expr;
 
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.JavaToken;
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.*;
@@ -20,11 +18,14 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlQuantifiedExprMetaModel;
 import com.github.javaparser.metamodel.NonEmptyProperty;
+import org.jspecify.annotations.NonNull;
+
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NonNull;
+
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * 12.4.24.2 Generalized Quantifiers

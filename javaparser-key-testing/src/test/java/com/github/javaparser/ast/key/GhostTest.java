@@ -7,9 +7,10 @@ package com.github.javaparser.ast.key;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.nio.file.Paths;
-import org.junit.jupiter.api.Test;
 
 /**
  *

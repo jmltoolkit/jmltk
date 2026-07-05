@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.javaparsermodel.declarations;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -18,12 +15,16 @@ import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.github.javaparser.symbolsolver.logic.AbstractTypeDeclaration;
 import com.github.javaparser.symbolsolver.logic.AbstractTypeDeclarationTest;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class JavaParserTypeVariableDeclarationTest extends AbstractTypeDeclarationTest {
 

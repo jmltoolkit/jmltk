@@ -4,10 +4,11 @@
  */
 package com.github.javaparser;
 
-import static com.github.javaparser.StaticJavaParser.parseResource;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.parseResource;
 
 class GeneratedJavaParserTokenManagerTest {
     private String makeFilename(String sampleName) {

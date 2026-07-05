@@ -4,17 +4,6 @@
  */
 package com.github.javaparser.steps;
 
-import static com.github.javaparser.ParseStart.COMPILATION_UNIT;
-import static com.github.javaparser.Providers.provider;
-import static com.github.javaparser.Range.range;
-import static com.github.javaparser.steps.SharedSteps.getMemberByTypeAndPosition;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.text.IsEqualCompressingWhiteSpace.equalToCompressingWhiteSpace;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import com.github.javaparser.*;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.*;
@@ -27,15 +16,27 @@ import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.printer.PrettyPrinter;
 import com.github.javaparser.printer.Printer;
 import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration;
-import java.nio.charset.Charset;
-import java.util.Iterator;
-import java.util.Set;
 import org.jbehave.core.annotations.Alias;
 import org.jbehave.core.annotations.Given;
 import org.jbehave.core.annotations.Then;
 import org.jbehave.core.annotations.When;
 import org.jbehave.core.model.ExamplesTable;
 import org.jbehave.core.steps.Parameters;
+
+import java.nio.charset.Charset;
+import java.util.Iterator;
+import java.util.Set;
+
+import static com.github.javaparser.ParseStart.COMPILATION_UNIT;
+import static com.github.javaparser.Providers.provider;
+import static com.github.javaparser.Range.range;
+import static com.github.javaparser.steps.SharedSteps.getMemberByTypeAndPosition;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.text.IsEqualCompressingWhiteSpace.equalToCompressingWhiteSpace;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class CommentParsingSteps {
 

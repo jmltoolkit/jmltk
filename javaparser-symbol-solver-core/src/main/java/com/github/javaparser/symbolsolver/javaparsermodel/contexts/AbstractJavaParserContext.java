@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.javaparsermodel.contexts;
 
-import static com.github.javaparser.ast.expr.MatchAllPatternExpr.UNNAMED_PLACEHOLDER;
-import static com.github.javaparser.resolution.Navigator.demandParentNode;
-import static java.util.Collections.singletonList;
-
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.nodeTypes.NodeWithOptionalScope;
@@ -26,8 +22,13 @@ import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFactory;
 import com.github.javaparser.symbolsolver.javaparsermodel.PatternVariableVisitor;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserSymbolDeclaration;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserTypePatternDeclaration;
+
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.github.javaparser.ast.expr.MatchAllPatternExpr.UNNAMED_PLACEHOLDER;
+import static com.github.javaparser.resolution.Navigator.demandParentNode;
+import static java.util.Collections.singletonList;
 
 /**
  * @author Federico Tomassetti

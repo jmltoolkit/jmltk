@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.ast.jml.clauses;
 
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.expr.SimpleName;
@@ -20,10 +18,13 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlContractMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
-import java.util.Objects;
-import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
+import java.util.Objects;
+import java.util.Optional;
+
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * @author Alexander Weigl

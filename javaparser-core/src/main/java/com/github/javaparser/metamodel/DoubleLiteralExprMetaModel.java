@@ -6,6 +6,7 @@ package com.github.javaparser.metamodel;
 
 import com.github.javaparser.ast.Generated;
 import com.github.javaparser.ast.expr.DoubleLiteralExpr;
+
 import java.util.Optional;
 
 /**

@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.ast.expr;
 
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -17,10 +15,13 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.ArrayInitializerExprMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
+import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NonNull;
+
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * The initialization of an array. In the following sample, the outer { } is an ArrayInitializerExpr.

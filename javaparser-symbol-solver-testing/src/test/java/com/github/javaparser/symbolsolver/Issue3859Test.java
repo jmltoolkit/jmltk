@@ -4,15 +4,16 @@
  */
 package com.github.javaparser.symbolsolver;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.JavaParserAdapter;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.expr.LambdaExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.symbolsolver.resolution.AbstractResolutionTest;
-import java.util.List;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Issue3859Test extends AbstractResolutionTest {
 

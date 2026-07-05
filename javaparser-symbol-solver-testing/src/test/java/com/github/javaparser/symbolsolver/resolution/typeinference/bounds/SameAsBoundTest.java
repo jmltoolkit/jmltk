@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.resolution.typeinference.bounds;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.resolution.model.typesystem.ReferenceTypeImpl;
 import com.github.javaparser.resolution.types.ResolvedType;
@@ -13,8 +11,11 @@ import com.github.javaparser.symbolsolver.resolution.typeinference.Bound;
 import com.github.javaparser.symbolsolver.resolution.typeinference.InferenceVariable;
 import com.github.javaparser.symbolsolver.resolution.typeinference.Instantiation;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SameAsBoundTest {
 

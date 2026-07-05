@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.model.resolution;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.declarations.ResolvedClassDeclaration;
@@ -15,6 +13,8 @@ import com.github.javaparser.resolution.model.SymbolReference;
 import com.github.javaparser.symbolsolver.reflectionmodel.ReflectionClassDeclaration;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class SymbolReferenceTest {
 

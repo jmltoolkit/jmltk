@@ -4,11 +4,6 @@
  */
 package com.github.javaparser.ast.expr;
 
-import static com.github.javaparser.StaticJavaParser.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoInteractions;
-
 import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
@@ -16,6 +11,11 @@ import com.github.javaparser.ast.observer.AstObserver;
 import com.github.javaparser.printer.ConcreteSyntaxModel;
 import com.github.javaparser.utils.LineSeparator;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 class NameTest {
 

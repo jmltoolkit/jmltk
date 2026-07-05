@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.utils;
 
-import static com.github.javaparser.utils.PositionUtils.nodeContains;
-import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
@@ -18,6 +14,10 @@ import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.type.Type;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.utils.PositionUtils.nodeContains;
+import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PositionUtilsTest {
     @Test

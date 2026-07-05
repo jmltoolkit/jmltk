@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.ast.body;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.expr.Expression;
@@ -13,6 +11,8 @@ import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.utils.TestParser;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class AnnotationMemberDeclarationTest {
 

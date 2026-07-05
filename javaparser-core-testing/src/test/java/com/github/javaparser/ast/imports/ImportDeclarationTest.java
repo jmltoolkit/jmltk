@@ -4,14 +4,14 @@
  */
 package com.github.javaparser.ast.imports;
 
-import static com.github.javaparser.StaticJavaParser.parseImport;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.ImportDeclaration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.parseImport;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ImportDeclarationTest {
 

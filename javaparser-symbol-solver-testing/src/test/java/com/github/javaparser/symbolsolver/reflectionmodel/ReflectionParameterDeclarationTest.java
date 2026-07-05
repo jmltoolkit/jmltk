@@ -4,16 +4,17 @@
  */
 package com.github.javaparser.symbolsolver.reflectionmodel;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.resolution.declarations.ResolvedClassDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedInterfaceDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+import org.junit.jupiter.api.Test;
+
 import java.util.List;
 import java.util.Map;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ReflectionParameterDeclarationTest {
 

@@ -4,12 +4,6 @@
  */
 package com.github.javaparser.ast.comments;
 
-import static com.github.javaparser.StaticJavaParser.parse;
-import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoInteractions;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -26,8 +20,15 @@ import com.github.javaparser.printer.configuration.Indentation;
 import com.github.javaparser.printer.configuration.Indentation.IndentType;
 import com.github.javaparser.printer.configuration.PrinterConfiguration;
 import com.github.javaparser.utils.LineSeparator;
-import java.util.List;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static com.github.javaparser.StaticJavaParser.parse;
+import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 class CommentTest {
 

@@ -4,9 +4,9 @@
  */
 package com.github.javaparser.ast.expr;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AssignExprTest {
     @Test

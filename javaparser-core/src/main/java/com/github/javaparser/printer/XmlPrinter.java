@@ -4,21 +4,23 @@
  */
 package com.github.javaparser.printer;
 
-import static com.github.javaparser.utils.Utils.assertNonEmpty;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.metamodel.NodeMetaModel;
 import com.github.javaparser.metamodel.PropertyMetaModel;
+
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.List;
 import java.util.function.Predicate;
+
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+
+import static com.github.javaparser.utils.Utils.assertNonEmpty;
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * Outputs an XML file containing the AST meant for inspecting it.

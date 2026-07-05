@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.serialization;
 
-import static com.github.javaparser.utils.Utils.decapitalize;
-import static java.util.Objects.requireNonNull;
-
 import com.github.javaparser.JavaToken;
 import com.github.javaparser.Range;
 import com.github.javaparser.TokenRange;
@@ -17,6 +14,9 @@ import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.PropertyMetaModel;
 import com.github.javaparser.utils.Log;
 import jakarta.json.stream.JsonGenerator;
+
+import static com.github.javaparser.utils.Utils.decapitalize;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Serializes an AST or a partial AST to JSON.

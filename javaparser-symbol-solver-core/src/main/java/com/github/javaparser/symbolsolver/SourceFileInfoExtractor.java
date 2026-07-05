@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.symbolsolver;
 
-import static com.github.javaparser.StaticJavaParser.parse;
-import static com.github.javaparser.resolution.Navigator.demandParentNode;
-import static java.util.Comparator.comparing;
-
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
@@ -27,6 +23,7 @@ import com.github.javaparser.resolution.model.SymbolReference;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
+
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.FileVisitResult;
@@ -36,6 +33,10 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.github.javaparser.StaticJavaParser.parse;
+import static com.github.javaparser.resolution.Navigator.demandParentNode;
+import static java.util.Comparator.comparing;
 
 /**
  * Resolves resolvable nodes from one or more source files, and reports the results.

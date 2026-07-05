@@ -6,6 +6,7 @@ package com.github.javaparser.resolution.model;
 
 import com.github.javaparser.resolution.declarations.ResolvedMethodLikeDeclaration;
 import com.github.javaparser.resolution.types.ResolvedType;
+
 import java.util.Optional;
 
 /**

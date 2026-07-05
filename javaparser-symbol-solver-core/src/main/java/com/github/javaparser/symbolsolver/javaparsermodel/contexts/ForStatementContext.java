@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.javaparsermodel.contexts;
 
-import static com.github.javaparser.resolution.Navigator.demandParentNode;
-
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.*;
@@ -21,9 +19,12 @@ import com.github.javaparser.symbolsolver.javaparsermodel.NormalCompletionVisito
 import com.github.javaparser.symbolsolver.javaparsermodel.PatternVariableResult;
 import com.github.javaparser.symbolsolver.javaparsermodel.PatternVariableVisitor;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserSymbolDeclaration;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+
+import static com.github.javaparser.resolution.Navigator.demandParentNode;
 
 public class ForStatementContext extends StatementContext<ForStmt> {
 

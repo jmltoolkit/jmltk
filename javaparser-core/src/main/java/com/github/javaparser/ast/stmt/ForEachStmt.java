@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.ast.stmt;
 
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.VariableDeclarator;
@@ -21,10 +19,13 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.ForEachStmtMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
+import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NonNull;
+
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * A for-each statement.

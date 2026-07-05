@@ -4,12 +4,13 @@
  */
 package com.github.javaparser.printer.lexicalpreservation;
 
-import static com.github.javaparser.printer.lexicalpreservation.IndentationConstants.STANDARD_INDENTATION_SIZE;
-
 import com.github.javaparser.GeneratedJavaParserConstants;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static com.github.javaparser.printer.lexicalpreservation.IndentationConstants.STANDARD_INDENTATION_SIZE;
 
 /**
  * Provides stateless utility methods for indentation calculations and analysis.

@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.ast.type;
 
-import static com.github.javaparser.ast.NodeList.nodeList;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -24,12 +21,16 @@ import com.github.javaparser.resolution.Context;
 import com.github.javaparser.resolution.types.ResolvedArrayType;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.utils.Pair;
+import org.jspecify.annotations.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NonNull;
+
+import static com.github.javaparser.ast.NodeList.nodeList;
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * To indicate that a type is an array, it gets wrapped in an ArrayType for every array level it has.

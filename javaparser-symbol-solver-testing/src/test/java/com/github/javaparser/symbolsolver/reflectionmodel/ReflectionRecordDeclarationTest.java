@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.reflectionmodel;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
@@ -24,13 +22,16 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.ClassLoaderType
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import com.google.common.collect.ImmutableSet;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledForJreRange;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @EnabledForJreRange(min = org.junit.jupiter.api.condition.JRE.JAVA_14)
 class ReflectionRecordDeclarationTest extends AbstractSymbolResolutionTest {

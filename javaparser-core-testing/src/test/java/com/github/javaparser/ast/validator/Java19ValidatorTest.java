@@ -4,10 +4,10 @@
  */
 package com.github.javaparser.ast.validator;
 
-import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_19;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParserConfiguration;
+
+import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_19;
 
 class Java19ValidatorTest {
 

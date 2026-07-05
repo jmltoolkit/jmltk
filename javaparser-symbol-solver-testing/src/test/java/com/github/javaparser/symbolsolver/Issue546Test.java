@@ -4,15 +4,15 @@
  */
 package com.github.javaparser.symbolsolver;
 
-import static com.github.javaparser.StaticJavaParser.parseStatement;
-import static com.github.javaparser.utils.Utils.normalizeEolInTextBlock;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.printer.PrettyPrinter;
 import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration;
 import com.github.javaparser.utils.LineSeparator;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.parseStatement;
+import static com.github.javaparser.utils.Utils.normalizeEolInTextBlock;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Issue546Test {
     @Test

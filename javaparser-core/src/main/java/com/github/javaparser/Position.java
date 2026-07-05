@@ -4,9 +4,9 @@
  */
 package com.github.javaparser;
 
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import java.util.Objects;
+
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * A position in a source file. Lines and columns start counting at 1.

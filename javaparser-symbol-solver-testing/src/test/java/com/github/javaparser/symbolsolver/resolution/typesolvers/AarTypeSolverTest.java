@@ -4,12 +4,13 @@
  */
 package com.github.javaparser.symbolsolver.resolution.typesolvers;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.function.Supplier;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AarTypeSolverTest extends AbstractTypeSolverTest<AarTypeSolver> {
 

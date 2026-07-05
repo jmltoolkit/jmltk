@@ -4,16 +4,17 @@
  */
 package com.github.javaparser.builders;
 
-import static com.github.javaparser.ast.type.PrimitiveType.intType;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
-import java.util.List;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static com.github.javaparser.ast.type.PrimitiveType.intType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class FieldDeclarationBuildersTest {
     private final CompilationUnit cu = new CompilationUnit();

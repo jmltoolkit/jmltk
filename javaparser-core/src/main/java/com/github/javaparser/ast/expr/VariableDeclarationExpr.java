@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.ast.expr;
 
-import static com.github.javaparser.ast.NodeList.nodeList;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.VariableDeclarator;
@@ -21,12 +18,16 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.NonEmptyProperty;
 import com.github.javaparser.metamodel.VariableDeclarationExprMetaModel;
+import org.jspecify.annotations.NonNull;
+
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.NonNull;
+
+import static com.github.javaparser.ast.NodeList.nodeList;
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * A declaration of variables.

@@ -11,6 +11,7 @@ import com.github.javaparser.resolution.declarations.ResolvedTypeParameterDeclar
 import com.github.javaparser.resolution.declarations.ResolvedTypeParametrizable;
 import com.github.javaparser.resolution.model.typesystem.ReferenceTypeImpl;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.Method;

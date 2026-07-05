@@ -4,16 +4,17 @@
  */
 package com.github.javaparser.utils;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class SourceZipTest {
 

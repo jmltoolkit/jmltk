@@ -4,13 +4,14 @@
  */
 package com.github.javaparser.symbolsolver.cache;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class GuavaCacheTest {
 

@@ -4,18 +4,19 @@
  */
 package com.github.javaparser.ast;
 
-import static com.github.javaparser.StaticJavaParser.parse;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.github.javaparser.ast.observer.AstObserver;
 import com.github.javaparser.ast.observer.AstObserverAdapter;
 import com.github.javaparser.ast.observer.ObservableProperty;
 import com.github.javaparser.ast.type.PrimitiveType;
+import org.junit.jupiter.api.Test;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.parse;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ObservationTest {
 

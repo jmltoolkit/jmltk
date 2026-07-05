@@ -16,6 +16,7 @@ import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.resolution.types.ResolvedTypeTransformer;
 import com.github.javaparser.resolution.types.ResolvedTypeVariable;
 import com.github.javaparser.resolution.types.parametrization.ResolvedTypeParametersMap;
+
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;

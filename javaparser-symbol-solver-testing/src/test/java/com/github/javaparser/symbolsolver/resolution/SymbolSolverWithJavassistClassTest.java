@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.resolution;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.resolution.Solver;
 import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
@@ -16,10 +14,13 @@ import com.github.javaparser.symbolsolver.javassistmodel.JavassistClassDeclarati
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
-import java.io.IOException;
-import java.nio.file.Path;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.nio.file.Path;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class SymbolSolverWithJavassistClassTest extends AbstractSymbolResolutionTest {
     private TypeSolver typeSolver;

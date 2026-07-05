@@ -4,23 +4,24 @@
  */
 package com.github.javaparser.symbolsolver.resolution.typesolvers;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
 import com.github.javaparser.resolution.model.SymbolReference;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserClassDeclaration;
 import com.github.javaparser.symbolsolver.utils.LeanParserConfiguration;
 import com.github.javaparser.utils.CodeGenerationUtils;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class JavaParserTypeSolverTest extends AbstractTypeSolverTest<JavaParserTypeSolver> {
 

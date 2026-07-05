@@ -4,13 +4,6 @@
  */
 package com.github.javaparser.printer.lexicalpreservation;
 
-import static com.github.javaparser.TokenTypes.eolTokenKind;
-import static com.github.javaparser.TokenTypes.spaceTokenKind;
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.PUBLIC;
-import static com.github.javaparser.ast.Modifier.createModifierList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.github.javaparser.GeneratedJavaParserConstants;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
@@ -30,9 +23,17 @@ import com.github.javaparser.printer.ConcreteSyntaxModel;
 import com.github.javaparser.printer.concretesyntaxmodel.CsmElement;
 import com.github.javaparser.printer.concretesyntaxmodel.CsmToken;
 import com.github.javaparser.printer.lexicalpreservation.LexicalDifferenceCalculator.CsmChild;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.util.List;
-import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.TokenTypes.eolTokenKind;
+import static com.github.javaparser.TokenTypes.spaceTokenKind;
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.PUBLIC;
+import static com.github.javaparser.ast.Modifier.createModifierList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LexicalDifferenceCalculatorTest extends AbstractLexicalPreservingTest {
 

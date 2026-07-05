@@ -4,12 +4,13 @@
  */
 package com.github.javaparser.utils;
 
-import static java.nio.file.FileVisitResult.*;
-
 import com.github.javaparser.ParserConfiguration;
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+
+import static java.nio.file.FileVisitResult.*;
 
 /**
  * A brute force {@link CollectionStrategy} for discovering a project structure.

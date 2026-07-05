@@ -4,11 +4,6 @@
  */
 package com.github.javaparser;
 
-import static com.github.javaparser.GeneratedJavaParserConstants.EOF;
-import static com.github.javaparser.ast.type.ArrayType.unwrapArrayTypes;
-import static com.github.javaparser.ast.type.ArrayType.wrapInArrayTypes;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -19,7 +14,13 @@ import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.*;
 import com.github.javaparser.utils.Pair;
+
 import java.util.*;
+
+import static com.github.javaparser.GeneratedJavaParserConstants.EOF;
+import static com.github.javaparser.ast.type.ArrayType.unwrapArrayTypes;
+import static com.github.javaparser.ast.type.ArrayType.wrapInArrayTypes;
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * Base class for {@link GeneratedJavaParser}

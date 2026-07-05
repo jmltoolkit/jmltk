@@ -4,21 +4,22 @@
  */
 package com.github.javaparser.ast;
 
-import static com.github.javaparser.StaticJavaParser.parse;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.observer.AstObserver;
 import com.github.javaparser.ast.observer.ObservableProperty;
 import com.github.javaparser.ast.type.PrimitiveType;
+import org.junit.jupiter.api.Test;
+
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.parse;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ListObservationTest {
 

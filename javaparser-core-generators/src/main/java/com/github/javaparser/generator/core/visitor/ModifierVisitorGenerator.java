@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.generator.core.visitor;
 
-import static com.github.javaparser.utils.CodeGenerationUtils.f;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.BinaryExpr;
@@ -15,10 +13,13 @@ import com.github.javaparser.metamodel.BaseNodeMetaModel;
 import com.github.javaparser.metamodel.PropertyMetaModel;
 import com.github.javaparser.utils.SeparatedItemStringBuilder;
 import com.github.javaparser.utils.SourceRoot;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.github.javaparser.utils.CodeGenerationUtils.f;
 
 public class ModifierVisitorGenerator extends VisitorGenerator {
     public ModifierVisitorGenerator(SourceRoot sourceRoot) {

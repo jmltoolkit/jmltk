@@ -4,10 +4,11 @@
  */
 package com.github.javaparser.jml;
 
-import java.util.Arrays;
-import java.util.TreeSet;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+import java.util.TreeSet;
 
 /**
  * @author Alexander Weigl

@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.symbolsolver;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.JavaParserAdapter;
 import com.github.javaparser.ParserConfiguration;
@@ -17,6 +15,8 @@ import com.github.javaparser.resolution.declarations.ResolvedConstructorDeclarat
 import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration;
 import com.github.javaparser.symbolsolver.resolution.AbstractResolutionTest;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Issue4568Test extends AbstractResolutionTest {
 

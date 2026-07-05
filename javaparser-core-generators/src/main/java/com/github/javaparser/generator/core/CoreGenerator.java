@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.generator.core;
 
-import static com.github.javaparser.ParserConfiguration.LanguageLevel.RAW;
-
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.generator.core.node.*;
@@ -15,8 +13,11 @@ import com.github.javaparser.generator.core.quality.NotNullGenerator;
 import com.github.javaparser.generator.core.visitor.*;
 import com.github.javaparser.utils.Log;
 import com.github.javaparser.utils.SourceRoot;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import static com.github.javaparser.ParserConfiguration.LanguageLevel.RAW;
 
 /**
  * Generates all generated visitors in the javaparser-core module.

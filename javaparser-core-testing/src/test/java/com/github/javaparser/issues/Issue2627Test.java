@@ -4,18 +4,19 @@
  */
 package com.github.javaparser.issues;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.*;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import java.io.IOException;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import java.io.IOException;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Disabled("Lexer error. Reason unclear.")
 public class Issue2627Test {

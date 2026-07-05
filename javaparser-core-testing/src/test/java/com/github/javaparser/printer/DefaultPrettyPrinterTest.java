@@ -4,14 +4,6 @@
  */
 package com.github.javaparser.printer;
 
-import static com.github.javaparser.ParseStart.COMPILATION_UNIT;
-import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_9;
-import static com.github.javaparser.Providers.provider;
-import static com.github.javaparser.StaticJavaParser.*;
-import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.github.javaparser.*;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -30,6 +22,14 @@ import com.github.javaparser.printer.configuration.imports.EclipseImportOrdering
 import com.github.javaparser.printer.configuration.imports.IntelliJImportOrderingStrategy;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.ParseStart.COMPILATION_UNIT;
+import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_9;
+import static com.github.javaparser.Providers.provider;
+import static com.github.javaparser.StaticJavaParser.*;
+import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DefaultPrettyPrinterTest {
 

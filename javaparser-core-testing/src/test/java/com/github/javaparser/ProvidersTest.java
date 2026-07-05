@@ -4,12 +4,13 @@
  */
 package com.github.javaparser;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.ast.CompilationUnit;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class ProvidersTest {
 

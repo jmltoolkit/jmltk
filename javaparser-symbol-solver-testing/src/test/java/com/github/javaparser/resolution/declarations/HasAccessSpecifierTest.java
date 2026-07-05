@@ -4,9 +4,9 @@
  */
 package com.github.javaparser.resolution.declarations;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public interface HasAccessSpecifierTest {
 

@@ -4,14 +4,15 @@
  */
 package com.github.javaparser.ast.nodeTypes;
 
-import static com.github.javaparser.StaticJavaParser.parseExpression;
-import static com.github.javaparser.StaticJavaParser.parseName;
-
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.*;
+
 import java.lang.annotation.Annotation;
 import java.util.Optional;
+
+import static com.github.javaparser.StaticJavaParser.parseExpression;
+import static com.github.javaparser.StaticJavaParser.parseName;
 
 /**
  * A node that can be annotated.

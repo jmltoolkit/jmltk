@@ -17,6 +17,7 @@ import com.github.javaparser.metamodel.UnknownTypeMetaModel;
 import com.github.javaparser.resolution.Context;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.github.javaparser.resolution.types.ResolvedType;
+
 import java.util.Optional;
 import java.util.function.Consumer;
 

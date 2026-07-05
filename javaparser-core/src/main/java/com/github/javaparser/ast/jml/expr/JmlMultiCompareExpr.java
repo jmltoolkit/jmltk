@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.ast.jml.expr;
 
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.expr.BinaryExpr;
@@ -17,12 +15,15 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlMultiCompareExprMetaModel;
 import com.github.javaparser.metamodel.NonEmptyProperty;
+import org.jspecify.annotations.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NonNull;
+
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * @author Alexander Weigl

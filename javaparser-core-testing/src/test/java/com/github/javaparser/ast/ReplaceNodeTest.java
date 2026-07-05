@@ -4,12 +4,12 @@
  */
 package com.github.javaparser.ast;
 
+import com.github.javaparser.utils.LineSeparator;
+import org.junit.jupiter.api.Test;
+
 import static com.github.javaparser.StaticJavaParser.parse;
 import static com.github.javaparser.StaticJavaParser.parsePackageDeclaration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import com.github.javaparser.utils.LineSeparator;
-import org.junit.jupiter.api.Test;
 
 class ReplaceNodeTest {
     @Test

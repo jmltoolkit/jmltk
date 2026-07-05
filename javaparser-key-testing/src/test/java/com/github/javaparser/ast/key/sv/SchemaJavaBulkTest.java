@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.ast.key.sv;
 
-import static org.junit.jupiter.api.Assertions.fail;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
@@ -13,6 +11,8 @@ import com.github.javaparser.Problem;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 class SchemaJavaBulkTest {
     @ParameterizedTest

@@ -4,15 +4,16 @@
  */
 package com.github.javaparser.builders;
 
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.PUBLIC;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.utils.LineSeparator;
-import java.util.List;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.PUBLIC;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class NodeWithParametersBuildersTest {
     private final CompilationUnit cu = new CompilationUnit();

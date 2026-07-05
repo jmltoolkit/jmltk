@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.resolution.typeinference.bounds;
 
-import static com.github.javaparser.symbolsolver.resolution.typeinference.TypeHelper.isProperType;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-
 import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.resolution.declarations.ResolvedTypeParameterDeclaration;
 import com.github.javaparser.resolution.model.typesystem.ReferenceTypeImpl;
@@ -19,10 +15,15 @@ import com.github.javaparser.symbolsolver.resolution.typeinference.InferenceVari
 import com.github.javaparser.symbolsolver.resolution.typeinference.ProperLowerBound;
 import com.github.javaparser.symbolsolver.resolution.typeinference.ProperUpperBound;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+import org.junit.jupiter.api.Test;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.symbolsolver.resolution.typeinference.TypeHelper.isProperType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 
 class SubtypeOfBoundTest {
 

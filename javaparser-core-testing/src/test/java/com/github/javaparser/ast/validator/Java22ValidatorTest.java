@@ -4,19 +4,19 @@
  */
 package com.github.javaparser.ast.validator;
 
-import static com.github.javaparser.ParseStart.EXPRESSION;
-import static com.github.javaparser.ParseStart.STATEMENT;
-import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_22;
-import static com.github.javaparser.Providers.provider;
-import static com.github.javaparser.utils.TestUtils.assertNoProblems;
-import static com.github.javaparser.utils.TestUtils.assertProblems;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.stmt.Statement;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.ParseStart.EXPRESSION;
+import static com.github.javaparser.ParseStart.STATEMENT;
+import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_22;
+import static com.github.javaparser.Providers.provider;
+import static com.github.javaparser.utils.TestUtils.assertNoProblems;
+import static com.github.javaparser.utils.TestUtils.assertProblems;
 
 /**
  * See <a href="https://openjdk.org/jeps/456">JEP456</a> for descriptions of the cases tested here.

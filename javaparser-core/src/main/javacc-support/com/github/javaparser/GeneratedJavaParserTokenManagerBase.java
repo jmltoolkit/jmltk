@@ -4,10 +4,11 @@
  */
 package com.github.javaparser;
 
-import static com.github.javaparser.GeneratedJavaParserConstants.*;
-
 import com.github.javaparser.ast.comments.*;
+
 import java.util.ArrayDeque;
+
+import static com.github.javaparser.GeneratedJavaParserConstants.*;
 
 /**
  * Base class for {@link com.github.javaparser.GeneratedJavaParserTokenManager}

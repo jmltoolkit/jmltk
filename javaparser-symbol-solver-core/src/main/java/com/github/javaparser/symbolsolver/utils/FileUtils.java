@@ -5,6 +5,7 @@
 package com.github.javaparser.symbolsolver.utils;
 
 import com.github.javaparser.utils.Utils;
+
 import java.io.File;
 
 public class FileUtils {

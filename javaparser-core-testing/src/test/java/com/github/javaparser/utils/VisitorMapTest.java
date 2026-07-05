@@ -4,15 +4,16 @@
  */
 package com.github.javaparser.utils;
 
-import static com.github.javaparser.StaticJavaParser.parse;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.visitor.ObjectIdentityEqualsVisitor;
 import com.github.javaparser.ast.visitor.ObjectIdentityHashCodeVisitor;
+import org.junit.jupiter.api.Test;
+
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.parse;
+import static org.junit.jupiter.api.Assertions.*;
 
 class VisitorMapTest {
     @Test

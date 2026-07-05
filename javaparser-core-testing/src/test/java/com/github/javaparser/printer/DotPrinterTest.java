@@ -4,14 +4,14 @@
  */
 package com.github.javaparser.printer;
 
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.expr.Expression;
+import org.junit.jupiter.api.Test;
+
 import static com.github.javaparser.StaticJavaParser.parse;
 import static com.github.javaparser.StaticJavaParser.parseExpression;
 import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.expr.Expression;
-import org.junit.jupiter.api.Test;
 
 class DotPrinterTest {
     @Test

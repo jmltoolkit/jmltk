@@ -4,18 +4,19 @@
  */
 package com.github.javaparser.utils;
 
+import com.github.javaparser.ParseResult;
+import com.github.javaparser.ParserConfiguration;
+import com.github.javaparser.ast.CompilationUnit;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.List;
+
 import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_9;
 import static com.github.javaparser.utils.CodeGenerationUtils.mavenModuleRoot;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import com.github.javaparser.ParseResult;
-import com.github.javaparser.ParserConfiguration;
-import com.github.javaparser.ast.CompilationUnit;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.List;
-import org.junit.jupiter.api.Test;
 
 class ParserCollectionStrategyTest {
 

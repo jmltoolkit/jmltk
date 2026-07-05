@@ -800,8 +800,10 @@ public class NameLogic {
                 MethodDeclaration.class, name, (p, c) -> p.getThrownExceptions().contains(c))) {
             return true;
         }
-        if (whenParentIs(ConstructorDeclaration.class, name, (p, c) -> p.getThrownExceptions()
-                .contains(c))) {
+        if (whenParentIs(
+                ConstructorDeclaration.class,
+                name,
+                (p, c) -> p.getThrownExceptions().contains(c))) {
             return true;
         }
 
@@ -814,8 +816,10 @@ public class NameLogic {
                 VariableDeclarator.class,
                 name,
                 (p1, c1) -> p1.getType() == c1
-                        && whenParentIs(FieldDeclaration.class, p1, (p2, c2) -> p2.getVariables()
-                                .contains(c2)))) {
+                        && whenParentIs(
+                                FieldDeclaration.class,
+                                p1,
+                                (p2, c2) -> p2.getVariables().contains(c2)))) {
             return true;
         }
 
@@ -838,8 +842,10 @@ public class NameLogic {
                 VariableDeclarator.class,
                 name,
                 (p1, c1) -> p1.getType() == c1
-                        && whenParentIs(VariableDeclarationExpr.class, p1, (p2, c2) -> p2.getVariables()
-                                .contains(c2)))) {
+                        && whenParentIs(
+                                VariableDeclarationExpr.class,
+                                p1,
+                                (p2, c2) -> p2.getVariables().contains(c2)))) {
             return true;
         }
 
@@ -1002,8 +1008,10 @@ public class NameLogic {
                 NameExpr.class,
                 name,
                 (nameExpr, c) -> nameExpr.getName() == c
-                        && whenParentIs(TryStmt.class, nameExpr, (ne, c2) -> ne.getResources()
-                                .contains(c2)))) {
+                        && whenParentIs(
+                                TryStmt.class,
+                                nameExpr,
+                                (ne, c2) -> ne.getResources().contains(c2)))) {
             return true;
         }
         if (whenParentIs(
@@ -1019,8 +1027,11 @@ public class NameLogic {
                                                 VariableDeclarationExpr.class,
                                                 p2,
                                                 (p3, c3) -> p3.getVariables().contains(c3)
-                                                        && whenParentIs(TryStmt.class, p3, (p4, c4) -> p4.getResources()
-                                                                .contains(c4)))))) {
+                                                        && whenParentIs(
+                                                                TryStmt.class,
+                                                                p3,
+                                                                (p4, c4) -> p4.getResources()
+                                                                        .contains(c4)))))) {
             return true;
         }
         if (whenParentIs(TryStmt.class, name, (ne, c2) -> ne.getResources().contains(c2))) {
@@ -1035,8 +1046,10 @@ public class NameLogic {
                                 VariableDeclarationExpr.class,
                                 p2,
                                 (p3, c3) -> p3.getVariables().contains(c3)
-                                        && whenParentIs(TryStmt.class, p3, (p4, c4) -> p4.getResources()
-                                                .contains(c4))))) {
+                                        && whenParentIs(
+                                                TryStmt.class,
+                                                p3,
+                                                (p4, c4) -> p4.getResources().contains(c4))))) {
             return true;
         }
 

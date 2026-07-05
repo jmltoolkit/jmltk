@@ -4,12 +4,13 @@
  */
 package com.github.javaparser.ast.stmt;
 
+import com.github.javaparser.ast.expr.SimpleName;
+import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
+
 import static com.github.javaparser.utils.TestParser.parseStatement;
 import static org.junit.jupiter.api.Assertions.*;
-
-import com.github.javaparser.ast.expr.SimpleName;
-import java.util.Optional;
-import org.junit.jupiter.api.Test;
 
 class BreakStmtTest {
 

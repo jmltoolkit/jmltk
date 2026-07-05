@@ -4,15 +4,16 @@
  */
 package com.github.javaparser.symbolsolver.resolution.typesolvers;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.github.javaparser.resolution.TypeSolver;
+import org.checkerframework.checker.nullness.qual.NonNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import org.checkerframework.checker.nullness.qual.NonNull;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * TypeSolverBuilder was created with the objective of simplifying

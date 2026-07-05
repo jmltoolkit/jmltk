@@ -4,17 +4,17 @@
  */
 package com.github.javaparser.ast.validator;
 
-import static com.github.javaparser.ParseStart.STATEMENT;
-import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_11;
-import static com.github.javaparser.Providers.provider;
-import static com.github.javaparser.utils.TestUtils.assertNoProblems;
-import static com.github.javaparser.utils.TestUtils.assertProblems;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.stmt.Statement;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.ParseStart.STATEMENT;
+import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_11;
+import static com.github.javaparser.Providers.provider;
+import static com.github.javaparser.utils.TestUtils.assertNoProblems;
+import static com.github.javaparser.utils.TestUtils.assertProblems;
 
 class Java11ValidatorTest {
     public static final JavaParser javaParser = new JavaParser(new ParserConfiguration().setLanguageLevel(JAVA_11));

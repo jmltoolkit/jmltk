@@ -4,12 +4,13 @@
  */
 package com.github.javaparser.symbolsolver.cache;
 
-import static com.google.common.math.LongMath.saturatedAdd;
-import static com.google.common.math.LongMath.saturatedSubtract;
-
 import com.github.javaparser.resolution.cache.Cache;
 import com.github.javaparser.resolution.cache.CacheStats;
+
 import java.util.Arrays;
+
+import static com.google.common.math.LongMath.saturatedAdd;
+import static com.google.common.math.LongMath.saturatedSubtract;
 
 /**
  * Statistics about the performance of a {@link Cache}. Instances of this class are immutable.

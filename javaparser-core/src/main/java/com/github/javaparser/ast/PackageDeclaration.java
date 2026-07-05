@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.ast;
 
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.Name;
@@ -17,8 +15,11 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.PackageDeclarationMetaModel;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
+
+import java.util.Objects;
+
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * A package declaration.

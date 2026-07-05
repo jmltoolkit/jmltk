@@ -4,15 +4,16 @@
  */
 package com.github.javaparser;
 
-import static com.github.javaparser.utils.TestUtils.getNodeStartingAtPosition;
-import static com.github.javaparser.utils.TestUtils.parseFile;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.expr.CharLiteralExpr;
 import com.github.javaparser.utils.ExtractingVisitors;
-import java.util.List;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static com.github.javaparser.utils.TestUtils.getNodeStartingAtPosition;
+import static com.github.javaparser.utils.TestUtils.parseFile;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ExpectedTokensTest {
 

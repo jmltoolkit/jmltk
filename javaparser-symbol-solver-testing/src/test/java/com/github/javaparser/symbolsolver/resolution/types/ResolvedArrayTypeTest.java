@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.resolution.types;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.github.javaparser.JavaParserAdapter;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.resolution.model.typesystem.NullType;
@@ -14,9 +11,13 @@ import com.github.javaparser.resolution.types.ResolvedArrayType;
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.resolution.AbstractResolutionTest;
+import org.junit.jupiter.api.Test;
+
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ResolvedArrayTypeTest extends AbstractResolutionTest {
 

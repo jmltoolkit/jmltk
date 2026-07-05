@@ -15,6 +15,7 @@ import com.github.javaparser.ast.stmt.TryStmt;
 import com.github.javaparser.ast.type.VarType;
 import com.github.javaparser.ast.validator.ProblemReporter;
 import com.github.javaparser.ast.validator.TypedValidator;
+
 import java.util.Optional;
 
 public class VarValidator implements TypedValidator<VarType> {

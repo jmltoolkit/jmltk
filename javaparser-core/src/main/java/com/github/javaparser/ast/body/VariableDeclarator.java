@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.ast.body;
 
-import static com.github.javaparser.utils.Utils.assertNonEmpty;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -30,12 +27,16 @@ import com.github.javaparser.metamodel.OptionalProperty;
 import com.github.javaparser.metamodel.VariableDeclaratorMetaModel;
 import com.github.javaparser.resolution.Resolvable;
 import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+
+import static com.github.javaparser.utils.Utils.assertNonEmpty;
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * The declaration of a variable.<br>In {@code int x = 14, y = 3;} "int x = 14"  and "int y = 3"  are

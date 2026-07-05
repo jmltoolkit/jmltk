@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.reflectionmodel;
 
-import static java.util.Comparator.comparing;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.resolution.declarations.ResolvedDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedInterfaceDeclaration;
@@ -19,11 +15,16 @@ import com.github.javaparser.resolution.types.ResolvedTypeVariable;
 import com.github.javaparser.symbolsolver.AbstractSymbolResolutionTest;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import com.google.common.collect.ImmutableList;
+import org.junit.jupiter.api.Test;
+
 import java.nio.Buffer;
 import java.nio.CharBuffer;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.junit.jupiter.api.Test;
+
+import static java.util.Comparator.comparing;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ReflectionInterfaceDeclarationTest extends AbstractSymbolResolutionTest {
 

@@ -5,6 +5,7 @@
 package com.github.javaparser.javadoc.description;
 
 import com.github.javaparser.utils.Pair;
+
 import java.util.LinkedList;
 import java.util.List;
 

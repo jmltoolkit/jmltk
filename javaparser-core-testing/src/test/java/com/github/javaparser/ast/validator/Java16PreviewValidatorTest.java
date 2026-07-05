@@ -4,10 +4,10 @@
  */
 package com.github.javaparser.ast.validator;
 
-import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_16_PREVIEW;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParserConfiguration;
+
+import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_16_PREVIEW;
 
 class Java16PreviewValidatorTest {
 

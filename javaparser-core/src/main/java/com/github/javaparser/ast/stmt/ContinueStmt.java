@@ -17,9 +17,10 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.ContinueStmtMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
+import org.jspecify.annotations.Nullable;
+
 import java.util.Optional;
 import java.util.function.Consumer;
-import org.jspecify.annotations.Nullable;
 
 /**
  * A continue statement with an optional label;

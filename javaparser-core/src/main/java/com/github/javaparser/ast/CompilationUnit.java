@@ -4,15 +4,6 @@
  */
 package com.github.javaparser.ast;
 
-import static com.github.javaparser.JavaToken.Kind.EOF;
-import static com.github.javaparser.Providers.UTF8;
-import static com.github.javaparser.Providers.provider;
-import static com.github.javaparser.Range.range;
-import static com.github.javaparser.StaticJavaParser.parseName;
-import static com.github.javaparser.ast.Modifier.createModifierList;
-import static com.github.javaparser.utils.CodeGenerationUtils.subtractPaths;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.*;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.comments.Comment;
@@ -34,6 +25,9 @@ import com.github.javaparser.printer.configuration.PrinterConfiguration;
 import com.github.javaparser.utils.ClassUtils;
 import com.github.javaparser.utils.CodeGenerationUtils;
 import com.github.javaparser.utils.Utils;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -44,8 +38,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+
+import static com.github.javaparser.JavaToken.Kind.EOF;
+import static com.github.javaparser.Providers.UTF8;
+import static com.github.javaparser.Providers.provider;
+import static com.github.javaparser.Range.range;
+import static com.github.javaparser.StaticJavaParser.parseName;
+import static com.github.javaparser.ast.Modifier.createModifierList;
+import static com.github.javaparser.utils.CodeGenerationUtils.subtractPaths;
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * <p>
@@ -602,9 +603,10 @@ public class CompilationUnit extends Node {
      * If for some strange reason there are multiple types of this name, the first one is returned.
      */
     public Optional<TypeDeclaration<?>> getPrimaryType() {
-        return getPrimaryTypeName().flatMap(name -> getTypes().stream()
-                .filter(t -> t.getNameAsString().equals(name))
-                .findFirst());
+        return getPrimaryTypeName()
+                .flatMap(name -> getTypes().stream()
+                        .filter(t -> t.getNameAsString().equals(name))
+                        .findFirst());
     }
 
     /**

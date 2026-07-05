@@ -7,8 +7,9 @@ package com.github.javaparser.printer.lexicalpreservation;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
 
 public class Issue2610Test extends AbstractLexicalPreservingTest {
 

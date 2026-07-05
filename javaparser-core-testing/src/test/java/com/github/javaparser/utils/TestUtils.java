@@ -4,19 +4,14 @@
  */
 package com.github.javaparser.utils;
 
-import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_9;
-import static com.github.javaparser.Providers.provider;
-import static com.github.javaparser.utils.CodeGenerationUtils.f;
-import static com.github.javaparser.utils.Utils.normalizeEolInTextBlock;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.*;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.expr.Expression;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -30,9 +25,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+
+import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_9;
+import static com.github.javaparser.Providers.provider;
+import static com.github.javaparser.utils.CodeGenerationUtils.f;
+import static com.github.javaparser.utils.Utils.normalizeEolInTextBlock;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestUtils {
 

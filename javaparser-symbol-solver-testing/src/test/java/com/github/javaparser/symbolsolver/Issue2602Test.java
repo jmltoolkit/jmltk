@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.symbolsolver;
 
-import static com.github.javaparser.Providers.provider;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParseStart;
@@ -20,6 +17,9 @@ import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParse
 import com.github.javaparser.symbolsolver.resolution.typesolvers.MemoryTypeSolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.Providers.provider;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class Issue2602Test extends AbstractSymbolResolutionTest {
 

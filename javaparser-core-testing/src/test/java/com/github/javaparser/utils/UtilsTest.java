@@ -4,11 +4,7 @@
  */
 package com.github.javaparser.utils;
 
-import static com.github.javaparser.utils.Utils.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -16,7 +12,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
-import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.utils.Utils.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UtilsTest {
 

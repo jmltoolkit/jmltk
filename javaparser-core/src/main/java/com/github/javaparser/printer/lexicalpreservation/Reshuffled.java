@@ -7,6 +7,7 @@ package com.github.javaparser.printer.lexicalpreservation;
 import com.github.javaparser.printer.concretesyntaxmodel.CsmElement;
 import com.github.javaparser.printer.concretesyntaxmodel.CsmMix;
 import com.github.javaparser.printer.concretesyntaxmodel.CsmToken;
+
 import java.util.List;
 import java.util.stream.Collectors;
 

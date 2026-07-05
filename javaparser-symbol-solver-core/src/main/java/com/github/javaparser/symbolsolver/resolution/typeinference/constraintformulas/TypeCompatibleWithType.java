@@ -4,15 +4,15 @@
  */
 package com.github.javaparser.symbolsolver.resolution.typeinference.constraintformulas;
 
-import static com.github.javaparser.symbolsolver.resolution.typeinference.TypeHelper.isCompatibleInALooseInvocationContext;
-import static com.github.javaparser.symbolsolver.resolution.typeinference.TypeHelper.isProperType;
-
 import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.resolution.model.typesystem.ReferenceTypeImpl;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.resolution.typeinference.BoundSet;
 import com.github.javaparser.symbolsolver.resolution.typeinference.ConstraintFormula;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+
+import static com.github.javaparser.symbolsolver.resolution.typeinference.TypeHelper.isCompatibleInALooseInvocationContext;
+import static com.github.javaparser.symbolsolver.resolution.typeinference.TypeHelper.isProperType;
 
 /**
  * A type S is compatible in a loose invocation context with type T

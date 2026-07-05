@@ -17,8 +17,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.KeyCcatchContinueMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
-import java.util.Optional;
 import org.jspecify.annotations.Nullable;
+
+import java.util.Optional;
 
 public class KeyCcatchContinue extends KeyCcatchBranch {
 

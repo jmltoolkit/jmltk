@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.utils;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
@@ -16,6 +14,12 @@ import com.github.javaparser.printer.ConfigurablePrinter;
 import com.github.javaparser.printer.DefaultPrettyPrinter;
 import com.github.javaparser.printer.configuration.DefaultConfigurationOption;
 import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration.ConfigOption;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -23,11 +27,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class SourceRootTest {
     private final Path root = CodeGenerationUtils.mavenModuleRoot(SourceRootTest.class)
@@ -50,13 +51,14 @@ class SourceRootTest {
         assertEquals(7, units.size());
         assertTrue(units.stream()
                 .allMatch(unit -> !unit.getTypes().isEmpty() || unit.getModule().isPresent()));
-        assertTrue(parseResults.stream().noneMatch(cu -> cu.getResult()
-                .get()
-                .getStorage()
-                .get()
-                .getPath()
-                .toString()
-                .contains("source.root")));
+        assertTrue(parseResults.stream()
+                .noneMatch(cu -> cu.getResult()
+                        .get()
+                        .getStorage()
+                        .get()
+                        .getPath()
+                        .toString()
+                        .contains("source.root")));
     }
 
     @Test

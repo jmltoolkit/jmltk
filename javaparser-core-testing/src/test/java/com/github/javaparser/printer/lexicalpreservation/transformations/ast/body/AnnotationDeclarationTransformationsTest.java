@@ -4,17 +4,18 @@
  */
 package com.github.javaparser.printer.lexicalpreservation.transformations.ast.body;
 
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.PROTECTED;
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.PUBLIC;
-import static com.github.javaparser.ast.Modifier.createModifierList;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.AnnotationMemberDeclaration;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.printer.lexicalpreservation.AbstractLexicalPreservingTest;
-import java.io.IOException;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.PROTECTED;
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.PUBLIC;
+import static com.github.javaparser.ast.Modifier.createModifierList;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Transforming AnnotationDeclaration and verifying the LexicalPreservation works as expected.

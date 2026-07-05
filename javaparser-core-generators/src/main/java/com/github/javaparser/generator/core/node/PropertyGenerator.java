@@ -4,13 +4,6 @@
  */
 package com.github.javaparser.generator.core.node;
 
-import static com.github.javaparser.StaticJavaParser.parseType;
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.FINAL;
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.PUBLIC;
-import static com.github.javaparser.ast.Modifier.createModifierList;
-import static com.github.javaparser.utils.CodeGenerationUtils.f;
-import static com.github.javaparser.utils.Utils.camelCaseToScreaming;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -25,9 +18,17 @@ import com.github.javaparser.metamodel.BaseNodeMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.PropertyMetaModel;
 import com.github.javaparser.utils.SourceRoot;
-import java.util.*;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
+import java.util.*;
+
+import static com.github.javaparser.StaticJavaParser.parseType;
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.FINAL;
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.PUBLIC;
+import static com.github.javaparser.ast.Modifier.createModifierList;
+import static com.github.javaparser.utils.CodeGenerationUtils.f;
+import static com.github.javaparser.utils.Utils.camelCaseToScreaming;
 
 public class PropertyGenerator extends NodeGenerator {
 

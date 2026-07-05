@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.javaparsermodel.declarations;
 
-import static com.github.javaparser.resolution.Navigator.demandParentNode;
-
 import com.github.javaparser.ast.AccessSpecifier;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
@@ -23,9 +21,12 @@ import com.github.javaparser.symbolsolver.core.resolution.TypeVariableResolution
 import com.github.javaparser.symbolsolver.declarations.common.MethodDeclarationCommonLogic;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFactory;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.github.javaparser.resolution.Navigator.demandParentNode;
 
 /**
  * @author Federico Tomassetti

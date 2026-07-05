@@ -10,6 +10,7 @@ import com.github.javaparser.ast.expr.TypePatternExpr;
 import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.symbolsolver.javaparsermodel.PatternVariableResult;
 import com.github.javaparser.symbolsolver.javaparsermodel.PatternVariableVisitor;
+
 import java.util.*;
 
 public class BinaryExprContext extends ExpressionContext<BinaryExpr> {

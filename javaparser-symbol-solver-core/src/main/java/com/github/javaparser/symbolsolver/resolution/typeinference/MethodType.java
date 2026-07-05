@@ -7,6 +7,7 @@ package com.github.javaparser.symbolsolver.resolution.typeinference;
 import com.github.javaparser.resolution.MethodUsage;
 import com.github.javaparser.resolution.declarations.ResolvedTypeParameterDeclaration;
 import com.github.javaparser.resolution.types.ResolvedType;
+
 import java.util.List;
 
 /**

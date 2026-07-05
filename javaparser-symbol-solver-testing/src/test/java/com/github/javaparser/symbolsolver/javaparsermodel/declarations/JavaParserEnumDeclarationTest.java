@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.javaparsermodel.declarations;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.*;
 import com.github.javaparser.ast.AccessSpecifier;
 import com.github.javaparser.ast.CompilationUnit;
@@ -32,12 +30,15 @@ import com.github.javaparser.symbolsolver.utils.LeanParserConfiguration;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.truth.Truth;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import java.nio.file.Path;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class JavaParserEnumDeclarationTest extends AbstractTypeDeclarationTest
         implements ResolvedEnumDeclarationTest, MethodResolutionCapabilityTest, MethodUsageResolutionCapabilityTest {

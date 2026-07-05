@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.resolution.typesolvers;
 
-import static com.github.javaparser.symbolsolver.utils.JavassistModuleHelper.MODULE_INFO_CLASS_NAME;
-
 import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
@@ -13,6 +11,7 @@ import com.github.javaparser.resolution.model.SymbolReference;
 import com.github.javaparser.symbolsolver.javassistmodel.JavassistFactory;
 import com.github.javaparser.symbolsolver.utils.JavassistModuleHelper;
 import com.github.javaparser.utils.Pair;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,6 +23,8 @@ import java.util.stream.Stream;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
+
+import static com.github.javaparser.symbolsolver.utils.JavassistModuleHelper.MODULE_INFO_CLASS_NAME;
 
 /**
  * Will let the symbol solver look inside a jar file while solving types.

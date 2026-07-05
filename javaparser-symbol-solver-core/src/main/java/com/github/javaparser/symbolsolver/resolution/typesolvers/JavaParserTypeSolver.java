@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.resolution.typesolvers;
 
-import static com.github.javaparser.ParseStart.COMPILATION_UNIT;
-import static com.github.javaparser.ParserConfiguration.LanguageLevel.BLEEDING_EDGE;
-import static com.github.javaparser.Providers.provider;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
@@ -22,6 +18,7 @@ import com.github.javaparser.symbolsolver.cache.GuavaCache;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.utils.FileUtils;
 import com.google.common.cache.CacheBuilder;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -31,6 +28,10 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.github.javaparser.ParseStart.COMPILATION_UNIT;
+import static com.github.javaparser.ParserConfiguration.LanguageLevel.BLEEDING_EDGE;
+import static com.github.javaparser.Providers.provider;
 
 /**
  * Defines a directory containing source code that should be used for solving symbols.

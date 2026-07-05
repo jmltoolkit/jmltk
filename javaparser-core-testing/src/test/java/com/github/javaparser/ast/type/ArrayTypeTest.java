@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.ast.type;
 
-import static com.github.javaparser.StaticJavaParser.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
@@ -18,6 +14,10 @@ import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.printer.ConcreteSyntaxModel;
 import com.github.javaparser.utils.LineSeparator;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ArrayTypeTest {
     @Test

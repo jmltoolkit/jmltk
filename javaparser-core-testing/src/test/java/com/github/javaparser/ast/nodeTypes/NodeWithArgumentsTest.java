@@ -4,13 +4,13 @@
  */
 package com.github.javaparser.ast.nodeTypes;
 
-import static com.github.javaparser.ast.expr.Expression.EXCLUDE_ENCLOSED_EXPR;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.printer.lexicalpreservation.AbstractLexicalPreservingTest;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.ast.expr.Expression.EXCLUDE_ENCLOSED_EXPR;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class NodeWithArgumentsTest extends AbstractLexicalPreservingTest {
 

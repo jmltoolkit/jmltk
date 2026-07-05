@@ -4,12 +4,6 @@
  */
 package com.github.javaparser.printer;
 
-import static com.github.javaparser.ast.Node.Parsedness.UNPARSABLE;
-import static com.github.javaparser.utils.PositionUtils.sortByBeginPosition;
-import static com.github.javaparser.utils.Utils.*;
-import static java.util.Comparator.comparingInt;
-import static java.util.stream.Collectors.joining;
-
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.comments.*;
@@ -29,10 +23,17 @@ import com.github.javaparser.ast.type.*;
 import com.github.javaparser.ast.visitor.Visitable;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration;
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.github.javaparser.ast.Node.Parsedness.UNPARSABLE;
+import static com.github.javaparser.utils.PositionUtils.sortByBeginPosition;
+import static com.github.javaparser.utils.Utils.*;
+import static java.util.Comparator.comparingInt;
+import static java.util.stream.Collectors.joining;
 
 /**
  * Outputs the AST as formatted Java source code.
@@ -591,21 +592,22 @@ public class PrettyPrintVisitor implements VoidVisitor<Void> {
         printOrphanCommentsBeforeThisChildNode(n);
         printComment(n.getComment(), arg);
         n.getName().accept(this, arg);
-        n.findAncestor(NodeWithVariables.class).ifPresent(ancestor -> ((NodeWithVariables<?>) ancestor)
-                .getMaximumCommonType()
-                .ifPresent(commonType -> {
-                    final Type type = n.getType();
-                    ArrayType arrayType = null;
-                    for (int i = commonType.getArrayLevel(); i < type.getArrayLevel(); i++) {
-                        if (arrayType == null) {
-                            arrayType = (ArrayType) type;
-                        } else {
-                            arrayType = (ArrayType) arrayType.getComponentType();
-                        }
-                        printAnnotations(arrayType.getAnnotations(), true, arg);
-                        printer.print("[]");
-                    }
-                }));
+        n.findAncestor(NodeWithVariables.class)
+                .ifPresent(ancestor -> ((NodeWithVariables<?>) ancestor)
+                        .getMaximumCommonType()
+                        .ifPresent(commonType -> {
+                            final Type type = n.getType();
+                            ArrayType arrayType = null;
+                            for (int i = commonType.getArrayLevel(); i < type.getArrayLevel(); i++) {
+                                if (arrayType == null) {
+                                    arrayType = (ArrayType) type;
+                                } else {
+                                    arrayType = (ArrayType) arrayType.getComponentType();
+                                }
+                                printAnnotations(arrayType.getAnnotations(), true, arg);
+                                printer.print("[]");
+                            }
+                        }));
         if (n.getInitializer().isPresent()) {
             printer.print(" = ");
             n.getInitializer().get().accept(this, arg);

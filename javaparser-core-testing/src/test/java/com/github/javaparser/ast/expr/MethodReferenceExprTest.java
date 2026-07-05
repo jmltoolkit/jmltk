@@ -4,13 +4,13 @@
  */
 package com.github.javaparser.ast.expr;
 
+import com.github.javaparser.ast.observer.AstObserver;
+import org.junit.jupiter.api.Test;
+
 import static com.github.javaparser.utils.TestUtils.assertExpressionValid;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
-
-import com.github.javaparser.ast.observer.AstObserver;
-import org.junit.jupiter.api.Test;
 
 class MethodReferenceExprTest {
 

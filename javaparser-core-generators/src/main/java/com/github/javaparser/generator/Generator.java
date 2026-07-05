@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.generator;
 
-import static com.github.javaparser.ast.NodeList.toNodeList;
-import static com.github.javaparser.utils.CodeGenerationUtils.f;
-
 import com.github.javaparser.ast.Generated;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.CallableDeclaration;
@@ -16,7 +13,11 @@ import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.nodeTypes.NodeWithAnnotations;
 import com.github.javaparser.utils.SourceRoot;
+
 import java.util.List;
+
+import static com.github.javaparser.ast.NodeList.toNodeList;
+import static com.github.javaparser.utils.CodeGenerationUtils.f;
 
 /**
  * A general pattern that the generators in this module will follow.

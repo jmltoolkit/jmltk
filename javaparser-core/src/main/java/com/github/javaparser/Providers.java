@@ -4,12 +4,12 @@
  */
 package com.github.javaparser;
 
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * Factory for providers of source code for JavaParser. Providers that have no parameter for encoding but need it will

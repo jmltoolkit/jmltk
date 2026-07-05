@@ -4,17 +4,18 @@
  */
 package com.github.javaparser.metamodel;
 
-import static com.github.javaparser.utils.Utils.decapitalize;
-
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.github.javaparser.utils.Utils.decapitalize;
 
 /**
  * Meta-data about all classes in the AST. These are all Nodes, except NodeList.

@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.utils;
 
-import static com.github.javaparser.utils.CodeGenerationUtils.classLoaderRoot;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -14,14 +11,18 @@ import com.github.javaparser.utils.Log;
 import com.github.javaparser.utils.ProjectRoot;
 import com.github.javaparser.utils.SourceRoot;
 import com.google.common.truth.Truth;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.utils.CodeGenerationUtils.classLoaderRoot;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("OptionalGetWithoutIsPresent")
 class SymbolSolverCollectionStrategyTest {
@@ -45,10 +46,11 @@ class SymbolSolverCollectionStrategyTest {
                         // not supported operation, just skip
                     } catch (Exception e) {
                         unresolved.getAndIncrement();
-                        Log.error(e, "Unable to resolve %s from %s", () -> expr, () -> compilationUnit
-                                .getStorage()
-                                .get()
-                                .getPath());
+                        Log.error(
+                                e,
+                                "Unable to resolve %s from %s",
+                                () -> expr,
+                                () -> compilationUnit.getStorage().get().getPath());
                     }
                 }
             });

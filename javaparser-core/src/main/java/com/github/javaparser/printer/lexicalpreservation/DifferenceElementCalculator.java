@@ -10,6 +10,7 @@ import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.printer.concretesyntaxmodel.*;
 import com.github.javaparser.printer.lexicalpreservation.LexicalDifferenceCalculator.CalculatedSyntaxModel;
 import com.github.javaparser.printer.lexicalpreservation.LexicalDifferenceCalculator.CsmChild;
+
 import java.util.*;
 
 class DifferenceElementCalculator {

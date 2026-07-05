@@ -4,11 +4,6 @@
  */
 package com.github.javaparser.ast.stmt;
 
-import static com.github.javaparser.StaticJavaParser.parseStatement;
-import static com.github.javaparser.ast.stmt.SwitchEntry.Type.EXPRESSION;
-import static com.github.javaparser.ast.stmt.SwitchEntry.Type.STATEMENT_GROUP;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.Node;
@@ -18,6 +13,11 @@ import com.github.javaparser.ast.expr.NullLiteralExpr;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.parseStatement;
+import static com.github.javaparser.ast.stmt.SwitchEntry.Type.EXPRESSION;
+import static com.github.javaparser.ast.stmt.SwitchEntry.Type.STATEMENT_GROUP;
+import static org.junit.jupiter.api.Assertions.*;
 
 class SwitchStmtTest {
 

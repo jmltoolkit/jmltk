@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.reflectionmodel;
 
-import static java.util.Comparator.comparing;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.ast.AccessSpecifier;
 import com.github.javaparser.resolution.MethodUsage;
 import com.github.javaparser.resolution.TypeSolver;
@@ -19,10 +16,14 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeS
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.truth.Truth;
+import org.junit.jupiter.api.Test;
+
 import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.junit.jupiter.api.Test;
+
+import static java.util.Comparator.comparing;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ReflectionClassDeclarationTest extends AbstractSymbolResolutionTest {
 
@@ -508,14 +509,23 @@ class ReflectionClassDeclarationTest extends AbstractSymbolResolutionTest {
         ReflectionClassDeclaration constructorDeclaration = (ReflectionClassDeclaration)
                 typeResolver.solveType("com.github.javaparser.ast.body.ConstructorDeclaration");
         assertEquals(4, constructorDeclaration.getAllSuperClasses().size());
-        assertEquals(true, constructorDeclaration.getAllSuperClasses().stream().anyMatch(s -> s.getQualifiedName()
-                .equals("com.github.javaparser.ast.body.CallableDeclaration")));
-        assertEquals(true, constructorDeclaration.getAllSuperClasses().stream().anyMatch(s -> s.getQualifiedName()
-                .equals("com.github.javaparser.ast.body.BodyDeclaration")));
-        assertEquals(true, constructorDeclaration.getAllSuperClasses().stream().anyMatch(s -> s.getQualifiedName()
-                .equals("com.github.javaparser.ast.Node")));
-        assertEquals(true, constructorDeclaration.getAllSuperClasses().stream().anyMatch(s -> s.getQualifiedName()
-                .equals("java.lang.Object")));
+        assertEquals(
+                true,
+                constructorDeclaration.getAllSuperClasses().stream()
+                        .anyMatch(s ->
+                                s.getQualifiedName().equals("com.github.javaparser.ast.body.CallableDeclaration")));
+        assertEquals(
+                true,
+                constructorDeclaration.getAllSuperClasses().stream()
+                        .anyMatch(s -> s.getQualifiedName().equals("com.github.javaparser.ast.body.BodyDeclaration")));
+        assertEquals(
+                true,
+                constructorDeclaration.getAllSuperClasses().stream()
+                        .anyMatch(s -> s.getQualifiedName().equals("com.github.javaparser.ast.Node")));
+        assertEquals(
+                true,
+                constructorDeclaration.getAllSuperClasses().stream()
+                        .anyMatch(s -> s.getQualifiedName().equals("java.lang.Object")));
 
         ResolvedReferenceType ancestor;
 

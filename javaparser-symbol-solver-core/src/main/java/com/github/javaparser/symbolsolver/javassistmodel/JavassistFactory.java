@@ -12,6 +12,7 @@ import com.github.javaparser.resolution.types.ResolvedArrayType;
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.resolution.types.ResolvedVoidType;
+
 import java.lang.reflect.Modifier;
 import javassist.CtClass;
 import javassist.NotFoundException;

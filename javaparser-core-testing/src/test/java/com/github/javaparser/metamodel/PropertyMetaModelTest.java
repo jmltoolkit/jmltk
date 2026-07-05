@@ -4,12 +4,13 @@
  */
 package com.github.javaparser.metamodel;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.body.BodyDeclaration;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PropertyMetaModelTest {
     @Test

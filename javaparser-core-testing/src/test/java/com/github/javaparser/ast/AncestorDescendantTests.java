@@ -4,13 +4,14 @@
  */
 package com.github.javaparser.ast;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.*;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
-import java.io.IOException;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AncestorDescendantTests {
 

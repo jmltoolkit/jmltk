@@ -5,6 +5,7 @@
 package com.github.javaparser.symbolsolver.resolution.typeinference;
 
 import com.github.javaparser.resolution.TypeSolver;
+
 import java.util.LinkedList;
 import java.util.List;
 

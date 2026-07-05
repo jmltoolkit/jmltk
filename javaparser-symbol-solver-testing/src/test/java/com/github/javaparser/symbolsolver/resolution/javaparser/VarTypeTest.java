@@ -4,11 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.resolution.javaparser;
 
-import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_10;
-import static com.github.javaparser.Providers.provider;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseStart;
 import com.github.javaparser.ParserConfiguration;
@@ -22,6 +17,11 @@ import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.reflectionmodel.ReflectionClassDeclaration;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.ParserConfiguration.LanguageLevel.JAVA_10;
+import static com.github.javaparser.Providers.provider;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class VarTypeTest {
     private final TypeSolver typeSolver = new ReflectionTypeSolver();

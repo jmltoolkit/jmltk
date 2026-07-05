@@ -4,12 +4,13 @@
  */
 package com.github.javaparser.ast.nodeTypes;
 
-import static com.github.javaparser.StaticJavaParser.parseExpression;
-
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.Expression;
+
 import java.util.function.Function;
+
+import static com.github.javaparser.StaticJavaParser.parseExpression;
 
 /**
  * A node with arguments.

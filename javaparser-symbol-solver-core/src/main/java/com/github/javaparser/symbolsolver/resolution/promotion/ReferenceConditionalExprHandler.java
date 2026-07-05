@@ -7,6 +7,7 @@ package com.github.javaparser.symbolsolver.resolution.promotion;
 import com.github.javaparser.resolution.promotion.ConditionalExprHandler;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.resolution.typeinference.TypeHelper;
+
 import java.util.Arrays;
 import java.util.HashSet;
 

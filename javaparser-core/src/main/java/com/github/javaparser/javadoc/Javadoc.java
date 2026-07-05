@@ -9,6 +9,7 @@ import com.github.javaparser.ast.comments.MarkdownComment;
 import com.github.javaparser.ast.comments.TraditionalJavadocComment;
 import com.github.javaparser.javadoc.description.JavadocDescription;
 import com.github.javaparser.utils.LineSeparator;
+
 import java.util.LinkedList;
 import java.util.List;
 

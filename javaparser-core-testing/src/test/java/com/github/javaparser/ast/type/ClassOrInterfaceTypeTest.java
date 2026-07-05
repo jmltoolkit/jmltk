@@ -4,17 +4,18 @@
  */
 package com.github.javaparser.ast.type;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
-import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class ClassOrInterfaceTypeTest {
 

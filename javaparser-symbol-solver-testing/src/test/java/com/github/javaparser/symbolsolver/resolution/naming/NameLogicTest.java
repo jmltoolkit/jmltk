@@ -4,11 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.resolution.naming;
 
-import static com.github.javaparser.symbolsolver.resolution.naming.NameRole.DECLARATION;
-import static com.github.javaparser.symbolsolver.resolution.naming.NameRole.REFERENCE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.github.javaparser.ParseStart;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -20,6 +15,11 @@ import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.modules.ModuleDeclaration;
 import com.github.javaparser.ast.stmt.ReturnStmt;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.symbolsolver.resolution.naming.NameRole.DECLARATION;
+import static com.github.javaparser.symbolsolver.resolution.naming.NameRole.REFERENCE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NameLogicTest extends AbstractNameLogicTest {
 

@@ -4,14 +4,6 @@
  */
 package com.github.javaparser.printer;
 
-import static com.github.javaparser.GeneratedJavaParserConstants.*;
-import static com.github.javaparser.GeneratedJavaParserConstants.INVARIANT;
-import static com.github.javaparser.ast.observer.ObservableProperty.*;
-import static com.github.javaparser.ast.observer.ObservableProperty.BY;
-import static com.github.javaparser.ast.observer.ObservableProperty.TYPE;
-import static com.github.javaparser.printer.concretesyntaxmodel.CsmConditional.Condition.*;
-import static com.github.javaparser.printer.concretesyntaxmodel.CsmElement.*;
-
 import com.github.javaparser.GeneratedJavaParserConstants;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.*;
@@ -34,8 +26,17 @@ import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.printer.concretesyntaxmodel.CsmConditional;
 import com.github.javaparser.printer.concretesyntaxmodel.CsmElement;
 import com.github.javaparser.printer.concretesyntaxmodel.CsmMix;
+
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.github.javaparser.GeneratedJavaParserConstants.*;
+import static com.github.javaparser.GeneratedJavaParserConstants.INVARIANT;
+import static com.github.javaparser.ast.observer.ObservableProperty.*;
+import static com.github.javaparser.ast.observer.ObservableProperty.BY;
+import static com.github.javaparser.ast.observer.ObservableProperty.TYPE;
+import static com.github.javaparser.printer.concretesyntaxmodel.CsmConditional.Condition.*;
+import static com.github.javaparser.printer.concretesyntaxmodel.CsmElement.*;
 
 /**
  * The Concrete Syntax Model for a single node type. It knows the syntax used to represent a certain element in Java

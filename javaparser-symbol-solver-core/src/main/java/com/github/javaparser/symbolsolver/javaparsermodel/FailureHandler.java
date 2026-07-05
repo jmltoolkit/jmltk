@@ -5,6 +5,7 @@
 package com.github.javaparser.symbolsolver.javaparsermodel;
 
 import com.github.javaparser.resolution.UnsolvedSymbolException;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;

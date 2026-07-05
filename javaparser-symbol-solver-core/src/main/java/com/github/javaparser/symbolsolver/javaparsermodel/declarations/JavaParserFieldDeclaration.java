@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.javaparsermodel.declarations;
 
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.STATIC;
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.VOLATILE;
-import static com.github.javaparser.resolution.Navigator.demandParentNode;
-
 import com.github.javaparser.ast.AccessSpecifier;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.TypeDeclaration;
@@ -17,7 +13,12 @@ import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedTypeDeclaration;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
+
 import java.util.Optional;
+
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.STATIC;
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.VOLATILE;
+import static com.github.javaparser.resolution.Navigator.demandParentNode;
 
 /**
  * @author Federico Tomassetti

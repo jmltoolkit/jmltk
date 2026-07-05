@@ -4,18 +4,18 @@
  */
 package com.github.javaparser.ast.body;
 
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.stmt.ReturnStmt;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import org.junit.jupiter.api.Test;
+
 import static com.github.javaparser.utils.TestParser.parseBodyDeclaration;
 import static com.github.javaparser.utils.TestParser.parseCompilationUnit;
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.stmt.ReturnStmt;
-import com.github.javaparser.ast.type.ClassOrInterfaceType;
-import org.junit.jupiter.api.Test;
 
 class TypeDeclarationTest {
     @Test

@@ -24,6 +24,7 @@ import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParse
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserTypeParameter;
 import com.github.javaparser.symbolsolver.reflectionmodel.ReflectionClassDeclaration;
 import com.google.common.base.Preconditions;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

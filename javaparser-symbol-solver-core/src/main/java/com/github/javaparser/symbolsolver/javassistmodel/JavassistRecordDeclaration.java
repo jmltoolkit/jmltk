@@ -21,6 +21,7 @@ import com.github.javaparser.symbolsolver.core.resolution.MethodUsageResolutionC
 import com.github.javaparser.symbolsolver.core.resolution.SymbolResolutionCapability;
 import com.github.javaparser.symbolsolver.logic.AbstractTypeDeclaration;
 import com.github.javaparser.symbolsolver.resolution.SymbolSolver;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

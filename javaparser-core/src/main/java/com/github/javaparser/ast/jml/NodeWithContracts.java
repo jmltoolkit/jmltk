@@ -8,6 +8,7 @@ import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.jml.clauses.JmlContract;
 import com.github.javaparser.jml.JmlUtility;
+
 import java.util.List;
 
 /**

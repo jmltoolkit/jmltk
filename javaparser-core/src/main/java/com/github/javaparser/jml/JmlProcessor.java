@@ -25,9 +25,10 @@ import com.github.javaparser.ast.validator.ProblemReporter;
 import com.github.javaparser.ast.visitor.CloneVisitor;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.github.javaparser.ast.visitor.Visitable;
+import org.jspecify.annotations.Nullable;
+
 import java.util.*;
 import java.util.stream.IntStream;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Here happens the JML magic. This post-processor consumes {@link JmlDoc}

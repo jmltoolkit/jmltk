@@ -4,11 +4,12 @@
  */
 package com.github.javaparser.metamodel;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.ast.expr.StringLiteralExpr;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TestMetaModel extends BaseNodeMetaModel {
 

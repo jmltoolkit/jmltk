@@ -10,6 +10,7 @@ import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedTypeDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedTypeParametrizable;
 import com.github.javaparser.resolution.types.ResolvedType;
+
 import java.lang.reflect.Modifier;
 import javassist.CtField;
 import javassist.bytecode.BadBytecode;

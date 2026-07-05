@@ -4,13 +4,6 @@
  */
 package com.github.javaparser.printer.lexicalpreservation;
 
-import static com.github.javaparser.GeneratedJavaParserConstants.*;
-import static com.github.javaparser.TokenTypes.eolTokenKind;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import static com.github.javaparser.utils.Utils.decapitalize;
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
-
 import com.github.javaparser.JavaToken;
 import com.github.javaparser.Range;
 import com.github.javaparser.ast.DataKey;
@@ -32,10 +25,18 @@ import com.github.javaparser.printer.concretesyntaxmodel.*;
 import com.github.javaparser.printer.lexicalpreservation.LexicalDifferenceCalculator.CsmChild;
 import com.github.javaparser.utils.LineSeparator;
 import com.github.javaparser.utils.Pair;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
+
+import static com.github.javaparser.GeneratedJavaParserConstants.*;
+import static com.github.javaparser.TokenTypes.eolTokenKind;
+import static com.github.javaparser.utils.Utils.assertNotNull;
+import static com.github.javaparser.utils.Utils.decapitalize;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 /**
  * The LexicalPreservingPrinter is responsible for maintaining the original formatting
@@ -809,15 +810,18 @@ public class LexicalPreservingPrinter {
         // so they have to be handled in a special way
         if (node instanceof VariableDeclarator) {
             VariableDeclarator variableDeclarator = (VariableDeclarator) node;
-            variableDeclarator.getParentNode().ifPresent(parent -> ((NodeWithVariables<?>) parent)
-                    .getMaximumCommonType()
-                    .ifPresent(mct -> {
-                        int extraArrayLevels = variableDeclarator.getType().getArrayLevel() - mct.getArrayLevel();
-                        for (int i = 0; i < extraArrayLevels; i++) {
-                            nodeText.addElement(new TokenTextElement(LBRACKET));
-                            nodeText.addElement(new TokenTextElement(RBRACKET));
-                        }
-                    }));
+            variableDeclarator
+                    .getParentNode()
+                    .ifPresent(parent -> ((NodeWithVariables<?>) parent)
+                            .getMaximumCommonType()
+                            .ifPresent(mct -> {
+                                int extraArrayLevels =
+                                        variableDeclarator.getType().getArrayLevel() - mct.getArrayLevel();
+                                for (int i = 0; i < extraArrayLevels; i++) {
+                                    nodeText.addElement(new TokenTextElement(LBRACKET));
+                                    nodeText.addElement(new TokenTextElement(RBRACKET));
+                                }
+                            }));
         }
         return nodeText;
     }

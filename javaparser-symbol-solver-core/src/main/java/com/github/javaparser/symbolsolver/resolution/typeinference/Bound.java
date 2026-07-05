@@ -5,6 +5,7 @@
 package com.github.javaparser.symbolsolver.resolution.typeinference;
 
 import com.github.javaparser.symbolsolver.resolution.typeinference.bounds.FalseBound;
+
 import java.util.Optional;
 import java.util.Set;
 

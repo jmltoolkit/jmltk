@@ -4,13 +4,13 @@
  */
 package com.github.javaparser.printer.concretesyntaxmodel;
 
-import static com.github.javaparser.utils.CodeGenerationUtils.f;
-
 import com.github.javaparser.GeneratedJavaParserConstants;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.observer.ObservableProperty;
 import com.github.javaparser.printer.SourcePrinter;
+
+import static com.github.javaparser.utils.CodeGenerationUtils.f;
 
 public class CsmAttribute implements CsmElement {
 

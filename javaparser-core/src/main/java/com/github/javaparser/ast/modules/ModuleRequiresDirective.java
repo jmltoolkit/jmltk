@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.ast.modules;
 
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.*;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.expr.Name;
@@ -18,10 +15,14 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.ModuleRequiresDirectiveMetaModel;
+import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NonNull;
+
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.*;
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * A require directive in module-info.java. {@code require a.b.C;}

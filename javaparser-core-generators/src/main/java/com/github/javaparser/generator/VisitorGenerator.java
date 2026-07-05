@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.generator;
 
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.PUBLIC;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -15,7 +13,10 @@ import com.github.javaparser.metamodel.BaseNodeMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.utils.Log;
 import com.github.javaparser.utils.SourceRoot;
+
 import java.util.Optional;
+
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.PUBLIC;
 
 /**
  * Makes it easier to generate visitor classes.

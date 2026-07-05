@@ -4,13 +4,14 @@
  */
 package com.github.javaparser.symbolsolver;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.symbolsolver.reflectionmodel.*;
+import org.junit.jupiter.api.Test;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.TypeVariable;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Issue4864Test {
     private final TypeSolver typeSolver = null;

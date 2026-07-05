@@ -14,6 +14,7 @@ import com.github.javaparser.resolution.model.LambdaArgumentTypePlaceholder;
 import com.github.javaparser.resolution.model.SymbolReference;
 import com.github.javaparser.resolution.model.typesystem.ReferenceTypeImpl;
 import com.github.javaparser.resolution.types.*;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;

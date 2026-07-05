@@ -4,16 +4,17 @@
  */
 package com.github.javaparser;
 
-import static com.github.javaparser.utils.TestUtils.assertEqualToTextResourceNoEol;
-import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.comments.CommentsCollection;
 import com.github.javaparser.utils.LineSeparator;
 import com.github.javaparser.utils.TestParser;
-import java.io.IOException;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+
+import static com.github.javaparser.utils.TestUtils.assertEqualToTextResourceNoEol;
+import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CommentsInserterTest {
     private String makeFilename(String sampleName) {

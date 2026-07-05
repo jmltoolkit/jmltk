@@ -4,11 +4,11 @@
  */
 package com.github.javaparser.symbolsolver.resolution.typesolvers;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
 import com.github.javaparser.symbolsolver.reflectionmodel.ReflectionFactory;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class MemoryTypeSolverTest extends AbstractTypeSolverTest<MemoryTypeSolver> {
 

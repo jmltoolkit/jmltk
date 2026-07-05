@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.generator.core.node;
 
-import static com.github.javaparser.StaticJavaParser.parseBodyDeclaration;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -14,6 +12,8 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.generator.NodeGenerator;
 import com.github.javaparser.metamodel.BaseNodeMetaModel;
 import com.github.javaparser.utils.SourceRoot;
+
+import static com.github.javaparser.StaticJavaParser.parseBodyDeclaration;
 
 public class AcceptGenerator extends NodeGenerator {
     private final MethodDeclaration genericAccept;

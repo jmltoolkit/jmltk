@@ -4,16 +4,13 @@
  */
 package com.github.javaparser.utils;
 
-import static com.github.javaparser.utils.CodeGenerationUtils.*;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import static java.nio.file.FileVisitResult.*;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.printer.DefaultPrettyPrinter;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.FileVisitResult;
@@ -30,6 +27,10 @@ import java.util.concurrent.RecursiveAction;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.github.javaparser.utils.CodeGenerationUtils.*;
+import static com.github.javaparser.utils.Utils.assertNotNull;
+import static java.nio.file.FileVisitResult.*;
 
 /**
  * A collection of Java source files located in one directory and its subdirectories on the file system. The root directory

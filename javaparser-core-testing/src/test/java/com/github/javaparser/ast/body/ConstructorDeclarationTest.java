@@ -4,11 +4,6 @@
  */
 package com.github.javaparser.ast.body;
 
-import static com.github.javaparser.ParseStart.COMPILATION_UNIT;
-import static com.github.javaparser.Providers.provider;
-import static com.github.javaparser.utils.TestUtils.assertNoProblems;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
@@ -18,6 +13,11 @@ import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.resolution.Navigator;
 import com.github.javaparser.utils.LineSeparator;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.ParseStart.COMPILATION_UNIT;
+import static com.github.javaparser.Providers.provider;
+import static com.github.javaparser.utils.TestUtils.assertNoProblems;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ConstructorDeclarationTest {
     @Test

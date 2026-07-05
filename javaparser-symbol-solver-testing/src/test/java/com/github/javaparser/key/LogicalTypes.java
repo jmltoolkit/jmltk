@@ -16,11 +16,12 @@ import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.TypeSolverBuilder;
+import org.junit.jupiter.api.Test;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.jupiter.api.Test;
 
 /**
  * @author Alexander Weigl

@@ -4,13 +4,13 @@
  */
 package com.github.javaparser.printer;
 
-import static com.github.javaparser.StaticJavaParser.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.expr.ClassExpr;
 import com.github.javaparser.utils.LineSeparator;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ConcreteSyntaxModelTest {
 

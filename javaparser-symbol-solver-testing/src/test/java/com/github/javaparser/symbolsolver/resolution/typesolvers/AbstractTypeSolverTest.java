@@ -4,13 +4,14 @@
  */
 package com.github.javaparser.symbolsolver.resolution.typesolvers;
 
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.symbolsolver.AbstractSymbolResolutionTest;
-import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
+
+import java.util.function.Supplier;
+
+import static com.github.javaparser.utils.Utils.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 abstract class AbstractTypeSolverTest<T extends TypeSolver> extends AbstractSymbolResolutionTest {
 

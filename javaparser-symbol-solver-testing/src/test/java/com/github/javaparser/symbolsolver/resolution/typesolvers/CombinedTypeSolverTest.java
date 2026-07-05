@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.resolution.typesolvers;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.resolution.cache.Cache;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
@@ -14,15 +11,19 @@ import com.github.javaparser.resolution.model.SymbolReference;
 import com.github.javaparser.symbolsolver.cache.InMemoryCache;
 import com.github.javaparser.symbolsolver.reflectionmodel.ReflectionClassDeclaration;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver.ExceptionHandlers;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class CombinedTypeSolverTest extends AbstractTypeSolverTest<CombinedTypeSolver> {
 

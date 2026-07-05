@@ -4,13 +4,6 @@
  */
 package com.github.javaparser;
 
-import static com.github.javaparser.ParseStart.*;
-import static com.github.javaparser.Problem.PROBLEM_BY_BEGIN_POSITION;
-import static com.github.javaparser.Providers.provider;
-import static com.github.javaparser.Providers.resourceProvider;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import static java.util.stream.Collectors.toList;
-
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -29,11 +22,19 @@ import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.TypeParameter;
+
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Supplier;
+
+import static com.github.javaparser.ParseStart.*;
+import static com.github.javaparser.Problem.PROBLEM_BY_BEGIN_POSITION;
+import static com.github.javaparser.Providers.provider;
+import static com.github.javaparser.Providers.resourceProvider;
+import static com.github.javaparser.utils.Utils.assertNotNull;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Parse Java source code and creates Abstract Syntax Trees.

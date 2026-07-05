@@ -5,6 +5,7 @@
 package com.github.javaparser.resolution.declarations;
 
 import com.github.javaparser.resolution.types.ResolvedType;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

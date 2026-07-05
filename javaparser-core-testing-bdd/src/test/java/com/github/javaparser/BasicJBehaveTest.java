@@ -4,9 +4,6 @@
  */
 package com.github.javaparser;
 
-import static org.jbehave.core.io.CodeLocations.codeLocationFromClass;
-
-import java.util.List;
 import org.jbehave.core.configuration.Configuration;
 import org.jbehave.core.configuration.MostUsefulConfiguration;
 import org.jbehave.core.failures.FailingUponPendingStep;
@@ -16,6 +13,10 @@ import org.jbehave.core.junit.JUnit4StoryRunner;
 import org.jbehave.core.junit.JUnitStories;
 import org.jbehave.core.reporters.Format;
 import org.jbehave.core.reporters.StoryReporterBuilder;
+
+import java.util.List;
+
+import static org.jbehave.core.io.CodeLocations.codeLocationFromClass;
 
 abstract class BasicJBehaveTest extends JUnitStories {
 

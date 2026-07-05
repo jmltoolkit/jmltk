@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.javassistmodel;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.resolution.MethodUsage;
 import com.github.javaparser.resolution.TypeSolver;
@@ -25,6 +23,10 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSol
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import com.google.common.collect.ImmutableSet;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
@@ -32,9 +34,8 @@ import java.util.stream.Collectors;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class JavassistClassDeclarationTest extends AbstractClassDeclarationTest {
 

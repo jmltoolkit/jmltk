@@ -4,18 +4,19 @@
  */
 package com.github.javaparser.ast;
 
-import static com.github.javaparser.ast.NodeList.nodeList;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.observer.AstObserver;
 import com.github.javaparser.ast.observer.ObservableProperty;
 import com.github.javaparser.printer.lexicalpreservation.AbstractLexicalPreservingTest;
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter;
-import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.util.*;
+
+import static com.github.javaparser.ast.NodeList.nodeList;
+import static org.junit.jupiter.api.Assertions.*;
 
 class NodeListTest extends AbstractLexicalPreservingTest {
 

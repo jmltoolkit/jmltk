@@ -4,12 +4,13 @@
  */
 package com.github.javaparser.printer.lexicalpreservation;
 
+import com.github.javaparser.ast.stmt.ExpressionStmt;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import com.github.javaparser.ast.stmt.ExpressionStmt;
-import java.util.List;
-import org.junit.jupiter.api.Test;
 
 public class Issue2290Test extends AbstractLexicalPreservingTest {
 

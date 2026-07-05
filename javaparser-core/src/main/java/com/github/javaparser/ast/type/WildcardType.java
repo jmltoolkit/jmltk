@@ -21,9 +21,10 @@ import com.github.javaparser.metamodel.WildcardTypeMetaModel;
 import com.github.javaparser.resolution.Context;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.resolution.types.ResolvedWildcard;
+import org.jspecify.annotations.Nullable;
+
 import java.util.Optional;
 import java.util.function.Consumer;
-import org.jspecify.annotations.Nullable;
 
 /**
  * A wildcard type argument. Examples:

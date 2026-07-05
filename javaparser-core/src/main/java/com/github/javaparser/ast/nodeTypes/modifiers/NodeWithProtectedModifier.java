@@ -4,10 +4,10 @@
  */
 package com.github.javaparser.ast.nodeTypes.modifiers;
 
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.PROTECTED;
-
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.nodeTypes.NodeWithModifiers;
+
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.PROTECTED;
 
 /**
  * A node that can be protected.

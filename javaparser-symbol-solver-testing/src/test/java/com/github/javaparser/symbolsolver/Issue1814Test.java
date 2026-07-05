@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.symbolsolver;
 
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.PUBLIC;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.*;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -19,10 +16,14 @@ import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclar
 import com.github.javaparser.resolution.model.SymbolReference;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserClassDeclaration;
 import com.github.javaparser.symbolsolver.resolution.AbstractResolutionTest;
-import java.time.Duration;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.time.Duration;
+import java.util.List;
+
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.PUBLIC;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Dominik Hardtke

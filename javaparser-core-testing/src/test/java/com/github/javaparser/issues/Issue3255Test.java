@@ -4,14 +4,14 @@
  */
 package com.github.javaparser.issues;
 
-import static com.github.javaparser.utils.TestParser.parseStatement;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.utils.LineSeparator;
 import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.utils.TestParser.parseStatement;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Issue3255Test {
 

@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.generator.core.quality;
 
-import static com.github.javaparser.utils.CodeGenerationUtils.f;
-
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
@@ -23,9 +21,12 @@ import com.github.javaparser.generator.CompilationUnitGenerator;
 import com.github.javaparser.quality.NotNull;
 import com.github.javaparser.quality.Preconditions;
 import com.github.javaparser.utils.SourceRoot;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static com.github.javaparser.utils.CodeGenerationUtils.f;
 
 /**
  * Generator to process annotations {@link com.github.javaparser.quality.NotNull}.

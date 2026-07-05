@@ -12,6 +12,7 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.quality.NotNull;
 import com.github.javaparser.quality.Preconditions;
 import com.github.javaparser.resolution.types.ResolvedType;
+
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;

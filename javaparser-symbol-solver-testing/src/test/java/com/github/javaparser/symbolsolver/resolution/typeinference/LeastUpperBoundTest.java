@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.symbolsolver.resolution.typeinference;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -21,6 +19,8 @@ import com.github.javaparser.resolution.types.ResolvedWildcard;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import com.google.common.collect.Lists;
+import org.junit.jupiter.api.*;
+
 import java.io.FileNotFoundException;
 import java.io.IOError;
 import java.io.IOException;
@@ -28,7 +28,8 @@ import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.junit.jupiter.api.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class LeastUpperBoundTest {
 

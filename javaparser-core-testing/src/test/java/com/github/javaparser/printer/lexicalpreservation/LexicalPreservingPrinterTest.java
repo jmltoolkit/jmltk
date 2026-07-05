@@ -4,12 +4,6 @@
  */
 package com.github.javaparser.printer.lexicalpreservation;
 
-import static com.github.javaparser.StaticJavaParser.parseClassOrInterfaceType;
-import static com.github.javaparser.ast.Modifier.DefaultKeyword.PUBLIC;
-import static com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter.NODE_TEXT_DATA;
-import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.GeneratedJavaParserConstants;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParserConfiguration;
@@ -26,11 +20,18 @@ import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.github.javaparser.ast.visitor.Visitable;
 import com.github.javaparser.utils.LineSeparator;
 import com.github.javaparser.utils.TestUtils;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.parseClassOrInterfaceType;
+import static com.github.javaparser.ast.Modifier.DefaultKeyword.PUBLIC;
+import static com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter.NODE_TEXT_DATA;
+import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
+import static org.junit.jupiter.api.Assertions.*;
 
 class LexicalPreservingPrinterTest extends AbstractLexicalPreservingTest {
     private NodeText getTextForNode(Node node) {
@@ -705,14 +706,15 @@ class LexicalPreservingPrinterTest extends AbstractLexicalPreservingTest {
                 + LineSeparator.SYSTEM + "   protected void initializePage() {}"
                 + LineSeparator.SYSTEM + "}");
 
-        cu.getTypes().forEach(type -> type.getMembers().forEach(member -> {
-            if (member instanceof MethodDeclaration) {
-                MethodDeclaration methodDeclaration = (MethodDeclaration) member;
-                if (!methodDeclaration.getAnnotationByName("Override").isPresent()) {
-                    methodDeclaration.addAnnotation("Override");
-                }
-            }
-        }));
+        cu.getTypes()
+                .forEach(type -> type.getMembers().forEach(member -> {
+                    if (member instanceof MethodDeclaration) {
+                        MethodDeclaration methodDeclaration = (MethodDeclaration) member;
+                        if (!methodDeclaration.getAnnotationByName("Override").isPresent()) {
+                            methodDeclaration.addAnnotation("Override");
+                        }
+                    }
+                }));
         assertEquals(
                 "public class TestPage extends Page {" + LineSeparator.SYSTEM + LineSeparator.SYSTEM
                         + "   @Override"
@@ -983,19 +985,22 @@ class LexicalPreservingPrinterTest extends AbstractLexicalPreservingTest {
                 + "   protected @Override void initializePage() {}"
                 + LineSeparator.SYSTEM + "}");
 
-        cu.getTypes().forEach(type -> type.getMembers()
-                .forEach(member -> member.ifMethodDeclaration(methodDeclaration -> {
-                    if (methodDeclaration.getAnnotationByName("Override").isPresent()) {
+        cu.getTypes()
+                .forEach(type -> type.getMembers()
+                        .forEach(member -> member.ifMethodDeclaration(methodDeclaration -> {
+                            if (methodDeclaration
+                                    .getAnnotationByName("Override")
+                                    .isPresent()) {
 
-                        while (methodDeclaration.getAnnotations().isNonEmpty()) {
-                            AnnotationExpr annotationExpr =
-                                    methodDeclaration.getAnnotations().get(0);
-                            annotationExpr.remove();
-                        }
+                                while (methodDeclaration.getAnnotations().isNonEmpty()) {
+                                    AnnotationExpr annotationExpr =
+                                            methodDeclaration.getAnnotations().get(0);
+                                    annotationExpr.remove();
+                                }
 
-                        methodDeclaration.addMarkerAnnotation("Override");
-                    }
-                })));
+                                methodDeclaration.addMarkerAnnotation("Override");
+                            }
+                        })));
         assertEquals(
                 "public class TestPage extends Page {" + LineSeparator.SYSTEM + LineSeparator.SYSTEM
                         + "   protected void test() {}"
@@ -1015,20 +1020,21 @@ class LexicalPreservingPrinterTest extends AbstractLexicalPreservingTest {
                 + "   protected @Override void initializePage() {}"
                 + LineSeparator.SYSTEM + "}");
 
-        cu.getTypes().forEach(type -> type.getMembers().forEach(member -> {
-            if (member instanceof MethodDeclaration) {
-                MethodDeclaration methodDeclaration = (MethodDeclaration) member;
-                if (methodDeclaration.getAnnotationByName("Override").isPresent()) {
+        cu.getTypes()
+                .forEach(type -> type.getMembers().forEach(member -> {
+                    if (member instanceof MethodDeclaration) {
+                        MethodDeclaration methodDeclaration = (MethodDeclaration) member;
+                        if (methodDeclaration.getAnnotationByName("Override").isPresent()) {
 
-                    while (methodDeclaration.getAnnotations().isNonEmpty()) {
-                        AnnotationExpr annotationExpr =
-                                methodDeclaration.getAnnotations().get(0);
-                        annotationExpr.remove();
+                            while (methodDeclaration.getAnnotations().isNonEmpty()) {
+                                AnnotationExpr annotationExpr =
+                                        methodDeclaration.getAnnotations().get(0);
+                                annotationExpr.remove();
+                            }
+                        }
+                        methodDeclaration.addMarkerAnnotation("Override");
                     }
-                }
-                methodDeclaration.addMarkerAnnotation("Override");
-            }
-        }));
+                }));
         assertEquals(
                 "public class TestPage extends Page {" + LineSeparator.SYSTEM + LineSeparator.SYSTEM
                         + "   @Override"
@@ -1050,14 +1056,15 @@ class LexicalPreservingPrinterTest extends AbstractLexicalPreservingTest {
                 + LineSeparator.SYSTEM + "   protected void initializePage() {}"
                 + LineSeparator.SYSTEM + "}");
 
-        cu.getTypes().forEach(type -> type.getMembers().forEach(member -> {
-            if (member instanceof MethodDeclaration) {
-                MethodDeclaration methodDeclaration = (MethodDeclaration) member;
-                if (!methodDeclaration.getAnnotationByName("Override").isPresent()) {
-                    methodDeclaration.addMarkerAnnotation("Override");
-                }
-            }
-        }));
+        cu.getTypes()
+                .forEach(type -> type.getMembers().forEach(member -> {
+                    if (member instanceof MethodDeclaration) {
+                        MethodDeclaration methodDeclaration = (MethodDeclaration) member;
+                        if (!methodDeclaration.getAnnotationByName("Override").isPresent()) {
+                            methodDeclaration.addMarkerAnnotation("Override");
+                        }
+                    }
+                }));
         assertEquals(
                 "public class TestPage extends Page {" + LineSeparator.SYSTEM + LineSeparator.SYSTEM
                         + "   @Override"
@@ -1078,9 +1085,10 @@ class LexicalPreservingPrinterTest extends AbstractLexicalPreservingTest {
                 + "   protected void initializePage() {}"
                 + LineSeparator.SYSTEM + "}");
 
-        cu.getTypes().forEach(type -> type.getMembers()
-                .forEach(member -> member.ifMethodDeclaration(
-                        methodDeclaration -> methodDeclaration.addMarkerAnnotation("Override"))));
+        cu.getTypes()
+                .forEach(type -> type.getMembers()
+                        .forEach(member -> member.ifMethodDeclaration(
+                                methodDeclaration -> methodDeclaration.addMarkerAnnotation("Override"))));
         assertEquals(
                 "public class TestPage extends Page {" + LineSeparator.SYSTEM + LineSeparator.SYSTEM
                         + "   @Override"
@@ -1101,9 +1109,10 @@ class LexicalPreservingPrinterTest extends AbstractLexicalPreservingTest {
                 + "   protected void initializePage() {}"
                 + LineSeparator.SYSTEM + "}");
 
-        cu.getTypes().forEach(type -> type.getMembers()
-                .forEach(member ->
-                        member.ifMethodDeclaration(methodDeclaration -> methodDeclaration.addAnnotation("Override"))));
+        cu.getTypes()
+                .forEach(type -> type.getMembers()
+                        .forEach(member -> member.ifMethodDeclaration(
+                                methodDeclaration -> methodDeclaration.addAnnotation("Override"))));
         assertEquals(
                 "public class TestPage extends Page {" + LineSeparator.SYSTEM + LineSeparator.SYSTEM
                         + "   @Override"

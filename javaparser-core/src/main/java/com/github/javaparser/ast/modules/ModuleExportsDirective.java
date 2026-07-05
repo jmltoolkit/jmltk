@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.ast.modules;
 
-import static com.github.javaparser.StaticJavaParser.parseName;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
@@ -20,10 +17,14 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.ModuleExportsDirectiveMetaModel;
+import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import org.jspecify.annotations.NonNull;
+
+import static com.github.javaparser.StaticJavaParser.parseName;
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * An exports directive in module-info.java. {@code exports R.S to T1.U1, T2.U2;}

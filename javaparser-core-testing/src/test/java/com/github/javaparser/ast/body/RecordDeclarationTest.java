@@ -4,22 +4,23 @@
  */
 package com.github.javaparser.ast.body;
 
-import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.utils.TestParser;
-import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.opentest4j.AssertionFailedError;
+
+import java.util.List;
+
+import static com.github.javaparser.utils.TestUtils.assertEqualsStringIgnoringEol;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RecordDeclarationTest {
 

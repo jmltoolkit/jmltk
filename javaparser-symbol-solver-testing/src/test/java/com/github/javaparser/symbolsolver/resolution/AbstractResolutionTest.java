@@ -10,6 +10,7 @@ import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.symbolsolver.AbstractSymbolResolutionTest;
+
 import java.io.InputStream;
 
 /**

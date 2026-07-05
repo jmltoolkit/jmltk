@@ -4,8 +4,6 @@
  */
 package com.github.javaparser.ast.body;
 
-import static com.github.javaparser.utils.Utils.assertNotNull;
-
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.expr.AnnotationExpr;
@@ -24,8 +22,11 @@ import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.ParameterMetaModel;
 import com.github.javaparser.resolution.Resolvable;
 import com.github.javaparser.resolution.declarations.ResolvedParameterDeclaration;
-import java.util.Objects;
 import org.jspecify.annotations.NonNull;
+
+import java.util.Objects;
+
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * The parameters to a method or lambda. Lambda parameters may have inferred types, in that case "type" is UnknownType.

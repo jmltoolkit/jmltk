@@ -4,9 +4,6 @@
  */
 package com.github.javaparser.printer.concretesyntaxmodel;
 
-import static com.github.javaparser.TokenTypes.isEndOfLineToken;
-import static com.github.javaparser.TokenTypes.isWhitespaceButNotEndOfLine;
-
 import com.github.javaparser.GeneratedJavaParserConstants;
 import com.github.javaparser.TokenTypes;
 import com.github.javaparser.ast.Node;
@@ -14,6 +11,9 @@ import com.github.javaparser.printer.SourcePrinter;
 import com.github.javaparser.printer.lexicalpreservation.TextElement;
 import com.github.javaparser.printer.lexicalpreservation.TokenTextElement;
 import com.github.javaparser.utils.LineSeparator;
+
+import static com.github.javaparser.TokenTypes.isEndOfLineToken;
+import static com.github.javaparser.TokenTypes.isWhitespaceButNotEndOfLine;
 
 public class CsmToken implements CsmElement {
 

@@ -4,20 +4,21 @@
  */
 package com.github.javaparser.symbolsolver.resolution.naming;
 
-import static com.github.javaparser.StaticJavaParser.parse;
-
 import com.github.javaparser.SlowTest;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.symbolsolver.resolution.AbstractResolutionTest;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.junit.jupiter.api.Test;
+
+import static com.github.javaparser.StaticJavaParser.parse;
 
 @SlowTest
 class NameLogicTestingJss060Test extends AbstractResolutionTest {

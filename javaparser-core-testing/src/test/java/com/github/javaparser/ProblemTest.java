@@ -4,10 +4,10 @@
  */
 package com.github.javaparser;
 
+import org.junit.jupiter.api.Test;
+
 import static com.github.javaparser.utils.TestUtils.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.junit.jupiter.api.Test;
 
 class ProblemTest {
     @Test

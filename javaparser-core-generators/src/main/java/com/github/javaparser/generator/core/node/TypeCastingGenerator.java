@@ -4,10 +4,6 @@
  */
 package com.github.javaparser.generator.core.node;
 
-import static com.github.javaparser.StaticJavaParser.parseBodyDeclaration;
-import static com.github.javaparser.utils.CodeGenerationUtils.f;
-import static com.github.javaparser.utils.Utils.set;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -16,9 +12,14 @@ import com.github.javaparser.metamodel.BaseNodeMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.utils.Pair;
 import com.github.javaparser.utils.SourceRoot;
+
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+
+import static com.github.javaparser.StaticJavaParser.parseBodyDeclaration;
+import static com.github.javaparser.utils.CodeGenerationUtils.f;
+import static com.github.javaparser.utils.Utils.set;
 
 public class TypeCastingGenerator extends NodeGenerator {
     private final Set<BaseNodeMetaModel> baseNodes = set(

@@ -72,8 +72,11 @@ testing {
 configure<com.diffplug.gradle.spotless.SpotlessExtension> {
     java {
         targetExclude("build/generated-src/**")
+        toggleOffOn()
         removeUnusedImports()
+        trimTrailingWhitespace()
         palantirJavaFormat(libs.findVersion("palantirJavaFormat").get().toString()).formatJavadoc(false).style("PALANTIR")
+        licenseHeaderFile("$rootDir/gradle/header", "(package|import|//)")
     }
 }
 

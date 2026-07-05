@@ -40,13 +40,20 @@ tasks.jar {
     }
 }
 
-/*
-mavenPublishing {
-    configure(
-        KotlinJvm(
-            javadocJar = JavadocJar.Dokka("dokkaHtml"),
-            sourcesJar = SourcesJar.Sources(),
-        ),
-    )
+configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+    kotlin {
+        target("src/**/*.kt")
+        ktlint().setEditorConfigPath("$rootDir/.editorconfig")
+        trimTrailingWhitespace()
+        endWithNewline()
+        licenseHeaderFile("$rootDir/gradle/header", "(package|import|//)")
+    }
+
+    kotlinGradle {
+        target("*.gradle.kts", "buildSrc/**/*.gradle.kts")
+        ktlint()
+        trimTrailingWhitespace()
+        endWithNewline()
+        licenseHeaderFile("$rootDir/gradle/header", "(package|import|//)")
+    }
 }
-*/

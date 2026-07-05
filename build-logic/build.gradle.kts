@@ -13,6 +13,7 @@ dependencies {
     implementation(libs.dokka)
     implementation(libs.vanniktech.maven)
     implementation(libs.gradle.versions)
+    implementation(libs.jacoco.cobertura)
 
     // https://github.com/Kotlin/dokka
     // Dokka is a documentation engine for Kotlin like JavaDoc for Java

@@ -6,16 +6,19 @@ import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 plugins {
     `java-library`
     id("test-report-aggregation")
+    id("jacoco-report-aggregation")
     id("com.diffplug.spotless")
     checkstyle
+    `jvm-test-suite`
     id("com.github.ben-manes.versions")
     id("org.jetbrains.dokka")
+    jacoco
 }
 
 val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
 group = "io.github.jmltoolkit"
-version = project.properties["version"] ?: "unspecified"
+version = providers.gradleProperty("version").getOrElse("unspecified")
 
 repositories {
     mavenCentral()
@@ -56,19 +59,21 @@ tasks.withType<Javadoc> {
 
 testing {
     suites {
-        val test by getting(JvmTestSuite::class) {
+        getByName<JvmTestSuite>("test") {
             useJUnitJupiter()
             targets {
                 all {
                     testTask.configure {
                         maxHeapSize = "8g"
                         //jvmArgs("-Xmx2g")
+                        //finalizedBy(tasks.jacocoTestReport)
                     }
                 }
             }
         }
     }
 }
+
 
 configure<com.diffplug.gradle.spotless.SpotlessExtension> {
     java {
@@ -130,8 +135,23 @@ dokka {
 }
 
 // To generate documentation in HTML
-val dokkaHtmlJar by tasks.registering(Jar::class) {
+val dokkaHtmlJar = tasks.register<Jar>("dokkaHtmlJar") {
     description = "A HTML Documentation JAR containing Dokka HTML"
     from(tasks.dokkaGeneratePublicationHtml.flatMap { it.outputDirectory })
     archiveClassifier.set("html-doc")
+}
+
+
+jacoco {
+    toolVersion = "0.8.15"
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
+    }
 }

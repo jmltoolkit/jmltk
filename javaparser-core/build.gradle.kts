@@ -5,7 +5,7 @@ plugins {
 
 description = "io.github.jmltoolkit:jmlparser-core"
 
-val javacc by configurations.creating
+val javacc = configurations.create("javacc")
 
 dependencies {
     api(libs.org.jspecify.jspecify)
@@ -14,7 +14,7 @@ dependencies {
     javacc("com.helger:parser-generator-cc:2.0.1")
 }
 
-val javaBuildFile by tasks.registering(Copy::class) {
+val javaBuildFile = tasks.register<Copy>("javaBuildFile") {
     description = "Create a Java file containing build information"
     from("src/main/java-templates/")
     includeEmptyDirs = false
@@ -38,7 +38,7 @@ val javaccOutput: String =
 
 val javaccInput = "src/main/javacc/java.jj"
 
-val compileJavacc by tasks.registering(JavaExec::class) {
+val compileJavacc = tasks.register<JavaExec>("compileJavacc") {
     description = "Compiles the JavaCC grammars into Java"
 
     inputs.file(javaccInput).withPathSensitivity(PathSensitivity.RELATIVE)

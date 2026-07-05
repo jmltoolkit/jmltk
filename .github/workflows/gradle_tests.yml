@@ -25,6 +25,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  code-quality: write
+
 jobs:
   gradle_test_on_merge:
     strategy:
@@ -61,6 +65,7 @@ jobs:
       - &checkjava
         name: Echo exact java version being used
         run: java -version
+
       - &sonarcache
         name: Cache SonarCloud packages
         uses: actions/cache@v6
@@ -68,22 +73,14 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
+
       - &gradletest
-        name: Test with Gradle
+        name: Test with Gradle and generate coverage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           ./gradlew --continue --parallel test
-
-      - &report
-        name: Test reporting
-        uses: dorny/test-reporter@v3
-        if: success() || failure()
-        with:
-          name: Test Report
-          path: "*/build/test-results/test/*.xml"
-          reporter: java-junit
 
   gradle_test_on_branch:
     strategy:
@@ -99,14 +96,56 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - &checkout
-        name: Checkout latest code
+      - name: Checkout latest code
         uses: actions/checkout@v7.0.0
         with:
           fetch-depth: "0"
-          ref: ${{github.event.pull_request.head.sha}}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - *setupjava
       - *checkjava
       - *sonarcache
-      - *gradletest
-      - *report
+
+      - name: Test with Gradle and generate coverage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: ./gradlew --continue --parallel test aggregateCoverageReport aggregateTestReport
+
+      - run: python scripts/cover2cover.py build/reports/jacoco/aggregateCoverageReport/aggregateCoverageReport.xml **/src/main/java > cov-report.xml
+        if: success() || failure()
+
+
+      - name: Upload coverage report
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/upload-code-coverage@v1
+        with:
+          file: cov-report.xml
+          language: Java
+          label: code-coverage/jacoco-${{matrix.os}}-${{matrix.jdk}}
+
+      - name: Upload Test Report
+        if: success() || failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: aggregated-results
+          path: build/reports/tests/test/aggregated-results
+          compression-level: '9'
+          retention-days: 7
+
+
+      - name: Upload Coverage Report
+        if: success() || failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: aggregated-coverage
+          path:  build/reports/jacoco/aggregateCoverageReport/html/
+          compression-level: '9'
+          retention-days: 7
+
+      - name: Test reporting
+        uses: dorny/test-reporter@v3
+        if: success() || failure()
+        with:
+          name: Test Report
+          path: "*/build/test-results/test/*.xml"
+          reporter: java-junit

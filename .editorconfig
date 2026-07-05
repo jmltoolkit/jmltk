@@ -16,6 +16,12 @@ tab_width = 4
 # ij_visual_guides = none
 # ij_wrap_on_typing = false
 
+
+[{*.yml,*.yaml}]
+indent_size = 2
+tab_width = 2 
+insert_final_newline = true
+
 [*.dcl]
 # ij_declarative_keep_indents_on_empty_lines = false
 

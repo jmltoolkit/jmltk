@@ -11,7 +11,7 @@ dependencies {
     api(libs.org.jspecify.jspecify)
     api(libs.net.bytebuddy.byte.buddy.agent)
     //javacc("com.helger:parser-generator-cc:2.0.1")
-    javacc("com.helger:parser-generator-cc:1.1.4")
+    javacc("com.helger:parser-generator-cc:2.0.1")
 }
 
 val javaBuildFile by tasks.registering(Copy::class) {

@@ -53,7 +53,6 @@ class NameResolutionTest {
     }
     */
     @Test
-    @Disabled("Repair")
     void contractMemberVariable() throws IOException {
         loadAndResolveAll("ResolutionTest.java");
         /*JmlContract contract = declaration.getMethodsByName("foo").get(0).getContracts().get().get(0);
@@ -109,7 +108,6 @@ class NameResolutionTest {
     }
 
     @Test
-    @Disabled("Repair")
     void jmlBinderExpression() throws IOException {
         loadAndResolveAll("JmlQuantifiedExprResolutionTest.java");
     }
@@ -120,7 +118,6 @@ class NameResolutionTest {
     }
 
     @Test
-    @Disabled("Repair")
     void locals() throws IOException {
         loadAndResolveAll("Locals.java");
     }

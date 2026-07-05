@@ -36,30 +36,37 @@ public abstract class JmlExpression extends Expression implements Jmlish {
     }
 
     @Override
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public boolean isJmlExpression() {
         return true;
     }
 
     @Override
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public JmlExpression asJmlExpression() {
         return this;
     }
 
     @Override
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public Optional<JmlExpression> toJmlExpression() {
         return Optional.of(this);
     }
 
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public void ifJmlExpression(Consumer<JmlExpression> action) {
         action.accept(this);
     }
 
     @Override
+    @Generated("com.github.javaparser.generator.core.node.CloneGenerator")
     public JmlExpression clone() {
         return (JmlExpression) accept(new CloneVisitor(), null);
     }
 
     @Override
+    @Generated("com.github.javaparser.generator.core.node.GetMetaModelGenerator")
     public JmlExpressionMetaModel getMetaModel() {
         return JavaParserMetaModel.jmlExpressionMetaModel;
     }

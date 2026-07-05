@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.lint
 
 import com.github.javaparser.ast.Node
@@ -21,7 +25,6 @@ class JmlLintingFacade(private val config: JmlLintingConfig) {
                 .withShortDescription(MultiformatMessageString().withText("Linting for the Java Modeling Language"))
                 .withRules(linters.map { ReportingDescriptor().withName(it.javaClass.getName()) }.toSet())
         )
-
 
     fun lint(reporter: LintProblemReporter, nodes: Collection<Node>) {
         for (it in nodes) {
@@ -51,10 +54,8 @@ class JmlLintingFacade(private val config: JmlLintingConfig) {
             .withRuns(runs)
     }
 
-    private fun asSarif(it: LintProblem): Result {
-        return Result().withRuleId(it.ruleId).withKind(it.category).withLevel(it.level)
+    private fun asSarif(it: LintProblem): Result = Result().withRuleId(it.ruleId).withKind(it.category).withLevel(it.level)
             .withLocations(listOf(Location())).withMessage(Message().withText(it.message))
-    }
 
     companion object {
         private val LOGGER: Logger = LoggerFactory.getLogger(JmlLintingFacade::class.java)

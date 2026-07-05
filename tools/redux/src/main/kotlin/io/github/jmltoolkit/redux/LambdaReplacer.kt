@@ -1,5 +1,8 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.redux
-
 
 import com.github.javaparser.Position
 import com.github.javaparser.ast.Node
@@ -23,9 +26,7 @@ import io.github.jmltoolkit.utils.Helper
  * Code was donated by Carsten Czisky @ciskar
  */
 class LambdaReplacer(private val nameGenerator: NameGenerator) : Transformer {
-    override fun apply(a: Node): Node {
-        return Helper.findAndApply(LambdaExpr::class.java, a) { expr: LambdaExpr -> this.rewriteLambda(expr) }
-    }
+    override fun apply(a: Node): Node = Helper.findAndApply(LambdaExpr::class.java, a) { expr: LambdaExpr -> this.rewriteLambda(expr) }
 
     private fun rewriteLambda(expr: LambdaExpr): Node {
         val enclosingType = expr.getParentNodeOfType(
@@ -36,7 +37,6 @@ class LambdaReplacer(private val nameGenerator: NameGenerator) : Transformer {
         enclosingType.get().addMember(decl)
         return instantiate(decl)
     }
-
 
     private fun instantiate(decl: ClassOrInterfaceDeclaration): ObjectCreationExpr {
         val type = ClassOrInterfaceType(null, decl.nameAsString)
@@ -83,7 +83,6 @@ class LambdaReplacer(private val nameGenerator: NameGenerator) : Transformer {
             returnType = body.expression.calculateResolvedType().toString()
         }
 
-
         when (lambdaExpr.parameters.size) {
             0 -> {
                 if (returnType == null) {
@@ -120,7 +119,7 @@ class LambdaReplacer(private val nameGenerator: NameGenerator) : Transformer {
 
             else -> throw IllegalStateException("ASM could not be infered")
         }
-        //TODO md.type = returnType
+        // TODO md.type = returnType
         for (parameter in lambdaExpr.parameters) {
             md.addParameter(parameter.clone())
         }
@@ -130,7 +129,7 @@ class LambdaReplacer(private val nameGenerator: NameGenerator) : Transformer {
     private fun assignToType(lambdaExpr: LambdaExpr): ClassOrInterfaceType? {
         val type = lambdaExpr.calculateResolvedType()
         println("TEST: \$type")
-        return null //TODO
+        return null // TODO
     }
 }
 
@@ -140,9 +139,7 @@ class LambdaReplacer(private val nameGenerator: NameGenerator) : Transformer {
 class NameGenerator {
     private val generatedNames: MutableSet<String> = HashSet()
 
-    fun generate(prefix: String, pos: Position?): String {
-        return generate(prefix, pos, null)
-    }
+    fun generate(prefix: String, pos: Position?): String = generate(prefix, pos, null)
 
     private fun generate(prefix: String, pos: Position?, counter: Int?): String {
         val line = pos?.line

@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.lsp.symbols
 
 import de.uka.ilkd.key.nparser.KeYParser
@@ -35,6 +39,7 @@ class KeyCatchSymbols(private val uri: Uri) {
 
     private class Visitor : KeYParserBaseVisitor<List<DocumentSymbol>>() {
         override fun visitFile(ctx: KeYParser.FileContext): List<DocumentSymbol> = acceptAll(ctx.children)
+
         @JvmName("acceptAllPt")
         private fun acceptAll(children: List<ParseTree>): List<DocumentSymbol> =
             children.mapNotNull { it as? ParserRuleContext }
@@ -70,10 +75,8 @@ class KeyCatchSymbols(private val uri: Uri) {
             DocumentSymbol(name, kind, range, selectionRange, detail, children)
         )
 
-
         override fun visitPreferences(ctx: KeYParser.PreferencesContext): List<DocumentSymbol> =
             symbol("Preferences", SymbolKind.String, ctx.KEYSETTINGS().symbol.asRange, ctx.asRange, ctx.text)
-
 
         override fun visitFunc_decls(ctx: KeYParser.Func_declsContext) = symbol(
             "Functions", SymbolKind.Function,

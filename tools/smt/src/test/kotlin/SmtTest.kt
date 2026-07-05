@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 import com.github.javaparser.JavaParser
 import com.github.javaparser.ParserConfiguration
 import com.github.javaparser.Problem
@@ -24,15 +28,14 @@ data class ExprTestCase(
     val resultInt: String? = null,
     val disabled: Boolean = false
 ) {
-    constructor(m: Map<String, Any?>)
-            : this(
+    constructor(m: Map<String, Any?>) :
+            this(
         expr = m["expr"] as String,
         result = m["result"] as String?,
         resultInt = m["resultInt"] as String?,
         resultBv = m["resultBv"] as String?,
         disabled = m["disabled"] as? Boolean ?: false
     )
-
 }
 
 /**
@@ -55,7 +58,6 @@ class SmtTest {
         }
         parent = r.result.get().getType(0)
     }
-
 
     @TestFactory
     fun smtTranslation(): List<DynamicTest> {

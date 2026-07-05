@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.smt
 
 import io.github.jmltoolkit.smt.model.SExpr
@@ -42,9 +46,7 @@ class SmtQuery : AppendableTo {
         commands.add(term.command("pop"))
     }
 
-    private fun declared(name: String): Boolean {
-        return currentFrame.containsKey(name)
-    }
+    private fun declared(name: String): Boolean = currentFrame.containsKey(name)
 
     private val currentFrame
         get() = variableStack[variableStack.size - 1]
@@ -55,7 +57,6 @@ class SmtQuery : AppendableTo {
             writer.println()
         }
     }
-
 
     fun defineThis() {
         declareConst("this", SmtType.JAVA_OBJECT)
@@ -70,14 +71,15 @@ class SmtQuery : AppendableTo {
         commands.add(term.command("check-sat"))
     }
 
-
     override fun toString(): String {
         val sw = StringWriter()
         val pw = PrintWriter(sw)
-        commands.forEach(Consumer { a: SExpr ->
+        commands.forEach(
+            Consumer { a: SExpr ->
             a.appendTo(pw)
             pw.println()
-        })
+        }
+        )
         return sw.toString()
     }
 

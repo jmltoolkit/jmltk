@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.xpath
 
 import com.github.javaparser.metamodel.PropertyMetaModel
@@ -20,9 +24,7 @@ internal class JPAttr(element: JPElement, metaModel: PropertyMetaModel) : Attr {
     override fun getValue(): String = attr.getValue(parent.astNode).toString()
 
     @Throws(DOMException::class)
-    override fun setValue(value: String) {
-        throw DOMException(0.toShort(), "read-only")
-    }
+    override fun setValue(value: String): Unit = throw DOMException(0.toShort(), "read-only")
 
     override fun getOwnerElement(): Element = parent
 
@@ -36,9 +38,7 @@ internal class JPAttr(element: JPElement, metaModel: PropertyMetaModel) : Attr {
     override fun getNodeValue(): String = attr.getValue(parent.astNode).toString()
 
     @Throws(DOMException::class)
-    override fun setNodeValue(nodeValue: String) {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
-    }
+    override fun setNodeValue(nodeValue: String): Unit = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
 
     override fun getNodeType(): Short = 0
 
@@ -100,9 +100,7 @@ internal class JPAttr(element: JPElement, metaModel: PropertyMetaModel) : Attr {
     override fun getTextContent(): String = value
 
     @Throws(DOMException::class)
-    override fun setTextContent(textContent: String) {
-        throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
-    }
+    override fun setTextContent(textContent: String): Unit = throw DOMException(DOMException.NOT_SUPPORTED_ERR, "")
 
     override fun isSameNode(other: Node): Boolean = false
 

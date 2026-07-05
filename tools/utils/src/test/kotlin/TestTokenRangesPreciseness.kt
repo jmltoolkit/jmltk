@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 import com.github.javaparser.GeneratedJavaParserConstants
 import com.github.javaparser.TokenRange
 import com.github.javaparser.ast.CompilationUnit
@@ -30,13 +34,12 @@ internal class TestTokenRangesPreciseness : TestWithJavaParser() {
                     At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea
                   takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet,
                    consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore
-                 et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo 
-                  duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est 
+                 et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo
+                  duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est
                 Lorem ipsum dolor sit amet.
-                
+
                 """.trimIndent()
         )
-
 
         Truth.assertThat(lci.substring(1, 1, 1, 5))
             .isEqualTo("Lorem")
@@ -58,7 +61,6 @@ internal class TestTokenRangesPreciseness : TestWithJavaParser() {
         return testTokenRanges(result.result.get(), content)
     }
 
-
     @TestFactory
     @Throws(Throwable::class)
     fun test(): Stream<DynamicTest> {
@@ -73,7 +75,7 @@ internal class TestTokenRangesPreciseness : TestWithJavaParser() {
         return JmlUtility.getAllNodes(node)
             .filter { it: Node? -> it is NodeWithJmlTags<*> }
             .flatMap { it: Node -> checkTokenRange(lci, it) }
-        //checkTokenRange(lci, node);
+        // checkTokenRange(lci, node);
     }
 
     private fun checkTokenRange(lci: LineColumnIndex, it: Node): Stream<DynamicTest?> {
@@ -82,8 +84,7 @@ internal class TestTokenRangesPreciseness : TestWithJavaParser() {
             .orElse(Stream.empty<DynamicTest?>())
     }
 
-    private fun checkTokenRange(lci: LineColumnIndex, javaTokens: TokenRange): Stream<DynamicTest?> {
-        return Streams.stream(javaTokens)
+    private fun checkTokenRange(lci: LineColumnIndex, javaTokens: TokenRange): Stream<DynamicTest?> = Streams.stream(javaTokens)
             .filter { it.kind != GeneratedJavaParserConstants.EOF }
             .map { javaToken ->
                 DynamicTest.dynamicTest(javaToken.toString()) {
@@ -94,5 +95,4 @@ internal class TestTokenRangesPreciseness : TestWithJavaParser() {
                     }
                 }
             }
-    }
 }

@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.smt
 
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType.BOOLEAN
@@ -61,7 +65,6 @@ object SmtTermFactory {
     fun exists(variables: List<SExpr>, formula: SExpr): SExpr =
         fnApply(BOOLEAN, SmtType.BOOL, "exists", list(variables), formula)
 
-
     fun list(javaType: ResolvedType, smtType: SmtType, symbol: SAtom, args: Array<SExpr>): SExpr {
         val nargs = mutableListOf<SExpr>()
         nargs.add(symbol)
@@ -69,10 +72,8 @@ object SmtTermFactory {
         return SList(smtType, javaType, nargs)
     }
 
-    //TODO weigl correct?
-    fun list(variables: List<SExpr>): SExpr {
-        return SList(null, null, listOf())
-    }
+    // TODO weigl correct?
+    fun list(variables: List<SExpr>): SExpr = SList(null, null, listOf())
 
     //region polymorphic operators
     fun bor(left: SExpr, right: SExpr): SExpr {
@@ -80,7 +81,6 @@ object SmtTermFactory {
         if (isBv(left, right)) return bvor(left, right)
         return typeException()
     }
-
 
     fun add(left: SExpr, right: SExpr): SExpr {
         if (isInt(left, right)) return iadd(left, right)
@@ -104,7 +104,6 @@ object SmtTermFactory {
         if (isBv(left, right)) return bvshiftLeft(left, right)
         return typeException()
     }
-
 
     fun shiftRight(left: SExpr, right: SExpr, sign: Boolean): SExpr {
         if (isBv(left, right)) return bvshiftRight(left, right, sign)
@@ -137,7 +136,6 @@ object SmtTermFactory {
         return typeException()
     }
 
-
     fun xor(left: SExpr, right: SExpr): SExpr = fnApply(BOOLEAN, SmtType.BOOL, "xor", left, right)
 
     fun equality(left: SExpr, right: SExpr): SExpr = fnApply(BOOLEAN, SmtType.BOOL, "=", left, right)
@@ -150,7 +148,6 @@ object SmtTermFactory {
         return typeException()
     }
 
-
     private fun fnApplyToBool(symbol: String, left: SExpr, right: SExpr): SExpr =
         fnApply(BOOLEAN, SmtType.BOOL, symbol, left, right)
 
@@ -160,13 +157,11 @@ object SmtTermFactory {
         return typeException("Could not handle types '%s > %s'", left.smtType, right.smtType)
     }
 
-
     fun negate(sexpr: SExpr): SExpr {
         if (isBool(sexpr)) return not(sexpr)
         if (isBv(sexpr)) return bvnegate(sexpr)
         return typeException()
     }
-
 
     fun multiply(left: SExpr, right: SExpr): SExpr {
         if (isInt(left, right)) return imultiply(left, right)
@@ -179,7 +174,6 @@ object SmtTermFactory {
         if (isBv(left, right)) return bvdivide(left, right)
         return typeException()
     }
-
 
     //endregion
     //region integer operations
@@ -244,9 +238,7 @@ object SmtTermFactory {
 
     private fun fnApplyToBV(symbol: String, left: SExpr): SExpr = fnApply(null, left.smtType!!, symbol, left)
 
-
     fun makeBitvector(width: Int, value: Long): SExpr = makeBitvector(width, BigInteger.valueOf(value))
-
 
     fun makeBitvector(width: Int, value: BigInteger): SExpr {
         val type = SmtType.getBitVec(width)
@@ -258,7 +250,6 @@ object SmtTermFactory {
             )
         )
     }
-
 
     fun bvType(width: Int): SExpr =
         SList(SmtType.TYPE, null, listOf(symbol("_"), symbol("BitVec"), intValue(width.toLong())))
@@ -276,10 +267,7 @@ object SmtTermFactory {
 
     private fun isInt(left: SExpr): Boolean = left.smtType === SmtType.INT
 
-    private fun typeException(): SExpr {
-        throw RuntimeException("Type mismatch!")
-    }
-
+    private fun typeException(): SExpr = throw RuntimeException("Type mismatch!")
 
     private fun fnApplyToInt(symbol: String, left: SExpr, right: SExpr): SExpr =
         fnApply(INT, SmtType.INT, symbol, left, right)
@@ -287,12 +275,10 @@ object SmtTermFactory {
     private fun fnApplyToBV(symbol: String, left: SExpr, right: SExpr): SExpr =
         fnApply(null, left.smtType!!, symbol, left, right)
 
-
     fun fpType(width: Int): SExpr =
         SList(SmtType.TYPE, null, listOf(symbol("_"), symbol("FloatingPoint"), intValue(width.toLong())))
 
     fun arrayType(from: SExpr, to: SExpr): SExpr = SList(SmtType.TYPE, null, listOf(symbol("Array"), from, to))
-
 
     fun list(javaType: ResolvedType?, stype: SmtType, vararg args: Any): SExpr {
         val nargs = mutableListOf<SExpr>()
@@ -310,7 +296,6 @@ object SmtTermFactory {
     }
 
     fun makeTrue(): SExpr = makeBoolean(true)
-
 
     fun makeFalse(): SExpr = makeBoolean(false)
 
@@ -338,20 +323,21 @@ object SmtTermFactory {
         if (type === SmtType.FP32) return fpType(32)
         if (type === SmtType.FP64) return fpType(64)
         if (type === SmtType.BOOL) return boolType()
-        if (type is SmtType.Array) return arrayType(
+        if (type is SmtType.Array) {
+            return arrayType(
             type(type.from),
             type(type.to)
         )
+        }
         if (type is BitVec) return bvType(type.width)
 
         return typeException()
     }
 
-
     private fun realType(): SExpr = symbol("Int")
 
     fun variable(type: SmtType, javaType: ResolvedType?, name: String): SExpr =
-        //nocache, conflict in type could be created
+        // nocache, conflict in type could be created
         SAtom(type, javaType, name)
 
     fun command(symbol: String, vararg args: SExpr): SExpr =
@@ -366,9 +352,7 @@ object SmtTermFactory {
     fun fieldAccess(javaType: ResolvedType?, stype: SmtType, field: String, obj: SExpr): SExpr =
         fnApply(javaType, stype, field, obj)
 
-    private fun typeException(fmt: String, vararg args: Any?): SExpr {
-        throw RuntimeException(String.format(fmt, *args))
-    }
+    private fun typeException(fmt: String, vararg args: Any?): SExpr = throw RuntimeException(String.format(fmt, *args))
 
     fun let(vars: List<SExpr>, body: SExpr): SExpr = list(body.javaType, body.smtType!!, "let", list(vars), body)
 

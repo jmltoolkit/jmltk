@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 import com.google.common.truth.Truth
 import io.github.jmltoolkit.lsp.hover.JmlDocumentationIndex
 import io.github.jmltoolkit.lsp.JmlLanguageServer
@@ -13,8 +17,7 @@ import java.util.concurrent.CompletableFuture
 import kotlin.test.assertTrue
 
 private val File.toUri: String
-    get() = "file://${absolutePath}"
-
+    get() = "file://$absolutePath"
 
 val workspace = File("workspace")
 val languageServer = JmlLanguageServer().also {
@@ -37,9 +40,7 @@ class EmptyLanguageClient : LanguageClient {
     override fun showMessage(messageParams: MessageParams?) {
     }
 
-    override fun showMessageRequest(requestParams: ShowMessageRequestParams?): CompletableFuture<MessageActionItem> {
-        return CompletableFuture.completedFuture(MessageActionItem("Test!"))
-    }
+    override fun showMessageRequest(requestParams: ShowMessageRequestParams?): CompletableFuture<MessageActionItem> = CompletableFuture.completedFuture(MessageActionItem("Test!"))
 
     override fun logMessage(message: MessageParams?) {
     }
@@ -107,9 +108,8 @@ class DeclarationTests {
         val result0 = docService.declaration(forall).get()
         println(result0)
 
-        //val result1 = docService.declaration(variableInClause).get()
-        //val result2 = docService.declaration(variableInAssert).get()
-
+        // val result1 = docService.declaration(variableInClause).get()
+        // val result2 = docService.declaration(variableInAssert).get()
     }
 }
 
@@ -152,12 +152,14 @@ class HighlighterTest {
 
         for (entry in entries) {
             line += entry.line
-            if (entry.line != 0) column = entry.column
-            else column += entry.column
+            if (entry.line != 0) {
+                column = entry.column
+            } else {
+                column += entry.column
+            }
             val image = text[line].substring(column - 1, column - 1 + entry.len)
             println(image)
         }
-
 
         /*
             at index 5*i - deltaLine: token line number, relative to the previous token
@@ -167,7 +169,6 @@ class HighlighterTest {
             at index 5*i+3 - tokenType: will be looked up in SemanticTokensLegend.tokenTypes. We currently ask that tokenType < 65536.
             at index 5*i+4 - tokenModifiers: each set bit will be looked up in SemanticTokensLegend.tokenModifiers
          */
-
     }
 }
 

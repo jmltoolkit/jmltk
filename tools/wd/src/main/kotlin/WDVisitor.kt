@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.wd
 
 import com.github.javaparser.ast.expr.*
@@ -28,8 +32,7 @@ class WDVisitor : VoidVisitorAdapter<Any?>() {
     }
 }
 
-class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslator) :
-    GenericVisitorAdapter<SExpr, Any?>() {
+class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslator) : GenericVisitorAdapter<SExpr, Any?>() {
     private val smtFormula: JmlExpr2Smt = JmlExpr2Smt(smtLog, translator)
 
     override fun visit(n: NameExpr, arg: Any?): SExpr {
@@ -40,15 +43,13 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
         }
     }
 
-    override fun visit(n: ArrayAccessExpr, arg: Any?): SExpr {
-        return term.and(
+    override fun visit(n: ArrayAccessExpr, arg: Any?): SExpr = term.and(
             n.name.accept(this, arg),
             n.index.accept(this, arg)
         )
-    }
 
     override fun visit(n: ArrayCreationExpr, arg: Any?): SExpr {
-        //TODO
+        // TODO
         return n.initializer.get().accept(this, arg)
     }
 
@@ -57,9 +58,7 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
         return term.and(seq)
     }
 
-    override fun visit(n: AssignExpr, arg: Any?): SExpr {
-        return term.makeFalse()
-    }
+    override fun visit(n: AssignExpr, arg: Any?): SExpr = term.makeFalse()
 
     override fun visit(n: BinaryExpr, arg: Any?): SExpr {
         when (n.operator) {
@@ -92,86 +91,48 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
         }
     }
 
-    override fun visit(n: BooleanLiteralExpr, arg: Any?): SExpr {
-        return term.makeTrue()
-    }
+    override fun visit(n: BooleanLiteralExpr, arg: Any?): SExpr = term.makeTrue()
 
     override fun visit(n: CastExpr, arg: Any?): SExpr {
-        //TODO Type-check?
+        // TODO Type-check?
         return n.expression.accept(this, arg)
     }
 
-    override fun visit(n: CharLiteralExpr, arg: Any?): SExpr {
-        return term.makeTrue()
-    }
+    override fun visit(n: CharLiteralExpr, arg: Any?): SExpr = term.makeTrue()
 
-    override fun visit(n: ClassExpr, arg: Any?): SExpr {
-        return term.makeFalse()
-    }
+    override fun visit(n: ClassExpr, arg: Any?): SExpr = term.makeFalse()
 
-    override fun visit(n: DoubleLiteralExpr, arg: Any?): SExpr {
-        return term.makeTrue()
-    }
+    override fun visit(n: DoubleLiteralExpr, arg: Any?): SExpr = term.makeTrue()
 
-    override fun visit(n: EnclosedExpr, arg: Any?): SExpr {
-        return wd(n.inner)
-    }
+    override fun visit(n: EnclosedExpr, arg: Any?): SExpr = wd(n.inner)
 
-    override fun visit(n: FieldAccessExpr, arg: Any?): SExpr {
-        return wd(n.scope)
-    }
+    override fun visit(n: FieldAccessExpr, arg: Any?): SExpr = wd(n.scope)
 
-    override fun visit(n: InstanceOfExpr, arg: Any?): SExpr {
-        return n.expression.accept(this, arg)
-    }
+    override fun visit(n: InstanceOfExpr, arg: Any?): SExpr = n.expression.accept(this, arg)
 
-    override fun visit(n: IntegerLiteralExpr, arg: Any?): SExpr {
-        return term.makeTrue()
-    }
+    override fun visit(n: IntegerLiteralExpr, arg: Any?): SExpr = term.makeTrue()
 
-    override fun visit(n: StringLiteralExpr, arg: Any?): SExpr {
-        return term.makeTrue()
-    }
+    override fun visit(n: StringLiteralExpr, arg: Any?): SExpr = term.makeTrue()
 
-    override fun visit(n: SuperExpr, arg: Any?): SExpr {
-        return term.makeTrue()
-    }
+    override fun visit(n: SuperExpr, arg: Any?): SExpr = term.makeTrue()
 
-    override fun visit(n: ThisExpr, arg: Any?): SExpr {
-        return term.makeTrue()
-    }
+    override fun visit(n: ThisExpr, arg: Any?): SExpr = term.makeTrue()
 
-    override fun visit(n: UnaryExpr, arg: Any?): SExpr {
-        return n.expression.accept(this, arg)
-    }
+    override fun visit(n: UnaryExpr, arg: Any?): SExpr = n.expression.accept(this, arg)
 
-    override fun visit(n: LambdaExpr, arg: Any?): SExpr {
-        return super.visit(n, arg)
-    }
+    override fun visit(n: LambdaExpr, arg: Any?): SExpr = super.visit(n, arg)
 
-    override fun visit(n: MethodReferenceExpr, arg: Any?): SExpr {
-        return super.visit(n, arg)
-    }
+    override fun visit(n: MethodReferenceExpr, arg: Any?): SExpr = super.visit(n, arg)
 
-    override fun visit(n: TypeExpr, arg: Any?): SExpr {
-        return super.visit(n, arg)
-    }
+    override fun visit(n: TypeExpr, arg: Any?): SExpr = super.visit(n, arg)
 
-    override fun visit(n: SwitchExpr, arg: Any?): SExpr {
-        return term.and(wd(n.selector))
-    }
+    override fun visit(n: SwitchExpr, arg: Any?): SExpr = term.and(wd(n.selector))
 
-    override fun visit(n: TextBlockLiteralExpr, arg: Any?): SExpr {
-        return term.makeTrue()
-    }
+    override fun visit(n: TextBlockLiteralExpr, arg: Any?): SExpr = term.makeTrue()
 
-    override fun visit(n: RecordPatternExpr, arg: Any?): SExpr {
-        return term.makeTrue()
-    }
+    override fun visit(n: RecordPatternExpr, arg: Any?): SExpr = term.makeTrue()
 
-    override fun visit(n: TypePatternExpr, arg: Any?): SExpr {
-        return term.makeTrue()
-    }
+    override fun visit(n: TypePatternExpr, arg: Any?): SExpr = term.makeTrue()
 
     override fun visit(n: JmlQuantifiedExpr, arg: Any?): SExpr {
         /*The quantified-expression is well-defined iff the two sub-expressions are well-defined. For a quantifier Q*/
@@ -186,7 +147,8 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
                 term.forall(args, wd(r)),
                 term.forall(args, term.impl(valueOf(r), wd(v))),
                 term.exists(
-                    args, term.and(
+                    args,
+                        term.and(
                         valueOf(r),
                         valueOf(v)
                     )
@@ -199,33 +161,19 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
         )
     }
 
-    private fun valueOf(e: Expression): SExpr {
-        return e.accept(smtFormula, null)
-    }
+    private fun valueOf(e: Expression): SExpr = e.accept(smtFormula, null)
 
-    private fun wd(e: Expression): SExpr {
-        return e.accept(this, null)
-    }
+    private fun wd(e: Expression): SExpr = e.accept(this, null)
 
-    override fun visit(n: JmlExpressionStmt, arg: Any?): SExpr {
-        return wd(n.expression)
-    }
+    override fun visit(n: JmlExpressionStmt, arg: Any?): SExpr = wd(n.expression)
 
-    override fun visit(n: JmlLabelExpr, arg: Any?): SExpr {
-        return wd(n.expression)
-    }
+    override fun visit(n: JmlLabelExpr, arg: Any?): SExpr = wd(n.expression)
 
-    override fun visit(n: JmlLetExpr, arg: Any?): SExpr {
-        return term.and(wd(n.body),  /* TODO  arguments */term.makeTrue())
-    }
+    override fun visit(n: JmlLetExpr, arg: Any?): SExpr = term.and(wd(n.body),  /* TODO  arguments */term.makeTrue())
 
-    override fun visit(n: JmlClassExprDeclaration, arg: Any?): SExpr {
-        return term.makeTrue()
-    }
+    override fun visit(n: JmlClassExprDeclaration, arg: Any?): SExpr = term.makeTrue()
 
-    override fun visit(n: JmlTypeExpr, arg: Any?): SExpr {
-        return term.makeTrue()
-    }
+    override fun visit(n: JmlTypeExpr, arg: Any?): SExpr = term.makeTrue()
 
     override fun visit(n: JmlMultiExprClause, arg: Any?) =
         term.and(n.expressions.map { e: Expression -> this.wd(e) })

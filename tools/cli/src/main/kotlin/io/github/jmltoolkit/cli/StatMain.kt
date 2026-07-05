@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.cli
 
 import com.github.ajalt.clikt.core.Context
@@ -28,11 +32,10 @@ class StatMain : FileBasedCommand("stat") {
         }
 
         if (activeJmlKeys.isEmpty()) {
-            //config.getJmlKeys().add(new ArrayList<>());
+            // config.getJmlKeys().add(new ArrayList<>());
             config.jmlKeys.add(listOf("key"))
-            //config.getJmlKeys().add(Collections.singletonList("openjml"));
+            // config.getJmlKeys().add(Collections.singletonList("openjml"));
         }
-
 
         val builderFactory = DocumentBuilderFactory.newInstance()
         val builder = builderFactory.newDocumentBuilder()
@@ -51,8 +54,8 @@ class StatMain : FileBasedCommand("stat") {
             }
         }
 
-        //Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        //System.out.println(gson.toJson(statVisitor.getNewlines()));
+        // Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        // System.out.println(gson.toJson(statVisitor.getNewlines()));
         val transformer = TransformerFactory.newInstance().newTransformer()
         transformer.setOutputProperty(OutputKeys.INDENT, "yes")
         transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2")
@@ -63,6 +66,6 @@ class StatMain : FileBasedCommand("stat") {
         println(xmlString)
     }
 
-    //val files by argument("FILES")
-    //val activeJmlKeys: List<String> by option("-k").multiple()
+    // val files by argument("FILES")
+    // val activeJmlKeys: List<String> by option("-k").multiple()
 }

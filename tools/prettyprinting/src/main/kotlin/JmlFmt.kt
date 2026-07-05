@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 import com.google.common.base.CharMatcher
 import com.google.common.base.Strings
 import com.google.common.collect.ImmutableList
@@ -36,7 +40,7 @@ class JmlCommentsHelper(
     override fun rewrite(tok: Input.Tok, maxWidth: Int, column0: Int): String {
         if (tok.isComment && tok.originalText.startsWith("/*@")) {
             var text = tok.originalText
-            //TODO
+            // TODO
             return text
         } else {
             return javaCommentsHelper.rewrite(tok, maxWidth, column0)
@@ -76,7 +80,7 @@ class JmlCommentsHelper(
     // Wraps and re-indents line comments.
     private fun indentLineComments(lines: List<String>, column0: Int): String {
         var lines = lines
-        //lines = wrapLineComments(lines, column0)
+        // lines = wrapLineComments(lines, column0)
         val builder = StringBuilder()
         builder.append(lines[0].trim { it <= ' ' })
         val indentString = Strings.repeat(" ", column0)
@@ -117,6 +121,6 @@ class JmlCommentsHelper(
         }
         val first = it.next().trim { it <= ' ' }
         // if it's actually javadoc, we're done
-        return first.startsWith("/*@") //TODO
+        return first.startsWith("/*@") // TODO
     }
 }

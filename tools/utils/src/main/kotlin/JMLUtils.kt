@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.utils
 
 import com.github.javaparser.ast.NodeList
@@ -57,7 +61,7 @@ object JMLUtils {
 
     private fun unroll(c: JmlContract): List<JmlContract> {
         if (c.subContracts.isEmpty()) return listOf<JmlContract>(c)
-        val seq= c.subContracts.stream()
+        val seq = c.subContracts.stream()
             .flatMap { e -> unroll(e).stream() }
             .toList()
         for (sub in seq) {
@@ -81,7 +85,7 @@ object JMLUtils {
 
         val contract = JmlContract()
         contract.setName(SimpleName(GENERATED_COMBINED))
-        //TODO weigl combine all requires, ensures ... clauses
+        // TODO weigl combine all requires, ensures ... clauses
         m.add(contract)
         return contract
     }

@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.lsp
 
 import com.github.javaparser.JavaParser
@@ -32,14 +36,12 @@ import java.util.*
 import java.util.concurrent.CompletableFuture
 import kotlin.io.path.readText
 
-
 private val Node?.parentalSelectionRange: SelectionRange?
     get() = when {
         this == null -> null
         !this.parentNode.isPresent -> SelectionRange(asRange, null)
         else -> SelectionRange(asRange, parentNode.get().parentalSelectionRange)
     }
-
 
 class AstRepository(val server: JmlLanguageServer) {
     private val sourceFolders = Collections.synchronizedList(arrayListOf<Path>())
@@ -130,7 +132,6 @@ class AstRepository(val server: JmlLanguageServer) {
     private fun getSourcePath(cu: CompilationUnit): Path? =
         cu.storage.map { it.sourceRoot }.orElse(null)
 
-
     fun addSourceFolder(folder: Path) {
         if (folder !in sourceFolders) {
             sourceFolders.add(folder)
@@ -148,14 +149,15 @@ class AstRepository(val server: JmlLanguageServer) {
 
     fun getDiagnostics(path: Uri): CompletableFuture<MutableList<Diagnostic>> =
         get(path).thenApply { result ->
-            if (result.isSuccessful)
+            if (result.isSuccessful) {
                 JmlLintingFacade(JmlLintingConfig()).lint(listOf(result.result.get())).map {
                     Diagnostic(it.location.asRange, it.message, DiagnosticSeverity.Error, "jml-lint")
                 }.toMutableList()
-            else
+            } else {
                 result.problems.map {
                     Diagnostic(it.location.asRange, it.verboseMessage, DiagnosticSeverity.Error, "jmlparser")
                 }.toMutableList()
+            }
         }
 
     fun get(path: Uri): CompletableFuture<ParseResult<CompilationUnit>> {
@@ -193,8 +195,9 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
     override fun didOpen(params: DidOpenTextDocumentParams) {
         Logger.info("didOpen: {}", params)
         Logger.info(params.textDocument.languageId)
-        if (params.textDocument.languageId != "text/java")
+        if (params.textDocument.languageId != "text/java") {
             return
+        }
     }
 
     override fun didChange(params: DidChangeTextDocumentParams) {
@@ -209,29 +212,24 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
         Logger.info("didSave: {}", params)
     }
 
-    override fun completion(position: CompletionParams?): CompletableFuture<Either<MutableList<CompletionItem>, CompletionList>> {
-        return super.completion(position)
-    }
+    override fun completion(position: CompletionParams?): CompletableFuture<Either<MutableList<CompletionItem>, CompletionList>> = super.completion(position)
 
-    override fun resolveCompletionItem(unresolved: CompletionItem?): CompletableFuture<CompletionItem> {
-        return super.resolveCompletionItem(unresolved)
-    }
+    override fun resolveCompletionItem(unresolved: CompletionItem?): CompletableFuture<CompletionItem> = super.resolveCompletionItem(unresolved)
 
-    override fun hover(params: HoverParams): CompletableFuture<Hover?> {
-        return repo.get(Uri(params.textDocument.uri))
+    override fun hover(params: HoverParams): CompletableFuture<Hover?> = repo.get(Uri(params.textDocument.uri))
             .thenApplyAsync {
                 val symbol = findSymbol(params.position, it)
-                if (symbol == null)
+                if (symbol == null) {
                     findKeyword(params, it)
-                else
+                } else {
                     Hover(
                         MarkupContent(
                             "markdown",
                             "Hover message for name: ${symbol.nameAsString}"
                         )
                     )
+                }
             }
-    }
 
     private fun findKeyword(params: HoverParams, cu: ParseResult<CompilationUnit>): Hover? {
         val node = findTopMostJmlishNode(params.position, cu)
@@ -243,7 +241,6 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
         }
         return null
     }
-
 
     private val jmlDocumentationIndex by lazy { JmlDocumentationIndex() }
 
@@ -262,16 +259,14 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
         }
     }
 
-    override fun declaration(params: DeclarationParams)
-            : CompletableFuture<Either<MutableList<out Location>, MutableList<out LocationLink>>> {
+    override fun declaration(params: DeclarationParams): CompletableFuture<Either<MutableList<out Location>, MutableList<out LocationLink>>> {
         val uri = Uri(params.textDocument.uri)
         return repo.get(uri)
             .thenApplyAsync { findSymbol(params.position, it) }
             .thenApplyAsync { resolveSymbolInDocument(it) }
     }
 
-    private fun resolveSymbolInDocument(nameExpr: NameExpr?)
-            : Either<MutableList<out Location>, MutableList<out LocationLink>> {
+    private fun resolveSymbolInDocument(nameExpr: NameExpr?): Either<MutableList<out Location>, MutableList<out LocationLink>> {
         if (nameExpr != null) {
             val r = nameExpr.resolve()
             if (r is AssociableToAST && r.toAst().isPresent) {
@@ -293,8 +288,9 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
         queue.add(it.result.get())
         while (queue.isNotEmpty()) {
             val n = queue.poll()
-            if (n.range.get().contains(p) && n is NameExpr)
+            if (n.range.get().contains(p) && n is NameExpr) {
                 return n
+            }
             queue.addAll(n.childNodes)
         }
         return null
@@ -306,8 +302,9 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
         val pos = position.toJavaParser()
 
         next@ while (current.range.get().contains(pos)) {
-            if (current is NameExpr)
+            if (current is NameExpr) {
                 return current
+            }
 
             for (child in current.childNodes) {
                 if (child.range.get().contains(pos)) {
@@ -319,37 +316,32 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
         return null
     }
 
-    override fun definition(params: DefinitionParams?): CompletableFuture<Either<MutableList<out Location>, MutableList<out LocationLink>>> {
-        return super.definition(params)
-    }
+    override fun definition(params: DefinitionParams?): CompletableFuture<Either<MutableList<out Location>, MutableList<out LocationLink>>> = super.definition(params)
 
-    override fun typeDefinition(params: TypeDefinitionParams?): CompletableFuture<Either<MutableList<out Location>, MutableList<out LocationLink>>> {
-        return super.typeDefinition(params)
-    }
+    override fun typeDefinition(params: TypeDefinitionParams?): CompletableFuture<Either<MutableList<out Location>, MutableList<out LocationLink>>> = super.typeDefinition(params)
 
-    override fun implementation(params: ImplementationParams?): CompletableFuture<Either<MutableList<out Location>, MutableList<out LocationLink>>> {
-        return super.implementation(params)
-    }
+    override fun implementation(params: ImplementationParams?): CompletableFuture<Either<MutableList<out Location>, MutableList<out LocationLink>>> = super.implementation(params)
 
-    override fun references(params: ReferenceParams?): CompletableFuture<MutableList<out Location>> {
-        return super.references(params)
-    }
+    override fun references(params: ReferenceParams?): CompletableFuture<MutableList<out Location>> = super.references(params)
 
     override fun documentSymbol(params: DocumentSymbolParams): CompletableFuture<MutableList<Either<SymbolInformation, DocumentSymbol>>> {
         Logger.info("params: {}", params)
         val uri = Uri(params.textDocument.uri)
-        return if (uri.isKeyFile)
+        return if (uri.isKeyFile) {
             CompletableFuture.supplyAsync { KeyCatchSymbols(uri).run() }
-        else
+        } else {
             repo.get(uri).thenApply {
                 Logger.info("Parse: {}", it)
-                if (!it.result.isPresent) mutableListOf()
-                else resolveSymbol(it.result.get())
+                if (!it.result.isPresent) {
+                    mutableListOf()
+                } else {
+                    resolveSymbol(it.result.get())
+                }
             }
+        }
     }
 
-    private fun resolveSymbol(compilationUnit: CompilationUnit)
-            : MutableList<Either<SymbolInformation, DocumentSymbol>> {
+    private fun resolveSymbol(compilationUnit: CompilationUnit): MutableList<Either<SymbolInformation, DocumentSymbol>> {
         Logger.info("Resolve symbols for compiluation unit: {}", compilationUnit.storage.get().path)
         val visitor = JmlCatchSymbols()
         val a = compilationUnit.accept(visitor, null) ?: arrayListOf()
@@ -365,9 +357,7 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
             .applyOn(CodeActionCollector(params.context, params.range.asRange), arrayListOf())
     }
 
-    override fun resolveCodeAction(unresolved: CodeAction?): CompletableFuture<CodeAction> {
-        return super.resolveCodeAction(unresolved)
-    }
+    override fun resolveCodeAction(unresolved: CodeAction?): CompletableFuture<CodeAction> = super.resolveCodeAction(unresolved)
 
     override fun codeLens(params: CodeLensParams): CompletableFuture<MutableList<out CodeLens>> {
         Logger.info("codeLens: {}", params)
@@ -379,83 +369,48 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
         return CompletableFuture.completedFuture(CodeLens())
     }
 
-    override fun formatting(params: DocumentFormattingParams?): CompletableFuture<MutableList<out TextEdit>> {
-        return super.formatting(params)
-    }
+    override fun formatting(params: DocumentFormattingParams?): CompletableFuture<MutableList<out TextEdit>> = super.formatting(params)
 
-    override fun rangeFormatting(params: DocumentRangeFormattingParams?): CompletableFuture<MutableList<out TextEdit>> {
-        return super.rangeFormatting(params)
-    }
+    override fun rangeFormatting(params: DocumentRangeFormattingParams?): CompletableFuture<MutableList<out TextEdit>> = super.rangeFormatting(params)
 
-    override fun onTypeFormatting(params: DocumentOnTypeFormattingParams?): CompletableFuture<MutableList<out TextEdit>> {
-        return super.onTypeFormatting(params)
-    }
+    override fun onTypeFormatting(params: DocumentOnTypeFormattingParams?): CompletableFuture<MutableList<out TextEdit>> = super.onTypeFormatting(params)
 
-    override fun rename(params: RenameParams?): CompletableFuture<WorkspaceEdit> {
-        return super.rename(params)
-    }
+    override fun rename(params: RenameParams?): CompletableFuture<WorkspaceEdit> = super.rename(params)
 
-    override fun linkedEditingRange(params: LinkedEditingRangeParams?): CompletableFuture<LinkedEditingRanges> {
-        return super.linkedEditingRange(params)
-    }
+    override fun linkedEditingRange(params: LinkedEditingRangeParams?): CompletableFuture<LinkedEditingRanges> = super.linkedEditingRange(params)
 
     override fun willSave(params: WillSaveTextDocumentParams?) {
         super.willSave(params)
     }
 
-    override fun willSaveWaitUntil(params: WillSaveTextDocumentParams?): CompletableFuture<MutableList<TextEdit>> {
-        return super.willSaveWaitUntil(params)
-    }
+    override fun willSaveWaitUntil(params: WillSaveTextDocumentParams?): CompletableFuture<MutableList<TextEdit>> = super.willSaveWaitUntil(params)
 
-    override fun documentLink(params: DocumentLinkParams?): CompletableFuture<MutableList<DocumentLink>> {
-        return super.documentLink(params)
-    }
+    override fun documentLink(params: DocumentLinkParams?): CompletableFuture<MutableList<DocumentLink>> = super.documentLink(params)
 
-    override fun documentLinkResolve(params: DocumentLink?): CompletableFuture<DocumentLink> {
-        return super.documentLinkResolve(params)
-    }
+    override fun documentLinkResolve(params: DocumentLink?): CompletableFuture<DocumentLink> = super.documentLinkResolve(params)
 
-    override fun documentColor(params: DocumentColorParams?): CompletableFuture<MutableList<ColorInformation>> {
-        return super.documentColor(params)
-    }
+    override fun documentColor(params: DocumentColorParams?): CompletableFuture<MutableList<ColorInformation>> = super.documentColor(params)
 
-    override fun colorPresentation(params: ColorPresentationParams?): CompletableFuture<MutableList<ColorPresentation>> {
-        return super.colorPresentation(params)
-    }
+    override fun colorPresentation(params: ColorPresentationParams?): CompletableFuture<MutableList<ColorPresentation>> = super.colorPresentation(params)
 
-    override fun foldingRange(params: FoldingRangeRequestParams?): CompletableFuture<MutableList<FoldingRange>> {
-        return super.foldingRange(params)
-    }
+    override fun foldingRange(params: FoldingRangeRequestParams?): CompletableFuture<MutableList<FoldingRange>> = super.foldingRange(params)
 
-    override fun prepareTypeHierarchy(params: TypeHierarchyPrepareParams?): CompletableFuture<MutableList<TypeHierarchyItem>> {
-        return super.prepareTypeHierarchy(params)
-    }
+    override fun prepareTypeHierarchy(params: TypeHierarchyPrepareParams?): CompletableFuture<MutableList<TypeHierarchyItem>> = super.prepareTypeHierarchy(params)
 
-    override fun typeHierarchySupertypes(params: TypeHierarchySupertypesParams?): CompletableFuture<MutableList<TypeHierarchyItem>> {
-        return super.typeHierarchySupertypes(params)
-    }
+    override fun typeHierarchySupertypes(params: TypeHierarchySupertypesParams?): CompletableFuture<MutableList<TypeHierarchyItem>> = super.typeHierarchySupertypes(params)
 
-    override fun typeHierarchySubtypes(params: TypeHierarchySubtypesParams?): CompletableFuture<MutableList<TypeHierarchyItem>> {
-        return super.typeHierarchySubtypes(params)
-    }
+    override fun typeHierarchySubtypes(params: TypeHierarchySubtypesParams?): CompletableFuture<MutableList<TypeHierarchyItem>> = super.typeHierarchySubtypes(params)
 
-    override fun prepareCallHierarchy(params: CallHierarchyPrepareParams?): CompletableFuture<MutableList<CallHierarchyItem>> {
-        return super.prepareCallHierarchy(params)
-    }
+    override fun prepareCallHierarchy(params: CallHierarchyPrepareParams?): CompletableFuture<MutableList<CallHierarchyItem>> = super.prepareCallHierarchy(params)
 
-    override fun callHierarchyIncomingCalls(params: CallHierarchyIncomingCallsParams?): CompletableFuture<MutableList<CallHierarchyIncomingCall>> {
-        return super.callHierarchyIncomingCalls(params)
-    }
+    override fun callHierarchyIncomingCalls(params: CallHierarchyIncomingCallsParams?): CompletableFuture<MutableList<CallHierarchyIncomingCall>> = super.callHierarchyIncomingCalls(params)
 
-    override fun callHierarchyOutgoingCalls(params: CallHierarchyOutgoingCallsParams?): CompletableFuture<MutableList<CallHierarchyOutgoingCall>> {
-        return super.callHierarchyOutgoingCalls(params)
-    }
+    override fun callHierarchyOutgoingCalls(params: CallHierarchyOutgoingCallsParams?): CompletableFuture<MutableList<CallHierarchyOutgoingCall>> = super.callHierarchyOutgoingCalls(params)
 
     private fun findTopMostJmlishNode(position: Position, cu: ParseResult<CompilationUnit>): Node? =
         findNode(position, cu) {
             it is Jmlish
         }
-
 
     private fun findNode(
         position: Position,
@@ -468,8 +423,9 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
         queue.add(it.result.get())
         while (queue.isNotEmpty()) {
             val n = queue.poll()
-            if (n.range.get().contains(p) && pred(n))
+            if (n.range.get().contains(p) && pred(n)) {
                 return n
+            }
             queue.addAll(n.childNodes)
         }
         return null
@@ -494,29 +450,17 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
             }
         }
 
-    override fun semanticTokensFullDelta(params: SemanticTokensDeltaParams?): CompletableFuture<Either<SemanticTokens, SemanticTokensDelta>> {
-        return super.semanticTokensFullDelta(params)
-    }
+    override fun semanticTokensFullDelta(params: SemanticTokensDeltaParams?): CompletableFuture<Either<SemanticTokens, SemanticTokensDelta>> = super.semanticTokensFullDelta(params)
 
-    override fun semanticTokensRange(params: SemanticTokensRangeParams?): CompletableFuture<SemanticTokens> {
-        return super.semanticTokensRange(params)
-    }
+    override fun semanticTokensRange(params: SemanticTokensRangeParams?): CompletableFuture<SemanticTokens> = super.semanticTokensRange(params)
 
-    override fun moniker(params: MonikerParams?): CompletableFuture<MutableList<Moniker>> {
-        return super.moniker(params)
-    }
+    override fun moniker(params: MonikerParams?): CompletableFuture<MutableList<Moniker>> = super.moniker(params)
 
-    override fun inlayHint(params: InlayHintParams?): CompletableFuture<MutableList<InlayHint>> {
-        return super.inlayHint(params)
-    }
+    override fun inlayHint(params: InlayHintParams?): CompletableFuture<MutableList<InlayHint>> = super.inlayHint(params)
 
-    override fun resolveInlayHint(unresolved: InlayHint?): CompletableFuture<InlayHint> {
-        return super.resolveInlayHint(unresolved)
-    }
+    override fun resolveInlayHint(unresolved: InlayHint?): CompletableFuture<InlayHint> = super.resolveInlayHint(unresolved)
 
-    override fun inlineValue(params: InlineValueParams?): CompletableFuture<MutableList<InlineValue>> {
-        return super.inlineValue(params)
-    }
+    override fun inlineValue(params: InlineValueParams?): CompletableFuture<MutableList<InlineValue>> = super.inlineValue(params)
 
     override fun diagnostic(params: DocumentDiagnosticParams): CompletableFuture<DocumentDiagnosticReport> {
         Logger.info("diagnostic: {}", params)
@@ -530,13 +474,14 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
 
 private fun Position.toJavaParser() = com.github.javaparser.Position(line, character)
 
-private fun <T> CompletableFuture<ParseResult<CompilationUnit>>.applyOn(collector: ResultingVisitor<T>, default: T)
-        : CompletableFuture<T> = this.thenApplyAsync {
+private fun <T> CompletableFuture<ParseResult<CompilationUnit>>.applyOn(collector: ResultingVisitor<T>, default: T): CompletableFuture<T> =
+        this.thenApplyAsync {
     if (it.result.isPresent) {
         it.result.get().accept(collector, null)
         val r = collector.result
         Logger.info("Result: {}", r)
         r
-    } else
+    } else {
         default
+    }
 }

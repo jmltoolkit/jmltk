@@ -54,6 +54,5 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         ktlint()
         trimTrailingWhitespace()
         endWithNewline()
-        licenseHeaderFile("$rootDir/gradle/header", "(package|import|//)")
     }
 }

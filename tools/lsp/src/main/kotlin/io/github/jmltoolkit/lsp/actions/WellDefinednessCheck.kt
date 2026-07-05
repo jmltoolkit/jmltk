@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.lsp.actions
 
 import com.github.javaparser.ast.expr.Expression
@@ -13,7 +17,7 @@ object WellDefinednessCheck : LspAction<Expression> {
         get() = "Check expression for well-definedness"
 
     override fun execute(server: JmlLanguageServer, value: List<Any>): CompletableFuture<Any> {
-        println("WellDefinednessCheck.execute server = [${server}], value = [${value}]")
+        println("WellDefinednessCheck.execute server = [$server], value = [$value]")
         return CompletableFuture.completedFuture(null)
     }
 

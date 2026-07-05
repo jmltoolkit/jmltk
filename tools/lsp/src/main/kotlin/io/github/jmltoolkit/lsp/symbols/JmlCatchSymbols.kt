@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.lsp.symbols
 
 import com.github.javaparser.ast.CompilationUnit
@@ -42,15 +46,13 @@ class JmlCatchSymbols : GenericVisitorAdapter<MutableList<DocumentSymbol>?, Unit
         )
     }
 
-    override fun visit(n: AnnotationMemberDeclaration, arg: Unit?): MutableList<DocumentSymbol> {
-        return arrayListOf(
+    override fun visit(n: AnnotationMemberDeclaration, arg: Unit?): MutableList<DocumentSymbol> = arrayListOf(
             DocumentSymbol(
                 n.nameAsString,
                 SymbolKind.Field,
                 n.asRange, n.name.asRange, ""
             )
         )
-    }
 
     override fun visit(n: ClassOrInterfaceDeclaration, arg: Unit?): MutableList<DocumentSymbol> {
         val children = acceptAll(n.members)
@@ -82,16 +84,13 @@ class JmlCatchSymbols : GenericVisitorAdapter<MutableList<DocumentSymbol>?, Unit
         )
     }
 
-
-    override fun visit(n: EnumConstantDeclaration, arg: Unit?): MutableList<DocumentSymbol> {
-        return arrayListOf(
+    override fun visit(n: EnumConstantDeclaration, arg: Unit?): MutableList<DocumentSymbol> = arrayListOf(
             DocumentSymbol(
                 n.nameAsString,
                 SymbolKind.EnumMember,
                 n.asRange, n.name.asRange,
             )
         )
-    }
 
     override fun visit(n: EnumDeclaration, arg: Unit?): MutableList<DocumentSymbol> {
         val children = acceptAll(n.members)
@@ -104,15 +103,13 @@ class JmlCatchSymbols : GenericVisitorAdapter<MutableList<DocumentSymbol>?, Unit
         )
     }
 
-    override fun visit(n: FieldDeclaration, arg: Unit?): MutableList<DocumentSymbol> {
-        return n.variables.map {
+    override fun visit(n: FieldDeclaration, arg: Unit?): MutableList<DocumentSymbol> = n.variables.map {
             DocumentSymbol(
                 it.nameAsString,
                 SymbolKind.Field,
                 it.asRange, it.name.asRange, it.typeAsString, arrayListOf()
             )
         }.toMutableList()
-    }
 
     override fun visit(n: MethodDeclaration, arg: Unit?): MutableList<DocumentSymbol> {
         val children = acceptAll(n.contracts)
@@ -125,23 +122,17 @@ class JmlCatchSymbols : GenericVisitorAdapter<MutableList<DocumentSymbol>?, Unit
         )
     }
 
-    override fun visit(n: JmlMethodDeclaration, arg: Unit?): MutableList<DocumentSymbol>? {
-        return n.methodDeclaration.accept(this, arg)
-    }
+    override fun visit(n: JmlMethodDeclaration, arg: Unit?): MutableList<DocumentSymbol>? = n.methodDeclaration.accept(this, arg)
 
-    override fun visit(n: VariableDeclarationExpr?, arg: Unit?): MutableList<DocumentSymbol>? {
-        return super.visit(n, arg)
-    }
+    override fun visit(n: VariableDeclarationExpr?, arg: Unit?): MutableList<DocumentSymbol>? = super.visit(n, arg)
 
-    override fun visit(n: ModuleDeclaration, arg: Unit?): MutableList<DocumentSymbol> {
-        return arrayListOf(
+    override fun visit(n: ModuleDeclaration, arg: Unit?): MutableList<DocumentSymbol> = arrayListOf(
             DocumentSymbol(
                 n.nameAsString,
                 SymbolKind.Module,
                 n.asRange, n.name.asRange, "", arrayListOf()
             )
         )
-    }
 
     override fun visit(n: JmlContract, arg: Unit?): MutableList<DocumentSymbol> {
         val children = acceptAll(n.subContracts) + acceptAll(n.clauses)
@@ -155,7 +146,7 @@ class JmlCatchSymbols : GenericVisitorAdapter<MutableList<DocumentSymbol>?, Unit
     }
 
     override fun visit(n: JmlRepresentsDeclaration?, arg: Unit?): MutableList<DocumentSymbol> {
-        return arrayListOf()//return super.visit(n, arg)
+        return arrayListOf() // return super.visit(n, arg)
     }
 
     override fun visit(n: JmlFieldDeclaration, arg: Unit?): MutableList<DocumentSymbol> {
@@ -167,58 +158,39 @@ class JmlCatchSymbols : GenericVisitorAdapter<MutableList<DocumentSymbol>?, Unit
                 n.asRange, n.asRange, "Jml model method: activated with ${n.jmlTags}", listOf()
             )
         }.toMutableList()
-
     }
 
     override fun visit(n: JmlClassAccessibleDeclaration, arg: Unit?): MutableList<DocumentSymbol> {
-        return arrayListOf() //super.visit(n, arg)
+        return arrayListOf() // super.visit(n, arg)
     }
 
-    override fun visit(n: JmlClassExprDeclaration, arg: Unit?): MutableList<DocumentSymbol> {
-        return arrayListOf(
+    override fun visit(n: JmlClassExprDeclaration, arg: Unit?): MutableList<DocumentSymbol> = arrayListOf(
             DocumentSymbol(
                 n.name.map { it.asString() }.orElse("anon invariant"),
                 SymbolKind.Property,
                 n.asRange, n.asRange, "Jml class invariant", listOf()
             )
         )
-    }
 
-    override fun visit(n: JmlSimpleExprClause, arg: Unit?): MutableList<DocumentSymbol> {
-        return arrayListOf(
+    override fun visit(n: JmlSimpleExprClause, arg: Unit?): MutableList<DocumentSymbol> = arrayListOf(
             DocumentSymbol(
                 n.name.map { "$it : ${n.kind}" }.orElse("Clause ${n.kind}"),
                 SymbolKind.EnumMember,
                 n.asRange, n.asRange, "Jml clause", listOf()
             )
         )
-    }
 
-    override fun visit(n: JmlSignalsClause?, arg: Unit?): MutableList<DocumentSymbol>? {
-        return super.visit(n, arg)
-    }
+    override fun visit(n: JmlSignalsClause?, arg: Unit?): MutableList<DocumentSymbol>? = super.visit(n, arg)
 
-    override fun visit(n: JmlSignalsOnlyClause?, arg: Unit?): MutableList<DocumentSymbol>? {
-        return super.visit(n, arg)
-    }
+    override fun visit(n: JmlSignalsOnlyClause?, arg: Unit?): MutableList<DocumentSymbol>? = super.visit(n, arg)
 
-    override fun visit(n: JmlCallableClause?, arg: Unit?): MutableList<DocumentSymbol>? {
-        return super.visit(n, arg)
-    }
+    override fun visit(n: JmlCallableClause?, arg: Unit?): MutableList<DocumentSymbol>? = super.visit(n, arg)
 
-    override fun visit(n: JmlForallClause?, arg: Unit?): MutableList<DocumentSymbol>? {
-        return super.visit(n, arg)
-    }
+    override fun visit(n: JmlForallClause?, arg: Unit?): MutableList<DocumentSymbol>? = super.visit(n, arg)
 
-    override fun visit(n: JmlConditionalClause?, arg: Unit?): MutableList<DocumentSymbol>? {
-        return super.visit(n, arg)
-    }
+    override fun visit(n: JmlConditionalClause?, arg: Unit?): MutableList<DocumentSymbol>? = super.visit(n, arg)
 
-    override fun visit(n: JmlOldClause?, arg: Unit?): MutableList<DocumentSymbol>? {
-        return super.visit(n, arg)
-    }
+    override fun visit(n: JmlOldClause?, arg: Unit?): MutableList<DocumentSymbol>? = super.visit(n, arg)
 
-    override fun visit(n: JmlMultiExprClause?, arg: Unit?): MutableList<DocumentSymbol>? {
-        return super.visit(n, arg)
-    }
+    override fun visit(n: JmlMultiExprClause?, arg: Unit?): MutableList<DocumentSymbol>? = super.visit(n, arg)
 }

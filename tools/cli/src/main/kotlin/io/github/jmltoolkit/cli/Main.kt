@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
@@ -57,9 +61,7 @@ abstract class FileBasedCommand(name: String) : CliktCommand(name) {
         }
     }
 
-    private fun createLinterConfiguration(): JmlLintingConfig {
-        return JmlLintingConfig()
-    }
+    private fun createLinterConfiguration(): JmlLintingConfig = JmlLintingConfig()
 
     fun parse(files: List<File>, config: ParserConfiguration): Collection<CompilationUnit> {
         val expanded: MutableList<File> = ArrayList(files.size * 10)
@@ -87,7 +89,6 @@ abstract class FileBasedCommand(name: String) : CliktCommand(name) {
         return null
     }
 
-
     private fun expandDirectory(target: MutableCollection<File>, dir: File) {
         val files = dir.listFiles()
         if (files != null) {
@@ -102,7 +103,6 @@ abstract class FileBasedCommand(name: String) : CliktCommand(name) {
             }
         }
     }
-
 
     internal fun parse(file: File, configuration: ParserConfiguration): ParseResult<CompilationUnit>? {
         val p = JavaParser(configuration)
@@ -123,7 +123,6 @@ abstract class FileBasedCommand(name: String) : CliktCommand(name) {
         config.setProcessJml(disableJml)
         return config
     }
-
 
     private fun report(problem: Problem) {
         System.out.println(problem.toString())

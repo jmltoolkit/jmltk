@@ -360,7 +360,7 @@ public interface VoidVisitor<A> {
 
     void visit(JmlMethodSignature n, A arg);
 
-    void visit(KeYMarkerStatement n, A arg);
+    void visit(KeyMarkerStatement n, A arg);
 
     void visit(JmlInfFlowClause n, A arg);
 }

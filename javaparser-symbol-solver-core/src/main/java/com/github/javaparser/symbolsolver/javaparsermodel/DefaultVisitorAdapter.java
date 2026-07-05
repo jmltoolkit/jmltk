@@ -544,7 +544,7 @@ public class DefaultVisitorAdapter implements GenericVisitor<ResolvedType, Boole
     }
 
     @Override
-    public ResolvedType visit(KeYMarkerStatement n, Boolean arg) {
+    public ResolvedType visit(KeyMarkerStatement n, Boolean arg) {
         throw new UnsupportedOperationException(n.getClass().getCanonicalName());
     }
 

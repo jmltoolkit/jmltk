@@ -860,7 +860,7 @@ public abstract class VoidVisitorWithDefaults<A> implements VoidVisitor<A> {
     }
 
     @Override
-    public void visit(final KeYMarkerStatement n, final A arg) {
+    public void visit(final KeyMarkerStatement n, final A arg) {
         defaultAction(n, arg);
     }
 

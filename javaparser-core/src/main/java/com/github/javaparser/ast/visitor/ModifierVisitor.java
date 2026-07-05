@@ -2408,7 +2408,7 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
     }
 
     @Override
-    public Visitable visit(final KeYMarkerStatement n, final A arg) {
+    public Visitable visit(final KeyMarkerStatement n, final A arg) {
         NodeList<Comment> associatedSpecificationComments = modifyList(n.getAssociatedSpecificationComments(), arg);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
         n.setAssociatedSpecificationComments(associatedSpecificationComments);

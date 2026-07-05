@@ -1852,8 +1852,8 @@ public class EqualsVisitor implements GenericVisitor<Boolean, Visitable> {
     }
 
     @Override
-    public Boolean visit(final KeYMarkerStatement n, final Visitable arg) {
-        final KeYMarkerStatement n2 = (KeYMarkerStatement) arg;
+    public Boolean visit(final KeyMarkerStatement n, final Visitable arg) {
+        final KeyMarkerStatement n2 = (KeyMarkerStatement) arg;
         if (!objEquals(n.getKind(), n2.getKind())) return false;
         if (!nodesEquals(n.getAssociatedSpecificationComments(), n2.getAssociatedSpecificationComments())) return false;
         if (!nodeEquals(n.getComment(), n2.getComment())) return false;

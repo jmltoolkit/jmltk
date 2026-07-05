@@ -774,7 +774,7 @@ public class ObjectIdentityHashCodeVisitor implements GenericVisitor<Integer, Vo
     }
 
     @Override
-    public Integer visit(final KeYMarkerStatement n, final Void arg) {
+    public Integer visit(final KeyMarkerStatement n, final Void arg) {
         return n.hashCode();
     }
 

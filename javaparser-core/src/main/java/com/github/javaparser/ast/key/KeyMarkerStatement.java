@@ -14,7 +14,7 @@ import com.github.javaparser.ast.visitor.CloneVisitor;
 import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
-import com.github.javaparser.metamodel.KeYMarkerStatementMetaModel;
+import com.github.javaparser.metamodel.KeyMarkerStatementMetaModel;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -27,12 +27,12 @@ import java.util.function.Consumer;
  * @author Alexander Weigl
  * @version 1 (3/4/26)
  */
-public class KeYMarkerStatement extends Statement {
+public class KeyMarkerStatement extends Statement {
 
     private int kind = 0;
 
     @AllFieldsConstructor
-    public KeYMarkerStatement(int kind) {
+    public KeyMarkerStatement(int kind) {
         this.kind = kind;
     }
 
@@ -56,19 +56,19 @@ public class KeYMarkerStatement extends Statement {
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public KeYMarkerStatement asKeYMarkerStatement() {
+    public KeyMarkerStatement asKeYMarkerStatement() {
         return this;
     }
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public Optional<KeYMarkerStatement> toKeYMarkerStatement() {
+    public Optional<KeyMarkerStatement> toKeYMarkerStatement() {
         return Optional.of(this);
     }
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifKeYMarkerStatement(Consumer<KeYMarkerStatement> action) {
+    public void ifKeYMarkerStatement(Consumer<KeyMarkerStatement> action) {
         action.accept(this);
     }
 
@@ -84,7 +84,7 @@ public class KeYMarkerStatement extends Statement {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public KeYMarkerStatement setKind(final int kind) {
+    public KeyMarkerStatement setKind(final int kind) {
         if (kind == this.kind) {
             return this;
         }
@@ -95,23 +95,47 @@ public class KeYMarkerStatement extends Statement {
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.CloneGenerator")
-    public KeYMarkerStatement clone() {
-        return (KeYMarkerStatement) accept(new CloneVisitor(), null);
+    public KeyMarkerStatement clone() {
+        return (KeyMarkerStatement) accept(new CloneVisitor(), null);
     }
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.GetMetaModelGenerator")
-    public KeYMarkerStatementMetaModel getMetaModel() {
-        return JavaParserMetaModel.keYMarkerStatementMetaModel;
+    public KeyMarkerStatementMetaModel getMetaModel() {
+        return JavaParserMetaModel.keyMarkerStatementMetaModel;
     }
 
     /**
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public KeYMarkerStatement(TokenRange tokenRange, int kind) {
+    public KeyMarkerStatement(TokenRange tokenRange, int kind) {
         super(tokenRange);
         setKind(kind);
         customInitialization();
+    }
+
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
+    public boolean isKeyMarkerStatement() {
+        return true;
+    }
+
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
+    public KeyMarkerStatement asKeyMarkerStatement() {
+        return this;
+    }
+
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
+    public Optional<KeyMarkerStatement> toKeyMarkerStatement() {
+        return Optional.of(this);
+    }
+
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
+    public void ifKeyMarkerStatement(Consumer<KeyMarkerStatement> action) {
+        action.accept(this);
     }
 }

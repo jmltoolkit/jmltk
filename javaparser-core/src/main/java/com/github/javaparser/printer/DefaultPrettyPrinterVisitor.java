@@ -1584,7 +1584,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     }
 
     @Override
-    public void visit(KeYMarkerStatement n, Void arg) {
+    public void visit(KeyMarkerStatement n, Void arg) {
         printer.println("//KEY MARKER STATEMENT: " + n.getKind());
     }
 

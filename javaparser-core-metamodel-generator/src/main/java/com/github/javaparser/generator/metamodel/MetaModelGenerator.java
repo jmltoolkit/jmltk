@@ -256,7 +256,7 @@ public class MetaModelGenerator extends AbstractGenerator {
             // add(JmlDocsBodyDeclaration.class);
             // add(JmlDocsTypeDeclaration.class);
             // add(JmlDocsStatements.class);
-            add(KeYMarkerStatement.class);
+            add(KeyMarkerStatement.class);
             // add(KeyActiveCommentStatement.class);
 
             // KeY-Schema

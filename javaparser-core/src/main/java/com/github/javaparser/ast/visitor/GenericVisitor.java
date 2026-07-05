@@ -364,7 +364,7 @@ public interface GenericVisitor<R, A> {
 
     R visit(JmlMethodSignature n, A arg);
 
-    R visit(KeYMarkerStatement n, A arg);
+    R visit(KeyMarkerStatement n, A arg);
 
     R visit(JmlInfFlowClause n, A arg);
 }

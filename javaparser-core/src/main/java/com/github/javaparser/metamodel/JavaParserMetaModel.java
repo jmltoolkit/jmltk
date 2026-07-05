@@ -741,7 +741,7 @@ public final class JavaParserMetaModel {
                 .getConstructorParameters()
                 .add(keyMethodSignatureMetaModel.paramTypesPropertyMetaModel);
         keyTransactionStmtMetaModel.getConstructorParameters().add(keyTransactionStmtMetaModel.typePropertyMetaModel);
-        keYMarkerStatementMetaModel.getConstructorParameters().add(keYMarkerStatementMetaModel.kindPropertyMetaModel);
+        keyMarkerStatementMetaModel.getConstructorParameters().add(keyMarkerStatementMetaModel.kindPropertyMetaModel);
         keyContextStatementBlockMetaModel
                 .getConstructorParameters()
                 .add(keyContextStatementBlockMetaModel.statementsPropertyMetaModel);
@@ -888,7 +888,6 @@ public final class JavaParserMetaModel {
         nodeMetaModels.add(jmlStatementMetaModel);
         nodeMetaModels.add(jmlTypeExprMetaModel);
         nodeMetaModels.add(jmlUnreachableStmtMetaModel);
-        nodeMetaModels.add(keYMarkerStatementMetaModel);
         nodeMetaModels.add(keyAbstractExecutionContextMetaModel);
         nodeMetaModels.add(keyCatchAllStmtMetaModel);
         nodeMetaModels.add(keyCcatchBranchMetaModel);
@@ -906,6 +905,7 @@ public final class JavaParserMetaModel {
         nodeMetaModels.add(keyExpressionSVMetaModel);
         nodeMetaModels.add(keyJumpLabelSVMetaModel);
         nodeMetaModels.add(keyLoopScopeBlockStmtMetaModel);
+        nodeMetaModels.add(keyMarkerStatementMetaModel);
         nodeMetaModels.add(keyMergePointStmtMetaModel);
         nodeMetaModels.add(keyMetaConstructExpressionMetaModel);
         nodeMetaModels.add(keyMetaConstructMetaModel);
@@ -4721,11 +4721,11 @@ public final class JavaParserMetaModel {
         keyTransactionStmtMetaModel
                 .getDeclaredPropertyMetaModels()
                 .add(keyTransactionStmtMetaModel.typePropertyMetaModel);
-        keYMarkerStatementMetaModel.kindPropertyMetaModel = new PropertyMetaModel(
-                keYMarkerStatementMetaModel, "kind", int.class, Optional.empty(), false, false, false, false);
-        keYMarkerStatementMetaModel
+        keyMarkerStatementMetaModel.kindPropertyMetaModel = new PropertyMetaModel(
+                keyMarkerStatementMetaModel, "kind", int.class, Optional.empty(), false, false, false, false);
+        keyMarkerStatementMetaModel
                 .getDeclaredPropertyMetaModels()
-                .add(keYMarkerStatementMetaModel.kindPropertyMetaModel);
+                .add(keyMarkerStatementMetaModel.kindPropertyMetaModel);
         keyContextStatementBlockMetaModel.contextPropertyMetaModel = new PropertyMetaModel(
                 keyContextStatementBlockMetaModel,
                 "context",
@@ -5608,8 +5608,8 @@ public final class JavaParserMetaModel {
             new KeyTransactionStmtMetaModel(Optional.of(statementMetaModel));
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
-    public static final KeYMarkerStatementMetaModel keYMarkerStatementMetaModel =
-            new KeYMarkerStatementMetaModel(Optional.of(statementMetaModel));
+    public static final KeyMarkerStatementMetaModel keyMarkerStatementMetaModel =
+            new KeyMarkerStatementMetaModel(Optional.of(statementMetaModel));
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     public static final KeyContextStatementBlockMetaModel keyContextStatementBlockMetaModel =

@@ -717,18 +717,18 @@ public abstract class Statement extends Node {
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public KeYMarkerStatement asKeYMarkerStatement() {
+    public KeyMarkerStatement asKeYMarkerStatement() {
         throw new IllegalStateException(f(
                 "%s is not KeYMarkerStatement, it is %s", this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public Optional<KeYMarkerStatement> toKeYMarkerStatement() {
+    public Optional<KeyMarkerStatement> toKeYMarkerStatement() {
         return Optional.empty();
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifKeYMarkerStatement(Consumer<KeYMarkerStatement> action) {}
+    public void ifKeYMarkerStatement(Consumer<KeyMarkerStatement> action) {}
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public boolean isJmlDocStmt() {
@@ -1015,4 +1015,23 @@ public abstract class Statement extends Node {
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public void ifKeyTransactionStmt(Consumer<KeyTransactionStmt> action) {}
+
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
+    public boolean isKeyMarkerStatement() {
+        return false;
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
+    public KeyMarkerStatement asKeyMarkerStatement() {
+        throw new IllegalStateException(f(
+                "%s is not KeyMarkerStatement, it is %s", this, this.getClass().getSimpleName()));
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
+    public Optional<KeyMarkerStatement> toKeyMarkerStatement() {
+        return Optional.empty();
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
+    public void ifKeyMarkerStatement(Consumer<KeyMarkerStatement> action) {}
 }

@@ -1370,7 +1370,7 @@ public class ConcreteSyntaxModel {
         concreteSyntaxModelByClass.put(KeyExecutionContextSV.class, attribute(TEXT));
         concreteSyntaxModelByClass.put(KeyExpressionSV.class, attribute(TEXT));
         concreteSyntaxModelByClass.put(KeyJumpLabelSV.class, attribute(TEXT));
-        concreteSyntaxModelByClass.put(KeYMarkerStatement.class, sequence());
+        concreteSyntaxModelByClass.put(KeyMarkerStatement.class, sequence());
         concreteSyntaxModelByClass.put(
                 KeyLoopScopeBlockStmt.class,
                 sequence(

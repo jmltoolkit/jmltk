@@ -5,7 +5,7 @@
 package com.github.javaparser.metamodel;
 
 import com.github.javaparser.ast.Generated;
-import com.github.javaparser.ast.key.KeYMarkerStatement;
+import com.github.javaparser.ast.key.KeyMarkerStatement;
 
 import java.util.Optional;
 
@@ -19,14 +19,14 @@ import java.util.Optional;
  * For this reason, any changes made directly to this file will be overwritten the next time generators are run.
  */
 @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
-public class KeYMarkerStatementMetaModel extends StatementMetaModel {
+public class KeyMarkerStatementMetaModel extends StatementMetaModel {
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
-    KeYMarkerStatementMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
+    KeyMarkerStatementMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
         super(
                 superBaseNodeMetaModel,
-                KeYMarkerStatement.class,
-                "KeYMarkerStatement",
+                KeyMarkerStatement.class,
+                "KeyMarkerStatement",
                 "com.github.javaparser.ast.key",
                 false,
                 false);

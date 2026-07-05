@@ -1863,7 +1863,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     }
 
     @Override
-    public Integer visit(final KeYMarkerStatement n, final Void arg) {
+    public Integer visit(final KeyMarkerStatement n, final Void arg) {
         return n.getKind() * 31
                 + (n.getAssociatedSpecificationComments().isPresent()
                                 ? n.getAssociatedSpecificationComments().get().accept(this, arg)

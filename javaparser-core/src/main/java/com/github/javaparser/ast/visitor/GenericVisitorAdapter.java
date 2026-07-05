@@ -3754,7 +3754,7 @@ public abstract class GenericVisitorAdapter<R, A> implements GenericVisitor<R, A
     }
 
     @Override
-    public R visit(final KeYMarkerStatement n, final A arg) {
+    public R visit(final KeyMarkerStatement n, final A arg) {
         R result;
         if (n.getAssociatedSpecificationComments().isPresent()) {
             result = n.getAssociatedSpecificationComments().get().accept(this, arg);

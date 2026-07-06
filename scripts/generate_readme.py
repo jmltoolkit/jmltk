@@ -2,7 +2,6 @@
 import sys,re
 import json
 import requests
-from urllib.error import URLError, HTTPError
 
 
 def fetch_latest_version(group_id: str, artifact_id: str) -> str:

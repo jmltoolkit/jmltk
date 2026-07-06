@@ -22,12 +22,14 @@ public class DefaultConfigurationOption implements ConfigurationOption {
 
     public DefaultConfigurationOption(ConfigOption configOption, Object value) {
         this.configOption = configOption;
-        if (value != null) value(value);
+        if (value != null)
+            value(value);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || !(o instanceof DefaultConfigurationOption)) return false;
+        if (o == null || !(o instanceof DefaultConfigurationOption))
+            return false;
         DefaultConfigurationOption other = (DefaultConfigurationOption) o;
         return configOption.equals(other.configOption);
     }
@@ -46,8 +48,7 @@ public class DefaultConfigurationOption implements ConfigurationOption {
         this.currentValue = value;
         // verify the currentValue's type
         if (!(configOption.type.isAssignableFrom(value.getClass()))) {
-            throw new IllegalArgumentException(
-                    String.format("%s is not an instance of %s", value, configOption.type.getName()));
+            throw new IllegalArgumentException(String.format("%s is not an instance of %s", value, configOption.type.getName()));
         }
         return this;
     }
@@ -94,7 +95,6 @@ public class DefaultConfigurationOption implements ConfigurationOption {
             throw new IllegalArgumentException(String.format("The option %s has no currentValue", configOption.name()));
         if (configOption.type.isAssignableFrom(currentValue.getClass()))
             return (T) configOption.type.cast(currentValue);
-        throw new IllegalArgumentException(
-                String.format("%s cannot be cast to %s", currentValue, configOption.type.getName()));
+        throw new IllegalArgumentException(String.format("%s cannot be cast to %s", currentValue, configOption.type.getName()));
     }
 }

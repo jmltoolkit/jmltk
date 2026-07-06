@@ -20,19 +20,16 @@ import com.github.javaparser.metamodel.JmlClassExprDeclarationMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * @author Alexander Weigl
  * @version 1 (2/21/21)
  */
-public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassExprDeclaration>
-        implements NodeWithModifiers<JmlClassExprDeclaration>, NodeWithAccessModifiers<JmlClassExprDeclaration> {
+public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassExprDeclaration> implements NodeWithModifiers<JmlClassExprDeclaration>, NodeWithAccessModifiers<JmlClassExprDeclaration> {
 
     private SimpleName kind;
 
@@ -50,12 +47,7 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
     }
 
     @AllFieldsConstructor
-    public JmlClassExprDeclaration(
-            NodeList<SimpleName> jmlTags,
-            NodeList<Modifier> modifiers,
-            SimpleName kind,
-            SimpleName name,
-            Expression invariant) {
+    public JmlClassExprDeclaration(NodeList<SimpleName> jmlTags, NodeList<Modifier> modifiers, SimpleName kind, SimpleName name, Expression invariant) {
         this(null, jmlTags, modifiers, kind, name, invariant);
     }
 
@@ -87,7 +79,8 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
             return this;
         }
         notifyPropertyChange(ObservableProperty.INVARIANT, this.invariant, invariant);
-        if (this.invariant != null) this.invariant.setParentNode(null);
+        if (this.invariant != null)
+            this.invariant.setParentNode(null);
         this.invariant = invariant;
         setAsParentNodeOf(invariant);
         return this;
@@ -165,8 +158,7 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlClassExprDeclaration(
-            TokenRange tokenRange, NodeList<Modifier> modifiers, SimpleName kind, Expression invariant) {
+    public JmlClassExprDeclaration(TokenRange tokenRange, NodeList<Modifier> modifiers, SimpleName kind, Expression invariant) {
         super(tokenRange);
         setModifiers(modifiers);
         setKind(kind);
@@ -186,7 +178,8 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
             return this;
         }
         notifyPropertyChange(ObservableProperty.MODIFIERS, this.modifiers, modifiers);
-        if (this.modifiers != null) this.modifiers.setParentNode(null);
+        if (this.modifiers != null)
+            this.modifiers.setParentNode(null);
         this.modifiers = modifiers;
         setAsParentNodeOf(modifiers);
         return this;
@@ -204,7 +197,8 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
             return this;
         }
         notifyPropertyChange(ObservableProperty.KIND, this.kind, kind);
-        if (this.kind != null) this.kind.setParentNode(null);
+        if (this.kind != null)
+            this.kind.setParentNode(null);
         this.kind = kind;
         setAsParentNodeOf(kind);
         return this;
@@ -232,7 +226,8 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
             return this;
         }
         notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null) this.name.setParentNode(null);
+        if (this.name != null)
+            this.name.setParentNode(null);
         this.name = name;
         setAsParentNodeOf(name);
         return this;
@@ -247,13 +242,7 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlClassExprDeclaration(
-            TokenRange tokenRange,
-            NodeList<SimpleName> jmlTags,
-            NodeList<Modifier> modifiers,
-            SimpleName kind,
-            SimpleName name,
-            Expression invariant) {
+    public JmlClassExprDeclaration(TokenRange tokenRange, NodeList<SimpleName> jmlTags, NodeList<Modifier> modifiers, SimpleName kind, SimpleName name, Expression invariant) {
         super(tokenRange);
         setJmlTags(jmlTags);
         setModifiers(modifiers);
@@ -276,7 +265,8 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
             return this;
         }
         notifyPropertyChange(ObservableProperty.JML_TAGS, this.jmlTags, jmlTags);
-        if (this.jmlTags != null) this.jmlTags.setParentNode(null);
+        if (this.jmlTags != null)
+            this.jmlTags.setParentNode(null);
         this.jmlTags = jmlTags;
         setAsParentNodeOf(jmlTags);
         return this;

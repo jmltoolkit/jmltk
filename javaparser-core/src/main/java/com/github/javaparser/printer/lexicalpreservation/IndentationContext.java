@@ -5,11 +5,9 @@
 package com.github.javaparser.printer.lexicalpreservation;
 
 import com.github.javaparser.GeneratedJavaParserConstants;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import static com.github.javaparser.printer.lexicalpreservation.IndentationConstants.STANDARD_INDENTATION_SIZE;
 
 /**
@@ -112,8 +110,10 @@ public class IndentationContext {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         IndentationContext that = (IndentationContext) o;
         return elements.equals(that.elements);
     }

@@ -20,9 +20,7 @@ import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlInfFlowClauseMetaModel;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
-
 import java.util.Objects;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /// ```
@@ -56,14 +54,7 @@ public class JmlInfFlowClause extends JmlClause {
     private NodeList<Expression> newObjects;
 
     @AllFieldsConstructor
-    public JmlInfFlowClause(
-            JmlClauseKind kind,
-            SimpleName name,
-            NodeList<Expression> by,
-            NodeList<Expression> declassifies,
-            NodeList<Expression> erases,
-            NodeList<Expression> expressions,
-            NodeList<Expression> newObjects) {
+    public JmlInfFlowClause(JmlClauseKind kind, SimpleName name, NodeList<Expression> by, NodeList<Expression> declassifies, NodeList<Expression> erases, NodeList<Expression> expressions, NodeList<Expression> newObjects) {
         this(null, kind, name, by, declassifies, erases, expressions, newObjects);
     }
 
@@ -71,15 +62,7 @@ public class JmlInfFlowClause extends JmlClause {
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlInfFlowClause(
-            TokenRange tokenRange,
-            JmlClauseKind kind,
-            SimpleName name,
-            NodeList<Expression> by,
-            NodeList<Expression> declassifies,
-            NodeList<Expression> erases,
-            NodeList<Expression> expressions,
-            NodeList<Expression> newObjects) {
+    public JmlInfFlowClause(TokenRange tokenRange, JmlClauseKind kind, SimpleName name, NodeList<Expression> by, NodeList<Expression> declassifies, NodeList<Expression> erases, NodeList<Expression> expressions, NodeList<Expression> newObjects) {
         super(tokenRange, name);
         setKind(kind);
         setBy(by);
@@ -90,15 +73,7 @@ public class JmlInfFlowClause extends JmlClause {
         customInitialization();
     }
 
-    public JmlInfFlowClause(
-            TokenRange range,
-            JavaToken begin,
-            SimpleName name,
-            NodeList<Expression> determined,
-            NodeList<Expression> by,
-            NodeList<Expression> declassifies,
-            NodeList<Expression> erases,
-            NodeList<Expression> newObjects) {
+    public JmlInfFlowClause(TokenRange range, JavaToken begin, SimpleName name, NodeList<Expression> determined, NodeList<Expression> by, NodeList<Expression> declassifies, NodeList<Expression> erases, NodeList<Expression> newObjects) {
         this(range, JmlClauseKind.getKindByToken(begin), name, determined, by, declassifies, erases, newObjects);
     }
 
@@ -138,7 +113,8 @@ public class JmlInfFlowClause extends JmlClause {
             return this;
         }
         notifyPropertyChange(ObservableProperty.BY, this.by, by);
-        if (this.by != null) this.by.setParentNode(null);
+        if (this.by != null)
+            this.by.setParentNode(null);
         this.by = by;
         setAsParentNodeOf(by);
         return this;
@@ -162,7 +138,8 @@ public class JmlInfFlowClause extends JmlClause {
             return this;
         }
         notifyPropertyChange(ObservableProperty.DECLASSIFIES, this.declassifies, declassifies);
-        if (this.declassifies != null) this.declassifies.setParentNode(null);
+        if (this.declassifies != null)
+            this.declassifies.setParentNode(null);
         this.declassifies = declassifies;
         setAsParentNodeOf(declassifies);
         return this;
@@ -186,7 +163,8 @@ public class JmlInfFlowClause extends JmlClause {
             return this;
         }
         notifyPropertyChange(ObservableProperty.ERASES, this.erases, erases);
-        if (this.erases != null) this.erases.setParentNode(null);
+        if (this.erases != null)
+            this.erases.setParentNode(null);
         this.erases = erases;
         setAsParentNodeOf(erases);
         return this;
@@ -210,7 +188,8 @@ public class JmlInfFlowClause extends JmlClause {
             return this;
         }
         notifyPropertyChange(ObservableProperty.EXPRESSIONS, this.expressions, expressions);
-        if (this.expressions != null) this.expressions.setParentNode(null);
+        if (this.expressions != null)
+            this.expressions.setParentNode(null);
         this.expressions = expressions;
         setAsParentNodeOf(expressions);
         return this;
@@ -251,7 +230,8 @@ public class JmlInfFlowClause extends JmlClause {
             return this;
         }
         notifyPropertyChange(ObservableProperty.NEW_OBJECTS, this.newObjects, newObjects);
-        if (this.newObjects != null) this.newObjects.setParentNode(null);
+        if (this.newObjects != null)
+            this.newObjects.setParentNode(null);
         this.newObjects = newObjects;
         setAsParentNodeOf(newObjects);
         return this;

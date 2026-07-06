@@ -18,11 +18,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlFieldDeclarationMetaModel;
 import org.jspecify.annotations.NonNull;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -79,7 +77,8 @@ public class JmlFieldDeclaration extends JmlClassLevelDeclaration<JmlFieldDeclar
             return this;
         }
         notifyPropertyChange(ObservableProperty.DECL, this.decl, decl);
-        if (this.decl != null) this.decl.setParentNode(null);
+        if (this.decl != null)
+            this.decl.setParentNode(null);
         this.decl = decl;
         setAsParentNodeOf(decl);
         return this;
@@ -129,7 +128,8 @@ public class JmlFieldDeclaration extends JmlClassLevelDeclaration<JmlFieldDeclar
             return this;
         }
         notifyPropertyChange(ObservableProperty.JML_TAGS, this.jmlTags, jmlTags);
-        if (this.jmlTags != null) this.jmlTags.setParentNode(null);
+        if (this.jmlTags != null)
+            this.jmlTags.setParentNode(null);
         this.jmlTags = jmlTags;
         setAsParentNodeOf(jmlTags);
         return this;

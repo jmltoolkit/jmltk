@@ -16,11 +16,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.NormalAnnotationExprMetaModel;
 import org.jspecify.annotations.NonNull;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -74,7 +72,8 @@ public class NormalAnnotationExpr extends AnnotationExpr {
             return this;
         }
         notifyPropertyChange(ObservableProperty.PAIRS, this.pairs, pairs);
-        if (this.pairs != null) this.pairs.setParentNode(null);
+        if (this.pairs != null)
+            this.pairs.setParentNode(null);
         this.pairs = pairs;
         setAsParentNodeOf(pairs);
         return this;

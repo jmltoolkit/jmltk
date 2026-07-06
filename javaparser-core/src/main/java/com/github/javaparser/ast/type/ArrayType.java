@@ -22,13 +22,11 @@ import com.github.javaparser.resolution.types.ResolvedArrayType;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.utils.Pair;
 import org.jspecify.annotations.NonNull;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import static com.github.javaparser.ast.NodeList.nodeList;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
@@ -106,7 +104,8 @@ public class ArrayType extends ReferenceType implements NodeWithAnnotations<Arra
             return this;
         }
         notifyPropertyChange(ObservableProperty.COMPONENT_TYPE, this.componentType, componentType);
-        if (this.componentType != null) this.componentType.setParentNode(null);
+        if (this.componentType != null)
+            this.componentType.setParentNode(null);
         this.componentType = componentType;
         setAsParentNodeOf(componentType);
         return this;
@@ -126,9 +125,7 @@ public class ArrayType extends ReferenceType implements NodeWithAnnotations<Arra
                 for (int j = arrayBracketPairList.size() - 1; j >= 0; j--) {
                     ArrayBracketPair pair = arrayBracketPairList.get(j);
                     if (type.getTokenRange().isPresent() && pair.getTokenRange().isPresent()) {
-                        TokenRange currentTokenRange = new TokenRange(
-                                type.getTokenRange().get().getBegin(),
-                                pair.getTokenRange().get().getEnd());
+                        TokenRange currentTokenRange = new TokenRange(type.getTokenRange().get().getBegin(), pair.getTokenRange().get().getEnd());
                         // The end range must be equals to the last array bracket pair in the list
                         // in the example below:
                         // Long[][]
@@ -148,12 +145,9 @@ public class ArrayType extends ReferenceType implements NodeWithAnnotations<Arra
      * Returns a {@code TokenRange} with the outermost ending token
      */
     private static TokenRange getOuterMostTokenRange(TokenRange tokenRange1, TokenRange tokenRange2) {
-        if (tokenRange2 == null) return tokenRange1;
-        if (tokenRange1
-                .getEnd()
-                .getRange()
-                .get()
-                .isAfter(tokenRange2.getEnd().getRange().get())) {
+        if (tokenRange2 == null)
+            return tokenRange1;
+        if (tokenRange1.getEnd().getRange().get().isAfter(tokenRange2.getEnd().getRange().get())) {
             return tokenRange1;
         }
         return new TokenRange(tokenRange1.getBegin(), tokenRange2.getEnd());
@@ -168,8 +162,7 @@ public class ArrayType extends ReferenceType implements NodeWithAnnotations<Arra
         final List<ArrayBracketPair> arrayBracketPairs = new ArrayList<>(0);
         while (type instanceof ArrayType) {
             ArrayType arrayType = (ArrayType) type;
-            arrayBracketPairs.add(new ArrayBracketPair(
-                    type.getTokenRange().orElse(null), arrayType.getOrigin(), arrayType.getAnnotations()));
+            arrayBracketPairs.add(new ArrayBracketPair(type.getTokenRange().orElse(null), arrayType.getOrigin(), arrayType.getAnnotations()));
             type = arrayType.getComponentType();
         }
         return new Pair<>(type, arrayBracketPairs);

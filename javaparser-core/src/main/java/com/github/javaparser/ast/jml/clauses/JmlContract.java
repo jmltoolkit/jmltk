@@ -20,21 +20,15 @@ import com.github.javaparser.metamodel.JmlContractMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-
 import java.util.Objects;
 import java.util.Optional;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * @author Alexander Weigl
  * @version 1 (3/14/21)
  */
-public class JmlContract extends Node
-        implements Jmlish,
-                NodeWithModifiers<JmlContract>,
-                NodeWithJmlTags<JmlContract>,
-                NodeWithAccessModifiers<JmlContract> {
+public class JmlContract extends Node implements Jmlish, NodeWithModifiers<JmlContract>, NodeWithJmlTags<JmlContract>, NodeWithAccessModifiers<JmlContract> {
 
     private NodeList<SimpleName> jmlTags = new NodeList<>();
 
@@ -52,45 +46,19 @@ public class JmlContract extends Node
     private NodeList<JmlContract> subContracts = new NodeList<>();
 
     public JmlContract() {
-        this(
-                (TokenRange) null,
-                new NodeList<>(),
-                ContractType.METHOD,
-                Behavior.NONE,
-                null,
-                new NodeList<>(),
-                new NodeList<>(),
-                new NodeList<>());
+        this((TokenRange) null, new NodeList<>(), ContractType.METHOD, Behavior.NONE, null, new NodeList<>(), new NodeList<>(), new NodeList<>());
     }
 
     @AllFieldsConstructor
-    public JmlContract(
-            NodeList<SimpleName> jmlTags,
-            ContractType type,
-            Behavior behavior,
-            SimpleName name,
-            NodeList<Modifier> modifiers,
-            NodeList<JmlClause> clauses,
-            NodeList<JmlContract> subContracts) {
+    public JmlContract(NodeList<SimpleName> jmlTags, ContractType type, Behavior behavior, SimpleName name, NodeList<Modifier> modifiers, NodeList<JmlClause> clauses, NodeList<JmlContract> subContracts) {
         this(null, jmlTags, type, behavior, name, modifiers, clauses, subContracts);
     }
 
-    public JmlContract(
-            ContractType type,
-            Behavior behavior,
-            SimpleName name,
-            NodeList<Modifier> modifiers,
-            NodeList<JmlClause> clauses,
-            NodeList<JmlContract> subContracts) {
+    public JmlContract(ContractType type, Behavior behavior, SimpleName name, NodeList<Modifier> modifiers, NodeList<JmlClause> clauses, NodeList<JmlContract> subContracts) {
         this((TokenRange) null, new NodeList<>(), type, behavior, name, modifiers, clauses, subContracts);
     }
 
-    public JmlContract(
-            TokenRange range,
-            Behavior behavior,
-            NodeList<Modifier> modifiers,
-            NodeList<JmlClause> clauses,
-            NodeList<JmlContract> subContracts) {
+    public JmlContract(TokenRange range, Behavior behavior, NodeList<Modifier> modifiers, NodeList<JmlClause> clauses, NodeList<JmlContract> subContracts) {
         this(range, new NodeList<>(), ContractType.METHOD, behavior, null, modifiers, clauses, subContracts);
     }
 
@@ -134,7 +102,8 @@ public class JmlContract extends Node
             return this;
         }
         notifyPropertyChange(ObservableProperty.CLAUSES, this.clauses, clauses);
-        if (this.clauses != null) this.clauses.setParentNode(null);
+        if (this.clauses != null)
+            this.clauses.setParentNode(null);
         this.clauses = clauses;
         setAsParentNodeOf(clauses);
         return this;
@@ -152,7 +121,8 @@ public class JmlContract extends Node
             return this;
         }
         notifyPropertyChange(ObservableProperty.MODIFIERS, this.modifiers, modifiers);
-        if (this.modifiers != null) this.modifiers.setParentNode(null);
+        if (this.modifiers != null)
+            this.modifiers.setParentNode(null);
         this.modifiers = modifiers;
         setAsParentNodeOf(modifiers);
         return this;
@@ -170,7 +140,8 @@ public class JmlContract extends Node
             return this;
         }
         notifyPropertyChange(ObservableProperty.SUB_CONTRACTS, this.subContracts, subContracts);
-        if (this.subContracts != null) this.subContracts.setParentNode(null);
+        if (this.subContracts != null)
+            this.subContracts.setParentNode(null);
         this.subContracts = subContracts;
         setAsParentNodeOf(subContracts);
         return this;
@@ -264,13 +235,7 @@ public class JmlContract extends Node
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlContract(
-            TokenRange tokenRange,
-            boolean isLoopContract,
-            Behavior behavior,
-            NodeList<Modifier> modifiers,
-            NodeList<JmlClause> clauses,
-            NodeList<JmlContract> subContracts) {
+    public JmlContract(TokenRange tokenRange, boolean isLoopContract, Behavior behavior, NodeList<Modifier> modifiers, NodeList<JmlClause> clauses, NodeList<JmlContract> subContracts) {
         super(tokenRange);
         setLoopContract(isLoopContract);
         setBehavior(behavior);
@@ -308,7 +273,8 @@ public class JmlContract extends Node
             return this;
         }
         notifyPropertyChange(ObservableProperty.JML_TAGS, this.jmlTags, jmlTags);
-        if (this.jmlTags != null) this.jmlTags.setParentNode(null);
+        if (this.jmlTags != null)
+            this.jmlTags.setParentNode(null);
         this.jmlTags = jmlTags;
         setAsParentNodeOf(jmlTags);
         return this;
@@ -325,7 +291,8 @@ public class JmlContract extends Node
             return this;
         }
         notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null) this.name.setParentNode(null);
+        if (this.name != null)
+            this.name.setParentNode(null);
         this.name = name;
         setAsParentNodeOf(name);
         return this;
@@ -356,15 +323,7 @@ public class JmlContract extends Node
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlContract(
-            TokenRange tokenRange,
-            ContractType type,
-            boolean isLoopContract,
-            Behavior behavior,
-            SimpleName name,
-            NodeList<Modifier> modifiers,
-            NodeList<JmlClause> clauses,
-            NodeList<JmlContract> subContracts) {
+    public JmlContract(TokenRange tokenRange, ContractType type, boolean isLoopContract, Behavior behavior, SimpleName name, NodeList<Modifier> modifiers, NodeList<JmlClause> clauses, NodeList<JmlContract> subContracts) {
         super(tokenRange);
         setType(type);
         setLoopContract(isLoopContract);
@@ -380,15 +339,7 @@ public class JmlContract extends Node
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlContract(
-            TokenRange tokenRange,
-            NodeList<SimpleName> jmlTags,
-            ContractType type,
-            Behavior behavior,
-            SimpleName name,
-            NodeList<Modifier> modifiers,
-            NodeList<JmlClause> clauses,
-            NodeList<JmlContract> subContracts) {
+    public JmlContract(TokenRange tokenRange, NodeList<SimpleName> jmlTags, ContractType type, Behavior behavior, SimpleName name, NodeList<Modifier> modifiers, NodeList<JmlClause> clauses, NodeList<JmlContract> subContracts) {
         super(tokenRange);
         setJmlTags(jmlTags);
         setType(type);

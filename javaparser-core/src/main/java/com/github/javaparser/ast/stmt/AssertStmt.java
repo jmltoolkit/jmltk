@@ -19,11 +19,9 @@ import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -91,7 +89,8 @@ public class AssertStmt extends Statement {
             return this;
         }
         notifyPropertyChange(ObservableProperty.CHECK, this.check, check);
-        if (this.check != null) this.check.setParentNode(null);
+        if (this.check != null)
+            this.check.setParentNode(null);
         this.check = check;
         setAsParentNodeOf(check);
         return this;
@@ -109,7 +108,8 @@ public class AssertStmt extends Statement {
             return this;
         }
         notifyPropertyChange(ObservableProperty.MESSAGE, this.message, message);
-        if (this.message != null) this.message.setParentNode(null);
+        if (this.message != null)
+            this.message.setParentNode(null);
         this.message = message;
         setAsParentNodeOf(message);
         return this;

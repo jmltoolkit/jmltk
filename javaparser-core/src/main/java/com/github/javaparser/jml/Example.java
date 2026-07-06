@@ -10,7 +10,6 @@ import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.printer.DefaultPrettyPrinter;
 import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.IntSummaryStatistics;
@@ -44,8 +43,7 @@ public class Example {
         IntStream timings = IntStream.rangeClosed(0, 0).map(i -> {
             long start = System.currentTimeMillis();
             try {
-                ParseResult<CompilationUnit> result =
-                        jpb.parse(new File("/home/weigl/work/javaparser/JmlExample.java"));
+                ParseResult<CompilationUnit> result = jpb.parse(new File("/home/weigl/work/javaparser/JmlExample.java"));
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }

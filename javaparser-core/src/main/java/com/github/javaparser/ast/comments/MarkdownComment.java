@@ -13,13 +13,13 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.MarkdownCommentMetaModel;
 import com.github.javaparser.utils.LineSeparator;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.github.javaparser.ast.Node;
 
 /**
  * https://openjdk.org/jeps/467 added support for markdown JavaDoc comments

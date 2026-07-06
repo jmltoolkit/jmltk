@@ -17,11 +17,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlCallableClauseMetaModel;
 import org.jspecify.annotations.NonNull;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -111,7 +109,8 @@ public class JmlCallableClause extends JmlClause {
             return this;
         }
         notifyPropertyChange(ObservableProperty.METHOD_SIGNATURES, this.methodSignatures, methodSignatures);
-        if (this.methodSignatures != null) this.methodSignatures.setParentNode(null);
+        if (this.methodSignatures != null)
+            this.methodSignatures.setParentNode(null);
         this.methodSignatures = methodSignatures;
         setAsParentNodeOf(methodSignatures);
         return this;

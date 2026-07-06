@@ -18,11 +18,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.KeyExecStmtMetaModel;
 import org.jspecify.annotations.NonNull;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 public class KeyExecStmt extends Statement {
@@ -71,7 +69,8 @@ public class KeyExecStmt extends Statement {
             return this;
         }
         notifyPropertyChange(ObservableProperty.BRANCHES, this.branches, branches);
-        if (this.branches != null) this.branches.setParentNode(null);
+        if (this.branches != null)
+            this.branches.setParentNode(null);
         this.branches = branches;
         setAsParentNodeOf(branches);
         return this;
@@ -89,7 +88,8 @@ public class KeyExecStmt extends Statement {
             return this;
         }
         notifyPropertyChange(ObservableProperty.EXEC_BLOCK, this.execBlock, execBlock);
-        if (this.execBlock != null) this.execBlock.setParentNode(null);
+        if (this.execBlock != null)
+            this.execBlock.setParentNode(null);
         this.execBlock = execBlock;
         setAsParentNodeOf(execBlock);
         return this;

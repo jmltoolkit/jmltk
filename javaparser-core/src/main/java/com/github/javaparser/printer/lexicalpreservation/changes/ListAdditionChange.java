@@ -7,7 +7,6 @@ package com.github.javaparser.printer.lexicalpreservation.changes;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.observer.ObservableProperty;
-
 import java.util.Optional;
 
 /**
@@ -36,8 +35,7 @@ public class ListAdditionChange implements Change {
                 currentRawValue = optional.orElse(null);
             }
             if (!(currentRawValue instanceof NodeList)) {
-                throw new IllegalStateException(
-                        "Expected NodeList, found " + currentRawValue.getClass().getCanonicalName());
+                throw new IllegalStateException("Expected NodeList, found " + currentRawValue.getClass().getCanonicalName());
             }
             NodeList<Node> currentNodeList = (NodeList<Node>) currentRawValue;
             // Note: When adding to a node list children get assigned the list's parent, thus we must set the list's

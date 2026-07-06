@@ -21,11 +21,9 @@ import com.github.javaparser.metamodel.KeyMetaConstructTypeMetaModel;
 import com.github.javaparser.resolution.Context;
 import com.github.javaparser.resolution.types.ResolvedType;
 import org.jspecify.annotations.NonNull;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 public class KeyMetaConstructType extends Type {
@@ -47,8 +45,7 @@ public class KeyMetaConstructType extends Type {
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public KeyMetaConstructType(
-            TokenRange tokenRange, NodeList<AnnotationExpr> annotations, String kind, Expression expr) {
+    public KeyMetaConstructType(TokenRange tokenRange, NodeList<AnnotationExpr> annotations, String kind, Expression expr) {
         super(tokenRange, annotations);
         setKind(kind);
         setExpr(expr);
@@ -89,7 +86,8 @@ public class KeyMetaConstructType extends Type {
             return this;
         }
         notifyPropertyChange(ObservableProperty.EXPR, this.expr, expr);
-        if (this.expr != null) this.expr.setParentNode(null);
+        if (this.expr != null)
+            this.expr.setParentNode(null);
         this.expr = expr;
         setAsParentNodeOf(expr);
         return this;

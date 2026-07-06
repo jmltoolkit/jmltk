@@ -29,12 +29,10 @@ import com.github.javaparser.resolution.Resolvable;
 import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import static com.github.javaparser.utils.Utils.assertNonEmpty;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
@@ -45,10 +43,7 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
  *
  * @author Julio Vilmar Gesser
  */
-public class VariableDeclarator extends Node
-        implements NodeWithType<VariableDeclarator, Type>,
-                NodeWithSimpleName<VariableDeclarator>,
-                Resolvable<ResolvedValueDeclaration> {
+public class VariableDeclarator extends Node implements NodeWithType<VariableDeclarator, Type>, NodeWithSimpleName<VariableDeclarator>, Resolvable<ResolvedValueDeclaration> {
 
     private SimpleName name;
 
@@ -105,13 +100,11 @@ public class VariableDeclarator extends Node
         register(new AstObserverAdapter() {
 
             @Override
-            public void propertyChange(
-                    Node observedNode, ObservableProperty property, Object oldValue, Object newValue) {
+            public void propertyChange(Node observedNode, ObservableProperty property, Object oldValue, Object newValue) {
                 if (property == ObservableProperty.TYPE) {
                     VariableDeclarator vd = VariableDeclarator.this;
                     if (vd.getParentNode().isPresent() && vd.getParentNode().get() instanceof NodeWithVariables) {
-                        NodeWithVariables<?> nodeWithVariables =
-                                (NodeWithVariables<?>) vd.getParentNode().get();
+                        NodeWithVariables<?> nodeWithVariables = (NodeWithVariables<?>) vd.getParentNode().get();
                         // We calculate the value the property will assume after the change will be completed
                         Optional<Type> currentMaxCommonType = nodeWithVariables.getMaximumCommonType();
                         List<Type> types = new LinkedList<>();
@@ -124,11 +117,7 @@ public class VariableDeclarator extends Node
                             }
                         }
                         Optional<Type> newMaxCommonType = NodeWithVariables.calculateMaximumCommonType(types);
-                        ((Node) nodeWithVariables)
-                                .notifyPropertyChange(
-                                        ObservableProperty.MAXIMUM_COMMON_TYPE,
-                                        currentMaxCommonType.orElse(null),
-                                        newMaxCommonType.orElse(null));
+                        ((Node) nodeWithVariables).notifyPropertyChange(ObservableProperty.MAXIMUM_COMMON_TYPE, currentMaxCommonType.orElse(null), newMaxCommonType.orElse(null));
                     }
                 }
             }
@@ -164,7 +153,8 @@ public class VariableDeclarator extends Node
             return this;
         }
         notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null) this.name.setParentNode(null);
+        if (this.name != null)
+            this.name.setParentNode(null);
         this.name = name;
         setAsParentNodeOf(name);
         return this;
@@ -182,7 +172,8 @@ public class VariableDeclarator extends Node
             return this;
         }
         notifyPropertyChange(ObservableProperty.INITIALIZER, this.initializer, initializer);
-        if (this.initializer != null) this.initializer.setParentNode(null);
+        if (this.initializer != null)
+            this.initializer.setParentNode(null);
         this.initializer = initializer;
         setAsParentNodeOf(initializer);
         return this;
@@ -210,7 +201,8 @@ public class VariableDeclarator extends Node
             return this;
         }
         notifyPropertyChange(ObservableProperty.TYPE, this.type, type);
-        if (this.type != null) this.type.setParentNode(null);
+        if (this.type != null)
+            this.type.setParentNode(null);
         this.type = type;
         setAsParentNodeOf(type);
         return this;

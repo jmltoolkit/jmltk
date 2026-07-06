@@ -22,11 +22,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.DoStmtMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import org.jspecify.annotations.NonNull;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -35,8 +33,7 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
  *
  * @author Julio Vilmar Gesser
  */
-public class DoStmt extends Statement
-        implements NodeWithBody<DoStmt>, NodeWithCondition<DoStmt>, NodeWithContracts<DoStmt> {
+public class DoStmt extends Statement implements NodeWithBody<DoStmt>, NodeWithCondition<DoStmt>, NodeWithContracts<DoStmt> {
 
     private NodeList<JmlContract> contracts;
 
@@ -102,7 +99,8 @@ public class DoStmt extends Statement
             return this;
         }
         notifyPropertyChange(ObservableProperty.BODY, this.body, body);
-        if (this.body != null) this.body.setParentNode(null);
+        if (this.body != null)
+            this.body.setParentNode(null);
         this.body = body;
         setAsParentNodeOf(body);
         return this;
@@ -115,7 +113,8 @@ public class DoStmt extends Statement
             return this;
         }
         notifyPropertyChange(ObservableProperty.CONDITION, this.condition, condition);
-        if (this.condition != null) this.condition.setParentNode(null);
+        if (this.condition != null)
+            this.condition.setParentNode(null);
         this.condition = condition;
         setAsParentNodeOf(condition);
         return this;
@@ -207,7 +206,8 @@ public class DoStmt extends Statement
             return this;
         }
         notifyPropertyChange(ObservableProperty.CONTRACTS, this.contracts, contracts);
-        if (this.contracts != null) this.contracts.setParentNode(null);
+        if (this.contracts != null)
+            this.contracts.setParentNode(null);
         this.contracts = contracts;
         setAsParentNodeOf(contracts);
         return this;

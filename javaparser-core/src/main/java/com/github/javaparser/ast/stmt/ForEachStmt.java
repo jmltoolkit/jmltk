@@ -20,11 +20,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.ForEachStmtMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import org.jspecify.annotations.NonNull;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -53,11 +51,7 @@ public class ForEachStmt extends Statement implements NodeWithBody<ForEachStmt>,
     }
 
     @AllFieldsConstructor
-    public ForEachStmt(
-            final VariableDeclarationExpr variable,
-            final Expression iterable,
-            final Statement body,
-            final NodeList<JmlContract> contracts) {
+    public ForEachStmt(final VariableDeclarationExpr variable, final Expression iterable, final Statement body, final NodeList<JmlContract> contracts) {
         this(null, variable, iterable, body, contracts);
     }
 
@@ -65,12 +59,7 @@ public class ForEachStmt extends Statement implements NodeWithBody<ForEachStmt>,
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public ForEachStmt(
-            TokenRange tokenRange,
-            VariableDeclarationExpr variable,
-            Expression iterable,
-            Statement body,
-            NodeList<JmlContract> contracts) {
+    public ForEachStmt(TokenRange tokenRange, VariableDeclarationExpr variable, Expression iterable, Statement body, NodeList<JmlContract> contracts) {
         super(tokenRange);
         setVariable(variable);
         setIterable(iterable);
@@ -117,7 +106,8 @@ public class ForEachStmt extends Statement implements NodeWithBody<ForEachStmt>,
             return this;
         }
         notifyPropertyChange(ObservableProperty.BODY, this.body, body);
-        if (this.body != null) this.body.setParentNode(null);
+        if (this.body != null)
+            this.body.setParentNode(null);
         this.body = body;
         setAsParentNodeOf(body);
         return this;
@@ -130,7 +120,8 @@ public class ForEachStmt extends Statement implements NodeWithBody<ForEachStmt>,
             return this;
         }
         notifyPropertyChange(ObservableProperty.ITERABLE, this.iterable, iterable);
-        if (this.iterable != null) this.iterable.setParentNode(null);
+        if (this.iterable != null)
+            this.iterable.setParentNode(null);
         this.iterable = iterable;
         setAsParentNodeOf(iterable);
         return this;
@@ -143,7 +134,8 @@ public class ForEachStmt extends Statement implements NodeWithBody<ForEachStmt>,
             return this;
         }
         notifyPropertyChange(ObservableProperty.VARIABLE, this.variable, variable);
-        if (this.variable != null) this.variable.setParentNode(null);
+        if (this.variable != null)
+            this.variable.setParentNode(null);
         this.variable = variable;
         setAsParentNodeOf(variable);
         return this;
@@ -175,8 +167,7 @@ public class ForEachStmt extends Statement implements NodeWithBody<ForEachStmt>,
      * @return {@code true} if this foreach statement's variable is {@code final}, and {@code false} otherwise.
      */
     public boolean hasFinalVariable() {
-        return getVariable().getModifiers().isNonEmpty()
-                && getVariable().getModifiers().get(0).getKeyword() == Modifier.DefaultKeyword.FINAL;
+        return getVariable().getModifiers().isNonEmpty() && getVariable().getModifiers().get(0).getKeyword() == Modifier.DefaultKeyword.FINAL;
     }
 
     @Override
@@ -281,7 +272,8 @@ public class ForEachStmt extends Statement implements NodeWithBody<ForEachStmt>,
             return this;
         }
         notifyPropertyChange(ObservableProperty.CONTRACTS, this.contracts, contracts);
-        if (this.contracts != null) this.contracts.setParentNode(null);
+        if (this.contracts != null)
+            this.contracts.setParentNode(null);
         this.contracts = contracts;
         setAsParentNodeOf(contracts);
         return this;

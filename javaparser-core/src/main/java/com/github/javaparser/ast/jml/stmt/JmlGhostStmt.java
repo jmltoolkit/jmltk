@@ -19,11 +19,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlGhostStmtMetaModel;
 import org.jspecify.annotations.NonNull;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -76,7 +74,8 @@ public class JmlGhostStmt extends JmlStatement implements NodeWithJmlTags<JmlGho
             return this;
         }
         notifyPropertyChange(ObservableProperty.STATEMENT, this.statement, statement);
-        if (this.statement != null) this.statement.setParentNode(null);
+        if (this.statement != null)
+            this.statement.setParentNode(null);
         this.statement = statement;
         setAsParentNodeOf(statement);
         return this;
@@ -114,7 +113,8 @@ public class JmlGhostStmt extends JmlStatement implements NodeWithJmlTags<JmlGho
             return this;
         }
         notifyPropertyChange(ObservableProperty.STATEMENT, this.statement, statement);
-        if (this.statement != null) this.statement.setParentNode(null);
+        if (this.statement != null)
+            this.statement.setParentNode(null);
         this.statement = statement;
         setAsParentNodeOf(statement);
         return this;
@@ -138,7 +138,8 @@ public class JmlGhostStmt extends JmlStatement implements NodeWithJmlTags<JmlGho
             return this;
         }
         notifyPropertyChange(ObservableProperty.JML_TAGS, this.jmlTags, jmlTags);
-        if (this.jmlTags != null) this.jmlTags.setParentNode(null);
+        if (this.jmlTags != null)
+            this.jmlTags.setParentNode(null);
         this.jmlTags = jmlTags;
         setAsParentNodeOf(jmlTags);
         return this;

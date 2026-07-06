@@ -66,19 +66,10 @@ jobs:
         name: Echo exact java version being used
         run: java -version
 
-      - &sonarcache
-        name: Cache SonarCloud packages
-        uses: actions/cache@v6
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-
       - &gradletest
         name: Test with Gradle and generate coverage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           ./gradlew --continue --parallel test
 
@@ -103,12 +94,10 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - *setupjava
       - *checkjava
-      - *sonarcache
 
       - name: Test with Gradle and generate coverage
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew --continue --parallel test aggregateCoverageReport aggregateTestReport
 
       - run: python scripts/cover2cover.py build/reports/jacoco/aggregateCoverageReport/aggregateCoverageReport.xml **/src/main/java > cov-report.xml

@@ -8,6 +8,7 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
 import static com.github.javaparser.ParseStart.COMPILATION_UNIT;
 import static com.github.javaparser.Providers.provider;
 import static com.github.javaparser.utils.Utils.assertNotNull;
@@ -85,7 +87,8 @@ public class SourceZip {
             for (ZipEntry entry : Collections.list(zipFile.entries())) {
                 if (!entry.isDirectory() && entry.getName().endsWith(".java")) {
                     Log.info("Parsing zip entry \"%s\"", () -> entry.getName());
-                    final ParseResult<CompilationUnit> result = javaParser.parse(COMPILATION_UNIT, provider(zipFile.getInputStream(entry)));
+                    final ParseResult<CompilationUnit> result =
+                            javaParser.parse(COMPILATION_UNIT, provider(zipFile.getInputStream(entry)));
                     callback.process(Paths.get(entry.getName()), result);
                 }
             }

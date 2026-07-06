@@ -22,8 +22,11 @@ import com.github.javaparser.resolution.types.ResolvedType;
 public class JmlLogicType extends Type implements Jmlish {
 
     public enum Primitive implements JmlKeyword {
-
-        SET("\\set"), SEQ("\\seq"), MAP("\\map"), BIGINT("\\bigint"), BIGFLOAT("\\bigfloat");
+        SET("\\set"),
+        SEQ("\\seq"),
+        MAP("\\map"),
+        BIGINT("\\bigint"),
+        BIGFLOAT("\\bigfloat");
 
         final String symbol;
 
@@ -60,8 +63,7 @@ public class JmlLogicType extends Type implements Jmlish {
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.AcceptGenerator")
-    public <A> void accept(final VoidVisitor<A> v, final A arg) {
-    }
+    public <A> void accept(final VoidVisitor<A> v, final A arg) {}
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
     public Primitive getType() {

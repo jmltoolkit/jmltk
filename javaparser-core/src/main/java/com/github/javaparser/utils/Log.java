@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.function.Supplier;
+
 import static com.github.javaparser.utils.CodeGenerationUtils.f;
 
 /**
@@ -49,7 +50,7 @@ public class Log {
 
         private void printStackTrace(Throwable throwable) {
             try (StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw)) {
+                    PrintWriter pw = new PrintWriter(sw)) {
                 throwable.printStackTrace(pw);
                 trace(sw::toString);
             } catch (IOException e) {
@@ -64,16 +65,13 @@ public class Log {
     public static class SilentAdapter implements Adapter {
 
         @Override
-        public void info(Supplier<String> messageSupplier) {
-        }
+        public void info(Supplier<String> messageSupplier) {}
 
         @Override
-        public void trace(Supplier<String> messageSupplier) {
-        }
+        public void trace(Supplier<String> messageSupplier) {}
 
         @Override
-        public void error(Supplier<Throwable> throwableSupplier, Supplier<String> messageSupplier) {
-        }
+        public void error(Supplier<Throwable> throwableSupplier, Supplier<String> messageSupplier) {}
     }
 
     public interface Adapter {

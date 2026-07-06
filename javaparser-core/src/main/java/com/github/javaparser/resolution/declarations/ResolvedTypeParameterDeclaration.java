@@ -6,6 +6,7 @@ package com.github.javaparser.resolution.declarations;
 
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.github.javaparser.resolution.types.ResolvedType;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -312,13 +313,10 @@ public interface ResolvedTypeParameterDeclaration extends ResolvedTypeDeclaratio
 
         @Override
         public boolean equals(Object o) {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
             Bound bound = (Bound) o;
-            if (extendsBound != bound.extendsBound)
-                return false;
+            if (extendsBound != bound.extendsBound) return false;
             return type != null ? type.equals(bound.type) : bound.type == null;
         }
 

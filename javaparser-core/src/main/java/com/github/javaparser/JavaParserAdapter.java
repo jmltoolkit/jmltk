@@ -23,6 +23,7 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.TypeParameter;
 import com.github.javaparser.javadoc.Javadoc;
+
 import java.io.*;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -208,7 +209,8 @@ public class JavaParserAdapter {
         var result = getParser().parseJmlContracts(content);
         if (result.isSuccessful()) {
             var cont = result.getResult().get();
-            return new NodeList<>(cont.getChildren().stream().map(it -> (JmlContract) it).toList());
+            return new NodeList<>(
+                    cont.getChildren().stream().map(it -> (JmlContract) it).toList());
         }
         throw new ParseProblemException(result.getProblems());
     }

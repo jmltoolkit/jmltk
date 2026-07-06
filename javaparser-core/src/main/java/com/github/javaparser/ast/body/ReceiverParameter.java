@@ -23,7 +23,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.ReceiverParameterMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -34,7 +36,10 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
  *
  * @author Julio Vilmar Gesser
  */
-public class ReceiverParameter extends Node implements NodeWithType<ReceiverParameter, Type>, NodeWithAnnotations<ReceiverParameter>, NodeWithName<ReceiverParameter> {
+public class ReceiverParameter extends Node
+        implements NodeWithType<ReceiverParameter, Type>,
+                NodeWithAnnotations<ReceiverParameter>,
+                NodeWithName<ReceiverParameter> {
 
     private Type type;
 
@@ -101,8 +106,7 @@ public class ReceiverParameter extends Node implements NodeWithType<ReceiverPara
             return this;
         }
         notifyPropertyChange(ObservableProperty.TYPE, this.type, type);
-        if (this.type != null)
-            this.type.setParentNode(null);
+        if (this.type != null) this.type.setParentNode(null);
         this.type = type;
         setAsParentNodeOf(type);
         return this;
@@ -127,8 +131,7 @@ public class ReceiverParameter extends Node implements NodeWithType<ReceiverPara
             return this;
         }
         notifyPropertyChange(ObservableProperty.ANNOTATIONS, this.annotations, annotations);
-        if (this.annotations != null)
-            this.annotations.setParentNode(null);
+        if (this.annotations != null) this.annotations.setParentNode(null);
         this.annotations = annotations;
         setAsParentNodeOf(annotations);
         return this;
@@ -158,8 +161,7 @@ public class ReceiverParameter extends Node implements NodeWithType<ReceiverPara
             return this;
         }
         notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null)
-            this.name.setParentNode(null);
+        if (this.name != null) this.name.setParentNode(null);
         this.name = name;
         setAsParentNodeOf(name);
         return this;

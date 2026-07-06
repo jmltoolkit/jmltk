@@ -18,9 +18,11 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.KeyLoopScopeBlockStmtMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 public class KeyLoopScopeBlockStmt extends Statement {
@@ -70,8 +72,7 @@ public class KeyLoopScopeBlockStmt extends Statement {
             return this;
         }
         notifyPropertyChange(ObservableProperty.BLOCK, this.block, block);
-        if (this.block != null)
-            this.block.setParentNode(null);
+        if (this.block != null) this.block.setParentNode(null);
         this.block = block;
         setAsParentNodeOf(block);
         return this;
@@ -89,8 +90,7 @@ public class KeyLoopScopeBlockStmt extends Statement {
             return this;
         }
         notifyPropertyChange(ObservableProperty.INDEX_P_V, this.indexPV, indexPV);
-        if (this.indexPV != null)
-            this.indexPV.setParentNode(null);
+        if (this.indexPV != null) this.indexPV.setParentNode(null);
         this.indexPV = indexPV;
         setAsParentNodeOf(indexPV);
         return this;

@@ -6,6 +6,7 @@ package com.github.javaparser.resolution.model;
 
 import com.github.javaparser.resolution.declarations.ResolvedMethodLikeDeclaration;
 import com.github.javaparser.resolution.types.ResolvedType;
+
 import java.util.Optional;
 
 /**
@@ -30,7 +31,8 @@ public class LambdaArgumentTypePlaceholder implements ResolvedType {
         this.bodyBlockHasExplicitNonVoidReturn = Optional.empty();
     }
 
-    public LambdaArgumentTypePlaceholder(int pos, int parameterCount, Optional<Boolean> bodyBlockHasExplicitNonVoidReturn) {
+    public LambdaArgumentTypePlaceholder(
+            int pos, int parameterCount, Optional<Boolean> bodyBlockHasExplicitNonVoidReturn) {
         this.pos = pos;
         this.parameterCount = Optional.of(parameterCount);
         this.bodyBlockHasExplicitNonVoidReturn = bodyBlockHasExplicitNonVoidReturn;

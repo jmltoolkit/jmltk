@@ -6,6 +6,7 @@ package com.github.javaparser.ast.validator;
 
 import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.SimpleName;
+
 import static com.github.javaparser.utils.CodeGenerationUtils.f;
 
 /**

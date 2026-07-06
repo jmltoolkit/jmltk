@@ -5,6 +5,7 @@
 package com.github.javaparser;
 
 import com.github.javaparser.utils.LineSeparator;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,7 +66,10 @@ public class LineEndingProcessingProvider implements Provider {
     }
 
     public LineSeparator getDetectedLineEnding() {
-        return LineSeparator.getLineEnding(eolCounts.getOrDefault(LineSeparator.CR, 0), eolCounts.getOrDefault(LineSeparator.LF, 0), eolCounts.getOrDefault(LineSeparator.CRLF, 0));
+        return LineSeparator.getLineEnding(
+                eolCounts.getOrDefault(LineSeparator.CR, 0),
+                eolCounts.getOrDefault(LineSeparator.LF, 0),
+                eolCounts.getOrDefault(LineSeparator.CRLF, 0));
     }
 
     private boolean isBufferEmpty() {

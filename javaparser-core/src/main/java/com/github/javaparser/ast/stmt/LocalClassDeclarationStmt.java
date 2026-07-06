@@ -16,9 +16,11 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.LocalClassDeclarationStmtMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -73,14 +75,14 @@ public class LocalClassDeclarationStmt extends Statement {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public LocalClassDeclarationStmt setClassDeclaration(final @NonNull() ClassOrInterfaceDeclaration classDeclaration) {
+    public LocalClassDeclarationStmt setClassDeclaration(
+            final @NonNull() ClassOrInterfaceDeclaration classDeclaration) {
         assertNotNull(classDeclaration);
         if (classDeclaration == this.classDeclaration) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.CLASS_DECLARATION, this.classDeclaration, classDeclaration);
-        if (this.classDeclaration != null)
-            this.classDeclaration.setParentNode(null);
+        if (this.classDeclaration != null) this.classDeclaration.setParentNode(null);
         this.classDeclaration = classDeclaration;
         setAsParentNodeOf(classDeclaration);
         return this;

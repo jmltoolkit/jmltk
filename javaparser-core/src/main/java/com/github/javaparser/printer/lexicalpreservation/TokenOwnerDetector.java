@@ -7,6 +7,7 @@ package com.github.javaparser.printer.lexicalpreservation;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.type.Type;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;

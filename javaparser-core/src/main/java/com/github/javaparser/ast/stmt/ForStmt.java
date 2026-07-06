@@ -23,9 +23,11 @@ import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -72,16 +74,30 @@ public class ForStmt extends Statement implements NodeWithBody<ForStmt>, NodeWit
         this(new NodeList<>(), new BooleanLiteralExpr(), new NodeList<>(), new ReturnStmt());
     }
 
-    public ForStmt(final NodeList<Expression> initialization, final Expression compare, final NodeList<Expression> update, final Statement body) {
+    public ForStmt(
+            final NodeList<Expression> initialization,
+            final Expression compare,
+            final NodeList<Expression> update,
+            final Statement body) {
         this(initialization, compare, update, body, new NodeList<>());
     }
 
     @AllFieldsConstructor
-    public ForStmt(final NodeList<Expression> initialization, final Expression compare, final NodeList<Expression> update, final Statement body, final NodeList<JmlContract> contracts) {
+    public ForStmt(
+            final NodeList<Expression> initialization,
+            final Expression compare,
+            final NodeList<Expression> update,
+            final Statement body,
+            final NodeList<JmlContract> contracts) {
         this(null, initialization, compare, update, body, contracts);
     }
 
-    public ForStmt(TokenRange tokenRange, NodeList<Expression> initialization, Expression compare, NodeList<Expression> update, Statement body) {
+    public ForStmt(
+            TokenRange tokenRange,
+            NodeList<Expression> initialization,
+            Expression compare,
+            NodeList<Expression> update,
+            Statement body) {
         this(tokenRange, initialization, compare, update, body, new NodeList<>());
     }
 
@@ -89,7 +105,13 @@ public class ForStmt extends Statement implements NodeWithBody<ForStmt>, NodeWit
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public ForStmt(TokenRange tokenRange, NodeList<Expression> initialization, Expression compare, NodeList<Expression> update, Statement body, NodeList<JmlContract> contracts) {
+    public ForStmt(
+            TokenRange tokenRange,
+            NodeList<Expression> initialization,
+            Expression compare,
+            NodeList<Expression> update,
+            Statement body,
+            NodeList<JmlContract> contracts) {
         super(tokenRange);
         setInitialization(initialization);
         setCompare(compare);
@@ -138,8 +160,7 @@ public class ForStmt extends Statement implements NodeWithBody<ForStmt>, NodeWit
             return this;
         }
         notifyPropertyChange(ObservableProperty.BODY, this.body, body);
-        if (this.body != null)
-            this.body.setParentNode(null);
+        if (this.body != null) this.body.setParentNode(null);
         this.body = body;
         setAsParentNodeOf(body);
         return this;
@@ -157,8 +178,7 @@ public class ForStmt extends Statement implements NodeWithBody<ForStmt>, NodeWit
             return this;
         }
         notifyPropertyChange(ObservableProperty.COMPARE, this.compare, compare);
-        if (this.compare != null)
-            this.compare.setParentNode(null);
+        if (this.compare != null) this.compare.setParentNode(null);
         this.compare = compare;
         setAsParentNodeOf(compare);
         return this;
@@ -171,8 +191,7 @@ public class ForStmt extends Statement implements NodeWithBody<ForStmt>, NodeWit
             return this;
         }
         notifyPropertyChange(ObservableProperty.INITIALIZATION, this.initialization, initialization);
-        if (this.initialization != null)
-            this.initialization.setParentNode(null);
+        if (this.initialization != null) this.initialization.setParentNode(null);
         this.initialization = initialization;
         setAsParentNodeOf(initialization);
         return this;
@@ -185,8 +204,7 @@ public class ForStmt extends Statement implements NodeWithBody<ForStmt>, NodeWit
             return this;
         }
         notifyPropertyChange(ObservableProperty.UPDATE, this.update, update);
-        if (this.update != null)
-            this.update.setParentNode(null);
+        if (this.update != null) this.update.setParentNode(null);
         this.update = update;
         setAsParentNodeOf(update);
         return this;
@@ -315,8 +333,7 @@ public class ForStmt extends Statement implements NodeWithBody<ForStmt>, NodeWit
             return this;
         }
         notifyPropertyChange(ObservableProperty.CONTRACTS, this.contracts, contracts);
-        if (this.contracts != null)
-            this.contracts.setParentNode(null);
+        if (this.contracts != null) this.contracts.setParentNode(null);
         this.contracts = contracts;
         setAsParentNodeOf(contracts);
         return this;

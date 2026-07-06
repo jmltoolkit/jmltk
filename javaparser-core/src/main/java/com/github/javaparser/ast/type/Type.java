@@ -19,9 +19,11 @@ import com.github.javaparser.metamodel.TypeMetaModel;
 import com.github.javaparser.resolution.Resolvable;
 import com.github.javaparser.resolution.types.ResolvedType;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.CodeGenerationUtils.f;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
@@ -73,8 +75,7 @@ public abstract class Type extends Node implements Resolvable<ResolvedType>, Con
             return this;
         }
         notifyPropertyChange(ObservableProperty.ANNOTATIONS, this.annotations, annotations);
-        if (this.annotations != null)
-            this.annotations.setParentNode(null);
+        if (this.annotations != null) this.annotations.setParentNode(null);
         this.annotations = annotations;
         setAsParentNodeOf(annotations);
         return this;
@@ -151,7 +152,8 @@ public abstract class Type extends Node implements Resolvable<ResolvedType>, Con
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public ArrayType asArrayType() {
-        throw new IllegalStateException(f("%s is not ArrayType, it is %s", this, this.getClass().getSimpleName()));
+        throw new IllegalStateException(
+                f("%s is not ArrayType, it is %s", this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
@@ -161,7 +163,9 @@ public abstract class Type extends Node implements Resolvable<ResolvedType>, Con
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public ClassOrInterfaceType asClassOrInterfaceType() {
-        throw new IllegalStateException(f("%s is not ClassOrInterfaceType, it is %s", this, this.getClass().getSimpleName()));
+        throw new IllegalStateException(f(
+                "%s is not ClassOrInterfaceType, it is %s",
+                this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
@@ -171,7 +175,8 @@ public abstract class Type extends Node implements Resolvable<ResolvedType>, Con
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public IntersectionType asIntersectionType() {
-        throw new IllegalStateException(f("%s is not IntersectionType, it is %s", this, this.getClass().getSimpleName()));
+        throw new IllegalStateException(
+                f("%s is not IntersectionType, it is %s", this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
@@ -181,7 +186,8 @@ public abstract class Type extends Node implements Resolvable<ResolvedType>, Con
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public PrimitiveType asPrimitiveType() {
-        throw new IllegalStateException(f("%s is not PrimitiveType, it is %s", this, this.getClass().getSimpleName()));
+        throw new IllegalStateException(
+                f("%s is not PrimitiveType, it is %s", this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
@@ -191,7 +197,8 @@ public abstract class Type extends Node implements Resolvable<ResolvedType>, Con
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public ReferenceType asReferenceType() {
-        throw new IllegalStateException(f("%s is not ReferenceType, it is %s", this, this.getClass().getSimpleName()));
+        throw new IllegalStateException(
+                f("%s is not ReferenceType, it is %s", this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
@@ -201,7 +208,8 @@ public abstract class Type extends Node implements Resolvable<ResolvedType>, Con
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public TypeParameter asTypeParameter() {
-        throw new IllegalStateException(f("%s is not TypeParameter, it is %s", this, this.getClass().getSimpleName()));
+        throw new IllegalStateException(
+                f("%s is not TypeParameter, it is %s", this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
@@ -211,7 +219,8 @@ public abstract class Type extends Node implements Resolvable<ResolvedType>, Con
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public UnionType asUnionType() {
-        throw new IllegalStateException(f("%s is not UnionType, it is %s", this, this.getClass().getSimpleName()));
+        throw new IllegalStateException(
+                f("%s is not UnionType, it is %s", this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
@@ -221,7 +230,8 @@ public abstract class Type extends Node implements Resolvable<ResolvedType>, Con
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public UnknownType asUnknownType() {
-        throw new IllegalStateException(f("%s is not UnknownType, it is %s", this, this.getClass().getSimpleName()));
+        throw new IllegalStateException(
+                f("%s is not UnknownType, it is %s", this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
@@ -231,7 +241,8 @@ public abstract class Type extends Node implements Resolvable<ResolvedType>, Con
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public VoidType asVoidType() {
-        throw new IllegalStateException(f("%s is not VoidType, it is %s", this, this.getClass().getSimpleName()));
+        throw new IllegalStateException(
+                f("%s is not VoidType, it is %s", this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
@@ -241,48 +252,39 @@ public abstract class Type extends Node implements Resolvable<ResolvedType>, Con
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public WildcardType asWildcardType() {
-        throw new IllegalStateException(f("%s is not WildcardType, it is %s", this, this.getClass().getSimpleName()));
+        throw new IllegalStateException(
+                f("%s is not WildcardType, it is %s", this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifArrayType(Consumer<ArrayType> action) {
-    }
+    public void ifArrayType(Consumer<ArrayType> action) {}
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifClassOrInterfaceType(Consumer<ClassOrInterfaceType> action) {
-    }
+    public void ifClassOrInterfaceType(Consumer<ClassOrInterfaceType> action) {}
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifIntersectionType(Consumer<IntersectionType> action) {
-    }
+    public void ifIntersectionType(Consumer<IntersectionType> action) {}
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifPrimitiveType(Consumer<PrimitiveType> action) {
-    }
+    public void ifPrimitiveType(Consumer<PrimitiveType> action) {}
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifReferenceType(Consumer<ReferenceType> action) {
-    }
+    public void ifReferenceType(Consumer<ReferenceType> action) {}
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifTypeParameter(Consumer<TypeParameter> action) {
-    }
+    public void ifTypeParameter(Consumer<TypeParameter> action) {}
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifUnionType(Consumer<UnionType> action) {
-    }
+    public void ifUnionType(Consumer<UnionType> action) {}
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifUnknownType(Consumer<UnknownType> action) {
-    }
+    public void ifUnknownType(Consumer<UnknownType> action) {}
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifVoidType(Consumer<VoidType> action) {
-    }
+    public void ifVoidType(Consumer<VoidType> action) {}
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifWildcardType(Consumer<WildcardType> action) {
-    }
+    public void ifWildcardType(Consumer<WildcardType> action) {}
 
     @Override
     public abstract ResolvedType resolve();
@@ -344,7 +346,8 @@ public abstract class Type extends Node implements Resolvable<ResolvedType>, Con
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public VarType asVarType() {
-        throw new IllegalStateException(f("%s is not VarType, it is %s", this, this.getClass().getSimpleName()));
+        throw new IllegalStateException(
+                f("%s is not VarType, it is %s", this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
@@ -354,7 +357,9 @@ public abstract class Type extends Node implements Resolvable<ResolvedType>, Con
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public KeyMetaConstructType asKeyMetaConstructType() {
-        throw new IllegalStateException(f("%s is not KeyMetaConstructType, it is %s", this, this.getClass().getSimpleName()));
+        throw new IllegalStateException(f(
+                "%s is not KeyMetaConstructType, it is %s",
+                this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
@@ -363,8 +368,7 @@ public abstract class Type extends Node implements Resolvable<ResolvedType>, Con
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifKeyMetaConstructType(Consumer<KeyMetaConstructType> action) {
-    }
+    public void ifKeyMetaConstructType(Consumer<KeyMetaConstructType> action) {}
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public boolean isKeyTypeSV() {
@@ -373,7 +377,8 @@ public abstract class Type extends Node implements Resolvable<ResolvedType>, Con
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public KeyTypeSV asKeyTypeSV() {
-        throw new IllegalStateException(f("%s is not KeyTypeSV, it is %s", this, this.getClass().getSimpleName()));
+        throw new IllegalStateException(
+                f("%s is not KeyTypeSV, it is %s", this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
@@ -382,8 +387,7 @@ public abstract class Type extends Node implements Resolvable<ResolvedType>, Con
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifKeyTypeSV(Consumer<KeyTypeSV> action) {
-    }
+    public void ifKeyTypeSV(Consumer<KeyTypeSV> action) {}
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public Optional<VarType> toVarType() {
@@ -391,8 +395,7 @@ public abstract class Type extends Node implements Resolvable<ResolvedType>, Con
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifVarType(Consumer<VarType> action) {
-    }
+    public void ifVarType(Consumer<VarType> action) {}
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")

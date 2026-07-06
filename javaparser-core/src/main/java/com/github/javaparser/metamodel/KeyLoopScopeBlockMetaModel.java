@@ -6,6 +6,7 @@ package com.github.javaparser.metamodel;
 
 import com.github.javaparser.ast.Generated;
 import com.github.javaparser.ast.key.KeyLoopScopeBlockStmt;
+
 import java.util.Optional;
 
 /**
@@ -22,7 +23,13 @@ public class KeyLoopScopeBlockMetaModel extends StatementMetaModel {
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     KeyLoopScopeBlockMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
-        super(superBaseNodeMetaModel, KeyLoopScopeBlockStmt.class, "KeyLoopScopeBlock", "com.github.javaparser.ast.key", false, false);
+        super(
+                superBaseNodeMetaModel,
+                KeyLoopScopeBlockStmt.class,
+                "KeyLoopScopeBlock",
+                "com.github.javaparser.ast.key",
+                false,
+                false);
     }
 
     public PropertyMetaModel blockPropertyMetaModel;

@@ -19,8 +19,10 @@ import com.github.javaparser.metamodel.KeyExecutionContextMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 import java.util.Optional;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /// An execution context re-defines the context in which a given java block is executed.
@@ -81,8 +83,7 @@ public class KeyExecutionContext extends KeyAbstractExecutionContext {
             return this;
         }
         notifyPropertyChange(ObservableProperty.CONTEXT, this.context, context);
-        if (this.context != null)
-            this.context.setParentNode(null);
+        if (this.context != null) this.context.setParentNode(null);
         this.context = context;
         setAsParentNodeOf(context);
         return this;
@@ -99,8 +100,7 @@ public class KeyExecutionContext extends KeyAbstractExecutionContext {
             return this;
         }
         notifyPropertyChange(ObservableProperty.INSTANCE, this.instance, instance);
-        if (this.instance != null)
-            this.instance.setParentNode(null);
+        if (this.instance != null) this.instance.setParentNode(null);
         this.instance = instance;
         setAsParentNodeOf(instance);
         return this;
@@ -118,8 +118,7 @@ public class KeyExecutionContext extends KeyAbstractExecutionContext {
             return this;
         }
         notifyPropertyChange(ObservableProperty.SIGNATURE, this.signature, signature);
-        if (this.signature != null)
-            this.signature.setParentNode(null);
+        if (this.signature != null) this.signature.setParentNode(null);
         this.signature = signature;
         setAsParentNodeOf(signature);
         return this;

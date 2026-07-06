@@ -18,9 +18,11 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlBinaryInfixExprMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -112,8 +114,7 @@ public class JmlBinaryInfixExpr extends JmlExpression {
             return this;
         }
         notifyPropertyChange(ObservableProperty.LEFT, this.left, left);
-        if (this.left != null)
-            this.left.setParentNode(null);
+        if (this.left != null) this.left.setParentNode(null);
         this.left = left;
         setAsParentNodeOf(left);
         return this;
@@ -131,8 +132,7 @@ public class JmlBinaryInfixExpr extends JmlExpression {
             return this;
         }
         notifyPropertyChange(ObservableProperty.OPERATOR, this.operator, operator);
-        if (this.operator != null)
-            this.operator.setParentNode(null);
+        if (this.operator != null) this.operator.setParentNode(null);
         this.operator = operator;
         setAsParentNodeOf(operator);
         return this;
@@ -150,8 +150,7 @@ public class JmlBinaryInfixExpr extends JmlExpression {
             return this;
         }
         notifyPropertyChange(ObservableProperty.RIGHT, this.right, right);
-        if (this.right != null)
-            this.right.setParentNode(null);
+        if (this.right != null) this.right.setParentNode(null);
         this.right = right;
         setAsParentNodeOf(right);
         return this;

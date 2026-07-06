@@ -16,9 +16,11 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlOldClauseMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -73,8 +75,7 @@ public class JmlOldClause extends JmlClause {
             return this;
         }
         notifyPropertyChange(ObservableProperty.DECLARATIONS, this.declarations, declarations);
-        if (this.declarations != null)
-            this.declarations.setParentNode(null);
+        if (this.declarations != null) this.declarations.setParentNode(null);
         this.declarations = declarations;
         setAsParentNodeOf(declarations);
         return this;

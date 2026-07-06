@@ -20,8 +20,10 @@ import com.github.javaparser.metamodel.JmlMethodSignatureMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 import java.util.Optional;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -66,8 +68,7 @@ public class JmlMethodSignature extends Node {
             return this;
         }
         notifyPropertyChange(ObservableProperty.ARGUMENT_TYPES, this.argumentTypes, argumentTypes);
-        if (this.argumentTypes != null)
-            this.argumentTypes.setParentNode(null);
+        if (this.argumentTypes != null) this.argumentTypes.setParentNode(null);
         this.argumentTypes = argumentTypes;
         setAsParentNodeOf(argumentTypes);
         return this;
@@ -85,8 +86,7 @@ public class JmlMethodSignature extends Node {
             return this;
         }
         notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null)
-            this.name.setParentNode(null);
+        if (this.name != null) this.name.setParentNode(null);
         this.name = name;
         setAsParentNodeOf(name);
         return this;
@@ -103,8 +103,7 @@ public class JmlMethodSignature extends Node {
             return this;
         }
         notifyPropertyChange(ObservableProperty.RECEIVER, this.receiver, receiver);
-        if (this.receiver != null)
-            this.receiver.setParentNode(null);
+        if (this.receiver != null) this.receiver.setParentNode(null);
         this.receiver = receiver;
         setAsParentNodeOf(receiver);
         return this;

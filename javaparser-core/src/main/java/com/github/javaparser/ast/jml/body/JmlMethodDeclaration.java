@@ -21,9 +21,11 @@ import com.github.javaparser.metamodel.JmlMethodDeclarationMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -44,7 +46,8 @@ public class JmlMethodDeclaration extends JmlClassLevelDeclaration<JmlMethodDecl
     }
 
     @AllFieldsConstructor
-    public JmlMethodDeclaration(NodeList<SimpleName> jmlTags, MethodDeclaration methodDeclaration, JmlContract contract) {
+    public JmlMethodDeclaration(
+            NodeList<SimpleName> jmlTags, MethodDeclaration methodDeclaration, JmlContract contract) {
         this(null, jmlTags, methodDeclaration, contract);
     }
 
@@ -52,7 +55,11 @@ public class JmlMethodDeclaration extends JmlClassLevelDeclaration<JmlMethodDecl
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlMethodDeclaration(TokenRange tokenRange, NodeList<SimpleName> jmlTags, MethodDeclaration methodDeclaration, JmlContract contract) {
+    public JmlMethodDeclaration(
+            TokenRange tokenRange,
+            NodeList<SimpleName> jmlTags,
+            MethodDeclaration methodDeclaration,
+            JmlContract contract) {
         super(tokenRange);
         setJmlTags(jmlTags);
         setMethodDeclaration(methodDeclaration);
@@ -84,8 +91,7 @@ public class JmlMethodDeclaration extends JmlClassLevelDeclaration<JmlMethodDecl
             return this;
         }
         notifyPropertyChange(ObservableProperty.METHOD_DECLARATION, this.methodDeclaration, methodDeclaration);
-        if (this.methodDeclaration != null)
-            this.methodDeclaration.setParentNode(null);
+        if (this.methodDeclaration != null) this.methodDeclaration.setParentNode(null);
         this.methodDeclaration = methodDeclaration;
         setAsParentNodeOf(methodDeclaration);
         return this;
@@ -154,8 +160,7 @@ public class JmlMethodDeclaration extends JmlClassLevelDeclaration<JmlMethodDecl
             return this;
         }
         notifyPropertyChange(ObservableProperty.CONTRACT, this.contract, contract);
-        if (this.contract != null)
-            this.contract.setParentNode(null);
+        if (this.contract != null) this.contract.setParentNode(null);
         this.contract = contract;
         setAsParentNodeOf(contract);
         return this;
@@ -185,8 +190,7 @@ public class JmlMethodDeclaration extends JmlClassLevelDeclaration<JmlMethodDecl
             return this;
         }
         notifyPropertyChange(ObservableProperty.JML_TAGS, this.jmlTags, jmlTags);
-        if (this.jmlTags != null)
-            this.jmlTags.setParentNode(null);
+        if (this.jmlTags != null) this.jmlTags.setParentNode(null);
         this.jmlTags = jmlTags;
         setAsParentNodeOf(jmlTags);
         return this;

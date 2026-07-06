@@ -12,8 +12,10 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.ModifierMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Arrays;
 import java.util.Objects;
+
 import static com.github.javaparser.ast.NodeList.toNodeList;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
@@ -126,7 +128,6 @@ public class Modifier extends Node {
      * The Java modifier keywords.
      */
     public enum DefaultKeyword implements Keyword {
-
         DEFAULT("default"),
         PUBLIC("public"),
         PROTECTED("protected"),

@@ -17,9 +17,11 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlSetComprehensionExprMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /// [12.5 Set Comprehensions](https://www.cs.ucf.edu/~leavens/JML/jmlrefman/jmlrefman_12.html#SEC160)
@@ -36,8 +38,7 @@ public class JmlSetComprehensionExpr extends JmlExpression {
 
     private Expression predicate;
 
-    public JmlSetComprehensionExpr() {
-    }
+    public JmlSetComprehensionExpr() {}
 
     @AllFieldsConstructor
     public JmlSetComprehensionExpr(VariableDeclarator binding, Expression predicate) {
@@ -104,8 +105,7 @@ public class JmlSetComprehensionExpr extends JmlExpression {
             return this;
         }
         notifyPropertyChange(ObservableProperty.BINDING, this.binding, binding);
-        if (this.binding != null)
-            this.binding.setParentNode(null);
+        if (this.binding != null) this.binding.setParentNode(null);
         this.binding = binding;
         setAsParentNodeOf(binding);
         return this;
@@ -123,8 +123,7 @@ public class JmlSetComprehensionExpr extends JmlExpression {
             return this;
         }
         notifyPropertyChange(ObservableProperty.PREDICATE, this.predicate, predicate);
-        if (this.predicate != null)
-            this.predicate.setParentNode(null);
+        if (this.predicate != null) this.predicate.setParentNode(null);
         this.predicate = predicate;
         setAsParentNodeOf(predicate);
         return this;

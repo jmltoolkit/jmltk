@@ -10,5 +10,4 @@ import java.lang.annotation.*;
 @Documented
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.SOURCE)
-public @interface Nullable {
-}
+public @interface Nullable {}

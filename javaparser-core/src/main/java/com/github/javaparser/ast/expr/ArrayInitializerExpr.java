@@ -16,9 +16,11 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.ArrayInitializerExprMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -76,8 +78,7 @@ public class ArrayInitializerExpr extends Expression {
             return this;
         }
         notifyPropertyChange(ObservableProperty.VALUES, this.values, values);
-        if (this.values != null)
-            this.values.setParentNode(null);
+        if (this.values != null) this.values.setParentNode(null);
         this.values = values;
         setAsParentNodeOf(values);
         return this;

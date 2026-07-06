@@ -11,6 +11,7 @@ import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.expr.ClassExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.VarType;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,7 +43,9 @@ public class Java10PostProcessor extends PostProcessors {
         }
 
         private boolean matchForbiddenContext(ClassOrInterfaceType cit) {
-            return cit.getParentNode().isPresent() && FORBIDEN_PARENT_CONTEXT_TO_DETECT_POTENTIAL_VAR_TYPE.stream().anyMatch(cl -> cl.isInstance(cit.getParentNode().get()));
+            return cit.getParentNode().isPresent()
+                    && FORBIDEN_PARENT_CONTEXT_TO_DETECT_POTENTIAL_VAR_TYPE.stream()
+                            .anyMatch(cl -> cl.isInstance(cit.getParentNode().get()));
         }
     };
 

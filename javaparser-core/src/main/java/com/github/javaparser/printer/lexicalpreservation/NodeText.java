@@ -5,6 +5,7 @@
 package com.github.javaparser.printer.lexicalpreservation;
 
 import com.github.javaparser.ast.Node;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -101,7 +102,8 @@ class NodeText {
     int findElement(TextElementMatcher matcher, int from) {
         int res = tryToFindElement(matcher, from);
         if (res == NOT_FOUND) {
-            throw new IllegalArgumentException(String.format("I could not find child '%s' from position %d. Elements: %s", matcher, from, elements.toList()));
+            throw new IllegalArgumentException(String.format(
+                    "I could not find child '%s' from position %d. Elements: %s", matcher, from, elements.toList()));
         }
         return res;
     }

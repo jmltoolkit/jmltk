@@ -22,9 +22,11 @@ import com.github.javaparser.metamodel.JmlLabledClauseMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -142,8 +144,7 @@ public class JmlLabledClause extends JmlClause implements NodeWithExpression<Jml
             return this;
         }
         notifyPropertyChange(ObservableProperty.EXPR, this.expression, expression);
-        if (this.expression != null)
-            this.expression.setParentNode(null);
+        if (this.expression != null) this.expression.setParentNode(null);
         this.expression = expression;
         setAsParentNodeOf(expression);
         return this;
@@ -160,8 +161,7 @@ public class JmlLabledClause extends JmlClause implements NodeWithExpression<Jml
             return this;
         }
         notifyPropertyChange(ObservableProperty.LABEL, this.label, label);
-        if (this.label != null)
-            this.label.setParentNode(null);
+        if (this.label != null) this.label.setParentNode(null);
         this.label = label;
         setAsParentNodeOf(label);
         return this;
@@ -244,8 +244,7 @@ public class JmlLabledClause extends JmlClause implements NodeWithExpression<Jml
             return this;
         }
         notifyPropertyChange(ObservableProperty.EXPRESSION, this.expression, expression);
-        if (this.expression != null)
-            this.expression.setParentNode(null);
+        if (this.expression != null) this.expression.setParentNode(null);
         this.expression = expression;
         setAsParentNodeOf(expression);
         return this;

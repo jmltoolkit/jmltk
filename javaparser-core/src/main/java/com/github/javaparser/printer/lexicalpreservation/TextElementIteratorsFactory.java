@@ -107,8 +107,7 @@ class TextElementIteratorsFactory {
         }
 
         @Override
-        public void remove() {
-        }
+        public void remove() {}
     }
 
     static class ComposedIterator<E> implements Iterator<E> {

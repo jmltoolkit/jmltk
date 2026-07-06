@@ -18,9 +18,11 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlEndStmtMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -82,8 +84,7 @@ public class JmlEndStmt extends JmlStatement implements NodeWithJmlTags<JmlEndSt
             return this;
         }
         notifyPropertyChange(ObservableProperty.JML_TAGS, this.jmlTags, jmlTags);
-        if (this.jmlTags != null)
-            this.jmlTags.setParentNode(null);
+        if (this.jmlTags != null) this.jmlTags.setParentNode(null);
         this.jmlTags = jmlTags;
         setAsParentNodeOf(jmlTags);
         return this;

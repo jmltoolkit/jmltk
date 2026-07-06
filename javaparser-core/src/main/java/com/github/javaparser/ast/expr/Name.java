@@ -19,8 +19,10 @@ import com.github.javaparser.metamodel.NonEmptyProperty;
 import com.github.javaparser.metamodel.OptionalProperty;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 import java.util.Optional;
+
 import static com.github.javaparser.utils.Utils.assertNonEmpty;
 
 /**
@@ -120,8 +122,7 @@ public class Name extends Node implements NodeWithIdentifier<Name> {
             return this;
         }
         notifyPropertyChange(ObservableProperty.QUALIFIER, this.qualifier, qualifier);
-        if (this.qualifier != null)
-            this.qualifier.setParentNode(null);
+        if (this.qualifier != null) this.qualifier.setParentNode(null);
         this.qualifier = qualifier;
         setAsParentNodeOf(qualifier);
         return this;

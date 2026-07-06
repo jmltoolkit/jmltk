@@ -17,9 +17,11 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.KeyMergePointStmtMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /// A statement marking a merge point for the theorem prover, carries an `expr`;
@@ -86,8 +88,7 @@ public class KeyMergePointStmt extends Statement {
             return this;
         }
         notifyPropertyChange(ObservableProperty.EXPR, this.expr, expr);
-        if (this.expr != null)
-            this.expr.setParentNode(null);
+        if (this.expr != null) this.expr.setParentNode(null);
         this.expr = expr;
         setAsParentNodeOf(expr);
         return this;

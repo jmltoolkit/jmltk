@@ -17,9 +17,11 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlForallClauseMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -69,8 +71,7 @@ public class JmlForallClause extends JmlClause {
             return this;
         }
         notifyPropertyChange(ObservableProperty.BOUNDED_VARIABLES, this.boundedVariables, boundedVariables);
-        if (this.boundedVariables != null)
-            this.boundedVariables.setParentNode(null);
+        if (this.boundedVariables != null) this.boundedVariables.setParentNode(null);
         this.boundedVariables = boundedVariables;
         setAsParentNodeOf(boundedVariables);
         return this;

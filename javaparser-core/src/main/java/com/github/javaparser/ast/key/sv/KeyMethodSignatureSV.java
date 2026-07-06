@@ -15,7 +15,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.KeyMethodSignatureSVMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 public class KeyMethodSignatureSV extends Node {

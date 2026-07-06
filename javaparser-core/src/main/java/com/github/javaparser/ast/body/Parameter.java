@@ -23,7 +23,9 @@ import com.github.javaparser.metamodel.ParameterMetaModel;
 import com.github.javaparser.resolution.Resolvable;
 import com.github.javaparser.resolution.declarations.ResolvedParameterDeclaration;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -37,7 +39,12 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
  *
  * @author Julio Vilmar Gesser
  */
-public class Parameter extends Node implements NodeWithType<Parameter, Type>, NodeWithAnnotations<Parameter>, NodeWithSimpleName<Parameter>, NodeWithFinalModifier<Parameter>, Resolvable<ResolvedParameterDeclaration> {
+public class Parameter extends Node
+        implements NodeWithType<Parameter, Type>,
+                NodeWithAnnotations<Parameter>,
+                NodeWithSimpleName<Parameter>,
+                NodeWithFinalModifier<Parameter>,
+                Resolvable<ResolvedParameterDeclaration> {
 
     private Type type;
 
@@ -52,7 +59,14 @@ public class Parameter extends Node implements NodeWithType<Parameter, Type>, No
     private SimpleName name;
 
     public Parameter() {
-        this(null, new NodeList<>(), new NodeList<>(), new ClassOrInterfaceType(), false, new NodeList<>(), new SimpleName());
+        this(
+                null,
+                new NodeList<>(),
+                new NodeList<>(),
+                new ClassOrInterfaceType(),
+                false,
+                new NodeList<>(),
+                new SimpleName());
     }
 
     public Parameter(Type type, SimpleName name) {
@@ -74,7 +88,13 @@ public class Parameter extends Node implements NodeWithType<Parameter, Type>, No
     }
 
     @AllFieldsConstructor
-    public Parameter(NodeList<Modifier> modifiers, NodeList<AnnotationExpr> annotations, Type type, boolean isVarArgs, NodeList<AnnotationExpr> varArgsAnnotations, SimpleName name) {
+    public Parameter(
+            NodeList<Modifier> modifiers,
+            NodeList<AnnotationExpr> annotations,
+            Type type,
+            boolean isVarArgs,
+            NodeList<AnnotationExpr> varArgsAnnotations,
+            SimpleName name) {
         this(null, modifiers, annotations, type, isVarArgs, varArgsAnnotations, name);
     }
 
@@ -82,7 +102,14 @@ public class Parameter extends Node implements NodeWithType<Parameter, Type>, No
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public Parameter(TokenRange tokenRange, NodeList<Modifier> modifiers, NodeList<AnnotationExpr> annotations, Type type, boolean isVarArgs, NodeList<AnnotationExpr> varArgsAnnotations, SimpleName name) {
+    public Parameter(
+            TokenRange tokenRange,
+            NodeList<Modifier> modifiers,
+            NodeList<AnnotationExpr> annotations,
+            Type type,
+            boolean isVarArgs,
+            NodeList<AnnotationExpr> varArgsAnnotations,
+            SimpleName name) {
         super(tokenRange);
         setModifiers(modifiers);
         setAnnotations(annotations);
@@ -123,8 +150,7 @@ public class Parameter extends Node implements NodeWithType<Parameter, Type>, No
             return this;
         }
         notifyPropertyChange(ObservableProperty.TYPE, this.type, type);
-        if (this.type != null)
-            this.type.setParentNode(null);
+        if (this.type != null) this.type.setParentNode(null);
         this.type = type;
         setAsParentNodeOf(type);
         return this;
@@ -175,8 +201,7 @@ public class Parameter extends Node implements NodeWithType<Parameter, Type>, No
             return this;
         }
         notifyPropertyChange(ObservableProperty.ANNOTATIONS, this.annotations, annotations);
-        if (this.annotations != null)
-            this.annotations.setParentNode(null);
+        if (this.annotations != null) this.annotations.setParentNode(null);
         this.annotations = annotations;
         setAsParentNodeOf(annotations);
         return this;
@@ -189,8 +214,7 @@ public class Parameter extends Node implements NodeWithType<Parameter, Type>, No
             return this;
         }
         notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null)
-            this.name.setParentNode(null);
+        if (this.name != null) this.name.setParentNode(null);
         this.name = name;
         setAsParentNodeOf(name);
         return this;
@@ -203,8 +227,7 @@ public class Parameter extends Node implements NodeWithType<Parameter, Type>, No
             return this;
         }
         notifyPropertyChange(ObservableProperty.MODIFIERS, this.modifiers, modifiers);
-        if (this.modifiers != null)
-            this.modifiers.setParentNode(null);
+        if (this.modifiers != null) this.modifiers.setParentNode(null);
         this.modifiers = modifiers;
         setAsParentNodeOf(modifiers);
         return this;
@@ -249,8 +272,7 @@ public class Parameter extends Node implements NodeWithType<Parameter, Type>, No
             return this;
         }
         notifyPropertyChange(ObservableProperty.VAR_ARGS_ANNOTATIONS, this.varArgsAnnotations, varArgsAnnotations);
-        if (this.varArgsAnnotations != null)
-            this.varArgsAnnotations.setParentNode(null);
+        if (this.varArgsAnnotations != null) this.varArgsAnnotations.setParentNode(null);
         this.varArgsAnnotations = varArgsAnnotations;
         setAsParentNodeOf(varArgsAnnotations);
         return this;

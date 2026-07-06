@@ -18,9 +18,9 @@ import com.github.javaparser.metamodel.ThisExprMetaModel;
 import com.github.javaparser.resolution.Resolvable;
 import com.github.javaparser.resolution.declarations.ResolvedTypeDeclaration;
 import org.jspecify.annotations.Nullable;
+
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.Objects;
 
 /**
  * An occurrence of the "this" keyword. <br>
@@ -80,8 +80,7 @@ public class ThisExpr extends Expression implements Resolvable<ResolvedTypeDecla
             return this;
         }
         notifyPropertyChange(ObservableProperty.TYPE_NAME, this.typeName, typeName);
-        if (this.typeName != null)
-            this.typeName.setParentNode(null);
+        if (this.typeName != null) this.typeName.setParentNode(null);
         this.typeName = typeName;
         setAsParentNodeOf(typeName);
         return this;

@@ -32,7 +32,8 @@ public class Java14Validator extends Java13Validator {
      */
     final Validator recordAsTypeIdentifierNotAllowed = new RecordAsTypeIdentifierNotAllowed();
 
-    final Validator recordDeclarationValidator = new SingleNodeTypeValidator<>(RecordDeclaration.class, new RecordDeclarationValidator());
+    final Validator recordDeclarationValidator =
+            new SingleNodeTypeValidator<>(RecordDeclaration.class, new RecordDeclarationValidator());
 
     final Validator switchExprValidator = new SingleNodeTypeValidator<>(SwitchExpr.class, new SwitchExprValidator());
 

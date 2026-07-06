@@ -19,11 +19,13 @@ import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.NonEmptyProperty;
 import com.github.javaparser.metamodel.VariableDeclarationExprMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
 import static com.github.javaparser.ast.NodeList.nodeList;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
@@ -38,7 +40,10 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
  *
  * @author Julio Vilmar Gesser
  */
-public class VariableDeclarationExpr extends Expression implements NodeWithFinalModifier<VariableDeclarationExpr>, NodeWithAnnotations<VariableDeclarationExpr>, NodeWithVariables<VariableDeclarationExpr> {
+public class VariableDeclarationExpr extends Expression
+        implements NodeWithFinalModifier<VariableDeclarationExpr>,
+                NodeWithAnnotations<VariableDeclarationExpr>,
+                NodeWithVariables<VariableDeclarationExpr> {
 
     private NodeList<Modifier> modifiers;
 
@@ -60,11 +65,19 @@ public class VariableDeclarationExpr extends Expression implements NodeWithFinal
     }
 
     public VariableDeclarationExpr(final Type type, String variableName, Modifier... modifiers) {
-        this(null, Arrays.stream(modifiers).collect(Collectors.toCollection(() -> new NodeList<>())), new NodeList<>(), nodeList(new VariableDeclarator(type, variableName)));
+        this(
+                null,
+                Arrays.stream(modifiers).collect(Collectors.toCollection(() -> new NodeList<>())),
+                new NodeList<>(),
+                nodeList(new VariableDeclarator(type, variableName)));
     }
 
     public VariableDeclarationExpr(VariableDeclarator var, Modifier... modifiers) {
-        this(null, Arrays.stream(modifiers).collect(Collectors.toCollection(() -> new NodeList<>())), new NodeList<>(), nodeList(var));
+        this(
+                null,
+                Arrays.stream(modifiers).collect(Collectors.toCollection(() -> new NodeList<>())),
+                new NodeList<>(),
+                nodeList(var));
     }
 
     public VariableDeclarationExpr(final NodeList<VariableDeclarator> variables) {
@@ -76,7 +89,10 @@ public class VariableDeclarationExpr extends Expression implements NodeWithFinal
     }
 
     @AllFieldsConstructor
-    public VariableDeclarationExpr(final NodeList<Modifier> modifiers, final NodeList<AnnotationExpr> annotations, final NodeList<VariableDeclarator> variables) {
+    public VariableDeclarationExpr(
+            final NodeList<Modifier> modifiers,
+            final NodeList<AnnotationExpr> annotations,
+            final NodeList<VariableDeclarator> variables) {
         this(null, modifiers, annotations, variables);
     }
 
@@ -84,7 +100,11 @@ public class VariableDeclarationExpr extends Expression implements NodeWithFinal
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public VariableDeclarationExpr(TokenRange tokenRange, NodeList<Modifier> modifiers, NodeList<AnnotationExpr> annotations, NodeList<VariableDeclarator> variables) {
+    public VariableDeclarationExpr(
+            TokenRange tokenRange,
+            NodeList<Modifier> modifiers,
+            NodeList<AnnotationExpr> annotations,
+            NodeList<VariableDeclarator> variables) {
         super(tokenRange);
         setModifiers(modifiers);
         setAnnotations(annotations);
@@ -132,8 +152,7 @@ public class VariableDeclarationExpr extends Expression implements NodeWithFinal
             return this;
         }
         notifyPropertyChange(ObservableProperty.ANNOTATIONS, this.annotations, annotations);
-        if (this.annotations != null)
-            this.annotations.setParentNode(null);
+        if (this.annotations != null) this.annotations.setParentNode(null);
         this.annotations = annotations;
         setAsParentNodeOf(annotations);
         return this;
@@ -146,8 +165,7 @@ public class VariableDeclarationExpr extends Expression implements NodeWithFinal
             return this;
         }
         notifyPropertyChange(ObservableProperty.MODIFIERS, this.modifiers, modifiers);
-        if (this.modifiers != null)
-            this.modifiers.setParentNode(null);
+        if (this.modifiers != null) this.modifiers.setParentNode(null);
         this.modifiers = modifiers;
         setAsParentNodeOf(modifiers);
         return this;
@@ -160,8 +178,7 @@ public class VariableDeclarationExpr extends Expression implements NodeWithFinal
             return this;
         }
         notifyPropertyChange(ObservableProperty.VARIABLES, this.variables, variables);
-        if (this.variables != null)
-            this.variables.setParentNode(null);
+        if (this.variables != null) this.variables.setParentNode(null);
         this.variables = variables;
         setAsParentNodeOf(variables);
         return this;

@@ -6,6 +6,7 @@ package com.github.javaparser.metamodel;
 
 import com.github.javaparser.ast.Generated;
 import com.github.javaparser.ast.key.KeyMethodCallStmt;
+
 import java.util.Optional;
 
 /**
@@ -22,7 +23,13 @@ public class KeyMethodCallStatementMetaModel extends StatementMetaModel {
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     KeyMethodCallStatementMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
-        super(superBaseNodeMetaModel, KeyMethodCallStmt.class, "KeyMethodCallStatement", "com.github.javaparser.ast.key", false, false);
+        super(
+                superBaseNodeMetaModel,
+                KeyMethodCallStmt.class,
+                "KeyMethodCallStatement",
+                "com.github.javaparser.ast.key",
+                false,
+                false);
     }
 
     public PropertyMetaModel blockPropertyMetaModel;

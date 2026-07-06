@@ -16,9 +16,11 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.KeyPassiveExpressionMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /// A passive expression `@(expr)` is an expression with a static-suppression semantics.
@@ -71,8 +73,7 @@ public class KeyPassiveExpression extends Expression {
             return this;
         }
         notifyPropertyChange(ObservableProperty.EXPR, this.expr, expr);
-        if (this.expr != null)
-            this.expr.setParentNode(null);
+        if (this.expr != null) this.expr.setParentNode(null);
         this.expr = expr;
         setAsParentNodeOf(expr);
         return this;

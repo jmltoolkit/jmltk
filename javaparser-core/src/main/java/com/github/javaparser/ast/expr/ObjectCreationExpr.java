@@ -29,9 +29,11 @@ import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.declarations.ResolvedConstructorDeclaration;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -44,7 +46,12 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
  *
  * @author Julio Vilmar Gesser
  */
-public class ObjectCreationExpr extends Expression implements NodeWithTypeArguments<ObjectCreationExpr>, NodeWithType<ObjectCreationExpr, ClassOrInterfaceType>, NodeWithArguments<ObjectCreationExpr>, NodeWithOptionalScope<ObjectCreationExpr>, Resolvable<ResolvedConstructorDeclaration> {
+public class ObjectCreationExpr extends Expression
+        implements NodeWithTypeArguments<ObjectCreationExpr>,
+                NodeWithType<ObjectCreationExpr, ClassOrInterfaceType>,
+                NodeWithArguments<ObjectCreationExpr>,
+                NodeWithOptionalScope<ObjectCreationExpr>,
+                Resolvable<ResolvedConstructorDeclaration> {
 
     @OptionalProperty
     private Expression scope;
@@ -70,12 +77,18 @@ public class ObjectCreationExpr extends Expression implements NodeWithTypeArgume
      * @param type this is the class that the constructor is being called for.
      * @param arguments Any arguments to pass to the constructor
      */
-    public ObjectCreationExpr(final Expression scope, final ClassOrInterfaceType type, final NodeList<Expression> arguments) {
+    public ObjectCreationExpr(
+            final Expression scope, final ClassOrInterfaceType type, final NodeList<Expression> arguments) {
         this(null, scope, type, null, arguments, null);
     }
 
     @AllFieldsConstructor
-    public ObjectCreationExpr(final Expression scope, final ClassOrInterfaceType type, final NodeList<Type> typeArguments, final NodeList<Expression> arguments, final NodeList<BodyDeclaration<?>> anonymousClassBody) {
+    public ObjectCreationExpr(
+            final Expression scope,
+            final ClassOrInterfaceType type,
+            final NodeList<Type> typeArguments,
+            final NodeList<Expression> arguments,
+            final NodeList<BodyDeclaration<?>> anonymousClassBody) {
         this(null, scope, type, typeArguments, arguments, anonymousClassBody);
     }
 
@@ -83,7 +96,13 @@ public class ObjectCreationExpr extends Expression implements NodeWithTypeArgume
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public ObjectCreationExpr(TokenRange tokenRange, Expression scope, ClassOrInterfaceType type, NodeList<Type> typeArguments, NodeList<Expression> arguments, NodeList<BodyDeclaration<?>> anonymousClassBody) {
+    public ObjectCreationExpr(
+            TokenRange tokenRange,
+            Expression scope,
+            ClassOrInterfaceType type,
+            NodeList<Type> typeArguments,
+            NodeList<Expression> arguments,
+            NodeList<BodyDeclaration<?>> anonymousClassBody) {
         super(tokenRange);
         setScope(scope);
         setType(type);
@@ -111,8 +130,7 @@ public class ObjectCreationExpr extends Expression implements NodeWithTypeArgume
     }
 
     public void addAnonymousClassBody(BodyDeclaration<?> body) {
-        if (anonymousClassBody == null)
-            anonymousClassBody = new NodeList<>();
+        if (anonymousClassBody == null) anonymousClassBody = new NodeList<>();
         anonymousClassBody.add(body);
     }
 
@@ -145,8 +163,7 @@ public class ObjectCreationExpr extends Expression implements NodeWithTypeArgume
             return this;
         }
         notifyPropertyChange(ObservableProperty.ANONYMOUS_CLASS_BODY, this.anonymousClassBody, anonymousClassBody);
-        if (this.anonymousClassBody != null)
-            this.anonymousClassBody.setParentNode(null);
+        if (this.anonymousClassBody != null) this.anonymousClassBody.setParentNode(null);
         this.anonymousClassBody = anonymousClassBody;
         setAsParentNodeOf(anonymousClassBody);
         return this;
@@ -159,8 +176,7 @@ public class ObjectCreationExpr extends Expression implements NodeWithTypeArgume
             return this;
         }
         notifyPropertyChange(ObservableProperty.ARGUMENTS, this.arguments, arguments);
-        if (this.arguments != null)
-            this.arguments.setParentNode(null);
+        if (this.arguments != null) this.arguments.setParentNode(null);
         this.arguments = arguments;
         setAsParentNodeOf(arguments);
         return this;
@@ -178,8 +194,7 @@ public class ObjectCreationExpr extends Expression implements NodeWithTypeArgume
             return this;
         }
         notifyPropertyChange(ObservableProperty.SCOPE, this.scope, scope);
-        if (this.scope != null)
-            this.scope.setParentNode(null);
+        if (this.scope != null) this.scope.setParentNode(null);
         this.scope = scope;
         setAsParentNodeOf(scope);
         return this;
@@ -192,8 +207,7 @@ public class ObjectCreationExpr extends Expression implements NodeWithTypeArgume
             return this;
         }
         notifyPropertyChange(ObservableProperty.TYPE, this.type, type);
-        if (this.type != null)
-            this.type.setParentNode(null);
+        if (this.type != null) this.type.setParentNode(null);
         this.type = type;
         setAsParentNodeOf(type);
         return this;
@@ -216,8 +230,7 @@ public class ObjectCreationExpr extends Expression implements NodeWithTypeArgume
             return this;
         }
         notifyPropertyChange(ObservableProperty.TYPE_ARGUMENTS, this.typeArguments, typeArguments);
-        if (this.typeArguments != null)
-            this.typeArguments.setParentNode(null);
+        if (this.typeArguments != null) this.typeArguments.setParentNode(null);
         this.typeArguments = typeArguments;
         setAsParentNodeOf(typeArguments);
         return this;

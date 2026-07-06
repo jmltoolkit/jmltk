@@ -15,9 +15,11 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.PatternExprMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -33,8 +35,7 @@ public abstract class PatternExpr extends ComponentPatternExpr implements NodeWi
     private Type type;
 
     @AllFieldsConstructor
-    public PatternExpr(Type type) {
-    }
+    public PatternExpr(Type type) {}
 
     /**
      * This constructor is used by the parser and is considered private.
@@ -58,8 +59,7 @@ public abstract class PatternExpr extends ComponentPatternExpr implements NodeWi
             return this;
         }
         notifyPropertyChange(ObservableProperty.TYPE, this.type, type);
-        if (this.type != null)
-            this.type.setParentNode(null);
+        if (this.type != null) this.type.setParentNode(null);
         this.type = type;
         setAsParentNodeOf(type);
         return this;
@@ -71,8 +71,7 @@ public abstract class PatternExpr extends ComponentPatternExpr implements NodeWi
     }
 
     @Override
-    public <A> void accept(VoidVisitor<A> v, A arg) {
-    }
+    public <A> void accept(VoidVisitor<A> v, A arg) {}
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")

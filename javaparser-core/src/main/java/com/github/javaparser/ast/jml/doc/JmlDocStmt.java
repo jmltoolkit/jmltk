@@ -18,9 +18,11 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlDocStmtMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -116,8 +118,7 @@ public class JmlDocStmt extends Statement implements JmlDocContainer {
             return this;
         }
         notifyPropertyChange(ObservableProperty.JML_COMMENTS, this.jmlComments, jmlComments);
-        if (this.jmlComments != null)
-            this.jmlComments.setParentNode(null);
+        if (this.jmlComments != null) this.jmlComments.setParentNode(null);
         this.jmlComments = jmlComments;
         setAsParentNodeOf(jmlComments);
         return this;

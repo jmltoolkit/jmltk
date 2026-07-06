@@ -5,6 +5,7 @@
 package com.github.javaparser.ast.nodeTypes;
 
 import com.github.javaparser.TokenRange;
+
 import java.util.Optional;
 
 /**

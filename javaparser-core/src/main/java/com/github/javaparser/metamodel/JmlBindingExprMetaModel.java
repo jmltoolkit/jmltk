@@ -6,6 +6,7 @@ package com.github.javaparser.metamodel;
 
 import com.github.javaparser.ast.Generated;
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr;
+
 import java.util.Optional;
 
 /**
@@ -22,7 +23,13 @@ public class JmlBindingExprMetaModel extends ExpressionMetaModel {
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     JmlBindingExprMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
-        super(superBaseNodeMetaModel, JmlQuantifiedExpr.class, "JmlBindingExpr", "com.github.javaparser.ast.jml.expr", false, false);
+        super(
+                superBaseNodeMetaModel,
+                JmlQuantifiedExpr.class,
+                "JmlBindingExpr",
+                "com.github.javaparser.ast.jml.expr",
+                false,
+                false);
     }
 
     public PropertyMetaModel binderPropertyMetaModel;

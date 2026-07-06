@@ -18,8 +18,8 @@ import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.KeyCcatchContinueMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
 import org.jspecify.annotations.Nullable;
+
 import java.util.Optional;
-import java.util.Objects;
 
 public class KeyCcatchContinue extends KeyCcatchBranch {
 
@@ -80,8 +80,7 @@ public class KeyCcatchContinue extends KeyCcatchBranch {
             return this;
         }
         notifyPropertyChange(ObservableProperty.BLOCK, this.block, block);
-        if (this.block != null)
-            this.block.setParentNode(null);
+        if (this.block != null) this.block.setParentNode(null);
         this.block = block;
         setAsParentNodeOf(block);
         return this;
@@ -98,8 +97,7 @@ public class KeyCcatchContinue extends KeyCcatchBranch {
             return this;
         }
         notifyPropertyChange(ObservableProperty.LABEL, this.label, label);
-        if (this.label != null)
-            this.label.setParentNode(null);
+        if (this.label != null) this.label.setParentNode(null);
         this.label = label;
         setAsParentNodeOf(label);
         return this;

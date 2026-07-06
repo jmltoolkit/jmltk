@@ -15,9 +15,11 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.ArrayAccessExprMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -86,8 +88,7 @@ public class ArrayAccessExpr extends Expression {
             return this;
         }
         notifyPropertyChange(ObservableProperty.INDEX, this.index, index);
-        if (this.index != null)
-            this.index.setParentNode(null);
+        if (this.index != null) this.index.setParentNode(null);
         this.index = index;
         setAsParentNodeOf(index);
         return this;
@@ -100,8 +101,7 @@ public class ArrayAccessExpr extends Expression {
             return this;
         }
         notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null)
-            this.name.setParentNode(null);
+        if (this.name != null) this.name.setParentNode(null);
         this.name = name;
         setAsParentNodeOf(name);
         return this;

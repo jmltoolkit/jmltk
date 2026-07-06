@@ -13,6 +13,7 @@ import com.github.javaparser.resolution.declarations.*;
 import com.github.javaparser.resolution.model.SymbolReference;
 import com.github.javaparser.resolution.model.Value;
 import com.github.javaparser.resolution.types.ResolvedType;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -93,7 +94,8 @@ public interface Context {
      *
      * @return The declaration associated with the given type name.
      */
-    default SymbolReference<ResolvedTypeDeclaration> solveType(String name, @Nullable List<ResolvedType> typeArguments) {
+    default SymbolReference<ResolvedTypeDeclaration> solveType(
+            String name, @Nullable List<ResolvedType> typeArguments) {
         // Default to solving within the parent context.
         return solveTypeInParentContext(name, typeArguments);
     }
@@ -122,7 +124,8 @@ public interface Context {
      *
      * @return The declaration associated with the given type name.
      */
-    default SymbolReference<ResolvedTypeDeclaration> solveTypeInParentContext(String name, @Nullable List<ResolvedType> typeArguments) {
+    default SymbolReference<ResolvedTypeDeclaration> solveTypeInParentContext(
+            String name, @Nullable List<ResolvedType> typeArguments) {
         Optional<Context> optionalParentContext = getParent();
         if (!optionalParentContext.isPresent()) {
             return SymbolReference.unsolved();
@@ -250,7 +253,10 @@ public interface Context {
         // First check if the variable is directly declared within this context.
         Node wrappedNode = getWrappedNode();
         Context parentContext = getParent().get();
-        Optional<VariableDeclarator> localResolutionResults = parentContext.localVariablesExposedToChild(wrappedNode).stream().filter(vd -> vd.getNameAsString().equals(name)).findFirst();
+        Optional<VariableDeclarator> localResolutionResults =
+                parentContext.localVariablesExposedToChild(wrappedNode).stream()
+                        .filter(vd -> vd.getNameAsString().equals(name))
+                        .findFirst();
         if (localResolutionResults.isPresent()) {
             return localResolutionResults;
         }
@@ -265,7 +271,9 @@ public interface Context {
         // First check if the parameter is directly declared within this context.
         Node wrappedNode = getWrappedNode();
         Context parentContext = getParent().get();
-        Optional<Parameter> localResolutionResults = parentContext.parametersExposedToChild(wrappedNode).stream().filter(vd -> vd.getNameAsString().equals(name)).findFirst();
+        Optional<Parameter> localResolutionResults = parentContext.parametersExposedToChild(wrappedNode).stream()
+                .filter(vd -> vd.getNameAsString().equals(name))
+                .findFirst();
         if (localResolutionResults.isPresent()) {
             return localResolutionResults;
         }
@@ -301,7 +309,10 @@ public interface Context {
         // FIXME: If there are multiple patterns, throw an error?
         // First check if the pattern is directly declared within this context.
         Node wrappedNode = getWrappedNode();
-        Optional<TypePatternExpr> localResolutionResults = parentContext.typePatternExprsExposedToChild(wrappedNode).stream().filter(vd -> vd.getNameAsString().equals(name)).findFirst();
+        Optional<TypePatternExpr> localResolutionResults =
+                parentContext.typePatternExprsExposedToChild(wrappedNode).stream()
+                        .filter(vd -> vd.getNameAsString().equals(name))
+                        .findFirst();
         if (localResolutionResults.isPresent()) {
             return localResolutionResults;
         }
@@ -316,7 +327,10 @@ public interface Context {
         Context parentContext = getParent().get();
         // First check if the parameter is directly declared within this context.
         Node wrappedNode = getWrappedNode();
-        Optional<ResolvedFieldDeclaration> localResolutionResults = parentContext.fieldsExposedToChild(wrappedNode).stream().filter(vd -> vd.getName().equals(name)).findFirst();
+        Optional<ResolvedFieldDeclaration> localResolutionResults =
+                parentContext.fieldsExposedToChild(wrappedNode).stream()
+                        .filter(vd -> vd.getName().equals(name))
+                        .findFirst();
         if (localResolutionResults.isPresent()) {
             return localResolutionResults;
         }
@@ -336,12 +350,20 @@ public interface Context {
     /**
      * We find the method declaration which is the best match for the given name and list of typeParametersValues.
      */
-    default SymbolReference<ResolvedMethodDeclaration> solveMethod(String name, List<ResolvedType> argumentsTypes, boolean staticOnly, ResolvedReferenceTypeDeclaration invocationContext) {
+    default SymbolReference<ResolvedMethodDeclaration> solveMethod(
+            String name,
+            List<ResolvedType> argumentsTypes,
+            boolean staticOnly,
+            ResolvedReferenceTypeDeclaration invocationContext) {
         // Default to solving within the parent context.
         return solveMethodInParentContext(name, argumentsTypes, staticOnly, invocationContext);
     }
 
-    default SymbolReference<ResolvedMethodDeclaration> solveMethodInParentContext(String name, List<ResolvedType> argumentsTypes, boolean staticOnly, ResolvedReferenceTypeDeclaration invocationContext) {
+    default SymbolReference<ResolvedMethodDeclaration> solveMethodInParentContext(
+            String name,
+            List<ResolvedType> argumentsTypes,
+            boolean staticOnly,
+            ResolvedReferenceTypeDeclaration invocationContext) {
         Optional<Context> optionalParentContext = getParent();
         if (!optionalParentContext.isPresent()) {
             return SymbolReference.unsolved();
@@ -354,5 +376,6 @@ public interface Context {
      * Similar to solveMethod but we return a MethodUsage.
      * A MethodUsage corresponds to a MethodDeclaration plus the resolved type variables.
      */
-    Optional<MethodUsage> solveMethodAsUsage(String name, List<ResolvedType> argumentsTypes, ResolvedReferenceTypeDeclaration invocationContext);
+    Optional<MethodUsage> solveMethodAsUsage(
+            String name, List<ResolvedType> argumentsTypes, ResolvedReferenceTypeDeclaration invocationContext);
 }

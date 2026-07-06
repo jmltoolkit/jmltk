@@ -9,7 +9,9 @@ import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.SimpleName;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+
 import java.util.Optional;
+
 import static com.github.javaparser.utils.Utils.assertNonEmpty;
 
 /**

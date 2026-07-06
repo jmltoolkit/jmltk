@@ -21,9 +21,11 @@ import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -81,7 +83,8 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
  * @see <a href="https://bugs.openjdk.java.net/browse/JDK-8181287">JEP305: https://bugs.openjdk.java.net/browse/JDK-8181287</a>
  * @see <a href="https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-15.20">https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-15.20</a>
  */
-public class InstanceOfExpr extends Expression implements NodeWithType<InstanceOfExpr, ReferenceType>, NodeWithExpression<InstanceOfExpr> {
+public class InstanceOfExpr extends Expression
+        implements NodeWithType<InstanceOfExpr, ReferenceType>, NodeWithExpression<InstanceOfExpr> {
 
     private Expression expression;
 
@@ -240,8 +243,7 @@ public class InstanceOfExpr extends Expression implements NodeWithType<InstanceO
             return this;
         }
         notifyPropertyChange(ObservableProperty.EXPRESSION, this.expression, expression);
-        if (this.expression != null)
-            this.expression.setParentNode(null);
+        if (this.expression != null) this.expression.setParentNode(null);
         this.expression = expression;
         setAsParentNodeOf(expression);
         return this;
@@ -253,8 +255,7 @@ public class InstanceOfExpr extends Expression implements NodeWithType<InstanceO
             return this;
         }
         notifyPropertyChange(ObservableProperty.PATTERN, this.pattern, pattern);
-        if (this.pattern != null)
-            this.pattern.setParentNode(null);
+        if (this.pattern != null) this.pattern.setParentNode(null);
         this.pattern = pattern;
         setAsParentNodeOf(pattern);
         return this;
@@ -267,8 +268,7 @@ public class InstanceOfExpr extends Expression implements NodeWithType<InstanceO
             return this;
         }
         notifyPropertyChange(ObservableProperty.TYPE, this.type, type);
-        if (this.type != null)
-            this.type.setParentNode(null);
+        if (this.type != null) this.type.setParentNode(null);
         this.type = type;
         setAsParentNodeOf(type);
         return this;

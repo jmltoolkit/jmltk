@@ -17,9 +17,11 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.KeyMetaConstructExpressionMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 public class KeyMetaConstructExpression extends Expression {
@@ -73,8 +75,7 @@ public class KeyMetaConstructExpression extends Expression {
             return this;
         }
         notifyPropertyChange(ObservableProperty.CHILD, this.child, child);
-        if (this.child != null)
-            this.child.setParentNode(null);
+        if (this.child != null) this.child.setParentNode(null);
         this.child = child;
         setAsParentNodeOf(child);
         return this;

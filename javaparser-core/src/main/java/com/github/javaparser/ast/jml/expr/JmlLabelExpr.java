@@ -19,10 +19,12 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlLabelExprMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -47,12 +49,16 @@ public class JmlLabelExpr extends JmlExpression {
     }
 
     private static Kind token2Kind(JavaToken token) {
-        return Arrays.stream(Kind.values()).filter(it -> it.jmlSymbol().equals(token.getText())).findFirst().get();
+        return Arrays.stream(Kind.values())
+                .filter(it -> it.jmlSymbol().equals(token.getText()))
+                .findFirst()
+                .get();
     }
 
     public enum Kind implements JmlKeyword {
-
-        NEUTRAL("\\lbl"), POSITIVE("\\lblpos"), NEGATIVE("\\lblneg");
+        NEUTRAL("\\lbl"),
+        POSITIVE("\\lblpos"),
+        NEGATIVE("\\lblneg");
 
         private final String symbol;
 
@@ -151,8 +157,7 @@ public class JmlLabelExpr extends JmlExpression {
             return this;
         }
         notifyPropertyChange(ObservableProperty.EXPRESSION, this.expression, expression);
-        if (this.expression != null)
-            this.expression.setParentNode(null);
+        if (this.expression != null) this.expression.setParentNode(null);
         this.expression = expression;
         setAsParentNodeOf(expression);
         return this;
@@ -196,8 +201,7 @@ public class JmlLabelExpr extends JmlExpression {
             return this;
         }
         notifyPropertyChange(ObservableProperty.LABEL, this.label, label);
-        if (this.label != null)
-            this.label.setParentNode(null);
+        if (this.label != null) this.label.setParentNode(null);
         this.label = label;
         setAsParentNodeOf(label);
         return this;

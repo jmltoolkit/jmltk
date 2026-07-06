@@ -15,7 +15,7 @@ import com.github.javaparser.utils.Utils;
 public interface Change {
 
     default boolean evaluate(CsmConditional csmConditional, Node node) {
-        switch(csmConditional.getCondition()) {
+        switch (csmConditional.getCondition()) {
             case FLAG:
                 return csmConditional.getProperties().stream().anyMatch(p -> (Boolean) getValue(p, node));
             case IS_NOT_EMPTY:
@@ -23,9 +23,11 @@ public interface Change {
             case IS_EMPTY:
                 return Utils.valueIsNullOrEmpty(getValue(csmConditional.getProperty(), node));
             case IS_PRESENT:
-                return !Utils.valueIsNullOrEmptyStringOrOptional(getValue(csmConditional.getProperty(), node)) && !isEvaluatedOnDerivedProperty(csmConditional.getProperty());
+                return !Utils.valueIsNullOrEmptyStringOrOptional(getValue(csmConditional.getProperty(), node))
+                        && !isEvaluatedOnDerivedProperty(csmConditional.getProperty());
             default:
-                throw new UnsupportedOperationException("" + csmConditional.getProperty() + " " + csmConditional.getCondition());
+                throw new UnsupportedOperationException(
+                        "" + csmConditional.getProperty() + " " + csmConditional.getCondition());
         }
     }
 
@@ -80,7 +82,8 @@ public interface Change {
          * field but the validation condition must not be checked.
          * Be careful because NoChange property must not affect this evaluation.
          */
-        return currentProperty != null && (property.isDerived() && property.name().endsWith(currentProperty.name()));
+        return currentProperty != null
+                && (property.isDerived() && property.name().endsWith(currentProperty.name()));
     }
 
     /*

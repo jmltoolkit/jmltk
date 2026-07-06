@@ -31,12 +31,14 @@ import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.resolution.types.ResolvedTypeVariable;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 import static java.util.stream.Collectors.joining;
 
@@ -54,7 +56,10 @@ import static java.util.stream.Collectors.joining;
  *
  * @author Julio Vilmar Gesser
  */
-public class ClassOrInterfaceType extends ReferenceType implements NodeWithSimpleName<ClassOrInterfaceType>, NodeWithAnnotations<ClassOrInterfaceType>, NodeWithTypeArguments<ClassOrInterfaceType> {
+public class ClassOrInterfaceType extends ReferenceType
+        implements NodeWithSimpleName<ClassOrInterfaceType>,
+                NodeWithAnnotations<ClassOrInterfaceType>,
+                NodeWithTypeArguments<ClassOrInterfaceType> {
 
     @OptionalProperty
     private ClassOrInterfaceType scope;
@@ -79,12 +84,17 @@ public class ClassOrInterfaceType extends ReferenceType implements NodeWithSimpl
         this(null, scope, new SimpleName(name), null, new NodeList<>());
     }
 
-    public ClassOrInterfaceType(final ClassOrInterfaceType scope, final SimpleName name, final NodeList<Type> typeArguments) {
+    public ClassOrInterfaceType(
+            final ClassOrInterfaceType scope, final SimpleName name, final NodeList<Type> typeArguments) {
         this(null, scope, name, typeArguments, new NodeList<>());
     }
 
     @AllFieldsConstructor
-    public ClassOrInterfaceType(final ClassOrInterfaceType scope, final SimpleName name, final NodeList<Type> typeArguments, final NodeList<AnnotationExpr> annotations) {
+    public ClassOrInterfaceType(
+            final ClassOrInterfaceType scope,
+            final SimpleName name,
+            final NodeList<Type> typeArguments,
+            final NodeList<AnnotationExpr> annotations) {
         this(null, scope, name, typeArguments, annotations);
     }
 
@@ -92,7 +102,12 @@ public class ClassOrInterfaceType extends ReferenceType implements NodeWithSimpl
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public ClassOrInterfaceType(TokenRange tokenRange, ClassOrInterfaceType scope, SimpleName name, NodeList<Type> typeArguments, NodeList<AnnotationExpr> annotations) {
+    public ClassOrInterfaceType(
+            TokenRange tokenRange,
+            ClassOrInterfaceType scope,
+            SimpleName name,
+            NodeList<Type> typeArguments,
+            NodeList<AnnotationExpr> annotations) {
         super(tokenRange, annotations);
         setScope(scope);
         setName(name);
@@ -147,8 +162,7 @@ public class ClassOrInterfaceType extends ReferenceType implements NodeWithSimpl
             return this;
         }
         notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null)
-            this.name.setParentNode(null);
+        if (this.name != null) this.name.setParentNode(null);
         this.name = name;
         setAsParentNodeOf(name);
         return this;
@@ -166,8 +180,7 @@ public class ClassOrInterfaceType extends ReferenceType implements NodeWithSimpl
             return this;
         }
         notifyPropertyChange(ObservableProperty.SCOPE, this.scope, scope);
-        if (this.scope != null)
-            this.scope.setParentNode(null);
+        if (this.scope != null) this.scope.setParentNode(null);
         this.scope = scope;
         setAsParentNodeOf(scope);
         return this;
@@ -190,8 +203,7 @@ public class ClassOrInterfaceType extends ReferenceType implements NodeWithSimpl
             return this;
         }
         notifyPropertyChange(ObservableProperty.TYPE_ARGUMENTS, this.typeArguments, typeArguments);
-        if (this.typeArguments != null)
-            this.typeArguments.setParentNode(null);
+        if (this.typeArguments != null) this.typeArguments.setParentNode(null);
         this.typeArguments = typeArguments;
         setAsParentNodeOf(typeArguments);
         return this;
@@ -230,7 +242,8 @@ public class ClassOrInterfaceType extends ReferenceType implements NodeWithSimpl
         StringBuilder str = new StringBuilder();
         getScope().ifPresent(s -> str.append(s.asString()).append("."));
         str.append(name.asString());
-        getTypeArguments().ifPresent(ta -> str.append(ta.stream().map(Type::asString).collect(joining(",", "<", ">"))));
+        getTypeArguments()
+                .ifPresent(ta -> str.append(ta.stream().map(Type::asString).collect(joining(",", "<", ">"))));
         return str.toString();
     }
 
@@ -240,7 +253,8 @@ public class ClassOrInterfaceType extends ReferenceType implements NodeWithSimpl
      */
     @Override
     public String toDescriptor() {
-        return String.format("L%s;", resolve().erasure().asReferenceType().getQualifiedName().replace(".", "/"));
+        return String.format(
+                "L%s;", resolve().erasure().asReferenceType().getQualifiedName().replace(".", "/"));
     }
 
     @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
@@ -333,7 +347,9 @@ public class ClassOrInterfaceType extends ReferenceType implements NodeWithSimpl
         ResolvedTypeDeclaration typeDeclaration = ref.getCorrespondingDeclaration();
         List<ResolvedType> typeParameters = Collections.emptyList();
         if (getTypeArguments().isPresent()) {
-            typeParameters = getTypeArguments().get().stream().map((pt) -> pt.convertToUsage(context)).collect(Collectors.toList());
+            typeParameters = getTypeArguments().get().stream()
+                    .map((pt) -> pt.convertToUsage(context))
+                    .collect(Collectors.toList());
         }
         if (typeDeclaration.isTypeParameter()) {
             return new ResolvedTypeVariable(typeDeclaration.asTypeParameter());

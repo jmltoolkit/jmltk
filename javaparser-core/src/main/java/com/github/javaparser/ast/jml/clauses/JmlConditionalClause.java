@@ -19,16 +19,19 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlConditionalClauseMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * @author Alexander Weigl
  * @version 1 (2/22/21)
  */
-public class JmlConditionalClause extends JmlClause implements NodeWithExpression<JmlConditionalClause>, NodeWithCondition<JmlConditionalClause> {
+public class JmlConditionalClause extends JmlClause
+        implements NodeWithExpression<JmlConditionalClause>, NodeWithCondition<JmlConditionalClause> {
 
     private JmlClauseKind kind;
 
@@ -103,8 +106,7 @@ public class JmlConditionalClause extends JmlClause implements NodeWithExpressio
             return this;
         }
         notifyPropertyChange(ObservableProperty.CONDITION, this.condition, condition);
-        if (this.condition != null)
-            this.condition.setParentNode(null);
+        if (this.condition != null) this.condition.setParentNode(null);
         this.condition = condition;
         setAsParentNodeOf(condition);
         return this;
@@ -133,8 +135,7 @@ public class JmlConditionalClause extends JmlClause implements NodeWithExpressio
             return this;
         }
         notifyPropertyChange(ObservableProperty.CONDITION, this.expression, expression);
-        if (this.expression != null)
-            this.expression.setParentNode(null);
+        if (this.expression != null) this.expression.setParentNode(null);
         this.expression = expression;
         setAsParentNodeOf(expression);
         return this;
@@ -168,7 +169,8 @@ public class JmlConditionalClause extends JmlClause implements NodeWithExpressio
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlConditionalClause(TokenRange tokenRange, SimpleName name, Expression condition, JmlClauseKind kind, Expression expression) {
+    public JmlConditionalClause(
+            TokenRange tokenRange, SimpleName name, Expression condition, JmlClauseKind kind, Expression expression) {
         super(tokenRange, name);
         setCondition(condition);
         setKind(kind);
@@ -207,8 +209,7 @@ public class JmlConditionalClause extends JmlClause implements NodeWithExpressio
             return this;
         }
         notifyPropertyChange(ObservableProperty.EXPRESSION, this.expression, expression);
-        if (this.expression != null)
-            this.expression.setParentNode(null);
+        if (this.expression != null) this.expression.setParentNode(null);
         this.expression = expression;
         setAsParentNodeOf(expression);
         return this;

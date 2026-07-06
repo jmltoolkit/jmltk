@@ -7,6 +7,7 @@ package com.github.javaparser.metamodel;
 import com.github.javaparser.ast.Generated;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.key.KeyCcatchBranch;
+
 import java.util.Optional;
 
 /**
@@ -23,11 +24,23 @@ public class KeYCcatchBranchMetaModel extends NodeMetaModel {
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     KeYCcatchBranchMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
-        super(superBaseNodeMetaModel, KeyCcatchBranch.class, "KeYCcatchBranch", "com.github.javaparser.ast.key", true, false);
+        super(
+                superBaseNodeMetaModel,
+                KeyCcatchBranch.class,
+                "KeYCcatchBranch",
+                "com.github.javaparser.ast.key",
+                true,
+                false);
     }
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
-    protected KeYCcatchBranchMetaModel(Optional<BaseNodeMetaModel> superNodeMetaModel, Class<? extends Node> type, String name, String packageName, boolean isAbstract, boolean hasWildcard) {
+    protected KeYCcatchBranchMetaModel(
+            Optional<BaseNodeMetaModel> superNodeMetaModel,
+            Class<? extends Node> type,
+            String name,
+            String packageName,
+            boolean isAbstract,
+            boolean hasWildcard) {
         super(superNodeMetaModel, type, name, packageName, isAbstract, hasWildcard);
     }
 }

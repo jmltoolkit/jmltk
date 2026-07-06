@@ -19,9 +19,11 @@ import com.github.javaparser.metamodel.KeyContextStatementBlockMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 public class KeyContextStatementBlock extends Statement {
@@ -41,7 +43,12 @@ public class KeyContextStatementBlock extends Statement {
     private KeyExpressionSV expression;
 
     @AllFieldsConstructor
-    public KeyContextStatementBlock(NodeList<Statement> statements, KeyExecCtxtSV context, KeyTypeSV tr, KeyMethodSignatureSV signature, KeyExpressionSV expression) {
+    public KeyContextStatementBlock(
+            NodeList<Statement> statements,
+            KeyExecCtxtSV context,
+            KeyTypeSV tr,
+            KeyMethodSignatureSV signature,
+            KeyExpressionSV expression) {
         this(null, statements, context, tr, signature, expression);
     }
 
@@ -49,7 +56,12 @@ public class KeyContextStatementBlock extends Statement {
         this(tokenRange, statements, context, null, null, null);
     }
 
-    public KeyContextStatementBlock(TokenRange tokenRange, NodeList<Statement> statements, KeyTypeSV tr, KeyMethodSignatureSV pm, KeyExpressionSV sv) {
+    public KeyContextStatementBlock(
+            TokenRange tokenRange,
+            NodeList<Statement> statements,
+            KeyTypeSV tr,
+            KeyMethodSignatureSV pm,
+            KeyExpressionSV sv) {
         this(tokenRange, statements, null, tr, pm, sv);
     }
 
@@ -57,7 +69,13 @@ public class KeyContextStatementBlock extends Statement {
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public KeyContextStatementBlock(TokenRange tokenRange, NodeList<Statement> statements, KeyExecCtxtSV context, KeyTypeSV tr, KeyMethodSignatureSV signature, KeyExpressionSV expression) {
+    public KeyContextStatementBlock(
+            TokenRange tokenRange,
+            NodeList<Statement> statements,
+            KeyExecCtxtSV context,
+            KeyTypeSV tr,
+            KeyMethodSignatureSV signature,
+            KeyExpressionSV expression) {
         super(tokenRange);
         setStatements(statements);
         setContext(context);
@@ -114,8 +132,7 @@ public class KeyContextStatementBlock extends Statement {
             return this;
         }
         notifyPropertyChange(ObservableProperty.CONTEXT, this.context, context);
-        if (this.context != null)
-            this.context.setParentNode(null);
+        if (this.context != null) this.context.setParentNode(null);
         this.context = context;
         setAsParentNodeOf(context);
         return this;
@@ -132,8 +149,7 @@ public class KeyContextStatementBlock extends Statement {
             return this;
         }
         notifyPropertyChange(ObservableProperty.EXPRESSION, this.expression, expression);
-        if (this.expression != null)
-            this.expression.setParentNode(null);
+        if (this.expression != null) this.expression.setParentNode(null);
         this.expression = expression;
         setAsParentNodeOf(expression);
         return this;
@@ -150,8 +166,7 @@ public class KeyContextStatementBlock extends Statement {
             return this;
         }
         notifyPropertyChange(ObservableProperty.SIGNATURE, this.signature, signature);
-        if (this.signature != null)
-            this.signature.setParentNode(null);
+        if (this.signature != null) this.signature.setParentNode(null);
         this.signature = signature;
         setAsParentNodeOf(signature);
         return this;
@@ -169,8 +184,7 @@ public class KeyContextStatementBlock extends Statement {
             return this;
         }
         notifyPropertyChange(ObservableProperty.STATEMENTS, this.statements, statements);
-        if (this.statements != null)
-            this.statements.setParentNode(null);
+        if (this.statements != null) this.statements.setParentNode(null);
         this.statements = statements;
         setAsParentNodeOf(statements);
         return this;
@@ -187,8 +201,7 @@ public class KeyContextStatementBlock extends Statement {
             return this;
         }
         notifyPropertyChange(ObservableProperty.TR, this.tr, tr);
-        if (this.tr != null)
-            this.tr.setParentNode(null);
+        if (this.tr != null) this.tr.setParentNode(null);
         this.tr = tr;
         setAsParentNodeOf(tr);
         return this;

@@ -16,7 +16,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.MemberValuePairMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -84,8 +86,7 @@ public class MemberValuePair extends Node implements NodeWithSimpleName<MemberVa
             return this;
         }
         notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null)
-            this.name.setParentNode(null);
+        if (this.name != null) this.name.setParentNode(null);
         this.name = name;
         setAsParentNodeOf(name);
         return this;
@@ -98,8 +99,7 @@ public class MemberValuePair extends Node implements NodeWithSimpleName<MemberVa
             return this;
         }
         notifyPropertyChange(ObservableProperty.VALUE, this.value, value);
-        if (this.value != null)
-            this.value.setParentNode(null);
+        if (this.value != null) this.value.setParentNode(null);
         this.value = value;
         setAsParentNodeOf(value);
         return this;

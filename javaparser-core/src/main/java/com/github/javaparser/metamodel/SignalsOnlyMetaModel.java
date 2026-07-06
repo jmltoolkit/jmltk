@@ -6,6 +6,7 @@ package com.github.javaparser.metamodel;
 
 import com.github.javaparser.ast.Generated;
 import com.github.javaparser.ast.jml.clauses.JmlSignalsOnlyClause;
+
 import java.util.Optional;
 
 /**
@@ -22,6 +23,12 @@ public class SignalsOnlyMetaModel extends JmlClauseMetaModel {
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     SignalsOnlyMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
-        super(superBaseNodeMetaModel, JmlSignalsOnlyClause.class, "SignalsOnly", "com.github.javaparser.ast.clauses", false, false);
+        super(
+                superBaseNodeMetaModel,
+                JmlSignalsOnlyClause.class,
+                "SignalsOnly",
+                "com.github.javaparser.ast.clauses",
+                false,
+                false);
     }
 }

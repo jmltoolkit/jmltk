@@ -6,8 +6,10 @@ package com.github.javaparser;
 
 import com.github.javaparser.ast.Generated;
 import com.github.javaparser.utils.LineSeparator;
+
 import java.util.List;
 import java.util.Optional;
+
 import static com.github.javaparser.utils.CodeGenerationUtils.f;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
@@ -169,8 +171,14 @@ public class JavaToken {
 
     @Override
     public String toString() {
-        String text = getText().replace("\n", "\\n").replace("\r", "\\r").replace("\r\n", "\\r\\n").replace("\t", "\\t");
-        return f("\"%s\"   <%s>   %s", text, getKind(), getRange().map(Range::toString).orElse("(?)-(?)"));
+        String text = getText()
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\r\n", "\\r\\n")
+                .replace("\t", "\\t");
+        return f(
+                "\"%s\"   <%s>   %s",
+                text, getKind(), getRange().map(Range::toString).orElse("(?)-(?)"));
     }
 
     /**
@@ -188,7 +196,6 @@ public class JavaToken {
     }
 
     public enum Category {
-
         WHITESPACE_NO_EOL,
         EOL,
         COMMENT,
@@ -241,7 +248,6 @@ public class JavaToken {
 
     @Generated("com.github.javaparser.generator.core.other.TokenKindGenerator")
     public enum Kind {
-
         EOF(0),
         SPACE(1),
         WINDOWS_EOL(2),
@@ -649,7 +655,7 @@ public class JavaToken {
         }
 
         public static Kind valueOf(int kind) {
-            switch(kind) {
+            switch (kind) {
                 case 398:
                     return UNNAMED_PLACEHOLDER;
                 case 397:
@@ -1454,7 +1460,13 @@ public class JavaToken {
         }
 
         public boolean isPrimitive() {
-            return this == BYTE || this == CHAR || this == SHORT || this == INT || this == LONG || this == FLOAT || this == DOUBLE;
+            return this == BYTE
+                    || this == CHAR
+                    || this == SHORT
+                    || this == INT
+                    || this == LONG
+                    || this == FLOAT
+                    || this == DOUBLE;
         }
 
         public int getKind() {
@@ -1548,15 +1560,11 @@ public class JavaToken {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         JavaToken javaToken = (JavaToken) o;
-        if (kind != javaToken.kind)
-            return false;
-        if (!text.equals(javaToken.text))
-            return false;
+        if (kind != javaToken.kind) return false;
+        if (!text.equals(javaToken.text)) return false;
         return true;
     }
 }

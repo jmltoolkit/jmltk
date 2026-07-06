@@ -6,6 +6,7 @@ package com.github.javaparser.resolution.model.typesystem;
 
 import com.github.javaparser.resolution.declarations.ResolvedTypeParameterDeclaration;
 import com.github.javaparser.resolution.types.*;
+
 import java.util.Map;
 import java.util.function.Function;
 
@@ -107,7 +108,10 @@ public class LazyType implements ResolvedType {
     }
 
     @Override
-    public ResolvedType replaceTypeVariables(ResolvedTypeParameterDeclaration tp, ResolvedType replaced, Map<ResolvedTypeParameterDeclaration, ResolvedType> inferredTypes) {
+    public ResolvedType replaceTypeVariables(
+            ResolvedTypeParameterDeclaration tp,
+            ResolvedType replaced,
+            Map<ResolvedTypeParameterDeclaration, ResolvedType> inferredTypes) {
         return getType().replaceTypeVariables(tp, replaced, inferredTypes);
     }
 

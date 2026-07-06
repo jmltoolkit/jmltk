@@ -17,9 +17,11 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlSignalsOnlyClauseMetaModel;
 import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -45,8 +47,7 @@ public class JmlSignalsOnlyClause extends JmlClause {
         customInitialization();
     }
 
-    public JmlSignalsOnlyClause() {
-    }
+    public JmlSignalsOnlyClause() {}
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.AcceptGenerator")
@@ -122,8 +123,7 @@ public class JmlSignalsOnlyClause extends JmlClause {
             return this;
         }
         notifyPropertyChange(ObservableProperty.TYPES, this.types, types);
-        if (this.types != null)
-            this.types.setParentNode(null);
+        if (this.types != null) this.types.setParentNode(null);
         this.types = types;
         setAsParentNodeOf(types);
         return this;

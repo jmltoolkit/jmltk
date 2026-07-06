@@ -21,9 +21,11 @@ import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -97,8 +99,7 @@ public class IfStmt extends Statement implements NodeWithCondition<IfStmt> {
             return this;
         }
         notifyPropertyChange(ObservableProperty.CONDITION, this.condition, condition);
-        if (this.condition != null)
-            this.condition.setParentNode(null);
+        if (this.condition != null) this.condition.setParentNode(null);
         this.condition = condition;
         setAsParentNodeOf(condition);
         return this;
@@ -116,8 +117,7 @@ public class IfStmt extends Statement implements NodeWithCondition<IfStmt> {
             return this;
         }
         notifyPropertyChange(ObservableProperty.ELSE_STMT, this.elseStmt, elseStmt);
-        if (this.elseStmt != null)
-            this.elseStmt.setParentNode(null);
+        if (this.elseStmt != null) this.elseStmt.setParentNode(null);
         this.elseStmt = elseStmt;
         setAsParentNodeOf(elseStmt);
         return this;
@@ -130,8 +130,7 @@ public class IfStmt extends Statement implements NodeWithCondition<IfStmt> {
             return this;
         }
         notifyPropertyChange(ObservableProperty.THEN_STMT, this.thenStmt, thenStmt);
-        if (this.thenStmt != null)
-            this.thenStmt.setParentNode(null);
+        if (this.thenStmt != null) this.thenStmt.setParentNode(null);
         this.thenStmt = thenStmt;
         setAsParentNodeOf(thenStmt);
         return this;

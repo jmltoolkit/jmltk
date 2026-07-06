@@ -625,10 +625,6 @@ TOKEN :
   <JML_LINE_COMMENT: "//" (("+"|"-") <IDENTIFIER>)* "@" (~["\n","\r"])*>
 }
 
-/*TOKEN : {
-    <SPECIAL_KEY_COMMENT: "//🔑" (~["\n","\r"])*>
-}*/
-
 <DEFAULT, JML_MULTI_CONTRACT, JML_SINGLE_CONTRACT>
 SPECIAL_TOKEN :
 {

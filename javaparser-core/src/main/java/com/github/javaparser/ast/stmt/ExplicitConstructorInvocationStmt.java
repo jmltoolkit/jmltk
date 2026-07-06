@@ -25,11 +25,9 @@ import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.declarations.ResolvedConstructorDeclaration;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -41,10 +39,7 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
  * @see com.github.javaparser.ast.expr.SuperExpr
  * @see com.github.javaparser.ast.expr.ThisExpr
  */
-public class ExplicitConstructorInvocationStmt extends Statement
-        implements NodeWithTypeArguments<ExplicitConstructorInvocationStmt>,
-                NodeWithArguments<ExplicitConstructorInvocationStmt>,
-                Resolvable<ResolvedConstructorDeclaration> {
+public class ExplicitConstructorInvocationStmt extends Statement implements NodeWithTypeArguments<ExplicitConstructorInvocationStmt>, NodeWithArguments<ExplicitConstructorInvocationStmt>, Resolvable<ResolvedConstructorDeclaration> {
 
     @OptionalProperty
     private NodeList<Type> typeArguments;
@@ -60,17 +55,12 @@ public class ExplicitConstructorInvocationStmt extends Statement
         this(null, null, true, null, new NodeList<>());
     }
 
-    public ExplicitConstructorInvocationStmt(
-            final boolean isThis, final Expression expression, final NodeList<Expression> arguments) {
+    public ExplicitConstructorInvocationStmt(final boolean isThis, final Expression expression, final NodeList<Expression> arguments) {
         this(null, null, isThis, expression, arguments);
     }
 
     @AllFieldsConstructor
-    public ExplicitConstructorInvocationStmt(
-            final NodeList<Type> typeArguments,
-            final boolean isThis,
-            final Expression expression,
-            final NodeList<Expression> arguments) {
+    public ExplicitConstructorInvocationStmt(final NodeList<Type> typeArguments, final boolean isThis, final Expression expression, final NodeList<Expression> arguments) {
         this(null, typeArguments, isThis, expression, arguments);
     }
 
@@ -78,12 +68,7 @@ public class ExplicitConstructorInvocationStmt extends Statement
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public ExplicitConstructorInvocationStmt(
-            TokenRange tokenRange,
-            NodeList<Type> typeArguments,
-            boolean isThis,
-            Expression expression,
-            NodeList<Expression> arguments) {
+    public ExplicitConstructorInvocationStmt(TokenRange tokenRange, NodeList<Type> typeArguments, boolean isThis, Expression expression, NodeList<Expression> arguments) {
         super(tokenRange);
         setTypeArguments(typeArguments);
         setThis(isThis);
@@ -127,7 +112,8 @@ public class ExplicitConstructorInvocationStmt extends Statement
             return this;
         }
         notifyPropertyChange(ObservableProperty.ARGUMENTS, this.arguments, arguments);
-        if (this.arguments != null) this.arguments.setParentNode(null);
+        if (this.arguments != null)
+            this.arguments.setParentNode(null);
         this.arguments = arguments;
         setAsParentNodeOf(arguments);
         return this;
@@ -145,7 +131,8 @@ public class ExplicitConstructorInvocationStmt extends Statement
             return this;
         }
         notifyPropertyChange(ObservableProperty.EXPRESSION, this.expression, expression);
-        if (this.expression != null) this.expression.setParentNode(null);
+        if (this.expression != null)
+            this.expression.setParentNode(null);
         this.expression = expression;
         setAsParentNodeOf(expression);
         return this;
@@ -178,7 +165,8 @@ public class ExplicitConstructorInvocationStmt extends Statement
             return this;
         }
         notifyPropertyChange(ObservableProperty.TYPE_ARGUMENTS, this.typeArguments, typeArguments);
-        if (this.typeArguments != null) this.typeArguments.setParentNode(null);
+        if (this.typeArguments != null)
+            this.typeArguments.setParentNode(null);
         this.typeArguments = typeArguments;
         setAsParentNodeOf(typeArguments);
         return this;

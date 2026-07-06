@@ -6,7 +6,6 @@ package com.github.javaparser.metamodel;
 
 import com.github.javaparser.ast.Generated;
 import com.github.javaparser.ast.jml.expr.JmlLabelExpr;
-
 import java.util.Optional;
 
 /**
@@ -23,13 +22,7 @@ public class JmlLabelMetaModel extends ExpressionMetaModel {
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     JmlLabelMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
-        super(
-                superBaseNodeMetaModel,
-                JmlLabelExpr.class,
-                "JmlLabel",
-                "com.github.javaparser.ast.jml.expr",
-                false,
-                false);
+        super(superBaseNodeMetaModel, JmlLabelExpr.class, "JmlLabel", "com.github.javaparser.ast.jml.expr", false, false);
     }
 
     public PropertyMetaModel expressionPropertyMetaModel;

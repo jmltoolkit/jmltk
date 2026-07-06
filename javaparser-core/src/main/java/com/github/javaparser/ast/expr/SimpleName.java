@@ -17,9 +17,7 @@ import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.NonEmptyProperty;
 import com.github.javaparser.metamodel.SimpleNameMetaModel;
 import org.jspecify.annotations.NonNull;
-
 import java.util.Objects;
-
 import static com.github.javaparser.utils.Utils.assertNonEmpty;
 
 /**

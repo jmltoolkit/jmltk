@@ -5,7 +5,6 @@
 package com.github.javaparser.metamodel;
 
 import com.github.javaparser.ast.Generated;
-
 import java.util.Optional;
 
 /**

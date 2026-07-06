@@ -12,10 +12,8 @@ import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
-
 import java.util.List;
 import java.util.Optional;
-
 import static com.github.javaparser.StaticJavaParser.parseType;
 import static com.github.javaparser.ast.Modifier.DefaultKeyword.*;
 import static com.github.javaparser.ast.Modifier.Keyword;
@@ -109,8 +107,7 @@ public interface NodeWithMembers<N extends Node> extends NodeWithSimpleName<N> {
      * @param modifiers   the modifiers like {@link Modifier.DefaultKeyword#PUBLIC}
      * @return the {@link FieldDeclaration} created
      */
-    default FieldDeclaration addFieldWithInitializer(
-            Class<?> typeClass, String name, Expression initializer, Modifier.DefaultKeyword... modifiers) {
+    default FieldDeclaration addFieldWithInitializer(Class<?> typeClass, String name, Expression initializer, Modifier.DefaultKeyword... modifiers) {
         tryAddImportToParentCompilationUnit(typeClass);
         return addFieldWithInitializer(typeClass.getSimpleName(), name, initializer, modifiers);
     }
@@ -124,8 +121,7 @@ public interface NodeWithMembers<N extends Node> extends NodeWithSimpleName<N> {
      * @param modifiers   the modifiers like {@link Modifier.DefaultKeyword#PUBLIC}
      * @return the {@link FieldDeclaration} created
      */
-    default FieldDeclaration addFieldWithInitializer(
-            String type, String name, Expression initializer, Modifier.DefaultKeyword... modifiers) {
+    default FieldDeclaration addFieldWithInitializer(String type, String name, Expression initializer, Modifier.DefaultKeyword... modifiers) {
         return addFieldWithInitializer(parseType(type), name, initializer, modifiers);
     }
 
@@ -138,8 +134,7 @@ public interface NodeWithMembers<N extends Node> extends NodeWithSimpleName<N> {
      * @param modifiers   the modifiers like {@link Modifier.DefaultKeyword#PUBLIC}
      * @return the {@link FieldDeclaration} created
      */
-    default FieldDeclaration addFieldWithInitializer(
-            Type type, String name, Expression initializer, Keyword... modifiers) {
+    default FieldDeclaration addFieldWithInitializer(Type type, String name, Expression initializer, Keyword... modifiers) {
         FieldDeclaration declaration = addField(type, name, modifiers);
         declaration.getVariables().iterator().next().setInitializer(initializer);
         return declaration;
@@ -304,9 +299,7 @@ public interface NodeWithMembers<N extends Node> extends NodeWithSimpleName<N> {
      * @return the methods found (multiple in case of overloading)
      */
     default List<MethodDeclaration> getMethodsByName(String name) {
-        return unmodifiableList(getMethods().stream()
-                .filter(m -> m.getNameAsString().equals(name))
-                .collect(toList()));
+        return unmodifiableList(getMethods().stream().filter(m -> m.getNameAsString().equals(name)).collect(toList()));
     }
 
     /**
@@ -315,10 +308,7 @@ public interface NodeWithMembers<N extends Node> extends NodeWithSimpleName<N> {
      * @return the methods found. This list is immutable.
      */
     default List<MethodDeclaration> getMethods() {
-        return unmodifiableList(getMembers().stream()
-                .filter(m -> m instanceof MethodDeclaration)
-                .map(m -> (MethodDeclaration) m)
-                .collect(toList()));
+        return unmodifiableList(getMembers().stream().filter(m -> m instanceof MethodDeclaration).map(m -> (MethodDeclaration) m).collect(toList()));
     }
 
     /**
@@ -337,9 +327,7 @@ public interface NodeWithMembers<N extends Node> extends NodeWithSimpleName<N> {
      * @return the methods found
      */
     default List<MethodDeclaration> getMethodsByParameterTypes(String... paramTypes) {
-        return unmodifiableList(getMethods().stream()
-                .filter(m -> m.hasParametersOfType(paramTypes))
-                .collect(toList()));
+        return unmodifiableList(getMethods().stream().filter(m -> m.hasParametersOfType(paramTypes)).collect(toList()));
     }
 
     /**
@@ -351,9 +339,7 @@ public interface NodeWithMembers<N extends Node> extends NodeWithSimpleName<N> {
      * @return the methods found
      */
     default List<MethodDeclaration> getMethodsBySignature(String name, String... paramTypes) {
-        return unmodifiableList(getMethodsByName(name).stream()
-                .filter(m -> m.hasParametersOfType(paramTypes))
-                .collect(toList()));
+        return unmodifiableList(getMethodsByName(name).stream().filter(m -> m.hasParametersOfType(paramTypes)).collect(toList()));
     }
 
     /**
@@ -369,9 +355,7 @@ public interface NodeWithMembers<N extends Node> extends NodeWithSimpleName<N> {
      * @return the methods found
      */
     default List<MethodDeclaration> getMethodsByParameterTypes(Class<?>... paramTypes) {
-        return unmodifiableList(getMethods().stream()
-                .filter(m -> m.hasParametersOfType(paramTypes))
-                .collect(toList()));
+        return unmodifiableList(getMethods().stream().filter(m -> m.hasParametersOfType(paramTypes)).collect(toList()));
     }
 
     /**
@@ -382,10 +366,7 @@ public interface NodeWithMembers<N extends Node> extends NodeWithSimpleName<N> {
      * @return the constructors found. This list is immutable.
      */
     default List<ConstructorDeclaration> getConstructors() {
-        return unmodifiableList(getMembers().stream()
-                .filter(m -> m instanceof ConstructorDeclaration)
-                .map(m -> (ConstructorDeclaration) m)
-                .collect(toList()));
+        return unmodifiableList(getMembers().stream().filter(m -> m instanceof ConstructorDeclaration).map(m -> (ConstructorDeclaration) m).collect(toList()));
     }
 
     /**
@@ -394,11 +375,7 @@ public interface NodeWithMembers<N extends Node> extends NodeWithSimpleName<N> {
      * @return the constructor found, if any.
      */
     default Optional<ConstructorDeclaration> getDefaultConstructor() {
-        return getMembers().stream()
-                .filter(m -> m instanceof ConstructorDeclaration)
-                .map(m -> (ConstructorDeclaration) m)
-                .filter(cd -> cd.getParameters().isEmpty())
-                .findFirst();
+        return getMembers().stream().filter(m -> m instanceof ConstructorDeclaration).map(m -> (ConstructorDeclaration) m).filter(cd -> cd.getParameters().isEmpty()).findFirst();
     }
 
     /**
@@ -418,9 +395,7 @@ public interface NodeWithMembers<N extends Node> extends NodeWithSimpleName<N> {
      * @return the constructor found, if any.
      */
     default Optional<ConstructorDeclaration> getConstructorByParameterTypes(String... paramTypes) {
-        return getConstructors().stream()
-                .filter(m -> m.hasParametersOfType(paramTypes))
-                .findFirst();
+        return getConstructors().stream().filter(m -> m.hasParametersOfType(paramTypes)).findFirst();
     }
 
     /**
@@ -436,9 +411,7 @@ public interface NodeWithMembers<N extends Node> extends NodeWithSimpleName<N> {
      * @return the constructor found, if any.
      */
     default Optional<ConstructorDeclaration> getConstructorByParameterTypes(Class<?>... paramTypes) {
-        return getConstructors().stream()
-                .filter(m -> m.hasParametersOfType(paramTypes))
-                .findFirst();
+        return getConstructors().stream().filter(m -> m.hasParametersOfType(paramTypes)).findFirst();
     }
 
     /**
@@ -448,12 +421,7 @@ public interface NodeWithMembers<N extends Node> extends NodeWithSimpleName<N> {
      * @return null if not found, the FieldDeclaration otherwise
      */
     default Optional<FieldDeclaration> getFieldByName(String name) {
-        return getMembers().stream()
-                .filter(m -> m instanceof FieldDeclaration)
-                .map(f -> (FieldDeclaration) f)
-                .filter(f -> f.getVariables().stream()
-                        .anyMatch(var -> var.getNameAsString().equals(name)))
-                .findFirst();
+        return getMembers().stream().filter(m -> m instanceof FieldDeclaration).map(f -> (FieldDeclaration) f).filter(f -> f.getVariables().stream().anyMatch(var -> var.getNameAsString().equals(name))).findFirst();
     }
 
     /**
@@ -462,10 +430,7 @@ public interface NodeWithMembers<N extends Node> extends NodeWithSimpleName<N> {
      * @return the fields found. This list is immutable.
      */
     default List<FieldDeclaration> getFields() {
-        return unmodifiableList(getMembers().stream()
-                .filter(m -> m instanceof FieldDeclaration)
-                .map(m -> (FieldDeclaration) m)
-                .collect(toList()));
+        return unmodifiableList(getMembers().stream().filter(m -> m instanceof FieldDeclaration).map(m -> (FieldDeclaration) m).collect(toList()));
     }
 
     /**

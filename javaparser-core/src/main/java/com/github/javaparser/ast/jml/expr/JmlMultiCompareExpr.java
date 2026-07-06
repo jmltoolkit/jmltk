@@ -16,13 +16,11 @@ import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlMultiCompareExprMetaModel;
 import com.github.javaparser.metamodel.NonEmptyProperty;
 import org.jspecify.annotations.NonNull;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -132,7 +130,8 @@ public class JmlMultiCompareExpr extends JmlExpression {
             return this;
         }
         notifyPropertyChange(ObservableProperty.EXPRESSIONS, this.expressions, expressions);
-        if (this.expressions != null) this.expressions.setParentNode(null);
+        if (this.expressions != null)
+            this.expressions.setParentNode(null);
         this.expressions = expressions;
         setAsParentNodeOf(expressions);
         return this;

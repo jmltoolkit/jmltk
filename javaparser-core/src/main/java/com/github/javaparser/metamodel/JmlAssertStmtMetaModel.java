@@ -6,7 +6,6 @@ package com.github.javaparser.metamodel;
 
 import com.github.javaparser.ast.Generated;
 import com.github.javaparser.ast.jml.stmt.JmlExpressionStmt;
-
 import java.util.Optional;
 
 /**
@@ -23,13 +22,7 @@ public class JmlAssertStmtMetaModel extends JmlStatementMetaModel {
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     JmlAssertStmtMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
-        super(
-                superBaseNodeMetaModel,
-                JmlExpressionStmt.class,
-                "JmlAssertStmt",
-                "com.github.javaparser.ast.jml.stmt",
-                false,
-                false);
+        super(superBaseNodeMetaModel, JmlExpressionStmt.class, "JmlAssertStmt", "com.github.javaparser.ast.jml.stmt", false, false);
     }
 
     public PropertyMetaModel expressionPropertyMetaModel;

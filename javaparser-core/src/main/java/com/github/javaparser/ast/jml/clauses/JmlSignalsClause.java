@@ -18,11 +18,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlSignalsClauseMetaModel;
 import org.jspecify.annotations.NonNull;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -84,7 +82,8 @@ public class JmlSignalsClause extends JmlClause {
             return this;
         }
         notifyPropertyChange(ObservableProperty.EXPRESSION, this.expression, expression);
-        if (this.expression != null) this.expression.setParentNode(null);
+        if (this.expression != null)
+            this.expression.setParentNode(null);
         this.expression = expression;
         setAsParentNodeOf(expression);
         return this;
@@ -113,7 +112,8 @@ public class JmlSignalsClause extends JmlClause {
             return this;
         }
         notifyPropertyChange(ObservableProperty.PARAMETER, this.parameter, parameter);
-        if (this.parameter != null) this.parameter.setParentNode(null);
+        if (this.parameter != null)
+            this.parameter.setParentNode(null);
         this.parameter = parameter;
         setAsParentNodeOf(parameter);
         return this;

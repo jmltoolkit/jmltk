@@ -15,11 +15,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.SingleMemberAnnotationExprMetaModel;
 import org.jspecify.annotations.NonNull;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -74,7 +72,8 @@ public class SingleMemberAnnotationExpr extends AnnotationExpr {
             return this;
         }
         notifyPropertyChange(ObservableProperty.MEMBER_VALUE, this.memberValue, memberValue);
-        if (this.memberValue != null) this.memberValue.setParentNode(null);
+        if (this.memberValue != null)
+            this.memberValue.setParentNode(null);
         this.memberValue = memberValue;
         setAsParentNodeOf(memberValue);
         return this;

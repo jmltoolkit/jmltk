@@ -13,15 +13,14 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.TextBlockLiteralExprMetaModel;
 import com.github.javaparser.utils.Pair;
-
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-
 import static com.github.javaparser.utils.StringEscapeUtils.unescapeJavaTextBlock;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.IntStream.range;
+import com.github.javaparser.ast.Node;
 
 /**
  * <h1>A text block</h1>
@@ -116,18 +115,11 @@ public class TextBlockLiteralExpr extends LiteralStringValueExpr {
         /* If the last line in the list of individual lines (i.e., the line with the closing delimiter) is blank, then add it to the set of determining lines.
         (The indentation of the closing delimiter should influence the indentation of the content as a whole -- a "significant trailing line" policy.) */
         /* Compute the common white space prefix of the set of determining lines, by counting the number of leading white space characters on each line and taking the minimum count. */
-        int commonWhiteSpacePrefixSize = range(0, rawLines.length)
-                .mapToObj(nr -> new Pair<>(nr, rawLines[nr]))
-                .filter(l -> !emptyOrWhitespace(l.b) || isLastLine(rawLines, l.a))
-                .map(l -> indentSize(l.b))
-                .min(Integer::compare)
-                .orElse(0);
+        int commonWhiteSpacePrefixSize = range(0, rawLines.length).mapToObj(nr -> new Pair<>(nr, rawLines[nr])).filter(l -> !emptyOrWhitespace(l.b) || isLastLine(rawLines, l.a)).map(l -> indentSize(l.b)).min(Integer::compare).orElse(0);
         /* Remove the common white space prefix from each non-blank line in the list of individual lines. */
         /* Remove all trailing white space from all lines in the modified list of individual lines from step 5.
         This step collapses wholly-whitespace lines in the modified list so that they are empty, but does not discard them. */
-        return Arrays.stream(rawLines)
-                .map(l -> l.length() < commonWhiteSpacePrefixSize ? l : l.substring(commonWhiteSpacePrefixSize))
-                .map(this::trimTrailing);
+        return Arrays.stream(rawLines).map(l -> l.length() < commonWhiteSpacePrefixSize ? l : l.substring(commonWhiteSpacePrefixSize)).map(this::trimTrailing);
     }
 
     /**

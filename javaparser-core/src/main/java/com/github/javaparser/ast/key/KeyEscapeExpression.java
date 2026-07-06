@@ -21,11 +21,9 @@ import com.github.javaparser.metamodel.KeyEscapeExpressionMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 public class KeyEscapeExpression extends Expression {
@@ -103,7 +101,8 @@ public class KeyEscapeExpression extends Expression {
             return this;
         }
         notifyPropertyChange(ObservableProperty.ARGUMENTS, this.arguments, arguments);
-        if (this.arguments != null) this.arguments.setParentNode(null);
+        if (this.arguments != null)
+            this.arguments.setParentNode(null);
         this.arguments = arguments;
         setAsParentNodeOf(arguments);
         return this;
@@ -121,7 +120,8 @@ public class KeyEscapeExpression extends Expression {
             return this;
         }
         notifyPropertyChange(ObservableProperty.CALLEE, this.callee, callee);
-        if (this.callee != null) this.callee.setParentNode(null);
+        if (this.callee != null)
+            this.callee.setParentNode(null);
         this.callee = callee;
         setAsParentNodeOf(callee);
         return this;

@@ -6,7 +6,6 @@ package com.github.javaparser.metamodel;
 
 import com.github.javaparser.ast.Generated;
 import com.github.javaparser.ast.jml.clauses.JmlSimpleExprClause;
-
 import java.util.Optional;
 
 /**
@@ -23,13 +22,7 @@ public class JmlDefaultClauseMetaModel extends JmlClauseMetaModel {
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     JmlDefaultClauseMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
-        super(
-                superBaseNodeMetaModel,
-                JmlSimpleExprClause.class,
-                "JmlDefaultClause",
-                "com.github.javaparser.ast.jml.clauses",
-                false,
-                false);
+        super(superBaseNodeMetaModel, JmlSimpleExprClause.class, "JmlDefaultClause", "com.github.javaparser.ast.jml.clauses", false, false);
     }
 
     public PropertyMetaModel expressionPropertyMetaModel;

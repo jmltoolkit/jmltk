@@ -19,11 +19,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlSimpleExprClauseMetaModel;
 import org.jspecify.annotations.NonNull;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -38,7 +36,8 @@ public class JmlSimpleExprClause extends JmlClause {
 
     private Expression expression;
 
-    public JmlSimpleExprClause() {}
+    public JmlSimpleExprClause() {
+    }
 
     @AllFieldsConstructor
     public JmlSimpleExprClause(JmlClauseKind kind, SimpleName name, NodeList<SimpleName> heaps, Expression expression) {
@@ -57,8 +56,7 @@ public class JmlSimpleExprClause extends JmlClause {
         this(range, JmlClauseKind.getKindByToken(kind), name, new NodeList<>(), expr);
     }
 
-    public JmlSimpleExprClause(
-            TokenRange range, JavaToken kind, SimpleName name, NodeList<SimpleName> heaps, Expression expr) {
+    public JmlSimpleExprClause(TokenRange range, JavaToken kind, SimpleName name, NodeList<SimpleName> heaps, Expression expr) {
         this(range, JmlClauseKind.getKindByToken(kind), name, heaps, expr);
     }
 
@@ -132,7 +130,8 @@ public class JmlSimpleExprClause extends JmlClause {
     public JmlSimpleExprClause setExpression(final NodeList<Expression> expression) {
         assertNotNull(expression);
         notifyPropertyChange(ObservableProperty.EXPRESSION, this.expression, expression);
-        if (this.expression != null) this.expression.setParentNode(null);
+        if (this.expression != null)
+            this.expression.setParentNode(null);
         setAsParentNodeOf(expression);
         return this;
     }
@@ -149,7 +148,8 @@ public class JmlSimpleExprClause extends JmlClause {
             return this;
         }
         notifyPropertyChange(ObservableProperty.HEAPS, this.heaps, heaps);
-        if (this.heaps != null) this.heaps.setParentNode(null);
+        if (this.heaps != null)
+            this.heaps.setParentNode(null);
         this.heaps = heaps;
         setAsParentNodeOf(heaps);
         return this;
@@ -165,12 +165,7 @@ public class JmlSimpleExprClause extends JmlClause {
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlSimpleExprClause(
-            TokenRange tokenRange,
-            JmlClauseKind kind,
-            SimpleName name,
-            NodeList<SimpleName> heaps,
-            Expression expression) {
+    public JmlSimpleExprClause(TokenRange tokenRange, JmlClauseKind kind, SimpleName name, NodeList<SimpleName> heaps, Expression expression) {
         super(tokenRange, name);
         setKind(kind);
         setHeaps(heaps);
@@ -196,7 +191,8 @@ public class JmlSimpleExprClause extends JmlClause {
             return this;
         }
         notifyPropertyChange(ObservableProperty.EXPRESSION, this.expression, expression);
-        if (this.expression != null) this.expression.setParentNode(null);
+        if (this.expression != null)
+            this.expression.setParentNode(null);
         this.expression = expression;
         setAsParentNodeOf(expression);
         return this;

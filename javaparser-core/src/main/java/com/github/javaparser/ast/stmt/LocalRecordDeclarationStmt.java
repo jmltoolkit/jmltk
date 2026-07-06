@@ -16,11 +16,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.LocalRecordDeclarationStmtMetaModel;
 import org.jspecify.annotations.NonNull;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -76,7 +74,8 @@ public class LocalRecordDeclarationStmt extends Statement {
             return this;
         }
         notifyPropertyChange(ObservableProperty.RECORD_DECLARATION, this.recordDeclaration, recordDeclaration);
-        if (this.recordDeclaration != null) this.recordDeclaration.setParentNode(null);
+        if (this.recordDeclaration != null)
+            this.recordDeclaration.setParentNode(null);
         this.recordDeclaration = recordDeclaration;
         setAsParentNodeOf(recordDeclaration);
         return this;

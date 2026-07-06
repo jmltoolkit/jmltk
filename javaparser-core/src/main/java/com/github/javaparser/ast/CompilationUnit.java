@@ -27,7 +27,6 @@ import com.github.javaparser.utils.CodeGenerationUtils;
 import com.github.javaparser.utils.Utils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -38,7 +37,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import static com.github.javaparser.JavaToken.Kind.EOF;
 import static com.github.javaparser.Providers.UTF8;
 import static com.github.javaparser.Providers.provider;
@@ -89,11 +87,7 @@ public class CompilationUnit extends Node {
     }
 
     @AllFieldsConstructor
-    public CompilationUnit(
-            PackageDeclaration packageDeclaration,
-            NodeList<ImportDeclaration> imports,
-            NodeList<TypeDeclaration<?>> types,
-            ModuleDeclaration module) {
+    public CompilationUnit(PackageDeclaration packageDeclaration, NodeList<ImportDeclaration> imports, NodeList<TypeDeclaration<?>> types, ModuleDeclaration module) {
         this(null, packageDeclaration, imports, types, module);
     }
 
@@ -101,12 +95,7 @@ public class CompilationUnit extends Node {
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public CompilationUnit(
-            TokenRange tokenRange,
-            PackageDeclaration packageDeclaration,
-            NodeList<ImportDeclaration> imports,
-            NodeList<TypeDeclaration<?>> types,
-            ModuleDeclaration module) {
+    public CompilationUnit(TokenRange tokenRange, PackageDeclaration packageDeclaration, NodeList<ImportDeclaration> imports, NodeList<TypeDeclaration<?>> types, ModuleDeclaration module) {
         super(tokenRange);
         setPackageDeclaration(packageDeclaration);
         setImports(imports);
@@ -254,7 +243,8 @@ public class CompilationUnit extends Node {
             return this;
         }
         notifyPropertyChange(ObservableProperty.IMPORTS, this.imports, imports);
-        if (this.imports != null) this.imports.setParentNode(null);
+        if (this.imports != null)
+            this.imports.setParentNode(null);
         this.imports = imports;
         setAsParentNodeOf(imports);
         return this;
@@ -274,19 +264,9 @@ public class CompilationUnit extends Node {
      */
     public CompilationUnit addImport(ImportDeclaration importDeclaration) {
         if (importDeclaration.isAsterisk()) {
-            getImports()
-                    .removeIf(im -> Objects.equals(
-                            getImportPackageName(im).get(),
-                            getImportPackageName(importDeclaration).orElse(null)));
+            getImports().removeIf(im -> Objects.equals(getImportPackageName(im).get(), getImportPackageName(importDeclaration).orElse(null)));
         }
-        if (!isImplicitImport(importDeclaration)
-                && getImports().stream()
-                        .noneMatch(im -> im.equals(importDeclaration)
-                                || (im.isAsterisk()
-                                        && Objects.equals(
-                                                getImportPackageName(im).get(),
-                                                getImportPackageName(importDeclaration)
-                                                        .orElse(null))))) {
+        if (!isImplicitImport(importDeclaration) && getImports().stream().noneMatch(im -> im.equals(importDeclaration) || (im.isAsterisk() && Objects.equals(getImportPackageName(im).get(), getImportPackageName(importDeclaration).orElse(null))))) {
             getImports().add(importDeclaration);
         }
         return this;
@@ -314,10 +294,7 @@ public class CompilationUnit extends Node {
     }
 
     private static Optional<Name> getImportPackageName(ImportDeclaration importDeclaration) {
-        return (importDeclaration.isAsterisk()
-                        ? new Name(importDeclaration.getName(), "*")
-                        : importDeclaration.getName())
-                .getQualifier();
+        return (importDeclaration.isAsterisk() ? new Name(importDeclaration.getName(), "*") : importDeclaration.getName()).getQualifier();
     }
 
     /**
@@ -331,7 +308,8 @@ public class CompilationUnit extends Node {
             return this;
         }
         notifyPropertyChange(ObservableProperty.PACKAGE_DECLARATION, this.packageDeclaration, packageDeclaration);
-        if (this.packageDeclaration != null) this.packageDeclaration.setParentNode(null);
+        if (this.packageDeclaration != null)
+            this.packageDeclaration.setParentNode(null);
         this.packageDeclaration = packageDeclaration;
         setAsParentNodeOf(packageDeclaration);
         return this;
@@ -347,7 +325,8 @@ public class CompilationUnit extends Node {
             return this;
         }
         notifyPropertyChange(ObservableProperty.TYPES, this.types, types);
-        if (this.types != null) this.types.setParentNode(null);
+        if (this.types != null)
+            this.types.setParentNode(null);
         this.types = types;
         setAsParentNodeOf(types);
         return this;
@@ -403,11 +382,10 @@ public class CompilationUnit extends Node {
         if (clazz.isArray()) {
             return addImport(clazz.getComponentType());
         }
-        if (ClassUtils.isPrimitiveOrWrapper(clazz)
-                || JAVA_LANG.equals(clazz.getPackage().getName())) return this;
+        if (ClassUtils.isPrimitiveOrWrapper(clazz) || JAVA_LANG.equals(clazz.getPackage().getName()))
+            return this;
         if (clazz.isAnonymousClass() || clazz.isLocalClass())
-            throw new IllegalArgumentException(
-                    clazz.getName() + " is an anonymous or local class therefore it can't be added with addImport");
+            throw new IllegalArgumentException(clazz.getName() + " is an anonymous or local class therefore it can't be added with addImport");
         return addImport(clazz.getCanonicalName());
     }
 
@@ -462,8 +440,7 @@ public class CompilationUnit extends Node {
      * @return the newly created class
      */
     public ClassOrInterfaceDeclaration addClass(String name, Modifier.DefaultKeyword... modifiers) {
-        ClassOrInterfaceDeclaration classOrInterfaceDeclaration =
-                new ClassOrInterfaceDeclaration(createModifierList(modifiers), false, name);
+        ClassOrInterfaceDeclaration classOrInterfaceDeclaration = new ClassOrInterfaceDeclaration(createModifierList(modifiers), false, name);
         getTypes().add(classOrInterfaceDeclaration);
         return classOrInterfaceDeclaration;
     }
@@ -486,8 +463,7 @@ public class CompilationUnit extends Node {
      * @return the newly created class
      */
     public ClassOrInterfaceDeclaration addInterface(String name, Modifier.DefaultKeyword... modifiers) {
-        ClassOrInterfaceDeclaration classOrInterfaceDeclaration =
-                new ClassOrInterfaceDeclaration(createModifierList(modifiers), true, name);
+        ClassOrInterfaceDeclaration classOrInterfaceDeclaration = new ClassOrInterfaceDeclaration(createModifierList(modifiers), true, name);
         getTypes().add(classOrInterfaceDeclaration);
         return classOrInterfaceDeclaration;
     }
@@ -544,12 +520,7 @@ public class CompilationUnit extends Node {
      * @param className the class name (case-sensitive)
      */
     public Optional<ClassOrInterfaceDeclaration> getClassByName(String className) {
-        return getTypes().stream()
-                .filter(type -> type.getNameAsString().equals(className)
-                        && type instanceof ClassOrInterfaceDeclaration
-                        && !((ClassOrInterfaceDeclaration) type).isInterface())
-                .findFirst()
-                .map(t -> (ClassOrInterfaceDeclaration) t);
+        return getTypes().stream().filter(type -> type.getNameAsString().equals(className) && type instanceof ClassOrInterfaceDeclaration && !((ClassOrInterfaceDeclaration) type).isInterface()).findFirst().map(t -> (ClassOrInterfaceDeclaration) t);
     }
 
     /**
@@ -558,9 +529,7 @@ public class CompilationUnit extends Node {
      * @param className the class name (case-sensitive)
      */
     public List<ClassOrInterfaceDeclaration> getLocalDeclarationFromClassname(String className) {
-        return findAll(ClassOrInterfaceDeclaration.class).stream()
-                .filter(cid -> cid.getFullyQualifiedName().get().endsWith(className))
-                .collect(Collectors.toList());
+        return findAll(ClassOrInterfaceDeclaration.class).stream().filter(cid -> cid.getFullyQualifiedName().get().endsWith(className)).collect(Collectors.toList());
     }
 
     /**
@@ -569,12 +538,7 @@ public class CompilationUnit extends Node {
      * @param interfaceName the interface name (case-sensitive)
      */
     public Optional<ClassOrInterfaceDeclaration> getInterfaceByName(String interfaceName) {
-        return getTypes().stream()
-                .filter(type -> type.getNameAsString().equals(interfaceName)
-                        && type instanceof ClassOrInterfaceDeclaration
-                        && ((ClassOrInterfaceDeclaration) type).isInterface())
-                .findFirst()
-                .map(t -> (ClassOrInterfaceDeclaration) t);
+        return getTypes().stream().filter(type -> type.getNameAsString().equals(interfaceName) && type instanceof ClassOrInterfaceDeclaration && ((ClassOrInterfaceDeclaration) type).isInterface()).findFirst().map(t -> (ClassOrInterfaceDeclaration) t);
     }
 
     /**
@@ -583,10 +547,7 @@ public class CompilationUnit extends Node {
      * @param enumName the enum name (case-sensitive)
      */
     public Optional<EnumDeclaration> getEnumByName(String enumName) {
-        return getTypes().stream()
-                .filter(type -> type.getNameAsString().equals(enumName) && type instanceof EnumDeclaration)
-                .findFirst()
-                .map(t -> (EnumDeclaration) t);
+        return getTypes().stream().filter(type -> type.getNameAsString().equals(enumName) && type instanceof EnumDeclaration).findFirst().map(t -> (EnumDeclaration) t);
     }
 
     /**
@@ -603,10 +564,7 @@ public class CompilationUnit extends Node {
      * If for some strange reason there are multiple types of this name, the first one is returned.
      */
     public Optional<TypeDeclaration<?>> getPrimaryType() {
-        return getPrimaryTypeName()
-                .flatMap(name -> getTypes().stream()
-                        .filter(t -> t.getNameAsString().equals(name))
-                        .findFirst());
+        return getPrimaryTypeName().flatMap(name -> getTypes().stream().filter(t -> t.getNameAsString().equals(name)).findFirst());
     }
 
     /**
@@ -615,10 +573,7 @@ public class CompilationUnit extends Node {
      * @param annotationName the annotation name (case-sensitive)
      */
     public Optional<AnnotationDeclaration> getAnnotationDeclarationByName(String annotationName) {
-        return getTypes().stream()
-                .filter(type -> type.getNameAsString().equals(annotationName) && type instanceof AnnotationDeclaration)
-                .findFirst()
-                .map(t -> (AnnotationDeclaration) t);
+        return getTypes().stream().filter(type -> type.getNameAsString().equals(annotationName) && type instanceof AnnotationDeclaration).findFirst().map(t -> (AnnotationDeclaration) t);
     }
 
     /**
@@ -627,10 +582,7 @@ public class CompilationUnit extends Node {
      * @param recordName the enum name (case-sensitive)
      */
     public Optional<RecordDeclaration> getRecordByName(String recordName) {
-        return getTypes().stream()
-                .filter(type -> type.getNameAsString().equals(recordName) && type instanceof RecordDeclaration)
-                .findFirst()
-                .map(t -> (RecordDeclaration) t);
+        return getTypes().stream().filter(type -> type.getNameAsString().equals(recordName) && type instanceof RecordDeclaration).findFirst().map(t -> (RecordDeclaration) t);
     }
 
     @Override
@@ -685,7 +637,8 @@ public class CompilationUnit extends Node {
             return this;
         }
         notifyPropertyChange(ObservableProperty.MODULE, this.module, module);
-        if (this.module != null) this.module.setParentNode(null);
+        if (this.module != null)
+            this.module.setParentNode(null);
         this.module = module;
         setAsParentNodeOf(module);
         return this;
@@ -794,12 +747,8 @@ public class CompilationUnit extends Node {
          * of the path) a RuntimeException is thrown.
          */
         public Path getSourceRoot() {
-            final Optional<String> pkgAsString =
-                    compilationUnit.getPackageDeclaration().map(NodeWithName::getNameAsString);
-            return pkgAsString
-                    .map(p -> Paths.get(CodeGenerationUtils.packageToPath(p)))
-                    .map(pkg -> subtractPaths(getDirectory(), pkg))
-                    .orElseGet(() -> getDirectory());
+            final Optional<String> pkgAsString = compilationUnit.getPackageDeclaration().map(NodeWithName::getNameAsString);
+            return pkgAsString.map(p -> Paths.get(CodeGenerationUtils.packageToPath(p))).map(pkg -> subtractPaths(getDirectory(), pkg)).orElseGet(() -> getDirectory());
         }
 
         public String getFileName() {

@@ -19,11 +19,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.BlockStmtMetaModel;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import org.jspecify.annotations.NonNull;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -89,7 +87,8 @@ public class BlockStmt extends Statement implements NodeWithStatements<BlockStmt
             return this;
         }
         notifyPropertyChange(ObservableProperty.STATEMENTS, this.statements, statements);
-        if (this.statements != null) this.statements.setParentNode(null);
+        if (this.statements != null)
+            this.statements.setParentNode(null);
         this.statements = statements;
         setAsParentNodeOf(statements);
         return this;
@@ -191,7 +190,8 @@ public class BlockStmt extends Statement implements NodeWithStatements<BlockStmt
             return this;
         }
         notifyPropertyChange(ObservableProperty.CONTRACTS, this.contracts, contracts);
-        if (this.contracts != null) this.contracts.setParentNode(null);
+        if (this.contracts != null)
+            this.contracts.setParentNode(null);
         this.contracts = contracts;
         setAsParentNodeOf(contracts);
         return this;

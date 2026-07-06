@@ -18,11 +18,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.ModuleOpensDirectiveMetaModel;
 import org.jspecify.annotations.NonNull;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
@@ -93,7 +91,8 @@ public class ModuleOpensDirective extends ModuleDirective implements NodeWithNam
             return this;
         }
         notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null) this.name.setParentNode(null);
+        if (this.name != null)
+            this.name.setParentNode(null);
         this.name = name;
         setAsParentNodeOf(name);
         return this;
@@ -111,7 +110,8 @@ public class ModuleOpensDirective extends ModuleDirective implements NodeWithNam
             return this;
         }
         notifyPropertyChange(ObservableProperty.MODULE_NAMES, this.moduleNames, moduleNames);
-        if (this.moduleNames != null) this.moduleNames.setParentNode(null);
+        if (this.moduleNames != null)
+            this.moduleNames.setParentNode(null);
         this.moduleNames = moduleNames;
         setAsParentNodeOf(moduleNames);
         return this;

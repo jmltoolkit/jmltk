@@ -18,11 +18,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.KeyCatchAllStmtMetaModel;
 import org.jspecify.annotations.NonNull;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 public class KeyCatchAllStmt extends Statement {
@@ -95,7 +93,8 @@ public class KeyCatchAllStmt extends Statement {
             return this;
         }
         notifyPropertyChange(ObservableProperty.BLOCK, this.block, block);
-        if (this.block != null) this.block.setParentNode(null);
+        if (this.block != null)
+            this.block.setParentNode(null);
         this.block = block;
         setAsParentNodeOf(block);
         return this;
@@ -113,7 +112,8 @@ public class KeyCatchAllStmt extends Statement {
             return this;
         }
         notifyPropertyChange(ObservableProperty.LABEL, this.label, label);
-        if (this.label != null) this.label.setParentNode(null);
+        if (this.label != null)
+            this.label.setParentNode(null);
         this.label = label;
         setAsParentNodeOf(label);
         return this;

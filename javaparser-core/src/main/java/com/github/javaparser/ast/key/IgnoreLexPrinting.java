@@ -12,4 +12,5 @@ import java.lang.annotation.RetentionPolicy;
  * @version 1 (2/1/26)
  */
 @Retention(RetentionPolicy.RUNTIME)
-public @interface IgnoreLexPrinting {}
+public @interface IgnoreLexPrinting {
+}

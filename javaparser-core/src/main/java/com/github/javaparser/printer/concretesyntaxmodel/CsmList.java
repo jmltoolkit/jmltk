@@ -9,7 +9,6 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.observer.ObservableProperty;
 import com.github.javaparser.printer.ConcreteSyntaxModel;
 import com.github.javaparser.printer.SourcePrinter;
-
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -53,12 +52,7 @@ public class CsmList implements CsmElement {
         this(property, new CsmNone(), new CsmNone(), new CsmNone(), new CsmNone());
     }
 
-    public CsmList(
-            ObservableProperty property,
-            CsmElement separatorPre,
-            CsmElement separatorPost,
-            CsmElement preceeding,
-            CsmElement following) {
+    public CsmList(ObservableProperty property, CsmElement separatorPre, CsmElement separatorPost, CsmElement preceeding, CsmElement following) {
         this.property = property;
         this.separatorPre = separatorPre;
         this.separatorPost = separatorPost;

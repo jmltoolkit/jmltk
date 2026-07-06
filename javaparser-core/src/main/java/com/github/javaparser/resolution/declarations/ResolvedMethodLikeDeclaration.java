@@ -5,7 +5,6 @@
 package com.github.javaparser.resolution.declarations;
 
 import com.github.javaparser.resolution.types.ResolvedType;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,8 +15,7 @@ import java.util.Optional;
  *
  * @author Federico Tomassetti
  */
-public interface ResolvedMethodLikeDeclaration
-        extends ResolvedDeclaration, ResolvedTypeParametrizable, HasAccessSpecifier {
+public interface ResolvedMethodLikeDeclaration extends ResolvedDeclaration, ResolvedTypeParametrizable, HasAccessSpecifier {
 
     /**
      * The package name of the declaring type.
@@ -88,8 +86,7 @@ public interface ResolvedMethodLikeDeclaration
      */
     default ResolvedParameterDeclaration getLastParam() {
         if (getNumberOfParams() == 0) {
-            throw new UnsupportedOperationException(
-                    "This method has no typeParametersValues, therefore it has no a last parameter");
+            throw new UnsupportedOperationException("This method has no typeParametersValues, therefore it has no a last parameter");
         }
         return getParam(getNumberOfParams() - 1);
     }

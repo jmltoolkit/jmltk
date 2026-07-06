@@ -11,7 +11,6 @@ import com.github.javaparser.ast.stmt.ExplicitConstructorInvocationStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.utils.Optionals;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -91,13 +90,7 @@ class TypeOwnerStrategy implements TokenOwnerDetector.DetectionStrategy {
             }
             final Node currentNode = current;
             // Check each context using Optional chaining for clean code
-            Optional<Node> owner = Optionals.or(
-                    () -> checkVariableContext(parent, currentNode),
-                    () -> checkParameterContext(parent, currentNode),
-                    () -> checkMethodContext(parent, currentNode),
-                    () -> checkClassContext(parent, currentNode),
-                    () -> checkExpressionContext(parent, currentNode),
-                    () -> checkStatementContext(parent, currentNode));
+            Optional<Node> owner = Optionals.or(() -> checkVariableContext(parent, currentNode), () -> checkParameterContext(parent, currentNode), () -> checkMethodContext(parent, currentNode), () -> checkClassContext(parent, currentNode), () -> checkExpressionContext(parent, currentNode), () -> checkStatementContext(parent, currentNode));
             if (owner.isPresent()) {
                 return owner.get();
             }

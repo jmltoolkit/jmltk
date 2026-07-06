@@ -6,7 +6,6 @@ package com.github.javaparser.metamodel;
 
 import com.github.javaparser.ast.Generated;
 import com.github.javaparser.ast.jml.stmt.JmlGhostStmt;
-
 import java.util.Optional;
 
 /**
@@ -23,13 +22,7 @@ public class JmlGhostStatementMetaModel extends JmlStatementMetaModel {
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     JmlGhostStatementMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
-        super(
-                superBaseNodeMetaModel,
-                JmlGhostStmt.class,
-                "JmlGhostStatement",
-                "com.github.javaparser.ast.jml.stmt",
-                false,
-                false);
+        super(superBaseNodeMetaModel, JmlGhostStmt.class, "JmlGhostStatement", "com.github.javaparser.ast.jml.stmt", false, false);
     }
 
     public PropertyMetaModel statementPropertyMetaModel;

@@ -6,7 +6,6 @@ package com.github.javaparser.metamodel;
 
 import com.github.javaparser.ast.Generated;
 import com.github.javaparser.ast.jml.stmt.JmlUnreachableStmt;
-
 import java.util.Optional;
 
 /**
@@ -23,12 +22,6 @@ public class UnreachableStmtMetaModel extends StatementMetaModel {
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     UnreachableStmtMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
-        super(
-                superBaseNodeMetaModel,
-                JmlUnreachableStmt.class,
-                "UnreachableStmt",
-                "com.github.javaparser.ast.stmt",
-                false,
-                false);
+        super(superBaseNodeMetaModel, JmlUnreachableStmt.class, "UnreachableStmt", "com.github.javaparser.ast.stmt", false, false);
     }
 }

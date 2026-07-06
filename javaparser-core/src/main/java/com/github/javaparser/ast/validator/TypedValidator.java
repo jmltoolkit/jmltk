@@ -8,7 +8,6 @@ import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.Processor;
 import com.github.javaparser.ast.Node;
-
 import java.util.function.BiConsumer;
 
 /**
@@ -28,11 +27,7 @@ public interface TypedValidator<N extends Node> extends BiConsumer<N, ProblemRep
 
             @Override
             public void postProcess(ParseResult<? extends Node> result, ParserConfiguration configuration) {
-                result.getResult()
-                        .ifPresent(node -> accept(
-                                (N) node,
-                                new ProblemReporter(
-                                        problem -> result.getProblems().add(problem))));
+                result.getResult().ifPresent(node -> accept((N) node, new ProblemReporter(problem -> result.getProblems().add(problem))));
             }
         };
     }

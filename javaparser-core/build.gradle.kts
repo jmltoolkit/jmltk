@@ -10,8 +10,9 @@ val javacc = configurations.create("javacc")
 dependencies {
     api(libs.org.jspecify.jspecify)
     api(libs.net.bytebuddy.byte.buddy.agent)
+    // This version does not work:
     //javacc("com.helger:parser-generator-cc:2.0.1")
-    javacc("com.helger:parser-generator-cc:2.0.1")
+    javacc("com.helger:parser-generator-cc:1.1.4")
 }
 
 val javaBuildFile = tasks.register<Copy>("javaBuildFile") {

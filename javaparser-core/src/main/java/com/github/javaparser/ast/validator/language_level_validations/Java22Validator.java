@@ -15,6 +15,7 @@ import com.github.javaparser.ast.validator.ProblemReporter;
 import com.github.javaparser.ast.validator.SingleNodeTypeValidator;
 import com.github.javaparser.ast.validator.Validator;
 import com.github.javaparser.resolution.Navigator;
+
 import java.util.List;
 import java.util.stream.Collectors;
 

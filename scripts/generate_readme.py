@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import sys,re
-import json
 import requests
 
 

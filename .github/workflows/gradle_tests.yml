@@ -4,7 +4,7 @@ on:
   # Trigger the workflow on push to master (ignoring .md only changes)
   push:
     branches:
-      - master
+      - main
       - devel
     paths-ignore:
       - '**.md'

@@ -23,7 +23,9 @@ def fetch_latest_version(group_id: str, artifact_id: str) -> str:
         docs = data['response']['docs']
         if not docs:
             #raise ValueError(f"No artifacts found for {group_id}:{artifact_id}")
-            return re.search(r'^\s*version\s*=\s*(.+)$', open('gradle.properties').read(), re.M).group(1)
+            with open('gradle.properties') as gradle_fh:
+                gradle_properties = gradle_fh.read()
+            return re.search(r'^\s*version\s*=\s*(.+)$', gradle_properties, re.M).group(1)
 
         return docs[0]['v']
 

@@ -1,5 +1,5 @@
 import json
-from pprint import pprint
+# from pprint import pprint
 
 with open("src/sarif-schema-2.1.0.json") as fh:
     schema = json.load(fh)

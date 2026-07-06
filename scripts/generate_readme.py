@@ -35,9 +35,13 @@ def fetch_latest_version(group_id: str, artifact_id: str) -> str:
 
 
 def main():
-    sys.argv[1]
+    if len(sys.argv) < 2:
+        print(f"Usage: {sys.argv[0]} <input-file>", file=sys.stderr)
+        sys.exit(1)
 
-    with open(sys.argv[1]) as fh:
+    input_path = sys.argv[1]
+
+    with open(input_path) as fh:
         text = fh.read()
 
     central = fetch_latest_version("io.github.jmltoolkit", "jmlparser-parent")

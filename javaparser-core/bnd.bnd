@@ -10,6 +10,15 @@ Bundle-SymbolicName: com.github.javaparser.javaparser-core
     com.github.javaparser.ast.body, \
     com.github.javaparser.ast.comments, \
     com.github.javaparser.ast.expr, \
+    com.github.javaparser.ast.jml, \
+    com.github.javaparser.ast.jml.body, \
+    com.github.javaparser.ast.jml.clauses, \
+    com.github.javaparser.ast.jml.doc, \
+    com.github.javaparser.ast.jml.expr, \
+    com.github.javaparser.ast.jml.stmt, \
+    com.github.javaparser.ast.jml.type, \
+    com.github.javaparser.ast.key, \
+    com.github.javaparser.ast.key.sv, \
     com.github.javaparser.ast.modules, \
     com.github.javaparser.ast.nodeTypes, \
     com.github.javaparser.ast.nodeTypes.modifiers, \
@@ -23,6 +32,8 @@ Bundle-SymbolicName: com.github.javaparser.javaparser-core
     com.github.javaparser.ast.visitor, \
     com.github.javaparser.javadoc, \
     com.github.javaparser.javadoc.description, \
+    com.github.javaparser.jml, \
+    com.github.javaparser.jml.impl, \
     com.github.javaparser.metamodel, \
     com.github.javaparser.printer, \
     com.github.javaparser.printer.concretesyntaxmodel, \

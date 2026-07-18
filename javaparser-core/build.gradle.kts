@@ -15,15 +15,20 @@ dependencies {
     javacc("com.helger:parser-generator-cc:1.1.4")
 }
 
+val buildFile = layout.buildDirectory.dir("generated-src/main/buildfile/")
+sourceSets.main.get().java.srcDir(buildFile)
+
 val javaBuildFile = tasks.register<Copy>("javaBuildFile") {
     description = "Create a Java file containing build information"
     from("src/main/java-templates/")
     includeEmptyDirs = false
 
-    into(layout.buildDirectory.dir("generated-src/main/javacc/"))
+    into(buildFile)
     expand(
         "name" to project.name,
         "version" to project.version,
+        "groupId" to project.group,
+        "artifactId" to "jmlparser-core"
     )
 }
 

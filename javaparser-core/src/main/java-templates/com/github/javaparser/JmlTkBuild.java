@@ -22,8 +22,19 @@ package com.github.javaparser;
 
 /**
  * Core information about this library.
+ * Generated during build - do not edit directly.
  */
-public class JavaParserBuild {
+public class JmlTkBuild {
     public static final String PROJECT_VERSION = "${version}";
     public static final String PROJECT_NAME = "${name}";
+    public static final String GROUP_ID = "${groupId}";
+    public static final String ARTIFACT_ID = "${artifactId}";
+    
+    /**
+     * Returns the full Maven/Gradle coordinate string for this artifact.
+     * Format: groupId:artifactId:version
+     */
+    public static String getArtifactCoordinate() {
+        return GROUP_ID + ":" + ARTIFACT_ID + ":" + PROJECT_VERSION;
+    }
 }

@@ -1,0 +1,15 @@
+---
+run: tools/cli/build/install/cli/bin/cli stat --help
+ignoreStderr: true
+---
+Usage: main stat [<options>] [<files>]...
+
+  Print statistics on JML specifications
+
+Options:
+  --jml-key=<text>
+  -v, --verbose=<int>               Level of verbosity
+  --disable-jml
+  -t, --target=(TEXT|JSON|CSV|XML)  Output in user specified format
+  -c, --column=<text>               Specifies the attribute to report on
+  -h, --help                        Show this message and exit

@@ -5,6 +5,7 @@
 package io.github.jmltoolkit.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.main
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
@@ -16,6 +17,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.int
 import com.github.javaparser.JavaParser
+import com.github.javaparser.JmlTkBuild
 import com.github.javaparser.ParseResult
 import com.github.javaparser.ParserConfiguration
 import com.github.javaparser.Problem
@@ -29,7 +31,7 @@ import java.io.FileNotFoundException
 import kotlin.jvm.optionals.getOrNull
 
 fun main(args: Array<String>) {
-    var cmd = Main().subcommands(
+    val cmd = Main().subcommands(
         J2JCommand(), LintCommand(), PrettyPrintCommand(), XPathCommand(),
         StatCommand(), WdCommand(), JmlStubCommand()
     )
@@ -40,10 +42,15 @@ fun main(args: Array<String>) {
  * @author Alexander Weigl
  * @version 1 (12/31/21)
  */
-class Main : CliktCommand() {
+class Main : CliktCommand("jmltk") {
+    val showVersion by option("--version", help = "show the version").flag()
+
+    override fun helpEpilog(context: Context): String = super.helpEpilog(context)
 
     override fun run() {
-        TODO("Not yet implemented")
+        if (showVersion) {
+            println(JmlTkBuild.PROJECT_VERSION)
+        }
     }
 }
 

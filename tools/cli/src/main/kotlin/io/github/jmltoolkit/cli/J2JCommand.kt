@@ -25,7 +25,7 @@ class J2JCommand : CliktCommand("jml2java") {
         .file()
         .default(File("out"))
 
-    private val jjbmcMode by option("jjbmc", "JBMC mode")
+    private val jjbmcMode by option("--jjbmc", help = "JBMC mode")
     private val files by argument("FILES").file().multiple()
     override fun run() {
         TODO("Not yet implemented")

@@ -1,0 +1,388 @@
+package java.util;
+
+public abstract interface List extends java.util.SequencedCollection {
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract boolean remove(java.lang.Object arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract E remove(int arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract int size();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract E get(int arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract boolean equals(java.lang.Object arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract int hashCode();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.util.List<E> copyOf(java.util.Collection<? extends E> arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract int indexOf(java.lang.Object arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract void clear();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract int lastIndexOf(java.lang.Object arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract boolean isEmpty();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public void replaceAll(java.util.function.UnaryOperator<E> arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract boolean add(E arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract void add(int arg0, E arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract java.util.List<E> subList(int arg0, int arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract java.lang.Object[] toArray();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract T[] toArray(T[] arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract java.util.Iterator<E> iterator();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.util.List<E> of(E arg0, E arg1, E arg2);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.util.List<E> of(E arg0, E arg1, E arg2, E arg3);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.util.List<E> of(E arg0, E arg1, E arg2, E arg3, E arg4);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.util.List<E> of(E arg0, E arg1, E arg2, E arg3, E arg4, E arg5, E arg6, E arg7, E arg8, E arg9);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.util.List<E> of(E arg0, E arg1, E arg2, E arg3, E arg4, E arg5, E arg6, E arg7, E arg8);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.util.List<E> of();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.util.List<E> of(E arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.util.List<E> of(E arg0, E arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.util.List<E> of(E arg0, E arg1, E arg2, E arg3, E arg4, E arg5, E arg6);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.util.List<E> of(E arg0, E arg1, E arg2, E arg3, E arg4, E arg5, E arg6, E arg7);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static transient java.util.List<E> of(E[] arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.util.List<E> of(E arg0, E arg1, E arg2, E arg3, E arg4, E arg5);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract boolean contains(java.lang.Object arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.util.Spliterator<E> spliterator();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract boolean addAll(java.util.Collection<? extends E> arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract boolean addAll(int arg0, java.util.Collection<? extends E> arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract E set(int arg0, E arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public void sort(java.util.Comparator<? super E> arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public E getFirst();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public E getLast();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public void addFirst(E arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public void addLast(E arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public E removeFirst();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public E removeLast();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract boolean removeAll(java.util.Collection<?> arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract boolean retainAll(java.util.Collection<?> arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract java.util.ListIterator<E> listIterator();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract java.util.ListIterator<E> listIterator(int arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.util.List<E> reversed();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public abstract boolean containsAll(java.util.Collection<?> arg0);
+}

@@ -1,6 +1,7 @@
 name: Tests
 
 on:
+  merge_group:
   # Trigger the workflow on push to master (ignoring .md only changes)
   push:
     branches:
@@ -72,6 +73,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         run: |
           ./gradlew --continue --parallel test
+
+      - &integrationtests
+        name: Assemble full version for shell testing
+        run: |
+          ./gradlew --continue --parallel :tools:cli:installDist
+
+      - name: Run shell scripts
+        run: python3 scripts/shelltester.py tools/cli/shell-tests/**
 
   gradle_test_on_branch:
     strategy:

@@ -38,6 +38,7 @@ import com.github.javaparser.printer.configuration.imports.DefaultImportOrdering
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.github.javaparser.ast.Node.Parsedness.UNPARSABLE;
 import static com.github.javaparser.utils.PositionUtils.sortByBeginPosition;
@@ -138,7 +139,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
 
     /**
      * Print a list of annotations on a member, i.e., a top-level or body declaration.
-     *
+     * <p>
      * By default, this outputs each annotation on a separate line.
      */
     protected void printMemberAnnotations(final NodeList<AnnotationExpr> annotations, final Void arg) {
@@ -153,7 +154,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
 
     /**
      * Prints a list of annotations.
-     *
+     * <p>
      * By default, outputs the {@code annotations} followed by spaces.
      * If {@code prefixWithASpace} is set, outputs an additional space at the beginning if there are annotations
      * to output.
@@ -174,7 +175,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
 
     /**
      * Print type arguments.
-     *
+     * <p>
      * This outputs type arguments using the {@code <T1, ..., Tn>} syntax.
      */
     protected void printTypeArgs(final NodeWithTypeArguments<?> nodeWithTypeArguments, final Void arg) {
@@ -194,7 +195,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
 
     /**
      * Print type parameters.
-     *
+     * <p>
      * This outputs type parameters using the {@code <T1 [extends ...] [super...], ..., Tn>} syntax.
      */
     protected void printTypeParameters(final NodeList<TypeParameter> args, final Void arg) {
@@ -213,7 +214,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
 
     /**
      * Outputs arguments to a method/constructor call.
-     *
+     * <p>
      * This outputs arguments using the {@code (arg1, ..., argn)} syntax,
      * using either one-line or multi-line argument lists.
      */
@@ -246,15 +247,15 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
 
     /**
      * General list output functionality - no output for empty lists.
-     *
+     * <p>
      * This outputs nothing if {@code args} is empty, and {@code prefix args[0] separator ... separator arg[n] suffix}
      * otherwise.
      *
-     * @param args the nodes to output
-     * @param arg ignored
-     * @param prefix prefix for the list output
+     * @param args      the nodes to output
+     * @param arg       ignored
+     * @param prefix    prefix for the list output
      * @param separator seperator between the list items
-     * @param postfix suffix for the list output
+     * @param postfix   suffix for the list output
      */
     protected void printPrePostFixOptionalList(
             final NodeList<? extends Visitable> args, final Void arg, String prefix, String separator, String postfix) {
@@ -273,15 +274,15 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
 
     /**
      * General list output functionality with output for empty lists.
-     *
+     * <p>
      * This outputs @{code prefix suffix} if {@code args} is empty, and {@code prefix args[0] separator ... separator arg[n] suffix}
      * otherwise.
      *
-     * @param args the nodes to output
-     * @param arg ignored
-     * @param prefix prefix for the list output
+     * @param args      the nodes to output
+     * @param arg       ignored
+     * @param prefix    prefix for the list output
      * @param separator seperator between the list items
-     * @param postfix suffix for the list output
+     * @param postfix   suffix for the list output
      */
     protected void printPrePostFixRequiredList(
             final NodeList<? extends Visitable> args, final Void arg, String prefix, String separator, String postfix) {
@@ -730,6 +731,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     /**
      * Should the given array initializer expression be output on multiple lines,
      * as an array of annotations?
+     *
      * @return true iff the {@code INDENT_PRINT_ARRAYS_OF_ANNOTATIONS} is set
      * and the array consists of {@code AnnotationExpr} entries.
      */
@@ -1006,7 +1008,12 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     @Override
     public void visit(JmlSignalsClause n, Void arg) {
         printOrphanCommentsBeforeThisChildNode(n);
-        printClause(n.getKind(), n.getExpression());
+        printer.print(n.getKind().jmlSymbol);
+        printer.print(" (");
+        n.getParameter().accept(this, arg);
+        printer.print(") ");
+        n.getExpression().accept(this, arg);
+        printer.println(";");
     }
 
     @Override
@@ -1030,6 +1037,17 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
         boolean b = inJmlComment();
         if (!b) {
             startJmlComment(true, new NodeList<>());
+            run.run();
+            endJmlComment();
+        } else {
+            run.run();
+        }
+    }
+
+    void wrapInJmlIfNeededBlock(NodeList<SimpleName> jmlTags, Runnable run) {
+        boolean b = inJmlComment();
+        if (!b) {
+            startJmlComment(false, jmlTags);
             run.run();
             endJmlComment();
         } else {
@@ -1128,7 +1146,6 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
         printOrphanCommentsBeforeThisChildNode(n);
         wrapInJmlIfNeededBlock(() -> {
             printModifiers(n.getModifiers());
-            printer.print(" ");
             printer.print(n.getBehavior().jmlSymbol());
             printer.indent();
             printer.println();
@@ -1136,6 +1153,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
             printer.indent();
             printList(n.getSubContracts(), "", "", "", "{|\n", "|}");
             printer.unindent().unindent();
+            printer.println();
         });
     }
 
@@ -1254,11 +1272,10 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
         printOrphanCommentsBeforeThisChildNode(n);
         printComment(n.getComment(), arg);
         printer.print(n.getKind().jmlSymbol());
-        printer.print(" ");
         if (n.getHeaps().isPresent()) {
             n.getHeaps().get().accept(this, arg);
-            printer.print(" ");
         }
+        printer.print(" ");
         if (n.getName().isPresent()) {
             n.getName().get().accept(this, arg);
             printer.print(" ");
@@ -1928,7 +1945,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     public void visit(final MethodDeclaration n, final Void arg) {
         printOrphanCommentsBeforeThisChildNode(n);
         printComment(n.getComment(), arg);
-        printList(n.getContracts(), "\n");
+        printContracts(n.getContracts());
         printMemberAnnotations(n.getAnnotations(), arg);
         printModifiers(n.getModifiers());
         printTypeParameters(n.getTypeParameters(), arg);
@@ -1971,6 +1988,24 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
             printer.print(" ");
             n.getBody().get().accept(this, arg);
         }
+    }
+
+    private void printContracts(NodeList<JmlContract> contracts) {
+        var classes = contracts.stream().collect(Collectors.groupingBy(JmlContract::getJmlTags));
+        classes.forEach(this::printContractsGroup);
+    }
+
+    private void printContractsGroup(NodeList<SimpleName> tags, List<JmlContract> group) {
+        wrapInJmlIfNeededBlock(tags, () -> {
+            for (Iterator<JmlContract> iterator = group.iterator(); iterator.hasNext(); ) {
+                var jmlContract = iterator.next();
+                visit(jmlContract, null);
+                if (iterator.hasNext()) {
+                    printer.println("also");
+                    printer.print("    ");
+                }
+            }
+        });
     }
 
     @Override
@@ -2745,7 +2780,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
 
     /**
      * Print imports using an import ordering strategy.
-     *
+     * <p>
      * Orders imports using the selected ordering strategy, given
      * by {@code ORDER_IMPORTS} (which forces alphabetic ordering if set),
      * falling back to {@code SORT_IMPORTS_STRATEGY} (which yields a user-selected ordering),

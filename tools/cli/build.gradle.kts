@@ -16,4 +16,5 @@ dependencies {
     implementation(project(":tools:lint"))
     implementation(project(":tools:stat"))
     implementation(project(":tools:jml2java"))
+    implementation(project(":tools:jmlstub"))
 }

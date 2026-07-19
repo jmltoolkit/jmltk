@@ -22,7 +22,7 @@ import java.io.File
  * @author Alexander Weigl
  * @version 1 (7/19/26)
  */
-class JmlStubCombiner {
+class JmlStubCombiner(val config: StubConfig = StubConfig()) {
 
     /**
      * Combine multiple CompilationUnits into a single unit.

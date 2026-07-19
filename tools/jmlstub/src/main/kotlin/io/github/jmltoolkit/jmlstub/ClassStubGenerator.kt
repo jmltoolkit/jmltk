@@ -11,6 +11,7 @@ import com.github.javaparser.ast.body.Parameter
 import com.github.javaparser.ast.type.ClassOrInterfaceType
 import javassist.ClassPool
 import javassist.CtClass
+import javassist.bytecode.MethodParametersAttribute
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.extension
@@ -124,15 +125,12 @@ class ClassStubGenerator(private val path: Path) {
 
     private fun getParameters(behavior: javassist.CtBehavior): List<Parameter> {
         val types = behavior.parameterTypes.map { ClassOrInterfaceType(null, it.name) }
-        val methodInfo = behavior.getMethodInfo()
-        val table = methodInfo.getCodeAttribute().getAttribute(javassist.bytecode.LocalVariableAttribute.tag)
-        val numberOfLocalVariables = table.length()
-        val names = (0..numberOfLocalVariables).map {
-            methodInfo.getConstPool().getUtf8Info(
-                0// TODO table.constPool
-            )
-        }
 
+        val methodInfo = behavior.getMethodInfo()
+        val attr = methodInfo.getAttribute(MethodParametersAttribute.tag) as MethodParametersAttribute?
+        val names = types.indices.map {
+            attr?.parameterName(it) ?: "arg$it"
+        }
         return types.zip(names).map { (t, n) -> Parameter(t, n) }
     }
 

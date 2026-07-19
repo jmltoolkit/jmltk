@@ -10,6 +10,7 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.jml.body.JmlClassLevelDeclaration
 import java.io.File
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * Combiner for merging multiple JML specifications and stub files.
@@ -41,7 +42,9 @@ class JmlStubCombiner(val config: StubConfig = StubConfig()) {
         }
 
         val result = CompilationUnit()
-        result.setPackageDeclaration(units.firstOrNull()?.packageDeclaration?.get())
+        units.firstOrNull()?.packageDeclaration?.getOrNull()?.let {
+            result.setPackageDeclaration(it)
+        }
 
         // Merge imports from all units
         val allImports = mutableSetOf<String>()

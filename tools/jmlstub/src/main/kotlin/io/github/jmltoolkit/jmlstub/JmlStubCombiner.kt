@@ -6,8 +6,8 @@ package io.github.jmltoolkit.jmlstub
 
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.NodeList
-import com.github.javaparser.ast.body.*
-import com.github.javaparser.ast.jml.clauses.JmlContract
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
+import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.jml.body.JmlClassLevelDeclaration
 import java.io.File
 
@@ -35,14 +35,14 @@ class JmlStubCombiner {
         if (units.isEmpty()) {
             return CompilationUnit()
         }
-        
+
         if (units.size == 1) {
             return units.first().clone()
         }
-        
+
         val result = CompilationUnit()
-        result.packageDeclaration = units.firstOrNull()?.packageDeclaration
-        
+        result.setPackageDeclaration(units.firstOrNull()?.packageDeclaration?.get())
+
         // Merge imports from all units
         val allImports = mutableSetOf<String>()
         units.forEach { cu ->
@@ -53,10 +53,10 @@ class JmlStubCombiner {
         allImports.forEach { importName ->
             result.addImport(importName)
         }
-        
+
         // Group types by qualified name
         val typesByName = mutableMapOf<String, MutableList<ClassOrInterfaceDeclaration>>()
-        
+
         units.forEach { cu ->
             cu.types.forEach { type ->
                 if (type is ClassOrInterfaceDeclaration) {
@@ -65,13 +65,13 @@ class JmlStubCombiner {
                 }
             }
         }
-        
+
         // Merge types - methods/fields are additive, JML contracts from latest only
         typesByName.forEach { (_, declarations) ->
             val merged = mergeClassDeclarations(declarations)
             result.addType(merged)
         }
-        
+
         return result
     }
 
@@ -83,7 +83,7 @@ class JmlStubCombiner {
         if (methods.isEmpty()) {
             throw IllegalArgumentException("Methods list cannot be empty")
         }
-        
+
         // Use the last method's contracts only - latest wins
         return methods.last().clone()
     }
@@ -110,19 +110,20 @@ class JmlStubCombiner {
      */
     fun combineFromFiles(files: List<File>): CompilationUnit {
         val units = mutableListOf<CompilationUnit>()
-        val generator = JmlStubGenerator()
-        
+        val generator = StubGenerator()
+
         files.forEach { file ->
             if (file.name.endsWith(".java")) {
-                generator.generateFromFile(file)?.let { units.add(it) }
+                val cu = generator.parser.parse(file).result.get()
+                units.add(generator.generate(cu))
             }
         }
-        
+
         return combine(units)
     }
 
     private fun buildTypeName(cu: CompilationUnit, type: ClassOrInterfaceDeclaration): String {
-        val packageName = cu.packageDeclaration?.nameAsString ?: ""
+        val packageName = cu.packageDeclaration()?.nameAsString ?: ""
         return if (packageName.isEmpty()) type.nameAsString else "$packageName.${type.nameAsString}"
     }
 
@@ -130,20 +131,20 @@ class JmlStubCombiner {
         if (declarations.isEmpty()) {
             throw IllegalArgumentException("Declarations list cannot be empty")
         }
-        
+
         val result = declarations.first().clone()
         val methodSignatures = mutableMapOf<String, MethodDeclaration>()
         val fieldNames = mutableSetOf<String>()
-        
+
         declarations.forEachIndexed { index, decl ->
             val isLast = index == declarations.lastIndex
-            
+
             // Methods are additive, but use latest version for same signature
             decl.methods.forEach { method ->
                 val signature = getMethodSignature(method)
                 methodSignatures[signature] = method.clone()
             }
-            
+
             // Fields are additive (unique by name)
             decl.fields.forEach { field ->
                 field.variables.forEach { variable ->
@@ -153,17 +154,17 @@ class JmlStubCombiner {
                     }
                 }
             }
-            
+
             // JML contracts: Only use the last declaration's contracts
             if (isLast) {
                 replaceJmlContracts(result, decl)
             }
         }
-        
+
         // Replace methods with collected ones
         result.methods.forEach { it.remove() }
         methodSignatures.values.forEach { result.addMember(it) }
-        
+
         return result
     }
 
@@ -177,11 +178,13 @@ class JmlStubCombiner {
         source.getJmlClassLevelDeclarations().forEach { contract ->
             target.addMember(contract.clone())
         }
-        
+
         source.methods.forEach { sourceMethod ->
-            val targetMethod = target.getMethodByName(sourceMethod.nameAsString)
-            if (targetMethod.isPresent) {
-                replaceMethodJmlContracts(targetMethod.get(), sourceMethod)
+            val targetMethod = target.getMethodsByName(sourceMethod.nameAsString)
+            if (targetMethod.isNotEmpty()) {
+                targetMethod.forEach { method ->
+                    replaceMethodJmlContracts(method, sourceMethod)
+                }
             }
         }
     }
@@ -195,7 +198,7 @@ class JmlStubCombiner {
 
     private fun isJmlAnnotation(name: String): Boolean {
         val jmlAnnotations = setOf(
-            "Requires", "Ensures", "Assignable", "Invariant", 
+            "Requires", "Ensures", "Assignable", "Invariant",
             "Pure", "Helper", "SpecPublic", "Ghost", "Model"
         )
         return jmlAnnotations.any { name.contains(it, ignoreCase = true) }
@@ -205,8 +208,8 @@ class JmlStubCombiner {
 /**
  * Extension function to get JML class-level declarations.
  */
-fun ClassOrInterfaceDeclaration.getJmlClassLevelDeclarations(): NodeList<JmlClassLevelDeclaration> {
-    val declarations = NodeList<JmlClassLevelDeclaration>()
+fun ClassOrInterfaceDeclaration.getJmlClassLevelDeclarations(): NodeList<JmlClassLevelDeclaration<*>> {
+    val declarations = NodeList<JmlClassLevelDeclaration<*>>()
     this.members.forEach { member ->
         if (member is JmlClassLevelDeclaration) {
             declarations.add(member)

@@ -8,13 +8,16 @@ import com.github.javaparser.JavaParser
 import com.github.javaparser.ParseResult
 import com.github.javaparser.ParserConfiguration
 import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.NodeList
-import com.github.javaparser.ast.body.*
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
+import com.github.javaparser.ast.body.ConstructorDeclaration
+import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.expr.StringLiteralExpr
+import com.github.javaparser.ast.nodeTypes.NodeWithAnnotations
 import com.github.javaparser.ast.stmt.BlockStmt
 import com.github.javaparser.ast.type.Type
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import java.io.File
+import java.nio.file.Path
 
 /**
  * Generator for creating Java stub files from existing Java source code.
@@ -23,50 +26,33 @@ import java.io.File
  * @author Alexander Weigl
  * @version 1 (7/19/26)
  */
-class JmlStubGenerator(
-    private val config: JmlStubConfig = JmlStubConfig()
-) {
-    private val parser: JavaParser by lazy {
+class StubGenerator(private val config: StubConfig = StubConfig()) {
+    internal val parser: JavaParser by lazy {
         val parserConfig = ParserConfiguration()
-        parserConfig.setProcessJml(config.processJml)
-        if (!config.jmlKeys.isEmpty()) {
-            parserConfig.jmlKeys.addAll(config.jmlKeys)
-        }
         JavaParser(parserConfig)
     }
 
-    /**
-     * Generate stubs from a list of Java source files.
-     */
-    fun generate(files: List<File>): List<CompilationUnit> {
-        val result = mutableListOf<CompilationUnit>()
-        for (file in files) {
-            if (file.isDirectory) {
-                result.addAll(generateFromDirectory(file))
-            } else if (file.name.endsWith(".java")) {
-                parseAndGenerateStub(file)?.let { result.add(it) }
-            }
+    fun generate(files: List<Path>): List<List<CompilationUnit>> {
+        return files.map { rootPath ->
+            rootPath.toFile().walkTopDown().map { f ->
+                when {
+                    f.name.endsWith(".class") -> createStub(f.toPath())
+                    f.name.endsWith(".java") -> readJavaFile(f.toPath())
+                    else -> null
+                }
+            }.filterNotNull().toList()
         }
-        return result
     }
 
-    /**
-     * Generate stubs from a directory recursively.
-     */
-    fun generateFromDirectory(directory: File): List<CompilationUnit> {
-        val result = mutableListOf<CompilationUnit>()
-        directory.walkTopDown().filter { it.isFile && it.name.endsWith(".java") }.forEach { file ->
-            parseAndGenerateStub(file)?.let { result.add(it) }
-        }
-        return result
+    private fun readJavaFile(it: Path): CompilationUnit {
+        return parser.parse(it).result.get()
     }
 
-    /**
-     * Generate a stub from a single Java file.
-     */
-    fun generateFromFile(file: File): CompilationUnit? {
-        return parseAndGenerateStub(file)
+    private fun createStub(it: Path): CompilationUnit {
+        val classStub = ClassStubGenerator(it)
+        return classStub.generate()
     }
+
 
     /**
      * Generate a stub from a CompilationUnit.
@@ -101,7 +87,7 @@ class JmlStubGenerator(
      * Visitor that transforms Java declarations into stubs.
      */
     private class StubVisitor(private val stubCreator: StubCreator) : VoidVisitorAdapter<Unit>() {
-        
+
         override fun visit(n: ClassOrInterfaceDeclaration, arg: Unit?) {
             if (n.isAbstract) {
                 super.visit(n, arg)
@@ -130,7 +116,7 @@ class JmlStubGenerator(
 /**
  * Configuration options for JML stub generation.
  */
-data class JmlStubConfig(
+data class StubConfig(
     val processJml: Boolean = true,
     val jmlKeys: List<String> = emptyList(),
     val excludeClasses: Boolean = false,
@@ -143,8 +129,8 @@ data class JmlStubConfig(
 /**
  * Helper class for creating stub implementations.
  */
-class StubCreator(private val config: JmlStubConfig) {
-    
+class StubCreator(private val config: StubConfig) {
+
     fun makeStub(declaration: ClassOrInterfaceDeclaration) {
         if (config.addGeneratedAnnotation) {
             addGeneratedMarker(declaration)
@@ -169,15 +155,21 @@ class StubCreator(private val config: JmlStubConfig) {
     private fun createStubBody(returnType: Type): BlockStmt {
         val body = BlockStmt()
         when {
-            returnType.toString() == "void" -> { /* Empty */ }
-            returnType.isPrimitive -> {
+            returnType.toString() == "void" -> { /* Empty */
+            }
+
+            returnType.isPrimitiveType -> {
                 val defaultExpr = getDefaultPrimitiveValue(returnType)
                 body.addStatement(com.github.javaparser.StaticJavaParser.parseStatement("return $defaultExpr;"))
             }
+
             else -> {
                 if (config.throwUnsupportedForStubs) {
-                    body.addStatement(com.github.javaparser.StaticJavaParser.parseStatement(
-                        "throw new UnsupportedOperationException(\"Stub method\");"))
+                    body.addStatement(
+                        com.github.javaparser.StaticJavaParser.parseStatement(
+                            "throw new UnsupportedOperationException(\"Stub method\");"
+                        )
+                    )
                 } else {
                     body.addStatement(com.github.javaparser.StaticJavaParser.parseStatement("return null;"))
                 }
@@ -196,7 +188,7 @@ class StubCreator(private val config: JmlStubConfig) {
         }
     }
 
-    private fun addGeneratedMarker(node: com.github.javaparser.ast.Node) {
+    private fun addGeneratedMarker(node: NodeWithAnnotations<*>) {
         node.addSingleMemberAnnotation("Generated", StringLiteralExpr("io.github.jmltoolkit.jmlstub.JmlStubGenerator"))
     }
 }

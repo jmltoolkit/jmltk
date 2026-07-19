@@ -54,6 +54,9 @@ tasks.withType<JavaCompile> {
     options.errorprone {
         disableWarningsInGeneratedCode = true
     }
+    options.compilerArgs.addAll(listOf(
+        "--should-stop=ifError=FLOW",
+        "-XDaddTypeAnnotationsToSymbol=true"))
 }
 
 tasks.withType<Javadoc> {

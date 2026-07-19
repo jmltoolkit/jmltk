@@ -149,7 +149,7 @@ public enum ResolvedPrimitiveType implements ResolvedType {
     /*
      * Returns the boxed class of the primitive type.
      */
-    public Class getBoxTypeClass() {
+    public Class<?> getBoxTypeClass() {
         return boxTypeClass;
     }
 

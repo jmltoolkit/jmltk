@@ -31,7 +31,7 @@ import kotlin.jvm.optionals.getOrNull
 fun main(args: Array<String>) {
     var cmd = Main().subcommands(
         J2JCommand(), LintCommand(), PrettyPrintCommand(), XPathCommand(),
-        StatCommand(), WdCommand(),
+        StatCommand(), WdCommand(), JmlStubCommand()
     )
     cmd.main(args)
 }

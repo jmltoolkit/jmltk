@@ -18,7 +18,6 @@ import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ClassLoaderTypeSolver;
 import com.google.common.truth.Truth;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -53,7 +52,6 @@ class NameResolutionTest {
     }
     */
     @Test
-    @Disabled("Repair")
     void contractMemberVariable() throws IOException {
         loadAndResolveAll("ResolutionTest.java");
         /*JmlContract contract = declaration.getMethodsByName("foo").get(0).getContracts().get().get(0);
@@ -109,7 +107,6 @@ class NameResolutionTest {
     }
 
     @Test
-    @Disabled("Repair")
     void jmlBinderExpression() throws IOException {
         loadAndResolveAll("JmlQuantifiedExprResolutionTest.java");
     }
@@ -120,7 +117,6 @@ class NameResolutionTest {
     }
 
     @Test
-    @Disabled("Repair")
     void locals() throws IOException {
         loadAndResolveAll("Locals.java");
     }

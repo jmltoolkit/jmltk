@@ -24,7 +24,7 @@ class JmlImportsTest {
     void testSimpleModelImport() {
         String code = """
             package example;
-            model import java.util.Set;
+            //@ model import java.util.Set;
             public class Example {}
             """;
         ParseResult<CompilationUnit> result = javaParser.parse(code);
@@ -35,8 +35,8 @@ class JmlImportsTest {
     void testMultipleModelImports() {
         String code = """
             package example;
-            model import java.util.Set;
-            model import java.util.Map;
+            //@ model import java.util.Set;
+            //@ model import java.util.Map;
             public class Example {}
             """;
         ParseResult<CompilationUnit> result = javaParser.parse(code);
@@ -47,7 +47,7 @@ class JmlImportsTest {
     void testModelImportWithWildcard() {
         String code = """
             package example;
-            model import java.util.*;
+            //@ model import java.util.*;
             public class Example {}
             """;
         ParseResult<CompilationUnit> result = javaParser.parse(code);
@@ -59,9 +59,9 @@ class JmlImportsTest {
         String code = """
             package example;
             import java.util.List;
-            model import java.util.Set;
+            //@ model import java.util.Set;
             import java.util.HashMap;
-            model import java.util.Map;
+            //@ model import java.util.Map;
             public class Example {}
             """;
         ParseResult<CompilationUnit> result = javaParser.parse(code);
@@ -72,7 +72,7 @@ class JmlImportsTest {
     void testStaticModelImport() {
         String code = """
             package example;
-            model import static java.lang.Math.PI;
+            //@ model import static java.lang.Math.PI;
             public class Example {}
             """;
         ParseResult<CompilationUnit> result = javaParser.parse(code);

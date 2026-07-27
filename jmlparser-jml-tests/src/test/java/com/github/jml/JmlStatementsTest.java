@@ -8,10 +8,7 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.expr.BinaryExpr;
-import com.github.javaparser.ast.expr.FieldAccessExpr;
-import com.github.javaparser.ast.expr.IntegerLiteralExpr;
-import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.jml.stmt.JmlExpressionStmt;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.Statement;
@@ -79,12 +76,12 @@ class JmlStatementsTest {
         JmlExpressionStmt assertStmt = findJmlStatement(body, ASSERT);
         
         // Verify the expression is a binary expression (x >= 0)
-        Assertions.assertTrue(assertStmt.getExpression() instanceof BinaryExpr);
+        Assertions.assertInstanceOf(BinaryExpr.class, assertStmt.getExpression());
         BinaryExpr binExpr = (BinaryExpr) assertStmt.getExpression();
         Assertions.assertEquals(BinaryExpr.Operator.GREATER_EQUALS, binExpr.getOperator());
-        Assertions.assertTrue(binExpr.getLeft() instanceof NameExpr);
+        Assertions.assertInstanceOf(NameExpr.class, binExpr.getLeft());
         Assertions.assertEquals("x", ((NameExpr) binExpr.getLeft()).getNameAsString());
-        Assertions.assertTrue(binExpr.getRight() instanceof IntegerLiteralExpr);
+        Assertions.assertInstanceOf(IntegerLiteralExpr.class, binExpr.getRight());
         Assertions.assertEquals("0", ((IntegerLiteralExpr) binExpr.getRight()).getValue());
     }
 
@@ -110,7 +107,7 @@ class JmlStatementsTest {
         JmlExpressionStmt assertStmt = findJmlStatement(body, ASSERT);
         
         // Verify the expression is an equality check
-        Assertions.assertTrue(assertStmt.getExpression() instanceof BinaryExpr);
+        Assertions.assertInstanceOf(BinaryExpr.class, assertStmt.getExpression());
         BinaryExpr binExpr = (BinaryExpr) assertStmt.getExpression();
         Assertions.assertEquals(BinaryExpr.Operator.EQUALS, binExpr.getOperator());
     }
@@ -166,7 +163,7 @@ class JmlStatementsTest {
         JmlExpressionStmt assertStmt = findJmlStatement(loopBody, ASSERT);
         
         // Verify the assertion expression
-        Assertions.assertTrue(assertStmt.getExpression() instanceof BinaryExpr);
+        Assertions.assertInstanceOf(BinaryExpr.class, assertStmt.getExpression());
         BinaryExpr binExpr = (BinaryExpr) assertStmt.getExpression();
         Assertions.assertEquals(BinaryExpr.Operator.GREATER_EQUALS, binExpr.getOperator());
     }
@@ -176,7 +173,7 @@ class JmlStatementsTest {
     void testJmlSetSimple() {
         String code = """
             public class Example {
-                /*@ ghost @*/ int counter;
+                /*@ ghost int counter; */
                 void method() {
                     //@ set counter = 0;
                 }
@@ -196,24 +193,24 @@ class JmlStatementsTest {
         Assertions.assertEquals(SET, setStmt.getKind());
         
         // Verify the expression is an assignment
-        Assertions.assertTrue(setStmt.getExpression() instanceof BinaryExpr);
-        BinaryExpr binExpr = (BinaryExpr) setStmt.getExpression();
-        Assertions.assertEquals(BinaryExpr.Operator.ASSIGN, binExpr.getOperator());
+        Assertions.assertInstanceOf(BinaryExpr.class, setStmt.getExpression());
+        var binExpr = (AssignExpr) setStmt.getExpression();
+        Assertions.assertEquals(AssignExpr.Operator.ASSIGN, binExpr.getOperator());
         
         // Verify left side is the field access
-        Assertions.assertTrue(binExpr.getLeft() instanceof NameExpr);
-        Assertions.assertEquals("counter", ((NameExpr) binExpr.getLeft()).getNameAsString());
+        Assertions.assertInstanceOf(NameExpr.class, binExpr.target());
+        Assertions.assertEquals("counter", ((NameExpr) binExpr.target()).getNameAsString());
         
         // Verify right side is 0
-        Assertions.assertTrue(binExpr.getRight() instanceof IntegerLiteralExpr);
-        Assertions.assertEquals("0", ((IntegerLiteralExpr) binExpr.getRight()).getValue());
+        Assertions.assertInstanceOf(IntegerLiteralExpr.class, binExpr.value());
+        Assertions.assertEquals("0", ((IntegerLiteralExpr) binExpr.value()).getValue());
     }
 
     @Test
     void testJmlSetWithExpression() {
         String code = """
             public class Counter {
-                /*@ ghost @*/ int historySum;
+                //@ ghost int historySum;
                 void accumulate(int[] arr) {
                     int sum = 0;
                     for (int i = 0; i < arr.length; i++) {
@@ -233,11 +230,11 @@ class JmlStatementsTest {
         JmlExpressionStmt setStmt = findJmlStatement(body, SET);
         
         Assertions.assertEquals(SET, setStmt.getKind());
-        Assertions.assertTrue(setStmt.getExpression() instanceof BinaryExpr);
-        BinaryExpr binExpr = (BinaryExpr) setStmt.getExpression();
-        Assertions.assertEquals(BinaryExpr.Operator.ASSIGN, binExpr.getOperator());
-        Assertions.assertEquals("historySum", ((NameExpr) binExpr.getLeft()).getNameAsString());
-        Assertions.assertEquals("sum", ((NameExpr) binExpr.getRight()).getNameAsString());
+        Assertions.assertInstanceOf(BinaryExpr.class, setStmt.getExpression());
+        var binExpr = (AssignExpr) setStmt.getExpression();
+        Assertions.assertEquals(AssignExpr.Operator.ASSIGN, binExpr.getOperator());
+        Assertions.assertEquals("historySum", ((NameExpr) binExpr.target()).getNameAsString());
+        Assertions.assertEquals("sum", ((NameExpr) binExpr.value()).getNameAsString());
     }
 
     @Test
@@ -261,25 +258,26 @@ class JmlStatementsTest {
         JmlExpressionStmt setStmt = findJmlStatement(body, SET);
         
         Assertions.assertEquals(SET, setStmt.getKind());
-        Assertions.assertTrue(setStmt.getExpression() instanceof BinaryExpr);
-        BinaryExpr binExpr = (BinaryExpr) setStmt.getExpression();
-        Assertions.assertEquals(BinaryExpr.Operator.ASSIGN, binExpr.getOperator());
-        Assertions.assertEquals("callCount", ((NameExpr) binExpr.getLeft()).getNameAsString());
+        Assertions.assertInstanceOf(BinaryExpr.class, setStmt.getExpression());
+        var binExpr = (AssignExpr) setStmt.getExpression();
+        Assertions.assertEquals(AssignExpr.Operator.ASSIGN, binExpr.getOperator());
+        Assertions.assertEquals("callCount", ((NameExpr) binExpr.target()).getNameAsString());
     }
 
     @Test
     void testJmlSetMultiple() {
         String code = """
             public class Point {
-                /*@ ghost @*/ int lastX;
-                /*@ ghost @*/ int lastY;
-                
+                /*@ ghost int lastX;
+                    ghost int lastY;
+                */
+               \s
                 void move(int x, int y) {
                     //@ set lastX = x;
                     //@ set lastY = y;
                 }
             }
-            """;
+           \s""";
         ParseResult<CompilationUnit> result = javaParser.parse(code);
         Assertions.assertTrue(result.isSuccessful());
         
@@ -295,7 +293,7 @@ class JmlStatementsTest {
         Assertions.assertEquals(2, setStmts.size());
         
         // Verify first set: lastX = x
-        BinaryExpr first = (BinaryExpr) setStmts.get(0).getExpression();
+        BinaryExpr first = (BinaryExpr) setStmts.getFirst().getExpression();
         Assertions.assertEquals("lastX", ((NameExpr) first.getLeft()).getNameAsString());
         Assertions.assertEquals("x", ((NameExpr) first.getRight()).getNameAsString());
         
@@ -330,12 +328,12 @@ class JmlStatementsTest {
         Assertions.assertEquals(ASSUME, assumeStmt.getKind());
         
         // Verify the expression is a binary expression (x > 0)
-        Assertions.assertTrue(assumeStmt.getExpression() instanceof BinaryExpr);
+        Assertions.assertInstanceOf(BinaryExpr.class, assumeStmt.getExpression());
         BinaryExpr binExpr = (BinaryExpr) assumeStmt.getExpression();
         Assertions.assertEquals(BinaryExpr.Operator.GREATER, binExpr.getOperator());
-        Assertions.assertTrue(binExpr.getLeft() instanceof NameExpr);
+        Assertions.assertInstanceOf(NameExpr.class, binExpr.getLeft());
         Assertions.assertEquals("x", ((NameExpr) binExpr.getLeft()).getNameAsString());
-        Assertions.assertTrue(binExpr.getRight() instanceof IntegerLiteralExpr);
+        Assertions.assertInstanceOf(IntegerLiteralExpr.class, binExpr.getRight());
         Assertions.assertEquals("0", ((IntegerLiteralExpr) binExpr.getRight()).getValue());
     }
 
@@ -359,10 +357,10 @@ class JmlStatementsTest {
         JmlExpressionStmt assumeStmt = findJmlStatement(body, ASSUME);
         
         Assertions.assertEquals(ASSUME, assumeStmt.getKind());
-        Assertions.assertTrue(assumeStmt.getExpression() instanceof BinaryExpr);
+        Assertions.assertInstanceOf(BinaryExpr.class, assumeStmt.getExpression());
         BinaryExpr binExpr = (BinaryExpr) assumeStmt.getExpression();
         Assertions.assertEquals(BinaryExpr.Operator.NOT_EQUALS, binExpr.getOperator());
-        Assertions.assertTrue(binExpr.getLeft() instanceof NameExpr);
+        Assertions.assertInstanceOf(NameExpr.class, binExpr.getLeft());
         Assertions.assertEquals("obj", ((NameExpr) binExpr.getLeft()).getNameAsString());
     }
 
@@ -387,7 +385,7 @@ class JmlStatementsTest {
         
         Assertions.assertEquals(ASSUME, assumeStmt.getKind());
         // The expression is a logical AND: 0 <= index && index < arr.length
-        Assertions.assertTrue(assumeStmt.getExpression() instanceof BinaryExpr);
+        Assertions.assertInstanceOf(BinaryExpr.class, assumeStmt.getExpression());
         BinaryExpr binExpr = (BinaryExpr) assumeStmt.getExpression();
         Assertions.assertEquals(BinaryExpr.Operator.AND, binExpr.getOperator());
     }

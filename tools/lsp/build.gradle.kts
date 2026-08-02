@@ -1,7 +1,7 @@
 plugins {
     id("standard-kotlin")
     kotlin("plugin.serialization") version "2.4.10"
-    id("com.gradleup.shadow") version "9.5.1"
+    id("com.gradleup.shadow") version "9.6.1"
     id("application")
 }
 
@@ -34,8 +34,8 @@ dependencies {
 
     implementation(libs.clickt)
 
-    implementation("org.key-project:key.core:2.12.3")
-    implementation("org.key-project:key.ui:2.12.3")
+    implementation("org.key-project:key.core:3.0.0")
+    implementation("org.key-project:key.ui:3.0.0")
 }
 
 application {

@@ -4,7 +4,7 @@
  */
 package io.github.jmltoolkit.lsp.highlighting
 
-import de.uka.ilkd.key.nparser.KeYLexer
+import de.uka.ilkd.key.nparser.JavaKeYLexer
 import de.uka.ilkd.key.nparser.ParsingFacade
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.Token
@@ -16,71 +16,71 @@ class KeyDocumentHighlighter : DocumentHighlighter {
         val tb = SemanticTokensBuilder()
         do {
             val token = lexer.nextToken()
-            if (token.type == KeYLexer.EOF) {
+            if (token.type == JavaKeYLexer.EOF) {
                 break
             }
             tokenType(token)?.let { tt ->
                 tb.add(token.line, token.charPositionInLine, token.text.length, tt, tokenModifier(token))
             }
-        } while (token.type == KeYLexer.EOF)
+        } while (token.type == JavaKeYLexer.EOF)
         return SemanticTokens(tb.data)
     }
 
     private fun tokenType(token: Token): Int? = when (token.type) {
-            KeYLexer.COMMENT -> SupportedTokenTypes.COMMENT.ordinal
+            JavaKeYLexer.COMMENT -> SupportedTokenTypes.COMMENT.ordinal
 
-            KeYLexer.VARIABLE -> SupportedTokenTypes.VARIABLE.ordinal
+            JavaKeYLexer.VARIABLE -> SupportedTokenTypes.VARIABLE.ordinal
 
-            KeYLexer.VARCOND,
-            KeYLexer.IF,
-            KeYLexer.IFEX,
-            KeYLexer.RULES,
-            KeYLexer.AXIOMS,
-            KeYLexer.ABSTRACT,
-            KeYLexer.ASSIGN,
-            KeYLexer.ASSUMES,
-            KeYLexer.ADD,
-            KeYLexer.FIND,
-            KeYLexer.FINAL,
-            KeYLexer.ANTECEDENTPOLARITY,
-            KeYLexer.SUCCEDENTPOLARITY,
-            KeYLexer.UPDATE,
-            KeYLexer.UNIQUE,
-            KeYLexer.FUNCTIONS,
-            KeYLexer.PREDICATES,
-            KeYLexer.SORTS,
-            KeYLexer.HASSORT,
-            KeYLexer.HAS_INVARIANT,
-            KeYLexer.AT,
-            KeYLexer.THEN,
-            KeYLexer.TERM,
-            KeYLexer.DIFFERENT,
-            KeYLexer.CONTRACTS,
-            KeYLexer.CONTAINERTYPE,
-            KeYLexer.ENUM_CONST,
-            KeYLexer.IS_LABELED,
-            KeYLexer.IS_ABSTRACT_OR_INTERFACE,
-            KeYLexer.ISCONSTANT,
-            KeYLexer.ONEOF,
-            KeYLexer.OPTIONSDECL,
-            KeYLexer.WITHOPTIONS,
-            KeYLexer.MODALITYB,
-            KeYLexer.MORE,
-            KeYLexer.MODALITY,
-            KeYLexer.MODIFIABLE,
-            KeYLexer.APPLY_UPDATE_ON_RIGID,
-            KeYLexer.ADDRULES,
+            JavaKeYLexer.VARCOND,
+            JavaKeYLexer.IF,
+            JavaKeYLexer.IFEX,
+            JavaKeYLexer.RULES,
+            JavaKeYLexer.AXIOMS,
+            JavaKeYLexer.ABSTRACT,
+            JavaKeYLexer.ASSIGN,
+            JavaKeYLexer.ASSUMES,
+            JavaKeYLexer.ADD,
+            JavaKeYLexer.FIND,
+            JavaKeYLexer.FINAL,
+            JavaKeYLexer.ANTECEDENTPOLARITY,
+            JavaKeYLexer.SUCCEDENTPOLARITY,
+            JavaKeYLexer.UPDATE,
+            JavaKeYLexer.UNIQUE,
+            JavaKeYLexer.FUNCTIONS,
+            JavaKeYLexer.PREDICATES,
+            JavaKeYLexer.SORTS,
+            JavaKeYLexer.HASSORT,
+            JavaKeYLexer.HAS_INVARIANT,
+            JavaKeYLexer.AT,
+            JavaKeYLexer.THEN,
+            JavaKeYLexer.TERM,
+            JavaKeYLexer.DIFFERENT,
+            JavaKeYLexer.CONTRACTS,
+            JavaKeYLexer.CONTAINERTYPE,
+            JavaKeYLexer.ENUM_CONST,
+            JavaKeYLexer.IS_LABELED,
+            JavaKeYLexer.IS_ABSTRACT_OR_INTERFACE,
+            JavaKeYLexer.ISCONSTANT,
+            JavaKeYLexer.ONEOF,
+            JavaKeYLexer.OPTIONSDECL,
+            JavaKeYLexer.WITHOPTIONS,
+            JavaKeYLexer.MODALITYB,
+            JavaKeYLexer.MORE,
+            JavaKeYLexer.MODALITY,
+            JavaKeYLexer.MODIFIABLE,
+            JavaKeYLexer.APPLY_UPDATE_ON_RIGID,
+            JavaKeYLexer.ADDRULES,
             -> SupportedTokenTypes.KEYWORD.ordinal
 
-            KeYLexer.BIN_LITERAL,
-            KeYLexer.HEX_LITERAL,
-            KeYLexer.INT_LITERAL,
-            KeYLexer.CHAR_LITERAL,
-            KeYLexer.REAL_LITERAL,
-            KeYLexer.DOUBLE_LITERAL,
-            KeYLexer.FLOAT_LITERAL,
-            KeYLexer.STRING_LITERAL,
-            KeYLexer.QUOTED_STRING_LITERAL,
+            JavaKeYLexer.BIN_LITERAL,
+            JavaKeYLexer.HEX_LITERAL,
+            JavaKeYLexer.INT_LITERAL,
+            JavaKeYLexer.CHAR_LITERAL,
+            JavaKeYLexer.REAL_LITERAL,
+            JavaKeYLexer.DOUBLE_LITERAL,
+            JavaKeYLexer.FLOAT_LITERAL,
+            JavaKeYLexer.STRING_LITERAL,
+            JavaKeYLexer.QUOTED_STRING_LITERAL,
             -> SupportedTokenTypes.NUMBER.ordinal
 
             else -> null

@@ -4,8 +4,8 @@
  */
 package io.github.jmltoolkit.lsp.symbols
 
-import de.uka.ilkd.key.nparser.KeYParser
-import de.uka.ilkd.key.nparser.KeYParserBaseVisitor
+import de.uka.ilkd.key.nparser.JavaKeYParser
+import de.uka.ilkd.key.nparser.JavaKeYParserBaseVisitor
 import de.uka.ilkd.key.nparser.ParsingFacade
 import io.github.jmltoolkit.lsp.Uri
 import org.antlr.v4.runtime.ParserRuleContext
@@ -37,20 +37,20 @@ class KeyCatchSymbols(private val uri: Uri) {
         return l.map { Either.forRight<SymbolInformation, DocumentSymbol>(it) }.toMutableList()
     }
 
-    private class Visitor : KeYParserBaseVisitor<List<DocumentSymbol>>() {
-        override fun visitFile(ctx: KeYParser.FileContext): List<DocumentSymbol> = acceptAll(ctx.children)
+    private class Visitor : JavaKeYParserBaseVisitor<List<DocumentSymbol>>() {
+        override fun visitFile(ctx: JavaKeYParser.FileContext): List<DocumentSymbol> = acceptAll(ctx.children)
 
         @JvmName("acceptAllPt")
         private fun acceptAll(children: List<ParseTree>): List<DocumentSymbol> =
-            children.mapNotNull { it as? ParserRuleContext }
+            children.filterIsInstance<ParserRuleContext>()
                 .flatMap { it.accept(this) }.toMutableList()
 
         private fun acceptAll(children: List<ParserRuleContext>): MutableList<DocumentSymbol> =
             children.flatMap { it.accept(this) }.toMutableList()
 
-        override fun visitDecls(ctx: KeYParser.DeclsContext): List<DocumentSymbol> = acceptAll(ctx.children)
+        override fun visitDecls(ctx: JavaKeYParser.DeclsContext): List<DocumentSymbol> = acceptAll(ctx.children)
 
-        override fun visitSort_decls(ctx: KeYParser.Sort_declsContext) = listOf(
+        override fun visitSort_decls(ctx: JavaKeYParser.Sort_declsContext) = listOf(
             DocumentSymbol(
                 "Sorts", SymbolKind.Namespace, ctx.asRange,
                 Range(),
@@ -59,8 +59,8 @@ class KeyCatchSymbols(private val uri: Uri) {
             )
         )
 
-        override fun visitOne_sort_decl(ctx: KeYParser.One_sort_declContext): List<DocumentSymbol> =
-            ctx.sortIds.simple_ident_dots().flatMap {
+        override fun visitOne_sort_decl(ctx: JavaKeYParser.One_sort_declContext): List<DocumentSymbol> =
+            ctx.sortIds.simple_ident_dots_with_docs().flatMap {
                 symbol(it.text, SymbolKind.Class, it.asRange, it.asRange, ctx.doc?.text)
             }
 
@@ -75,16 +75,16 @@ class KeyCatchSymbols(private val uri: Uri) {
             DocumentSymbol(name, kind, range, selectionRange, detail, children)
         )
 
-        override fun visitPreferences(ctx: KeYParser.PreferencesContext): List<DocumentSymbol> =
+        override fun visitPreferences(ctx: JavaKeYParser.PreferencesContext): List<DocumentSymbol> =
             symbol("Preferences", SymbolKind.String, ctx.KEYSETTINGS().symbol.asRange, ctx.asRange, ctx.text)
 
-        override fun visitFunc_decls(ctx: KeYParser.Func_declsContext) = symbol(
+        override fun visitFunc_decls(ctx: JavaKeYParser.Func_declsContext) = symbol(
             "Functions", SymbolKind.Function,
             ctx.start.asRange, Range(), null,
             acceptAll(ctx.func_decl())
         )
 
-        override fun visitRulesOrAxioms(ctx: KeYParser.RulesOrAxiomsContext) = symbol(
+        override fun visitRulesOrAxioms(ctx: JavaKeYParser.RulesOrAxiomsContext) = symbol(
             (if (ctx.RULES() != null) "Rules" else "Axioms") + " ${ctx.choices.text}",
             SymbolKind.Namespace, ctx.start.asRange, ctx.asRange, ctx.doc?.text,
             acceptAll(ctx.taclet())

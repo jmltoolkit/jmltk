@@ -1,5 +1,5 @@
 plugins {
-    id("com.diffplug.spotless") version "8.8.0" apply false
+    id("com.diffplug.spotless") version "8.9.0" apply false
     id("standard-kotlin") apply false
     alias(libs.plugins.dokka)
     jacoco

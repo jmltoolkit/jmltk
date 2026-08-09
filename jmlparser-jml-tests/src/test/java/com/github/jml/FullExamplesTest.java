@@ -140,38 +140,6 @@ class FullExamplesTest {
         return createTests(it -> it.toString().contains("/key/"));
     }
 
-    @Test void special() throws IOException {
-//        testParse(Paths.get("/home/weigl/work/javaparser/jmlparser-jml-tests/src/test/resources/fullexamples/key/heap/fm12_01_LRS/SuffixArray.java"));
-        var s = """
-               private /*@ helper @*/ void sort(final int[] data) {
-                    /*@ maintaining data.length == a.length;
-                      @ maintaining 0 <= k && k <= data.length;
-                      @ maintaining (\\forall int i; 0 <= i && i < a.length;
-                      @               (\\exists int j; 0 <= j && j < a.length; data[j]==i));
-                      @ maintaining (\\forall int i; 0 < i && i < a.length;
-                      @                        i < k? compare(data[i],data[i-1]) > 0
-                      @                             : data[i] == \\old(data[i]));
-                      @ decreasing data.length - k;
-                      @ assignable data[*];
-                      @*/
-                    for (int k = 0; k < data.length; k++)
-                        /*@ maintaining 0 <= l && l <= k;
-                          @ maintaining (\\forall int i; l < i && i <= k;
-                          @                 compare(data[i],data[i-1]) > 0);
-                          @ maintaining (\\forall int i; 0 < i && i < data.length
-                          @                 && !( l < i && i <= k);
-                          @                 data[i] == \\old(data[i]));
-                          @ decreasing l;
-                          @ assignable data[*];
-                          @*/
-                        for (int l = k; l > 0 && compare(data[l - 1], data[l]) > 0; l--)
-                            swap(data, l);
-                }
-            """;
-        System.out.println(
-            StaticJavaParser.parseMethodDeclaration(s));
-    }
-
     Stream<DynamicTest> createTests(Predicate<Path> pred) throws IOException {
         // System.out.format("Folder: %s\n", dir);
         Assumptions.assumeTrue(dir.exists());

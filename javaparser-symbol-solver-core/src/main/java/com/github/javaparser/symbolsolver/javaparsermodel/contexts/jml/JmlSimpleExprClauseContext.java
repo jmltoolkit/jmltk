@@ -14,7 +14,7 @@ import com.github.javaparser.symbolsolver.javaparsermodel.contexts.AbstractJavaP
  * Context for JmlSimpleExprClause (ensures, requires, etc.)
  * This context delegates symbol resolution to the parent contract context,
  * which handles forall binder variables and old clause declarations.
- * 
+ *
  * @author Alexander Weigl
  * @version 1 (08.07.26)
  */

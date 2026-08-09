@@ -10,8 +10,8 @@ import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.jml.clauses.JmlContract;
 import com.github.javaparser.ast.jml.clauses.JmlForallClause;
-import com.github.javaparser.ast.jml.clauses.JmlSimpleExprClause;
 import com.github.javaparser.ast.jml.clauses.JmlSignalsClause;
+import com.github.javaparser.ast.jml.clauses.JmlSimpleExprClause;
 import com.github.javaparser.ast.jml.expr.JmlLetExpr;
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr;
 import com.github.javaparser.ast.jml.stmt.JmlGhostStmt;
@@ -202,7 +202,7 @@ public class JavaParserFactory {
 
     public static SymbolDeclarator getSymbolDeclarator(Node node, TypeSolver typeSolver) {
         //
-        if(node instanceof JmlGhostStmt ghostStmt) {
+        if (node instanceof JmlGhostStmt ghostStmt) {
             return getSymbolDeclarator(ghostStmt.getStatement(), typeSolver);
         }
 

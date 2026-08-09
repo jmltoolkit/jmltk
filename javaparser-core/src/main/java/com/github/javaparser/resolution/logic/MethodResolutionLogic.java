@@ -270,6 +270,74 @@ public class MethodResolutionLogic {
     }
 
     /**
+     * Checks whether the number of arguments passed is compatible with the number of
+     * parameters declared on a method, taking variadic parameters into account.
+     *
+     * @param declaredCount the number of parameters declared on the method
+     * @param passedCount   the number of arguments passed at the call site
+     * @param isVariadic    whether the method has a variadic (varargs) last parameter
+     * @return true if the arity is compatible, false otherwise
+     */
+    private static boolean isArityCompatible(int declaredCount, int passedCount, boolean isVariadic) {
+        if (!isVariadic) {
+            return passedCount == declaredCount;
+        }
+        // Variadic methods allow omitting the vararg (treated as empty array),
+        // so being short by one is fine, but short by two or more is not.
+        return passedCount >= declaredCount - 1;
+    }
+
+    /**
+     * Replaces type variables in the given type using wildcard bounds derived from
+     * the type parameter declarations. Unbounded type parameters are replaced with
+     * {@code ? extends Object}, bounded ones with their declared bound direction.
+     */
+    private static ResolvedType replaceTypeVariablesWithWildcards(
+            ResolvedType type, List<ResolvedTypeParameterDeclaration> typeParameters, TypeSolver typeSolver) {
+        for (ResolvedTypeParameterDeclaration tp : typeParameters) {
+            if (tp.getBounds().isEmpty()) {
+                type = type.replaceTypeVariables(
+                        tp,
+                        ResolvedWildcard.extendsBound(new ReferenceTypeImpl(typeSolver.solveType(JAVA_LANG_OBJECT))));
+            } else if (tp.getBounds().size() == 1) {
+                ResolvedTypeParameterDeclaration.Bound bound = tp.getBounds().get(0);
+                if (bound.isExtends()) {
+                    type = type.replaceTypeVariables(tp, ResolvedWildcard.extendsBound(bound.getType()));
+                } else {
+                    type = type.replaceTypeVariables(tp, ResolvedWildcard.superBound(bound.getType()));
+                }
+            } else {
+                throw new UnsupportedOperationException();
+            }
+        }
+        return type;
+    }
+
+    /**
+     * Replaces type variables in the given type using concrete bound types derived
+     * from the type parameter declarations. Unbounded type parameters are replaced
+     * with {@code Object}, bounded ones with their declared bound type directly.
+     */
+    private static ResolvedType replaceTypeVariablesWithBounds(
+            ResolvedType type, List<ResolvedTypeParameterDeclaration> typeParameters, TypeSolver typeSolver) {
+        for (ResolvedTypeParameterDeclaration tp : typeParameters) {
+            if (tp.getBounds().isEmpty()) {
+                type = type.replaceTypeVariables(tp, new ReferenceTypeImpl(typeSolver.solveType(JAVA_LANG_OBJECT)));
+            } else if (tp.getBounds().size() == 1) {
+                ResolvedTypeParameterDeclaration.Bound bound = tp.getBounds().get(0);
+                if (bound.isExtends()) {
+                    type = type.replaceTypeVariables(tp, bound.getType());
+                } else {
+                    type = type.replaceTypeVariables(tp, new ReferenceTypeImpl(typeSolver.solveType(JAVA_LANG_OBJECT)));
+                }
+            } else {
+                throw new UnsupportedOperationException();
+            }
+        }
+        return type;
+    }
+
+    /**
      * Returns the index of the last parameter in a parameter list.
      * Helper method to safely get the last parameter index even for empty lists.
      *
@@ -512,186 +580,7 @@ public class MethodResolutionLogic {
             String needleName,
             List<ResolvedType> needleParameterTypes,
             TypeSolver typeSolver) {
-        if (!methodUsage.getName().equals(needleName)) {
-            return false;
-        }
-        // Before checking parameter compatibility, we need to substitute
-        // type variables from the declaring type into the method signature.
-        //
-        // Context: When a method is inherited from a generic ancestor interface/class,
-        // the method signature may contain type variables from that ancestor.
-        // For example:
-        // - Interface Iterable<T> declares: forEach(Consumer<? super T>)
-        // - Interface List<E> extends Collection<E> which extends Iterable<E>
-        // - When we retrieve forEach() from List<E>, the signature still references
-        // Iterable's type variable 'T' instead of List's type variable 'E'
-        //
-        // This substitution ensures that:
-        // - forEach(Consumer<? super T>) becomes forEach(Consumer<? super E>)
-        // - When List<E> is instantiated as List<String>, it becomes forEach(Consumer<?
-        // super String>)
-        //
-        // Without this substitution, type compatibility checks fail because we're
-        // comparing the wrong type variables.
-        methodUsage = substituteDeclaringTypeParameters(methodUsage, typeSolver);
-        // The index of the final method parameter (on the method declaration).
-        int countOfMethodUsageArgumentsPassed = methodUsage.getNoParams();
-        int lastMethodUsageArgumentIndex = getLastParameterIndex(countOfMethodUsageArgumentsPassed);
-        // The index of the final argument passed (on the method usage).
-        int needleParameterCount = needleParameterTypes.size();
-        // TODO: Does the method usage have a declaration at this point..?
-        boolean methodIsDeclaredWithVariadicParameter =
-                methodUsage.getDeclaration().hasVariadicParameter();
-        // If the counts do not match and the method is not variadic, this is not a match.
-        if (!methodIsDeclaredWithVariadicParameter && !(needleParameterCount == countOfMethodUsageArgumentsPassed)) {
-            return false;
-        }
-        // If the counts do not match and we have provided too few arguments, this is not a match. Note that variadic
-        // parameters
-        // allow you to omit the vararg, which would allow a difference of one, but a difference in count of 2 or more
-        // is not a match.
-        if (!(needleParameterCount == countOfMethodUsageArgumentsPassed)
-                && needleParameterCount < lastMethodUsageArgumentIndex) {
-            return false;
-        }
-        // Iterate over the arguments given to the method, and compare their types against the given method's declared
-        // parameter types
-        for (int i = 0; i < needleParameterCount; i++) {
-            ResolvedType actualArgumentType = needleParameterTypes.get(i);
-            ResolvedType expectedArgumentType;
-            boolean reachedVariadicParam = methodIsDeclaredWithVariadicParameter && i >= lastMethodUsageArgumentIndex;
-            if (!reachedVariadicParam) {
-                // Not yet reached the variadic parameters -- the expected type is just whatever is at that position.
-                expectedArgumentType = methodUsage.getParamType(i);
-            } else {
-                // We have reached the variadic parameters -- the expected type is the type of the last declared
-                // parameter.
-                expectedArgumentType = methodUsage.getParamType(lastMethodUsageArgumentIndex);
-                // Note that the given variadic value might be an array - if so, use the array's component type rather.
-                // This is only valid if ONE argument has been given to the vararg parameter.
-                // Example: {@code void test(String... s) {}} and {@code test(stringArray)} -- {@code String... is
-                // assignable by stringArray}
-                // Example: {@code void test(String[]... s) {}} and {@code test(stringArrayArray)} -- {@code String[]...
-                // is assignable by stringArrayArray}
-                boolean argumentIsArray = (needleParameterCount == countOfMethodUsageArgumentsPassed)
-                        && expectedArgumentType.isAssignableBy(actualArgumentType);
-                if (!argumentIsArray) {
-                    // Get the component type of the declared parameter type.
-                    expectedArgumentType = expectedArgumentType.asArrayType().getComponentType();
-                }
-            }
-            // Consider type parameters directly on the method declaration, and ALSO on the enclosing type (e.g. a
-            // class)
-            List<ResolvedTypeParameterDeclaration> typeParameters =
-                    methodUsage.getDeclaration().getTypeParameters();
-            typeParameters.addAll(methodUsage.declaringType().getTypeParameters());
-            ResolvedType expectedTypeWithoutSubstitutions = expectedArgumentType;
-            ResolvedType expectedTypeWithInference = expectedArgumentType;
-            Map<ResolvedTypeParameterDeclaration, ResolvedType> derivedValues = new HashMap<>();
-            // For each declared parameter, infer the types that will replace generics (type parameters)
-            for (int j = 0; j < countOfMethodUsageArgumentsPassed; j++) {
-                ResolvedParameterDeclaration parameter =
-                        methodUsage.getDeclaration().getParam(j);
-                ResolvedType parameterType = parameter.getType();
-                if (parameter.isVariadic()) {
-                    // Don't continue if a vararg parameter is reached and there are no arguments left
-                    if (needleParameterCount == j) {
-                        break;
-                    }
-                    parameterType = parameterType.asArrayType().getComponentType();
-                }
-                inferTypes(needleParameterTypes.get(j), parameterType, derivedValues);
-            }
-            for (Map.Entry<ResolvedTypeParameterDeclaration, ResolvedType> entry : derivedValues.entrySet()) {
-                ResolvedTypeParameterDeclaration tp = entry.getKey();
-                expectedTypeWithInference = expectedTypeWithInference.replaceTypeVariables(tp, entry.getValue());
-            }
-            // Consider cases where type variables can be replaced (e.g. add(E element) vs add(String element))
-            for (ResolvedTypeParameterDeclaration tp : typeParameters) {
-                if (tp.getBounds().isEmpty()) {
-                    // expectedArgumentType = expectedArgumentType.replaceTypeVariables(tp.getName(), new
-                    // ReferenceTypeUsageImpl(typeSolver.solveType(JAVA_LANG_OBJECT), typeSolver));
-                    expectedArgumentType = expectedArgumentType.replaceTypeVariables(
-                            tp,
-                            ResolvedWildcard.extendsBound(
-                                    new ReferenceTypeImpl(typeSolver.solveType(JAVA_LANG_OBJECT))));
-                } else if (tp.getBounds().size() == 1) {
-                    ResolvedTypeParameterDeclaration.Bound bound =
-                            tp.getBounds().get(0);
-                    if (bound.isExtends()) {
-                        // expectedArgumentType = expectedArgumentType.replaceTypeVariables(tp.getName(),
-                        // bound.getType());
-                        expectedArgumentType = expectedArgumentType.replaceTypeVariables(
-                                tp, ResolvedWildcard.extendsBound(bound.getType()));
-                    } else {
-                        // expectedArgumentType = expectedArgumentType.replaceTypeVariables(tp.getName(), new
-                        // ReferenceTypeUsageImpl(typeSolver.solveType(JAVA_LANG_OBJECT), typeSolver));
-                        expectedArgumentType = expectedArgumentType.replaceTypeVariables(
-                                tp, ResolvedWildcard.superBound(bound.getType()));
-                    }
-                } else {
-                    throw new UnsupportedOperationException();
-                }
-            }
-            // Consider cases where type variables involve bounds e.g. super/extends
-            ResolvedType expectedTypeWithSubstitutions = expectedTypeWithoutSubstitutions;
-            for (ResolvedTypeParameterDeclaration tp : typeParameters) {
-                if (tp.getBounds().isEmpty()) {
-                    expectedTypeWithSubstitutions = expectedTypeWithSubstitutions.replaceTypeVariables(
-                            tp, new ReferenceTypeImpl(typeSolver.solveType(JAVA_LANG_OBJECT)));
-                } else if (tp.getBounds().size() == 1) {
-                    ResolvedTypeParameterDeclaration.Bound bound =
-                            tp.getBounds().get(0);
-                    if (bound.isExtends()) {
-                        expectedTypeWithSubstitutions =
-                                expectedTypeWithSubstitutions.replaceTypeVariables(tp, bound.getType());
-                    } else {
-                        expectedTypeWithSubstitutions = expectedTypeWithSubstitutions.replaceTypeVariables(
-                                tp, new ReferenceTypeImpl(typeSolver.solveType(JAVA_LANG_OBJECT)));
-                    }
-                } else {
-                    throw new UnsupportedOperationException();
-                }
-            }
-            // If the given argument still isn't applicable even after considering type arguments/generics, this is not
-            // a match.
-            // Check if the given argument is applicable, considering:
-            // 1. Direct type assignability
-            // 2. Type substitutions with bounds
-            // 3. Type inference
-            // 4. Boxing/unboxing conversions (especially important for varargs)
-            boolean isApplicable = expectedArgumentType.isAssignableBy(actualArgumentType)
-                    || expectedTypeWithSubstitutions.isAssignableBy(actualArgumentType)
-                    || expectedTypeWithInference.isAssignableBy(actualArgumentType)
-                    || expectedTypeWithoutSubstitutions.isAssignableBy(actualArgumentType);
-            // If none of the above checks passed, check if the types
-            // are compatible through boxing or unboxing conversion.
-            // This is particularly important for varargs methods where primitive arguments
-            // might be passed to boxed type parameters (or vice versa).
-            //
-            // Example cases:
-            // - void method(Integer... args) called with method(1, 2, 3)
-            //   Here: expectedArgumentType = Integer, actualArgumentType = int
-            //   Should succeed via boxing conversion
-            //
-            // - void method(int... args) called with method(Integer.valueOf(1))
-            //   Here: expectedArgumentType = int, actualArgumentType = Integer
-            //   Should succeed via unboxing conversion
-            if (!isApplicable) {
-                // Check boxing/unboxing compatibility with all type variations
-                isApplicable = isBoxingCompatibleWithTypeSolver(expectedArgumentType, actualArgumentType, typeSolver)
-                        || isBoxingCompatibleWithTypeSolver(
-                                expectedTypeWithSubstitutions, actualArgumentType, typeSolver)
-                        || isBoxingCompatibleWithTypeSolver(expectedTypeWithInference, actualArgumentType, typeSolver)
-                        || isBoxingCompatibleWithTypeSolver(
-                                expectedTypeWithoutSubstitutions, actualArgumentType, typeSolver);
-            }
-            if (!isApplicable) {
-                return false;
-            }
-        }
-        // If the checks above haven't failed, then we've found a match.
-        return true;
+        return isApplicable(methodUsage.getDeclaration(), needleName, needleParameterTypes, typeSolver, false);
     }
 
     /**
@@ -762,12 +651,11 @@ public class MethodResolutionLogic {
                 return false;
             }
         }
-        // Both are primitive types
+        // Unboxing (primitive expected, reference type provided)
         if (expectedType.isPrimitive() && actualType.isPrimitive()) {
             ResolvedPrimitiveType expectedPrimitive = expectedType.asPrimitive();
             ResolvedPrimitiveType actualPrimitive = actualType.asPrimitive();
-            // assumption: we only end here during recursive descend of an array type
-            return expectedPrimitive.equals(actualPrimitive);
+            return expectedPrimitive.isAssignableBy(actualPrimitive);
         }
         // Both are reference types but one might be a constrained/wildcard type
         // This can happen after type variable substitution
@@ -1456,5 +1344,42 @@ public class MethodResolutionLogic {
                 return;
             }
         }
+    }
+
+    /**
+     * When null arguments are present, filter out candidates that have array parameters
+     * at those positions, since non-array overloads are preferred for null values.
+     */
+    private static <T> List<T> filterByNullArgs(
+            List<T> applicableMethods,
+            List<ResolvedType> argumentsTypes,
+            Function<T, ResolvedMethodDeclaration> toDeclaration) {
+        List<Integer> nullParamIndexes = new ArrayList<>();
+        for (int i = 0; i < argumentsTypes.size(); i++) {
+            if (argumentsTypes.get(i).isNull()) {
+                nullParamIndexes.add(i);
+            }
+        }
+        if (nullParamIndexes.isEmpty()) {
+            return applicableMethods;
+        }
+        Set<T> removeCandidates = new HashSet<>();
+        for (Integer nullParamIndex : nullParamIndexes) {
+            for (T candidate : applicableMethods) {
+                if (toDeclaration
+                        .apply(candidate)
+                        .getParam(nullParamIndex)
+                        .getType()
+                        .isArray()) {
+                    removeCandidates.add(candidate);
+                }
+            }
+        }
+        if (!removeCandidates.isEmpty() && removeCandidates.size() < applicableMethods.size()) {
+            List<T> filtered = new ArrayList<>(applicableMethods);
+            filtered.removeAll(removeCandidates);
+            return filtered;
+        }
+        return applicableMethods;
     }
 }

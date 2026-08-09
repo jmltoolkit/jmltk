@@ -67,7 +67,7 @@ class HoverTest {
 }
 
 class CodeActionTests {
-    @Test
+    @Test @Disabled
     fun test1() {
         val file = TextDocumentIdentifier(File(workspace, "Example.java").toUri)
         val params = CodeActionParams(

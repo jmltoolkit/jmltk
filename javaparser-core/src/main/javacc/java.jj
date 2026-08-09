@@ -5142,7 +5142,7 @@ Statement Statement():
  * This Rule handles this. It is only applicable on places there zero statatements are invalid, e.g,
  * if, loop ... but not applicable for arbitrary BlockStatement.
  */
-Statement JmlStatementCreatesBlock():
+Statement StatementCreatesBlock():
 {
     Statement ret = null;
     JmlDocStmt jml = null;
@@ -5733,11 +5733,11 @@ IfStmt IfStatement():
     "("
     condition = Expression()
     ")"
-    thenStmt = Statement()
+    thenStmt = StatementCreatesBlock()
     [
         LOOKAHEAD(1)
         "else"
-        elseStmt = Statement()
+        elseStmt = StatementCreatesBlock()
     ]
     {
         return new IfStmt(range(begin, token()), condition, thenStmt, elseStmt);
@@ -5764,7 +5764,7 @@ WhileStmt WhileStatement():
     "("
     condition = Expression()
     ")"
-    body = Statement()
+    body = StatementCreatesBlock()
     { return new WhileStmt(range(begin, token()),condition, body); }
 }
 
@@ -5783,7 +5783,7 @@ DoStmt DoStatement():
 }
 {
     "do" { begin=token(); }
-    body = Statement()
+    body = StatementCreatesBlock()
     "while"
     "("
     condition = Expression()
@@ -5832,7 +5832,7 @@ Statement ForStatement():
     )
 
     ")"
-    body = Statement()
+    body = StatementCreatesBlock()
 
     {
         if (varExpr != null) {

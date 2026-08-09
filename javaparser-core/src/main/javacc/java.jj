@@ -5091,29 +5091,6 @@ ArrayCreationExpr ArrayCreation(JavaToken begin, Type type):
 Statement Statement():
 {
     Statement ret = null;
-    JmlDocStmt jml = null;
-}
-{
-    (
-        LOOKAHEAD(1) jml = JmlDocStatements()
-        [ret = StatementOrig()]
-      |
-        ret = StatementOrig()
-    )
-    {
-      if(jml != null && ret != null) {
-        return new BlockStmt(range(jml, ret), new NodeList<>(jml, ret));
-      }
-      if(jml != null && ret == null) {
-        return jml;
-      }
-      return ret;
-    }
-}
-
-Statement StatementOrig():
-{
-    Statement ret = null;
 }
 {
     try {
@@ -5152,6 +5129,39 @@ Statement StatementOrig():
     } catch (ParseException e) {
         TokenRange errorRange = recoverStatement(SEMICOLON, LBRACE, RBRACE, e);
         return new UnparsableStmt(errorRange);
+    }
+}
+
+/*
+ * Imagine the following situation:
+ * <pre>
+ * if(...) //@ ...
+ *  foo();
+ * </pre>
+ * In this case //@ belongs to the then-branch. And there must be an implicit block.
+ * This Rule handles this. It is only applicable on places there zero statatements are invalid, e.g,
+ * if, loop ... but not applicable for arbitrary BlockStatement.
+ */
+Statement JmlStatementCreatesBlock():
+{
+    Statement ret = null;
+    JmlDocStmt jml = null;
+}
+{
+    (
+        LOOKAHEAD(1) jml = JmlDocStatements()
+        [ret = Statement()]
+      |
+        ret = Statement()
+    )
+    {
+      if(jml != null && ret != null) {
+        return new BlockStmt(range(jml, ret), new NodeList<>(jml, ret));
+      }
+      if(jml != null && ret == null) {
+        return jml;
+      }
+      return ret;
     }
 }
 
@@ -5283,29 +5293,6 @@ BlockStmt Block():
  */
 Statement BlockStatement():
 {
-    Statement ret = null;
-    JmlDocStmt jml = null;
-}
-{
-    (   // precedence over LocalVariableDeclaration
-        LOOKAHEAD(1) jml = JmlDocStatements()
-        [ret = BlockStatementOrig()]
-      |
-        ret = BlockStatementOrig()
-    )
-    {
-        if(jml != null && ret != null) {
-            return new BlockStmt(range(jml, ret), new NodeList<>(jml, ret));
-        }
-        if(jml != null && ret == null){
-            return jml;
-        }
-        return ret;
-    }
-}
-
-Statement BlockStatementOrig():
-{
     Statement ret;
     Expression expr;
     ClassOrInterfaceDeclaration typeDecl;
@@ -5332,11 +5319,11 @@ Statement BlockStatementOrig():
          	// try assert statement separate from more general Statement() because assert can be confused with VariableDeclarationExpression sometimes
             LOOKAHEAD( AssertStatement() )
             ret = AssertStatement()
-    /*     |
+         |
          	// try JML statement separate from more general Statement() because assert/assume & Co.
          	// can be confused with VariableDeclarationExpression sometimes
-            LOOKAHEAD( JmlStatement() )
-            ret = JmlStatement()*/
+            LOOKAHEAD( JmlDocStatements() )
+            ret = JmlDocStatements()
          |
             LOOKAHEAD( VariableDeclarationExpression() ";" )
             expr = VariableDeclarationExpression()
@@ -5360,6 +5347,30 @@ Statement BlockStatementOrig():
         return new UnparsableStmt(errorRange);
     }
 }
+
+Statement BlockStatementCreatesBlock():
+{
+    Statement ret = null;
+    JmlDocStmt jml = null;
+}
+{
+    (   // precedence over LocalVariableDeclaration
+        LOOKAHEAD(1) jml = JmlDocStatements()
+        [ret = BlockStatement()]
+      |
+        ret = BlockStatement()
+    )
+    {
+        if(jml != null && ret != null) {
+            return new BlockStmt(range(jml, ret), new NodeList<>(jml, ret));
+        }
+        if(jml != null && ret == null){
+            return jml;
+        }
+        return ret;
+    }
+}
+
 
 VariableDeclarationExpr VariableDeclarationExpression():
 {

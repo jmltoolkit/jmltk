@@ -8,6 +8,13 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.*;
+import com.github.javaparser.ast.jml.clauses.JmlContract;
+import com.github.javaparser.ast.jml.clauses.JmlForallClause;
+import com.github.javaparser.ast.jml.clauses.JmlSimpleExprClause;
+import com.github.javaparser.ast.jml.clauses.JmlSignalsClause;
+import com.github.javaparser.ast.jml.expr.JmlLetExpr;
+import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr;
+import com.github.javaparser.ast.jml.stmt.JmlGhostStmt;
 import com.github.javaparser.ast.key.KeyCcatchReturn;
 import com.github.javaparser.ast.key.KeyMethodCallStmt;
 import com.github.javaparser.ast.stmt.*;
@@ -16,6 +23,7 @@ import com.github.javaparser.resolution.Context;
 import com.github.javaparser.resolution.SymbolDeclarator;
 import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.symbolsolver.javaparsermodel.contexts.*;
+import com.github.javaparser.symbolsolver.javaparsermodel.contexts.jml.*;
 import com.github.javaparser.symbolsolver.javaparsermodel.contexts.key.KeyCcatchReturnContext;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarators.*;
 
@@ -39,6 +47,30 @@ public class JavaParserFactory {
 
         if (node instanceof KeyMethodCallStmt kcr) {
             return new KeyMethodCallStmtContext(kcr, typeSolver);
+        }
+
+        if (node instanceof JmlQuantifiedExpr) {
+            return new JmlQuantifiedExprContext((JmlQuantifiedExpr) node, typeSolver);
+        }
+
+        if (node instanceof JmlContract) {
+            return new JmlContractContext((JmlContract) node, typeSolver);
+        }
+
+        if (node instanceof JmlLetExpr) {
+            return new JmlLetExprContext((JmlLetExpr) node, typeSolver);
+        }
+
+        if (node instanceof JmlSignalsClause) {
+            return new JmlSignalsClauseContext((JmlSignalsClause) node, typeSolver);
+        }
+
+        if (node instanceof JmlForallClause) {
+            return new JmlForallClauseContext((JmlForallClause) node, typeSolver);
+        }
+
+        if (node instanceof JmlSimpleExprClause) {
+            return new JmlSimpleExprClauseContext((JmlSimpleExprClause) node, typeSolver);
         }
 
         if (node instanceof ArrayAccessExpr) {
@@ -169,6 +201,11 @@ public class JavaParserFactory {
     }
 
     public static SymbolDeclarator getSymbolDeclarator(Node node, TypeSolver typeSolver) {
+        //
+        if(node instanceof JmlGhostStmt ghostStmt) {
+            return getSymbolDeclarator(ghostStmt.getStatement(), typeSolver);
+        }
+
         if (node instanceof FieldDeclaration) {
             return new FieldSymbolDeclarator((FieldDeclaration) node, typeSolver);
         }

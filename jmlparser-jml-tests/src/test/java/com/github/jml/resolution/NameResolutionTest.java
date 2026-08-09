@@ -164,7 +164,8 @@ class NameResolutionTest {
             }
 
             try {
-                n.calculateResolvedType();
+                var type = n.calculateResolvedType();
+                System.out.println(type);
                 messages.add("type: %s@%s".formatted(n.getNameAsString(), pos));
             } catch (UnsolvedSymbolException e) {
                 messages.add("e type: %s@%s".formatted(n.getNameAsString(), pos));

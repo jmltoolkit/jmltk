@@ -48,9 +48,11 @@ class CodeActionCollector(val context: CodeActionContext?, private val range: co
     }
 
     private fun addWelldefinedCheck(n: Expression): Boolean {
-        /*if (inRange(n)) {
-            return add(WellDefinednessCheck.createCodeAction(n))
-        }*/
+        if (inRange(n)) {
+            val action = CodeAction("Well-definedness Check")
+            add(action)
+            return true
+        }
         return false
     }
 

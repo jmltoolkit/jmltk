@@ -9,6 +9,9 @@ on:
 
 name: Create Release from semantic versioning tag push
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Create Release

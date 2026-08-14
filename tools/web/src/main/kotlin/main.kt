@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
  */
 import com.github.javaparser.JavaParser
-import com.github.javaparser.JavaParserBuild
+import com.github.javaparser.JmlTkBuild
 import com.github.javaparser.ParserConfiguration
 import com.github.javaparser.Problem
 import com.github.javaparser.ast.Jmlish
@@ -26,9 +26,8 @@ import io.ktor.server.routing.*
 import kotlinx.html.*
 import java.io.StringReader
 import java.util.*
-import java.util.stream.Collectors
 
-const val version = "${JavaParserBuild.PROJECT_VERSION}"
+const val version = JmlTkBuild.PROJECT_VERSION
 
 fun main() {
     embeddedServer(Netty, port = 8000, watchPaths = listOf("classes", "resources")) {

@@ -7212,7 +7212,6 @@ JmlInfFlowClause JmlInfFlowClause():
 		| <ERASES> 	     erases = ExpressionList()
 		| <NEW_OBJECTS>  newObjects = ExpressionList()
 	)*
-	<SEMICOLON>
     { return new JmlInfFlowClause(range(begin, token()), begin, name, determined, by, declassifies, erases, newObjects); }
 }
 

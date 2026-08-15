@@ -130,7 +130,7 @@ class StatVisitor(
     //endregion
     override fun visit(n: JmlClassExprDeclaration, arg: Element) {
         if (active(n)) {
-            val e = newElement(arg, n.kind.identifier)
+            val e = newElement(arg, n.kind.jmlSymbol)
             val expr = getExpressionStat(n.invariant)
             e.appendChild(expr)
             if (n.name.isPresent) {

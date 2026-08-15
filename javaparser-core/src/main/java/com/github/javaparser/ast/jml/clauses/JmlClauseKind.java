@@ -8,9 +8,6 @@ import com.github.javaparser.GeneratedJavaParserConstants;
 import com.github.javaparser.JavaToken;
 import com.github.javaparser.ast.jml.JmlKeyword;
 
-import java.util.Arrays;
-import java.util.Optional;
-
 public enum JmlClauseKind implements JmlKeyword {
     ENSURES(GeneratedJavaParserConstants.ENSURES),
     ENSURES_FREE(GeneratedJavaParserConstants.ENSURES_FREE),
@@ -94,13 +91,11 @@ public enum JmlClauseKind implements JmlKeyword {
     }
 
     public static JmlClauseKind getKindByToken(JavaToken token) {
-        Optional<JmlClauseKind> k = Arrays.stream(JmlClauseKind.values())
-                .filter(it -> it.jmlSymbol.equals(token.getText()))
-                .findFirst();
-        if (k.isPresent()) {
-            return k.get();
-        } else {
-            throw new IllegalArgumentException("Could not find clause kind for: " + token.getText());
+        for (JmlClauseKind it : JmlClauseKind.values()) {
+            if (it.jmlSymbol.equals(token.getText())) {
+                return it;
+            }
         }
+        throw new IllegalArgumentException("Could not find clause kind for: " + token.getText());
     }
 }

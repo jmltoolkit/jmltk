@@ -1254,7 +1254,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final JmlClassExprDeclaration n, final Void arg) {
         return (n.getInvariant().accept(this, arg)) * 31
                 + (n.getJmlTags().accept(this, arg)) * 31
-                + (n.getKind().accept(this, arg)) * 31
+                + (n.getKind().hashCode()) * 31
                 + (n.getModifiers().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31

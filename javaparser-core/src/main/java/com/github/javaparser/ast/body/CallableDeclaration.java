@@ -337,14 +337,14 @@ public abstract class CallableDeclaration<T extends CallableDeclaration<?>> exte
 
     private Type stripAnnotations(Type type) {
         if (type instanceof NodeWithAnnotations) {
-            ((NodeWithAnnotations) type).setAnnotations(new NodeList<>());
+            ((NodeWithAnnotations<?>) type).setAnnotations(new NodeList<>());
         }
         return type;
     }
 
     private Type stripGenerics(Type type) {
         if (type instanceof NodeWithTypeArguments) {
-            ((NodeWithTypeArguments) type).setTypeArguments((NodeList<Type>) null);
+            ((NodeWithTypeArguments<?>) type).setTypeArguments((NodeList<Type>) null);
         }
         return type;
     }
@@ -429,7 +429,7 @@ public abstract class CallableDeclaration<T extends CallableDeclaration<?>> exte
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public CallableDeclaration asCallableDeclaration() {
+    public CallableDeclaration<?> asCallableDeclaration() {
         return this;
     }
 

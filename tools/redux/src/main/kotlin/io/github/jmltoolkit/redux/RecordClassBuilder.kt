@@ -19,6 +19,7 @@ import com.github.javaparser.ast.body.RecordDeclaration
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.expr.BinaryExpr.Operator.AND
 import com.github.javaparser.ast.expr.BinaryExpr.Operator.EQUALS
+import com.github.javaparser.ast.jml.body.JmlBodyClauseKind
 import com.github.javaparser.ast.jml.body.JmlClassExprDeclaration
 import com.github.javaparser.ast.jml.doc.JmlDocModifier
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr
@@ -95,7 +96,7 @@ class RecordClassBuilder(
             val typeName = recordDeclaration.nameAsString
             attachTypeSpecExpr(clazz) {
                 addModifier(PUBLIC, STATIC)
-                kind = SimpleName("invariant_free")
+                kind = JmlBodyClauseKind.INVARIANT_FREE
                 setName(SimpleName("eq_reflexivity"))
 
                 val q = JmlQuantifiedExpr()
@@ -111,7 +112,7 @@ class RecordClassBuilder(
 
             attachTypeSpecExpr(clazz) {
                 addModifier(PUBLIC, STATIC)
-                kind = SimpleName("invariant_free")
+                kind = JmlBodyClauseKind.INVARIANT_FREE
                 setName(SimpleName("eq_symm"))
 
                 val q = JmlQuantifiedExpr()
@@ -132,7 +133,7 @@ class RecordClassBuilder(
 
             attachTypeSpecExpr(clazz) {
                 addModifier(PUBLIC, STATIC)
-                kind = SimpleName("invariant_free")
+                kind = JmlBodyClauseKind.INVARIANT_FREE
                 setName(SimpleName("eq_trans"))
 
                 val q = JmlQuantifiedExpr()
@@ -153,7 +154,7 @@ class RecordClassBuilder(
 
             attachTypeSpecExpr(clazz) {
                 addModifier(PUBLIC, STATIC)
-                kind = SimpleName("invariant_free")
+                kind = JmlBodyClauseKind.INVARIANT_FREE
                 setName(SimpleName("eq_to_hash"))
 
                 val q = JmlQuantifiedExpr()
@@ -385,7 +386,7 @@ class RecordClassBuilder(
         }
 
         invariant.addModifier(PUBLIC)
-        invariant.kind = SimpleName("invariant_free")
+        invariant.kind = JmlBodyClauseKind.INVARIANT_FREE
         invariant.setName(SimpleName("id_means_equals"))
         invariant.invariant =
             recordDeclaration.parameters()

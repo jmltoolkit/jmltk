@@ -1299,7 +1299,7 @@ public class EqualsVisitor implements GenericVisitor<Boolean, Visitable> {
         final JmlClassExprDeclaration n2 = (JmlClassExprDeclaration) arg;
         if (!nodeEquals(n.getInvariant(), n2.getInvariant())) return false;
         if (!nodesEquals(n.getJmlTags(), n2.getJmlTags())) return false;
-        if (!nodeEquals(n.getKind(), n2.getKind())) return false;
+        if (!objEquals(n.getKind(), n2.getKind())) return false;
         if (!nodesEquals(n.getModifiers(), n2.getModifiers())) return false;
         if (!nodeEquals(n.getName(), n2.getName())) return false;
         if (!nodesEquals(n.getAnnotations(), n2.getAnnotations())) return false;

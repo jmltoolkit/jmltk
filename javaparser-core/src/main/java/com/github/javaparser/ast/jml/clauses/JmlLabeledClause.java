@@ -18,7 +18,7 @@ import com.github.javaparser.ast.visitor.CloneVisitor;
 import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
-import com.github.javaparser.metamodel.JmlLabledClauseMetaModel;
+import com.github.javaparser.metamodel.JmlLabeledClauseMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -258,7 +258,7 @@ public class JmlLabeledClause extends JmlClause implements NodeWithExpression<Jm
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.GetMetaModelGenerator")
-    public JmlLabledClauseMetaModel getMetaModel() {
-        return JavaParserMetaModel.jmlLabledClauseMetaModel;
+    public JmlLabeledClauseMetaModel getMetaModel() {
+        return JavaParserMetaModel.jmlLabeledClauseMetaModel;
     }
 }

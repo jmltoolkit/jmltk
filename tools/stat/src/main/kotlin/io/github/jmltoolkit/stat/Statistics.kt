@@ -64,7 +64,7 @@ data class Statistics(
 
     fun inc(n: JmlClassExprDeclaration) {
         inc(StatisticKey.JML_BODY_DECLARATION)
-        inc(StatisticKeys.classExpr(n.kind))
+        inc(StatisticKeys.classExpr(n.kind.jmlSymbol))
     }
 
     fun inc(n: JmlClassAccessibleDeclaration) {

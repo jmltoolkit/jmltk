@@ -34,7 +34,7 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
 public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassExprDeclaration>
         implements NodeWithModifiers<JmlClassExprDeclaration>, NodeWithAccessModifiers<JmlClassExprDeclaration> {
 
-    private SimpleName kind;
+    private JmlBodyClauseKind kind;
 
     @OptionalProperty
     private SimpleName name;
@@ -53,14 +53,14 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
     public JmlClassExprDeclaration(
             NodeList<SimpleName> jmlTags,
             NodeList<Modifier> modifiers,
-            SimpleName kind,
+            JmlBodyClauseKind kind,
             SimpleName name,
             Expression invariant) {
         this(null, jmlTags, modifiers, kind, name, invariant);
     }
 
     public JmlClassExprDeclaration(TokenRange range, JavaToken begin, NodeList<Modifier> modifiers, Expression expr) {
-        this(range, modifiers, new SimpleName(new TokenRange(begin, begin), begin.getText()), expr);
+        this(range, modifiers, JmlBodyClauseKind.getKindByToken(begin), expr);
     }
 
     @Override
@@ -136,10 +136,6 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
                 return true;
             }
         }
-        if (node == kind) {
-            setKind((SimpleName) replacementNode);
-            return true;
-        }
         for (int i = 0; i < modifiers.size(); i++) {
             if (modifiers.get(i) == node) {
                 modifiers.set(i, (Modifier) replacementNode);
@@ -166,7 +162,7 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
     public JmlClassExprDeclaration(
-            TokenRange tokenRange, NodeList<Modifier> modifiers, SimpleName kind, Expression invariant) {
+            TokenRange tokenRange, NodeList<Modifier> modifiers, JmlBodyClauseKind kind, Expression invariant) {
         super(tokenRange);
         setModifiers(modifiers);
         setKind(kind);
@@ -193,20 +189,18 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public SimpleName getKind() {
+    public JmlBodyClauseKind getKind() {
         return kind;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlClassExprDeclaration setKind(final @NonNull() SimpleName kind) {
+    public JmlClassExprDeclaration setKind(final @NonNull() JmlBodyClauseKind kind) {
         assertNotNull(kind);
         if (kind == this.kind) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.KIND, this.kind, kind);
-        if (this.kind != null) this.kind.setParentNode(null);
         this.kind = kind;
-        setAsParentNodeOf(kind);
         return this;
     }
 
@@ -251,7 +245,7 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
             TokenRange tokenRange,
             NodeList<SimpleName> jmlTags,
             NodeList<Modifier> modifiers,
-            SimpleName kind,
+            JmlBodyClauseKind kind,
             SimpleName name,
             Expression invariant) {
         super(tokenRange);
@@ -296,7 +290,7 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @NonNull() SimpleName kind() {
+    public @NonNull() JmlBodyClauseKind kind() {
         return Objects.requireNonNull(kind);
     }
 

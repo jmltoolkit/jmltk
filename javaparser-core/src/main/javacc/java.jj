@@ -224,6 +224,7 @@ SPECIAL_TOKEN :
 <JML_MULTI_CONTRACT,JML_SINGLE_CONTRACT>
 TOKEN : {
   <INVARIANT: "invariant" >
+| <INVARIANT_FREE: "invariant_free" >
 | <ABRUPT_BEHAVIOR: "abrupt_behavior">
 | <ABRUPT_BEHAVIOUR: "abrupt_behaviour">
 | <MODEL_BEHAVIOR: "model_behavior">
@@ -7792,7 +7793,7 @@ JmlClassLevelDeclaration JmlMethodDeclaration(ModifierHolder modifier):
 JmlClassLevelDeclaration JmlClassExpr(ModifierHolder modifiers):
 { Expression expr; JavaToken begin; SimpleName id;}
 {
-  (<AXIOM> | <INVARIANT> | <INITIALLY> | <CONSTRAINT> | <CONSTRAINT_REDUNDANTLY>)
+  (<AXIOM> | <INVARIANT> | <INVARIANT_REDUNDANTLY> | <INVARIANT_FREE> | <INITIALLY> | <CONSTRAINT> | <CONSTRAINT_REDUNDANTLY>)
   {begin=token();}
   [ LOOKAHEAD(3) id=SimpleName() ":" ] //TODO weigl
   expr=Expression() ";"

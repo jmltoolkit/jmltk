@@ -2102,16 +2102,14 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
         NodeList<Modifier> modifiers = modifyList(n.getModifiers(), arg);
         Expression invariant = (Expression) n.getInvariant().accept(this, arg);
         NodeList<SimpleName> jmlTags = modifyList(n.getJmlTags(), arg);
-        SimpleName kind = (SimpleName) n.getKind().accept(this, arg);
         SimpleName name = n.getName().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
         NodeList<Comment> associatedSpecificationComments = modifyList(n.getAssociatedSpecificationComments(), arg);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
-        if (invariant == null || kind == null) return null;
+        if (invariant == null) return null;
         n.setAnnotations(annotations);
         n.setModifiers(modifiers);
         n.setInvariant(invariant);
         n.setJmlTags(jmlTags);
-        n.setKind(kind);
         n.setName(name);
         n.setAssociatedSpecificationComments(associatedSpecificationComments);
         n.setComment(comment);

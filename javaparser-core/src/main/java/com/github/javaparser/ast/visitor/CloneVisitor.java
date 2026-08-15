@@ -1515,7 +1515,7 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
     @Override
     public Visitable visit(final JmlQuantifiedExpr n, final Object arg) {
         NodeList<Expression> expressions = cloneList(n.getExpressions(), arg);
-        NodeList<Parameter> variables = cloneList(n.getVariables(), arg);
+        NodeList<VariableDeclarator> variables = cloneList(n.getVariables(), arg);
         NodeList<Comment> associatedSpecificationComments =
                 cloneList(n.getAssociatedSpecificationComments().orElse(null), arg);
         Comment comment = cloneNode(n.getComment(), arg);

@@ -6,11 +6,14 @@ package com.github.javaparser.ast.jml.expr;
 
 import com.github.javaparser.JavaToken;
 import com.github.javaparser.TokenRange;
-import com.github.javaparser.ast.*;
-import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.AllFieldsConstructor;
+import com.github.javaparser.ast.Generated;
+import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.jml.JmlKeyword;
-import com.github.javaparser.ast.nodeTypes.NodeWithParameters;
+import com.github.javaparser.ast.nodeTypes.NodeWithVariables;
 import com.github.javaparser.ast.observer.ObservableProperty;
 import com.github.javaparser.ast.visitor.CloneVisitor;
 import com.github.javaparser.ast.visitor.GenericVisitor;
@@ -33,7 +36,7 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
  *
  * @author Alexander Weigl
  */
-public class JmlQuantifiedExpr extends JmlExpression implements NodeWithParameters<JmlQuantifiedExpr> {
+public class JmlQuantifiedExpr extends JmlExpression implements NodeWithVariables<JmlQuantifiedExpr> {
 
     public interface JmlBinder extends JmlKeyword {}
 
@@ -79,7 +82,7 @@ public class JmlQuantifiedExpr extends JmlExpression implements NodeWithParamete
     private JmlBinder binder;
 
     @NonEmptyProperty
-    private NodeList<Parameter> variables;
+    private NodeList<VariableDeclarator> variables;
 
     @NonEmptyProperty
     private NodeList<Expression> expressions;
@@ -88,18 +91,18 @@ public class JmlQuantifiedExpr extends JmlExpression implements NodeWithParamete
         this(null, JmlDefaultBinder.EXISTS, new NodeList<>(), new NodeList<>());
     }
 
-    public JmlQuantifiedExpr(final NodeList<Parameter> variables, final Expression expressions) {
+    public JmlQuantifiedExpr(final NodeList<VariableDeclarator> variables, final Expression expressions) {
         this(null, JmlDefaultBinder.EXISTS, variables, new NodeList<>(expressions));
     }
 
     @AllFieldsConstructor
     public JmlQuantifiedExpr(
-            final JmlBinder binder, final NodeList<Parameter> variables, final Expression expressions) {
+            final JmlBinder binder, final NodeList<VariableDeclarator> variables, final Expression expressions) {
         this(null, binder, variables, new NodeList<>(expressions));
     }
 
     public JmlQuantifiedExpr(
-            TokenRange tokenRange, JavaToken binder, NodeList<Parameter> variables, NodeList<Expression> expressions) {
+            TokenRange tokenRange, JavaToken binder, NodeList<VariableDeclarator> variables, NodeList<Expression> expressions) {
         this(tokenRange, JmlDefaultBinder.valueOf(binder), variables, new NodeList<>(expressions));
     }
 
@@ -108,7 +111,7 @@ public class JmlQuantifiedExpr extends JmlExpression implements NodeWithParamete
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
     public JmlQuantifiedExpr(
-            TokenRange tokenRange, JmlBinder binder, NodeList<Parameter> variables, NodeList<Expression> expressions) {
+            TokenRange tokenRange, JmlBinder binder, NodeList<VariableDeclarator> variables, NodeList<Expression> expressions) {
         super(tokenRange);
         setBinder(binder);
         setVariables(variables);
@@ -171,12 +174,12 @@ public class JmlQuantifiedExpr extends JmlExpression implements NodeWithParamete
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<Parameter> getVariables() {
+    public NodeList<VariableDeclarator> getVariables() {
         return variables;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlQuantifiedExpr setVariables(final @NonNull() NodeList<Parameter> variables) {
+    public JmlQuantifiedExpr setVariables(final @NonNull() NodeList<VariableDeclarator> variables) {
         assertNotNull(variables);
         if (variables == this.variables) {
             return this;
@@ -223,7 +226,7 @@ public class JmlQuantifiedExpr extends JmlExpression implements NodeWithParamete
         }
         for (int i = 0; i < variables.size(); i++) {
             if (variables.get(i) == node) {
-                variables.set(i, (Parameter) replacementNode);
+                variables.set(i, (VariableDeclarator) replacementNode);
                 return true;
             }
         }
@@ -296,17 +299,7 @@ public class JmlQuantifiedExpr extends JmlExpression implements NodeWithParamete
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @NonNull() NodeList<Parameter> variables() {
+    public @NonNull() NodeList<VariableDeclarator> variables() {
         return Objects.requireNonNull(variables);
-    }
-
-    @Override
-    public NodeList<Parameter> getParameters() {
-        return getVariables();
-    }
-
-    @Override
-    public JmlQuantifiedExpr setParameters(NodeList<Parameter> parameters) {
-        return setVariables(parameters);
     }
 }

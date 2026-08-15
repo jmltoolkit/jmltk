@@ -1935,7 +1935,7 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
     @Override
     public Visitable visit(final JmlQuantifiedExpr n, final A arg) {
         NodeList<Expression> expressions = modifyList(n.getExpressions(), arg);
-        NodeList<Parameter> variables = modifyList(n.getVariables(), arg);
+        NodeList<VariableDeclarator> variables = modifyList(n.getVariables(), arg);
         NodeList<Comment> associatedSpecificationComments = modifyList(n.getAssociatedSpecificationComments(), arg);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
         if (expressions.isEmpty() || variables.isEmpty()) return null;

@@ -915,8 +915,10 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
         printer.print("(");
         printer.print(n.getBinder().jmlSymbol());
         printer.print(" ");
+        n.getVariables().getFirst().type().accept(this, arg);
+        printer.print(" ");
         printList(n.getVariables(), ", ");
-        printer.print(";");
+        printer.print("; ");
         printList(n.getExpressions(), "; ");
         printer.print(")");
     }

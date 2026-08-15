@@ -44,7 +44,7 @@ options {
     ERROR_REPORTING = true;
     JAVA_TEMPLATE_TYPE = "modern"; // FIXME: Warning: Bad option name "JAVA_TEMPLATE_TYPE".  Option setting will be ignored.
     JDK_VERSION = "1.8";
-    STATIC = false;
+    // STATIC = false;  // Removed: Invalid JavaCC option - was causing warning
     TOKEN_EXTENDS = "TokenBase";
     //DEBUG_LOOKAHEAD = true;
     //DEBUG_PARSER = true;
@@ -188,6 +188,8 @@ SPECIAL_TOKEN :
      "\u0085", // 'NEXT LINE (NEL)' (U+0085)
      "\u00A0", // 'NO-BREAK SPACE' (U+00A0)
      "\u1680", // 'OGHAM SPACE MARK' (U+1680)
+     // NOTE: This token definition includes non-ASCII Unicode characters.
+     // The parser requires a UTF-8 compatible Reader/InputStreamReader when parsing source files.
      "\u180e", // 'MONGOLIAN VOWEL SEPARATOR' (U+180E)
      "\u2000", // 'EN QUAD' (U+2000)
      "\u2001", // 'EM QUAD' (U+2001)
@@ -1578,22 +1580,22 @@ public CompilationUnit CompilationUnit():
         (
             in = ImportDeclaration() { imports = add(imports, in); }
          |
-            doc = JmlDocType() { bodyDeclarations = add(bodyDeclarations, doc); }
+            LOOKAHEAD(3) doc = JmlDocType() { bodyDeclarations = add(bodyDeclarations, doc); }
          |
             (
                 modifier = Modifiers()
                 (
-                    bodyDeclaration = ClassOrInterfaceDeclaration(modifier) { bodyDeclarations = add(bodyDeclarations, bodyDeclaration); }
+                    LOOKAHEAD(3) bodyDeclaration = ClassOrInterfaceDeclaration(modifier) { bodyDeclarations = add(bodyDeclarations, bodyDeclaration); }
                  |
-                    bodyDeclaration = RecordDeclaration(modifier)  { bodyDeclarations = add(bodyDeclarations, bodyDeclaration); }
+                    LOOKAHEAD(3) bodyDeclaration = RecordDeclaration(modifier)  { bodyDeclarations = add(bodyDeclarations, bodyDeclaration); }
                  |
-                    bodyDeclaration = EnumDeclaration(modifier) { bodyDeclarations = add(bodyDeclarations, bodyDeclaration); }
+                    LOOKAHEAD(3) bodyDeclaration = EnumDeclaration(modifier) { bodyDeclarations = add(bodyDeclarations, bodyDeclaration); }
                  |
-                    bodyDeclaration = AnnotationTypeDeclaration(modifier) { bodyDeclarations = add(bodyDeclarations, bodyDeclaration); }
+                    LOOKAHEAD(2) bodyDeclaration = AnnotationTypeDeclaration(modifier) { bodyDeclarations = add(bodyDeclarations, bodyDeclaration); }
                  |
-                    module = ModuleDeclaration(modifier)
+                    LOOKAHEAD(3) module = ModuleDeclaration(modifier)
                  |
-                    bodyDeclaration = CompactClassMember(modifier) { bodyDeclarations = add(bodyDeclarations, bodyDeclaration); }
+                    LOOKAHEAD(3) bodyDeclaration = CompactClassMember(modifier) { bodyDeclarations = add(bodyDeclarations, bodyDeclaration); }
                  |
                     ";"
                 )
@@ -2301,7 +2303,7 @@ NodeList<BodyDeclaration<?>> ClassOrInterfaceBody():
 {
     "{"
     (
-        member = JmlDocMember() { ret.add(member); }
+        LOOKAHEAD(3) member = JmlDocMember() { ret.add(member); }
      |
         member = ClassOrInterfaceBodyDeclaration() { ret.add(member); }
      |
@@ -2330,7 +2332,7 @@ NodeList<BodyDeclaration<?>> RecordBody():
 {
     "{"
     (
-        member = JmlDocMember()  { ret.add(member); }
+        LOOKAHEAD(3) member = JmlDocMember()  { ret.add(member); }
      |
         member = RecordBodyDeclaration() { ret.add(member); }
      |
@@ -3615,18 +3617,18 @@ Expression Expression():
 {
     ret = ConditionalExpression()
     [
+        LOOKAHEAD(2)
         (
-            LOOKAHEAD(2)
             op = AssignmentOperator()
             value = Expression() { ret = new AssignExpr(range(ret, token()), ret, value, op); }
          |
-            "->"
+            LOOKAHEAD(2) "->"
             lambdaBody = LambdaBody()
             {
                 ret = generateLambda(ret, lambdaBody);
             }
          |
-            "::"
+            LOOKAHEAD(2) "::"
             [typeArgs = TypeArguments()]
             (Identifier() | "new") { ret = new MethodReferenceExpr(range(ret, token()), ret, typeArgs.list, token.image); }
         )
@@ -3693,7 +3695,7 @@ Expression ConditionalExpression():
 {
     ret = JmlEquivExpression()
     [
-        "?"
+        LOOKAHEAD(2) "?"
         left = Expression()
         ":"
         right = Expression()
@@ -3720,6 +3722,7 @@ Expression JmlEquivExpression():
 {
     ret = JmlImplicationExpression()
     (
+        LOOKAHEAD(2)
         ( <EQUIVALENCE> {op = BinaryExpr.Operator.EQUIVALENCE;}
         | <ANTIVALENCE> {op = BinaryExpr.Operator.ANTIVALENCE;}
         )
@@ -3741,6 +3744,7 @@ Expression JmlImplicationExpression():
 {
     ret = ConditionalOrExpression()
     (
+        LOOKAHEAD(2)
         ( <IMPLICATION> {op = BinaryExpr.Operator.IMPLICATION;}
         | <IMPLICATION_BACKWARD> {op = BinaryExpr.Operator.RIMPLICATION;}
         )
@@ -3771,7 +3775,7 @@ Expression ConditionalOrExpression():
     // First consider a higher-precedence operator, before considering the token as the left-hand part of this expression.
     ret = ConditionalAndExpression()
     (
-        "||"
+        LOOKAHEAD(2) "||"
         right = ConditionalAndExpression()
         { ret = new BinaryExpr(range(ret, token()), ret, right, BinaryExpr.Operator.OR); }
     )*
@@ -3810,7 +3814,7 @@ Expression ConditionalAndExpression():
     // First consider a higher-precedence operator, before considering the token as the left-hand part of this expression.
     ret = InclusiveOrExpression()
     (
-        "&&"
+        LOOKAHEAD(2) "&&"
         right = InclusiveOrExpression()
         { ret = new BinaryExpr(range(ret, token()), ret, right, BinaryExpr.Operator.AND); }
     )*
@@ -3844,7 +3848,7 @@ Expression InclusiveOrExpression():
     // First consider a higher-precedence operator, before considering the token as the left-hand part of this expression.
     ret = ExclusiveOrExpression()
     (
-        "|"
+        LOOKAHEAD(2) "|"
         right = ExclusiveOrExpression()
         { ret = new BinaryExpr(range(ret, token()), ret, right, BinaryExpr.Operator.BINARY_OR); }
     )*
@@ -3877,7 +3881,7 @@ Expression ExclusiveOrExpression():
 {
     // First consider a higher-precedence operator, before considering the token as the left-hand part of this expression.
     ret = AndExpression() (
-        "^"
+        LOOKAHEAD(2) "^"
         right = AndExpression()
         { ret = new BinaryExpr(range(ret, token()), ret, right, BinaryExpr.Operator.XOR); }
     )*
@@ -3910,7 +3914,7 @@ Expression AndExpression():
 {
     // First consider a higher-precedence operator, before considering the token as the left-hand part of this expression.
     ret = EqualityExpression() (
-        "&"
+        LOOKAHEAD(2) "&"
         right = EqualityExpression()
         { ret = new BinaryExpr(range(ret, token()), ret, right, BinaryExpr.Operator.BINARY_AND); }
     )*
@@ -3949,6 +3953,7 @@ Expression EqualityExpression():
     // Note that instanceof is a {@code RelationalExpression} within the JLS, which differs from JavaParser
     ret = InstanceOfExpression()
     (
+        LOOKAHEAD(2)
         (
             "==" { op = BinaryExpr.Operator.EQUALS; }
          |
@@ -5149,8 +5154,7 @@ Statement StatementCreatesBlock():
 }
 {
     (
-        LOOKAHEAD(1) jml = JmlDocStatements()
-        [ret = Statement()]
+        LOOKAHEAD( <JML_BLOCK_COMMENT> | <JML_LINE_COMMENT> ) jml = JmlDocStatements() [ret = Statement()]
       |
         ret = Statement()
     )
@@ -5198,7 +5202,7 @@ AssertStmt AssertStatement():
 {
     "assert" { begin=token(); }
     check = Expression()
-    [ ":" msg = Expression() ]
+    [ LOOKAHEAD(2) ":" msg = Expression() ]
     ";"
     { return new AssertStmt(range(begin, token()), check, msg);  }
 }
@@ -6537,7 +6541,7 @@ NodeList<BodyDeclaration<?>> AnnotationTypeBody():
 {
     "{"
     (
-        member = JmlDocMember()  { ret.add(member); }
+        LOOKAHEAD(3) member = JmlDocMember()  { ret.add(member); }
      |
         member = AnnotationBodyDeclaration() { ret = addWhenNotNull(ret, member); }
      |
@@ -6591,12 +6595,12 @@ BodyDeclaration<?> AnnotationBodyDeclaration():
         LOOKAHEAD(Type() Identifier() "(")
         ret = AnnotationTypeMemberDeclaration(modifier)
      |
-        ret = ClassOrInterfaceDeclaration(modifier)
+        LOOKAHEAD(3) ret = ClassOrInterfaceDeclaration(modifier)
      |
         LOOKAHEAD("enum")
         ret = EnumDeclaration(modifier)
      |
-        ret = AnnotationTypeDeclaration(modifier)
+        LOOKAHEAD(2) ret = AnnotationTypeDeclaration(modifier)
      |
         ret = FieldDeclaration(modifier)
     )
@@ -6936,7 +6940,7 @@ NodeList<JmlDoc> JmlDocs():
   doc=JmlDoc()
   { seq.add(doc); }
   (
-    doc=JmlDoc()
+    LOOKAHEAD(2) doc=JmlDoc()
     { seq.add(doc); }
   )*
   { return seq; }
@@ -6982,7 +6986,7 @@ NodeList<ImportDeclaration> JmlImportDeclarations():
   DefaultJmlContainer c = new DefaultJmlContainer();
 }
 {
-  ( <MODEL> {begin=token();} in=ImportDeclaration()
+  ( LOOKAHEAD(2) <MODEL> {begin=token();} in=ImportDeclaration()
     { in.setIsJmlModel(true); add(imports,in); }
   )+
   {
@@ -7013,7 +7017,7 @@ ArbitraryNodeContainer JmlMethodLevelStart():
     statement = JmlStatement()       { ret.getChildren().add(statement); }
   | LOOKAHEAD(4)
     contracts = JmlRefiningContract() { ret.getChildren().addAll(contracts); }
-  | jmlModifiersInner(mods)           { ret.getChildren().addAll(mods); mods.clear();}
+  | LOOKAHEAD(2) jmlModifiersInner(mods)           { ret.getChildren().addAll(mods); mods.clear();}
   )+
   <EOF>
   { return ret; }
@@ -7116,12 +7120,12 @@ JmlContract JmlLoopContract():
 }
 {
 	<LOOP_CONTRACT> { begin=token(); }
-	[ b=JmlBehavior() ]
+	[ LOOKAHEAD(2) b=JmlBehavior() ]
 	[LOOKAHEAD(2) name=SimpleName() ":"]
 	(
-	    clause=JmlContractClause() {clauses.add(clause);}
+	    LOOKAHEAD(4) clause=JmlContractClause() {clauses.add(clause);}
 	  |
-	    clause=JmlLoopInvClauses() {clauses.add(clause);}
+	    LOOKAHEAD(4) clause=JmlLoopInvClauses() {clauses.add(clause);}
 	)*
 	{ return new JmlContract(range(begin, token()), new NodeList<>(),
                               ContractType.LOOP, b, name, new NodeList<>(),
@@ -7144,9 +7148,9 @@ NodeList<JmlContract> JmlLoopInvariants():
       JmlContract contract;
     }
     (
-      contract=JmlLoopContract()
+      LOOKAHEAD(4) contract = JmlLoopContract()
     |
-      contract = JmlInvContract()
+      LOOKAHEAD(4) contract = JmlInvContract()
     )
     {contracts.add(contract);}
   )+
@@ -7165,7 +7169,7 @@ JmlContract JmlInvContract():
   //This line is unfolded -- important for the fast lookahead
   clause = JmlLoopInvClause() ";" { clauses.add(clause); }
   (
-      clause=JmlLoopInvClauses() { clauses.add(clause); }
+      LOOKAHEAD(2) clause=JmlLoopInvClauses() { clauses.add(clause); }
   )*
   { return new JmlContract(range(clause, token()), ContractType.LOOP_INV, false, Behavior.NONE,
                                     name, new NodeList<>(), clauses, new NodeList<>()); }
@@ -7176,14 +7180,14 @@ JmlClause JmlLoopInvClauses():
  JmlClause ret;
 }
 {
-  ( ret=JmlLoopInvClause()
-  | ret=JmlBreaksClause()
-  | ret=JmlContinuesClause()
-  | ret=JmlReturnsClause()
-  | ret=JmlDecreasesClause()
-  | ret=JmlDefaultClause()
-  | ret=JmlMultiExprClauses()
-  | ret=JmlInfFlowClause()
+  ( LOOKAHEAD(2) ret=JmlLoopInvClause()
+  | LOOKAHEAD(3) ret=JmlBreaksClause()
+  | LOOKAHEAD(2) ret=JmlContinuesClause()
+  | LOOKAHEAD(2) ret=JmlReturnsClause()
+  | LOOKAHEAD(2) ret=JmlDecreasesClause()
+  | LOOKAHEAD(2) ret=JmlDefaultClause()
+  | LOOKAHEAD(2) ret=JmlMultiExprClauses()
+  | LOOKAHEAD(2) ret=JmlInfFlowClause()
   )
   ";"
   {return ret;}
@@ -7226,9 +7230,9 @@ NodeList<JmlContract> JmlContracts():
 	JavaToken begin;
 }
 {
-  (<ALSO>)? {begin=token();}
+  (LOOKAHEAD(2) <ALSO>)? {begin=token();}
   bc=JmlContract() {contracts.add(bc);}
-  (<ALSO> {begin=token();} bc=JmlContract() {contracts.add(bc);})*
+  (LOOKAHEAD(2) <ALSO> {begin=token();} bc=JmlContract() {contracts.add(bc);})*
   {return contracts;}
 }
 
@@ -7253,7 +7257,7 @@ JmlContract JmlContract():
   )?
 
   (b=JmlBehavior()  {beginBehavior=token();}  (LOOKAHEAD(3) name=SimpleName() ":")? )?
-  (clause=JmlContractClause() {clauses.add(clause);})+
+  (LOOKAHEAD(2) clause=JmlContractClause() {clauses.add(clause);})+
   (<NESTED_CONTRACT_START> subContracts=JmlContracts() <NESTED_CONTRACT_END>)?
   { JavaToken begin = orIfInvalid(beginVisibility,beginBehavior, name, clauses.get(0));
 	return new JmlContract(range(begin, token()), ContractType.METHOD, false, b,
@@ -7284,17 +7288,17 @@ JmlClause JmlContractClause():
  JmlClause ret;
 }
 {
-  ( ret=ForallClause()
-  | ret=JmlOldClause()
-  | ret=JmlBreaksClause()
-  | ret=JmlContinuesClause()
-  | ret=JmlReturnsClause()
-  | ret=JmlSignalsClause()
-  | ret=JmlSignalsOnlyClause()
-  | ret=JmlAccessibleClause()
-  | ret=JmlDefaultClause()
-  | ret=JmlMultiExprClauses()
-  | ret=JmlInfFlowClause()
+  ( LOOKAHEAD(2) ret=ForallClause()
+  | LOOKAHEAD(2) ret=JmlOldClause()
+  | LOOKAHEAD(3) ret=JmlBreaksClause()
+  | LOOKAHEAD(2) ret=JmlContinuesClause()
+  | LOOKAHEAD(2) ret=JmlReturnsClause()
+  | LOOKAHEAD(2) ret=JmlSignalsClause()
+  | LOOKAHEAD(2) ret=JmlSignalsOnlyClause()
+  | LOOKAHEAD(2) ret=JmlAccessibleClause()
+  | LOOKAHEAD(2) ret=JmlDefaultClause()
+  | LOOKAHEAD(2) ret=JmlMultiExprClauses()
+  | LOOKAHEAD(2) ret=JmlInfFlowClause()
   )
   ";"
   {return ret;}
@@ -7757,7 +7761,7 @@ JmlClassLevelDeclaration JmlMethodDeclaration(ModifierHolder modifier):
     ( LOOKAHEAD(2)
       [<MODEL_BEHAVIOR> | <MODEL_BEHAVIOUR>]
       {begin=token();}
-      (clause=JmlContractClause() { clauses.add(clause);  begin=orIfInvalid(begin==null?INVALID:begin, clause); })+
+      (LOOKAHEAD(2) clause=JmlContractClause() { clauses.add(clause);  begin=orIfInvalid(begin==null?INVALID:begin, clause); })+
       (<NESTED_CONTRACT_START> subContracts=JmlContracts() <NESTED_CONTRACT_END>)?
       {
        c = new JmlContract(range(begin,token()), Behavior.MODEL, new NodeList<>(), clauses, subContracts);

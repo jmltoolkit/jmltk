@@ -1,8 +1,8 @@
 ---
-run: tools/cli/build/install/cli/bin/cli stubby --help
+run: tools/cli/build/install/jmltk/bin/jmltk stubby --help
 ignoreStderr: true
 ---
-Usage: main stubby [<options>] [<files>]...
+Usage: jmltk stubby [<options>] [<files>]...
 
   Generate Java stubs from class files, JRE classes. Is able to create an
   effective JML specifications folder

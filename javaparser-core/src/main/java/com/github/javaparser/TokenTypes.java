@@ -165,6 +165,7 @@ public class TokenTypes {
             case NON_SEALED:
             case WHEN:
             case INVARIANT:
+            case INVARIANT_FREE:
             case ABRUPT_BEHAVIOR:
             case ABRUPT_BEHAVIOUR:
             case MODEL_BEHAVIOR:

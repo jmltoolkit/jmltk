@@ -1297,18 +1297,18 @@ public class ConcreteSyntaxModel {
         concreteSyntaxModelByClass.put(JmlMultiCompareExpr.class, specialJmlMultiCompareExpr());
 
         concreteSyntaxModelByClass.put(
-            JmlQuantifiedExpr.class,
-            sequence(
-                token(LPAREN),
-                attribute(BINDER),
-                space(),
-                conditional(VARIABLES, IS_NOT_EMPTY, child(ObservableProperty.MAXIMUM_COMMON_TYPE)),
-                space(),
-                list(VARIABLES, sequence(comma(), space())),
-                token(SEMICOLON),
-                space(),
-                list(EXPRESSIONS, sequence(semicolon(), space())),
-                token(RPAREN)));
+                JmlQuantifiedExpr.class,
+                sequence(
+                        token(LPAREN),
+                        attribute(BINDER),
+                        space(),
+                        conditional(VARIABLES, IS_NOT_EMPTY, child(ObservableProperty.MAXIMUM_COMMON_TYPE)),
+                        space(),
+                        list(VARIABLES, sequence(comma(), space())),
+                        token(SEMICOLON),
+                        space(),
+                        list(EXPRESSIONS, sequence(semicolon(), space())),
+                        token(RPAREN)));
 
         concreteSyntaxModelByClass.put(JmlRefiningStmt.class, sequence());
         concreteSyntaxModelByClass.put(JmlRepresentsDeclaration.class, sequence());

@@ -257,6 +257,7 @@ public class JmlLabeledClause extends JmlClause implements NodeWithExpression<Jm
     }
 
     @Override
+    @Generated("com.github.javaparser.generator.core.node.GetMetaModelGenerator")
     public JmlLabeledClauseMetaModel getMetaModel() {
         return JavaParserMetaModel.jmlLabeledClauseMetaModel;
     }

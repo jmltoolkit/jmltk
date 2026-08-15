@@ -43,5 +43,4 @@ interface ArithmeticTranslator {
     fun makeInt(i: Long): SExpr
 
     fun makeVar(rtype: ResolvedType): SExpr
-
 }

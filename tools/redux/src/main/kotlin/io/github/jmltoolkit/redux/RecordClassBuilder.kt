@@ -351,8 +351,7 @@ class RecordClassBuilder(
         return hasNoEquals
     }
 
-    private fun callObjects(method: String, vararg exprs: Expression): Expression
-        = callObjects(method, exprs.toMutableList())
+    private fun callObjects(method: String, vararg exprs: Expression): Expression = callObjects(method, exprs.toMutableList())
 
     private fun callObjects(method: String, exprs: MutableList<Expression>): Expression {
         val objects =

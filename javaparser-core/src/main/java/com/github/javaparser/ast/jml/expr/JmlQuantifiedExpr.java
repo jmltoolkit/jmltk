@@ -102,7 +102,10 @@ public class JmlQuantifiedExpr extends JmlExpression implements NodeWithVariable
     }
 
     public JmlQuantifiedExpr(
-            TokenRange tokenRange, JavaToken binder, NodeList<VariableDeclarator> variables, NodeList<Expression> expressions) {
+            TokenRange tokenRange,
+            JavaToken binder,
+            NodeList<VariableDeclarator> variables,
+            NodeList<Expression> expressions) {
         this(tokenRange, JmlDefaultBinder.valueOf(binder), variables, new NodeList<>(expressions));
     }
 
@@ -111,7 +114,10 @@ public class JmlQuantifiedExpr extends JmlExpression implements NodeWithVariable
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
     public JmlQuantifiedExpr(
-            TokenRange tokenRange, JmlBinder binder, NodeList<VariableDeclarator> variables, NodeList<Expression> expressions) {
+            TokenRange tokenRange,
+            JmlBinder binder,
+            NodeList<VariableDeclarator> variables,
+            NodeList<Expression> expressions) {
         super(tokenRange);
         setBinder(binder);
         setVariables(variables);

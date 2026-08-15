@@ -25,8 +25,7 @@ import kotlin.jvm.optionals.getOrNull
  * @author Alexander Weigl
  * @version 1 (01.07.22)
  */
-class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTranslator) :
-    GenericVisitorAdapter<SExpr, Any?>() {
+class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTranslator) : GenericVisitorAdapter<SExpr, Any?>() {
 
     private val boundedVars = VariableStack()
 
@@ -299,8 +298,9 @@ internal class VariableStack {
 
     fun <T> bind(variables: List<Pair<Type, String>>, block: () -> T): T {
         val curPosition = seq.size
-        for ((t, n) in variables)
+        for ((t, n) in variables) {
             seq.add(n)
+        }
         val value = block()
         truncate(curPosition)
         return value

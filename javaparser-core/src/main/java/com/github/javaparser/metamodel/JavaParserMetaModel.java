@@ -3494,8 +3494,8 @@ public final class JavaParserMetaModel {
         jmlQuantifiedExprMetaModel.variablesPropertyMetaModel = new PropertyMetaModel(
                 jmlQuantifiedExprMetaModel,
                 "variables",
-                com.github.javaparser.ast.body.Parameter.class,
-                Optional.of(parameterMetaModel),
+                com.github.javaparser.ast.body.VariableDeclarator.class,
+                Optional.of(variableDeclaratorMetaModel),
                 false,
                 true,
                 true,
@@ -3503,6 +3503,18 @@ public final class JavaParserMetaModel {
         jmlQuantifiedExprMetaModel
                 .getDeclaredPropertyMetaModels()
                 .add(jmlQuantifiedExprMetaModel.variablesPropertyMetaModel);
+        jmlQuantifiedExprMetaModel.maximumCommonTypePropertyMetaModel = new PropertyMetaModel(
+                jmlQuantifiedExprMetaModel,
+                "maximumCommonType",
+                com.github.javaparser.ast.type.Type.class,
+                Optional.of(typeMetaModel),
+                true,
+                false,
+                false,
+                false);
+        jmlQuantifiedExprMetaModel
+                .getDerivedPropertyMetaModels()
+                .add(jmlQuantifiedExprMetaModel.maximumCommonTypePropertyMetaModel);
         jmlTypeExprMetaModel.typePropertyMetaModel = new PropertyMetaModel(
                 jmlTypeExprMetaModel,
                 "type",

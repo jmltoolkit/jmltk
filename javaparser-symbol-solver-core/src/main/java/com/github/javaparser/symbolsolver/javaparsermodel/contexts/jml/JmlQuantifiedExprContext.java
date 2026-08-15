@@ -27,8 +27,9 @@ public class JmlQuantifiedExprContext extends AbstractJavaParserContext<JmlQuant
 
     @Override
     public List<Parameter> parametersExposedToChild(Node child) {
-        return wrappedNode.getVariables().stream().map(
-            it -> new Parameter(it.type().clone(), it.name().clone())).toList();
+        return wrappedNode.getVariables().stream()
+                .map(it -> new Parameter(it.type().clone(), it.name().clone()))
+                .toList();
     }
 
     @Override

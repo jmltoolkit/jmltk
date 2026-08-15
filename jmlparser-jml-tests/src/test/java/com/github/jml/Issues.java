@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package com.github.jml;
 
 import com.github.javaparser.JavaParser;
@@ -43,10 +47,9 @@ public class Issues {
                 }
             """;
         var cu = parse(source);
-        assertThat(cu.toString()).isEqualTo(
-            """
+        assertThat(cu.toString()).isEqualTo("""
                 public class PolishFlagSort {
-                
+
                     /*@ public normal_behavior
                         ensures (\\forall int I, J; 0 <= I && I < J && J < ar.length; ar[I] <= ar[J]);
                        \s
@@ -55,7 +58,6 @@ public class Issues {
                         return;
                     }
                 }
-                """
-        );
+                """);
     }
 }

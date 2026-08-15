@@ -37,4 +37,6 @@ public class JmlQuantifiedExprMetaModel extends JmlExpressionMetaModel {
     public PropertyMetaModel expressionsPropertyMetaModel;
 
     public PropertyMetaModel variablesPropertyMetaModel;
+
+    public PropertyMetaModel maximumCommonTypePropertyMetaModel;
 }

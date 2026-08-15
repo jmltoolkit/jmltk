@@ -33,6 +33,11 @@ public final class JavaParserSymbolDeclaration {
         return new JavaParserVariableDeclaration(variableDeclarator, typeSolver);
     }
 
+    public static JmlJavaParserQuantifiedVariableDeclaration quantifiedVar(VariableDeclarator variableDeclarator, TypeSolver typeSolver) {
+        return new JmlJavaParserQuantifiedVariableDeclaration(variableDeclarator, typeSolver);
+    }
+
+
     public static JavaParserTypePatternDeclaration patternVar(TypePatternExpr typePatternExpr, TypeSolver typeSolver) {
         return new JavaParserTypePatternDeclaration(typePatternExpr, typeSolver);
     }

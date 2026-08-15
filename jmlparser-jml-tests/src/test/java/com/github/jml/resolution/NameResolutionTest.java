@@ -143,6 +143,7 @@ class NameResolutionTest {
                 .map(it -> it.trim().substring(4).trim())
                 .collect(Collectors.toSet());
 
+        v.messages.stream().sorted().forEach(it -> System.out.println("//? "+it));
         Truth.assertThat(v.messages).isEqualTo(errorLines);
     }
 

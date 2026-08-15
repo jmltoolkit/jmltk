@@ -25,18 +25,19 @@ public class JmlQuantifiedExprContext extends AbstractJavaParserContext<JmlQuant
         super(wrappedNode, typeSolver);
     }
 
-    @Override
+    /*@Override
     public List<Parameter> parametersExposedToChild(Node child) {
         return wrappedNode.getVariables().stream()
                 .map(it -> new Parameter(it.type().clone(), it.name().clone()))
                 .toList();
     }
+     */
 
     @Override
     public SymbolReference<? extends ResolvedValueDeclaration> solveSymbol(String name) {
         for (VariableDeclarator variable : wrappedNode.getVariables()) {
             if (variable.getNameAsString().equals(name)) {
-                return SymbolReference.solved(JavaParserSymbolDeclaration.localVar(variable, typeSolver));
+                return SymbolReference.solved(JavaParserSymbolDeclaration.quantifiedVar(variable, typeSolver));
             }
         }
         return super.solveSymbol(name);

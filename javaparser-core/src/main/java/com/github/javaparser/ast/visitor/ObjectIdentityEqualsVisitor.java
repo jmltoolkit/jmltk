@@ -532,7 +532,7 @@ public class ObjectIdentityEqualsVisitor implements GenericVisitor<Boolean, Visi
     }
 
     @Override
-    public Boolean visit(final JmlLabledClause n, final Visitable arg) {
+    public Boolean visit(final JmlLabeledClause n, final Visitable arg) {
         return n == arg;
     }
 

@@ -294,7 +294,7 @@ public interface VoidVisitor<A> {
 
     void visit(JmlQuantifiedExpr jmlQuantifiedExpr, A arg);
 
-    void visit(JmlLabledClause n, A arg);
+    void visit(JmlLabeledClause n, A arg);
 
     void visit(JmlExpressionStmt n, A arg);
 

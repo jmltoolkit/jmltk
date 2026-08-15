@@ -298,7 +298,7 @@ public interface GenericVisitor<R, A> {
 
     R visit(JmlQuantifiedExpr n, A arg);
 
-    R visit(JmlLabledClause n, A arg);
+    R visit(JmlLabeledClause n, A arg);
 
     R visit(JmlExpressionStmt n, A arg);
 

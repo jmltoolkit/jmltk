@@ -1902,7 +1902,7 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
     }
 
     @Override
-    public Visitable visit(final JmlLabledClause n, final A arg) {
+    public Visitable visit(final JmlLabeledClause n, final A arg) {
         Expression expression = (Expression) n.getExpression().accept(this, arg);
         SimpleName label =
                 n.getLabel().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);

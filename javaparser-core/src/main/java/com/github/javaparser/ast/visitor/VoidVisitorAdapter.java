@@ -828,7 +828,7 @@ public abstract class VoidVisitorAdapter<A> implements VoidVisitor<A> {
     }
 
     @Override
-    public void visit(final JmlLabledClause n, final A arg) {
+    public void visit(final JmlLabeledClause n, final A arg) {
         n.getExpression().accept(this, arg);
         n.getLabel().ifPresent(l -> l.accept(this, arg));
         n.getName().ifPresent(l -> l.accept(this, arg));

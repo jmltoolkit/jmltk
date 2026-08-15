@@ -445,7 +445,7 @@ public class ObjectIdentityHashCodeVisitor implements GenericVisitor<Integer, Vo
     }
 
     @Override
-    public Integer visit(final JmlLabledClause n, final Void arg) {
+    public Integer visit(final JmlLabeledClause n, final Void arg) {
         return n.hashCode();
     }
 

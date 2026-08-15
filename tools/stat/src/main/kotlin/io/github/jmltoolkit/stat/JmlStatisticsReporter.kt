@@ -87,7 +87,7 @@ class JmlStatisticsReporter : VoidVisitorAdapter<Statistics>() {
         super.visit(n, s)
     }
 
-    override fun visit(n: JmlLabledClause, arg: Statistics) {
+    override fun visit(n: JmlLabeledClause, arg: Statistics) {
         arg.inc(n)
         super.visit(n, arg)
     }

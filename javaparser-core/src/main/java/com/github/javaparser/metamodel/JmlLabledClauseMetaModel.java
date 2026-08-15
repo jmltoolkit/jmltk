@@ -5,7 +5,7 @@
 package com.github.javaparser.metamodel;
 
 import com.github.javaparser.ast.Generated;
-import com.github.javaparser.ast.jml.clauses.JmlLabledClause;
+import com.github.javaparser.ast.jml.clauses.JmlLabeledClause;
 
 import java.util.Optional;
 
@@ -25,8 +25,8 @@ public class JmlLabledClauseMetaModel extends JmlClauseMetaModel {
     JmlLabledClauseMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
         super(
                 superBaseNodeMetaModel,
-                JmlLabledClause.class,
-                "JmlLabledClause",
+                JmlLabeledClause.class,
+                "JmlLabeledClause",
                 "com.github.javaparser.ast.jml.clauses",
                 false,
                 false);

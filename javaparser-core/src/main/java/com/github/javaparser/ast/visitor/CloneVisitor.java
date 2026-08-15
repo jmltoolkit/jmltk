@@ -14,7 +14,7 @@ import com.github.javaparser.ast.comments.TraditionalJavadocComment;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.jml.body.*;
 import com.github.javaparser.ast.jml.clauses.*;
-import com.github.javaparser.ast.jml.clauses.JmlLabledClause;
+import com.github.javaparser.ast.jml.clauses.JmlLabeledClause;
 import com.github.javaparser.ast.jml.clauses.JmlSignalsClause;
 import com.github.javaparser.ast.jml.clauses.JmlSignalsOnlyClause;
 import com.github.javaparser.ast.jml.clauses.JmlSimpleExprClause;
@@ -1528,14 +1528,14 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
     }
 
     @Override
-    public Visitable visit(final JmlLabledClause n, final Object arg) {
+    public Visitable visit(final JmlLabeledClause n, final Object arg) {
         Expression expression = cloneNode(n.getExpression(), arg);
         SimpleName label = cloneNode(n.getLabel(), arg);
         SimpleName name = cloneNode(n.getName(), arg);
         NodeList<Comment> associatedSpecificationComments =
                 cloneList(n.getAssociatedSpecificationComments().orElse(null), arg);
         Comment comment = cloneNode(n.getComment(), arg);
-        JmlLabledClause r = new JmlLabledClause(n.getTokenRange().orElse(null), n.getKind(), label, expression);
+        JmlLabeledClause r = new JmlLabeledClause(n.getTokenRange().orElse(null), n.getKind(), label, expression);
         r.setComment(comment);
         n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
         copyData(n, r);

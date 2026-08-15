@@ -154,18 +154,18 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public JmlLabledClause asJmlClauseLabel() {
+    public JmlLabeledClause asJmlClauseLabel() {
         throw new IllegalStateException(
                 f("%s is not JmlClauseLabel, it is %s", this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public Optional<JmlLabledClause> toJmlClauseLabel() {
+    public Optional<JmlLabeledClause> toJmlClauseLabel() {
         return Optional.empty();
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifJmlClauseLabel(Consumer<JmlLabledClause> action) {}
+    public void ifJmlClauseLabel(Consumer<JmlLabeledClause> action) {}
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public boolean isJmlForallClause() {

@@ -1262,7 +1262,7 @@ public class ConcreteSyntaxModel {
                         semicolon(),
                         newline()));
         concreteSyntaxModelByClass.put(
-                JmlLabledClause.class,
+                JmlLabeledClause.class,
                 sequence(
                         child(ObservableProperty.KIND),
                         token(LPAREN),

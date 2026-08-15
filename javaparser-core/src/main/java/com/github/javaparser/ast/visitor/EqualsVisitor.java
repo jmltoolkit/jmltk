@@ -1147,8 +1147,8 @@ public class EqualsVisitor implements GenericVisitor<Boolean, Visitable> {
     }
 
     @Override
-    public Boolean visit(final JmlLabledClause n, final Visitable arg) {
-        final JmlLabledClause n2 = (JmlLabledClause) arg;
+    public Boolean visit(final JmlLabeledClause n, final Visitable arg) {
+        final JmlLabeledClause n2 = (JmlLabeledClause) arg;
         if (!nodeEquals(n.getExpression(), n2.getExpression())) return false;
         if (!objEquals(n.getKind(), n2.getKind())) return false;
         if (!nodeEquals(n.getLabel(), n2.getLabel())) return false;

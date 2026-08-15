@@ -541,7 +541,7 @@ public abstract class GenericVisitorWithDefaults<R, A> implements GenericVisitor
     }
 
     @Override
-    public R visit(final JmlLabledClause n, final A arg) {
+    public R visit(final JmlLabeledClause n, final A arg) {
         return defaultAction(n, arg);
     }
 

@@ -7364,7 +7364,7 @@ JmlClause JmlBreaksClause():
   (<BREAKS> |<BREAKS_REDUNDANTLY>)  { begin = token();}
   <LPAREN> (label=SimpleName())? <RPAREN>
   expr=Expression()
-  { return new JmlLabledClause(range(begin, token()), begin, label, expr); }
+  { return new JmlLabeledClause(range(begin, token()), begin, label, expr); }
 }
 
 JmlClause JmlContinuesClause():
@@ -7377,7 +7377,7 @@ JmlClause JmlContinuesClause():
   (<CONTINUES>|<CONTINUES_REDUNDANTLY>) { begin = token();}
   <LPAREN> (label=SimpleName())? <RPAREN>
   expr=Expression()
-  { return new JmlLabledClause(range(begin, token()), begin, label, expr); }
+  { return new JmlLabeledClause(range(begin, token()), begin, label, expr); }
 }
 
 JmlClause JmlReturnsClause():

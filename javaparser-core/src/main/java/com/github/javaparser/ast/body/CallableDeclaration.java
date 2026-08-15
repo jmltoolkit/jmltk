@@ -429,7 +429,7 @@ public abstract class CallableDeclaration<T extends CallableDeclaration<?>> exte
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public CallableDeclaration<?> asCallableDeclaration() {
+    public CallableDeclaration asCallableDeclaration() {
         return this;
     }
 

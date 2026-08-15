@@ -1295,7 +1295,6 @@ public class ConcreteSyntaxModel {
                 JmlLetExpr.class,
                 sequence(token(LPAREN), token(LET), space(), list(VARIABLES), space(), child(BODY), token(RPAREN)));
         concreteSyntaxModelByClass.put(JmlMultiCompareExpr.class, specialJmlMultiCompareExpr());
-
         concreteSyntaxModelByClass.put(
                 JmlQuantifiedExpr.class,
                 sequence(
@@ -1309,7 +1308,6 @@ public class ConcreteSyntaxModel {
                         space(),
                         list(EXPRESSIONS, sequence(semicolon(), space())),
                         token(RPAREN)));
-
         concreteSyntaxModelByClass.put(JmlRefiningStmt.class, sequence());
         concreteSyntaxModelByClass.put(JmlRepresentsDeclaration.class, sequence());
         concreteSyntaxModelByClass.put(

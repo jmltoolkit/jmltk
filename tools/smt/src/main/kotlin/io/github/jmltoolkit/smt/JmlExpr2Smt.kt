@@ -7,10 +7,12 @@ package io.github.jmltoolkit.smt
 import com.github.javaparser.ast.ArrayCreationLevel
 import com.github.javaparser.ast.NodeList
 import com.github.javaparser.ast.body.Parameter
+import com.github.javaparser.ast.body.VariableDeclarator
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.jml.NodeWithContracts
 import com.github.javaparser.ast.jml.expr.*
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr.JmlDefaultBinder
+import com.github.javaparser.ast.type.Type
 import com.github.javaparser.ast.visitor.GenericVisitorAdapter
 import io.github.jmltoolkit.smt.model.SAtom
 import io.github.jmltoolkit.smt.model.SExpr
@@ -23,7 +25,8 @@ import kotlin.jvm.optionals.getOrNull
  * @author Alexander Weigl
  * @version 1 (01.07.22)
  */
-class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTranslator) : GenericVisitorAdapter<SExpr, Any?>() {
+class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTranslator) :
+    GenericVisitorAdapter<SExpr, Any?>() {
 
     private val boundedVars = VariableStack()
 
@@ -139,10 +142,10 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
     override fun visit(n: ClassExpr?, arg: Any?): SExpr = super.visit(n, arg)
 
     override fun visit(n: ConditionalExpr, arg: Any?): SExpr = termFactory.ite(
-            n.condition.accept(this, arg),
-            n.thenExpr.accept(this, arg),
-            n.elseExpr.accept(this, arg)
-        )
+        n.condition.accept(this, arg),
+        n.thenExpr.accept(this, arg),
+        n.elseExpr.accept(this, arg)
+    )
 
     override fun visit(n: DoubleLiteralExpr?, arg: Any?): SExpr = super.visit(n, arg)
 
@@ -195,7 +198,8 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
         return `var`
     }
 
-    override fun visit(n: StringLiteralExpr, arg: Any?): SExpr = SAtom(SmtType.STRING, null, ("\"" + n.asString()).toString() + "\"")
+    override fun visit(n: StringLiteralExpr, arg: Any?): SExpr =
+        SAtom(SmtType.STRING, null, ("\"" + n.asString()) + "\"")
 
     override fun visit(n: UnaryExpr, arg: Any?): SExpr = translator.unary(n.operator, n.expression.accept(this, arg))
 
@@ -205,7 +209,8 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
 
     override fun visit(n: SwitchExpr?, arg: Any?): SExpr = super.visit(n, arg)
 
-    override fun visit(n: TextBlockLiteralExpr, arg: Any?): SExpr = SAtom(SmtType.STRING, null, ("\"" + n.asString()).toString() + "\"")
+    override fun visit(n: TextBlockLiteralExpr, arg: Any?): SExpr =
+        SAtom(SmtType.STRING, null, ("\"" + n.asString()) + "\"")
 
     override fun visit(n: RecordPatternExpr, arg: Any?): SExpr = super.visit(n, arg)
 
@@ -219,10 +224,10 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
                         if (n.expressions.size == 2
                         ) {
                             BinaryExpr(
-                            n.expressions[0],
-                            n.expressions[1],
-                            BinaryExpr.Operator.IMPLICATION
-                        )
+                                n.expressions[0],
+                                n.expressions[1],
+                                BinaryExpr.Operator.IMPLICATION
+                            )
                         } else {
                             n.expressions[0]
                         }
@@ -292,21 +297,20 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
 internal class VariableStack {
     private val seq = ArrayList<String>(16)
 
-    fun <T> bind(variables: VariableDeclarationExpr, block: () -> T): T {
+    fun <T> bind(variables: List<Pair<Type, String>>, block: () -> T): T {
         val curPosition = seq.size
-        for (variable in variables.variables) seq.add(variable.nameAsString)
-        val v = block()
-        truncate(curPosition)
-        return v
-    }
-
-    fun <T> bind(variables: NodeList<Parameter>, block: () -> T): T {
-        val curPosition = seq.size
-        for (variable in variables) seq.add(variable.nameAsString)
+        for ((t, n) in variables)
+            seq.add(n)
         val value = block()
         truncate(curPosition)
         return value
     }
+
+    fun <T> bind(variables: VariableDeclarationExpr, block: () -> T): T =
+        bind(variables.variables().map { it.type() to it.nameAsString }, block)
+
+    fun <T> bind(variables: NodeList<VariableDeclarator>, block: () -> T): T =
+        bind(variables.map { it.type() to it.nameAsString }, block)
 
     private fun truncate(curPosition: Int) {
         while (seq.size > curPosition) {

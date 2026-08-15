@@ -25,7 +25,6 @@ import com.github.javaparser.ast.jml.doc.JmlDocModifier
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr
 import com.github.javaparser.ast.stmt.ReturnStmt
 import com.github.javaparser.ast.type.PrimitiveType
-import java.util.*
 
 /** This transformation is made to transform any found [RecordDeclaration] into a corresponding
  * [ClassOrInterfaceDeclaration].
@@ -93,7 +92,7 @@ class RecordClassBuilder(
                 equalFieldsEqualRecords(recordDeclaration, this)
             }
 
-            val typeName = recordDeclaration.nameAsString
+            val typeName = parseType(recordDeclaration.nameAsString)
             attachTypeSpecExpr(clazz) {
                 addModifier(PUBLIC, STATIC)
                 kind = JmlBodyClauseKind.INVARIANT_FREE
@@ -101,7 +100,7 @@ class RecordClassBuilder(
 
                 val q = JmlQuantifiedExpr()
                 q.binder = JmlQuantifiedExpr.JmlDefaultBinder.FORALL
-                q.addParameter(typeName, "a")
+                q.addVariable(typeName, "a")
                 q.expressions.add(
                     MethodCallExpr(NameExpr("a"), SimpleName("equals"), NodeList(NameExpr("a")))
                 )
@@ -117,8 +116,8 @@ class RecordClassBuilder(
 
                 val q = JmlQuantifiedExpr()
                 q.binder = JmlQuantifiedExpr.JmlDefaultBinder.FORALL
-                q.addParameter(typeName, "a")
-                q.addParameter(typeName, "b")
+                q.addVariable(typeName, "a")
+                q.addVariable(typeName, "b")
                 q.expressions.add(
                     MethodCallExpr(NameExpr("a"), SimpleName("equals"), NodeList(NameExpr("b")))
                 )
@@ -138,9 +137,9 @@ class RecordClassBuilder(
 
                 val q = JmlQuantifiedExpr()
                 q.binder = JmlQuantifiedExpr.JmlDefaultBinder.FORALL
-                q.addParameter(typeName, "a")
-                q.addParameter(typeName, "b")
-                q.addParameter(typeName, "c")
+                q.addVariable(typeName, "a")
+                q.addVariable(typeName, "b")
+                q.addVariable(typeName, "c")
                 val aequalsb = MethodCallExpr(NameExpr("a"), SimpleName("equals"), NodeList(NameExpr("b")))
                 val bequalsc = MethodCallExpr(NameExpr("b"), SimpleName("equals"), NodeList(NameExpr("c")))
                 val aequalsc = MethodCallExpr(NameExpr("b"), SimpleName("equals"), NodeList(NameExpr("c")))
@@ -159,8 +158,8 @@ class RecordClassBuilder(
 
                 val q = JmlQuantifiedExpr()
                 q.binder = JmlQuantifiedExpr.JmlDefaultBinder.FORALL
-                q.addParameter(typeName, "a")
-                q.addParameter(typeName, "b")
+                q.addVariable(typeName, "a")
+                q.addVariable(typeName, "b")
                 val aequalsb = MethodCallExpr(NameExpr("a"), SimpleName("equals"), NodeList(NameExpr("b")))
                 val ahash = MethodCallExpr(NameExpr("a"), SimpleName("hashCode"))
                 val bhash = MethodCallExpr(NameExpr("b"), SimpleName("hashCode"))
@@ -352,9 +351,10 @@ class RecordClassBuilder(
         return hasNoEquals
     }
 
-    private fun callObjects(method: String?, vararg exprs: Expression?): Expression = callObjects(method, Arrays.stream<Expression?>(exprs).toList())
+    private fun callObjects(method: String, vararg exprs: Expression): Expression
+        = callObjects(method, exprs.toMutableList())
 
-    private fun callObjects(method: String?, exprs: MutableList<Expression?>?): Expression {
+    private fun callObjects(method: String, exprs: MutableList<Expression>): Expression {
         val objects =
             FieldAccessExpr(FieldAccessExpr(NameExpr("java"), "lang"), "Objects")
         return MethodCallExpr(objects, method, NodeList(exprs))

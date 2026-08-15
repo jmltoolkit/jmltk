@@ -5,7 +5,7 @@
 package io.github.jmltoolkit.smt
 
 import com.github.javaparser.ast.NodeList
-import com.github.javaparser.ast.body.Parameter
+import com.github.javaparser.ast.body.VariableDeclarator
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.resolution.types.ResolvedType
 import io.github.jmltoolkit.smt.model.SExpr
@@ -31,9 +31,8 @@ interface ArithmeticTranslator {
 
     fun makeIntVar(): SExpr
 
-    fun getVariable(variables: NodeList<Parameter>): List<SExpr> = variables.map { getVariable(it) }
-
-    fun getVariable(jmlBoundVariable: Parameter): SExpr
+    fun getVariable(variables: NodeList<VariableDeclarator>): List<SExpr> = variables.map { getVariable(it) }
+    fun getVariable(jmlBoundVariable: VariableDeclarator): SExpr
 
     fun makeBoolean(value: Boolean): SExpr
 
@@ -44,4 +43,5 @@ interface ArithmeticTranslator {
     fun makeInt(i: Long): SExpr
 
     fun makeVar(rtype: ResolvedType): SExpr
+
 }

@@ -4,7 +4,7 @@
  */
 package io.github.jmltoolkit.smt
 
-import com.github.javaparser.ast.body.Parameter
+import com.github.javaparser.ast.body.VariableDeclarator
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.expr.BinaryExpr.Operator.*
 import com.github.javaparser.ast.expr.UnaryExpr.Operator.*
@@ -78,7 +78,7 @@ open class BitVectorArithmeticTranslator(val smtLog: SmtQuery) : ArithmeticTrans
         return term.symbol(name)
     }
 
-    override fun getVariable(jmlBoundVariable: Parameter): SExpr {
+    override fun getVariable(jmlBoundVariable: VariableDeclarator): SExpr {
         val rType = jmlBoundVariable.type.resolve()
         return term.list(null, SmtType.BOOL, jmlBoundVariable.nameAsString, term.type(getType(rType)))
     }

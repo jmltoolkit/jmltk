@@ -4,6 +4,7 @@
  */
 package io.github.jmltoolkit.smt
 
+import com.github.javaparser.ast.body.VariableDeclarator
 import com.github.javaparser.ast.expr.CharLiteralExpr
 import com.github.javaparser.ast.expr.IntegerLiteralExpr
 import com.github.javaparser.ast.expr.LongLiteralExpr

@@ -5,7 +5,6 @@
 package io.github.jmltoolkit.jml2java
 
 import com.github.javaparser.ast.Modifier
-import com.github.javaparser.ast.body.Parameter
 import com.github.javaparser.ast.body.VariableDeclarator
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.jml.expr.JmlLetExpr
@@ -154,7 +153,7 @@ class Jml2JavaTranslator {
                 )
             )
 
-            val variable: Parameter = n.variables[0]
+            val variable = n.variables[0]
             val lowCode = Jml2JavaFacade.translate(findLowerBound(n, variable.nameAsString))
             arg.addAndGetStatement(
                 ExpressionStmt(

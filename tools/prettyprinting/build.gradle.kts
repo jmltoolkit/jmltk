@@ -3,5 +3,5 @@ plugins {
 }
 dependencies {
     implementation(project(":tools:utils"))
-    implementation("com.google.googlejavaformat:google-java-format:1.35.0")
+    implementation("com.google.googlejavaformat:google-java-format:1.36.1")
 }

@@ -27,7 +27,7 @@ dependencies {
     implementation(project(":tools:jml2java"))
 
     implementation("org.tinylog:tinylog-api-kotlin:2.7.0")
-    implementation("org.tinylog:tinylog-api:2.8.0-M1")
+    implementation("org.tinylog:tinylog-api:2.8.0-M2")
     implementation("org.tinylog:tinylog-impl:2.7.0")
 
     implementation("org.eclipse.lsp4j:org.eclipse.lsp4j:1.0.0")

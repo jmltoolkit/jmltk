@@ -307,7 +307,6 @@ TOKEN : {
 | <PEER: "peer">
 | <REP: "rep">
 | <READ_ONLY: "read_only">
-| <GHOST: "ghost">
 | <BEGIN: "BEGIN">
 | <END: "END">
 | <HELPER: "helper">
@@ -345,7 +344,6 @@ TOKEN : {
 | <MEASURED_BY_REDUNDANTLY: "measured_by_redundantly">
 | <METHOD: "method">
 | <MIN: "\\min">
-| <MODEL: "model">
 | <MODEL_PROGRAM: "model_program">
 | <MODIFIABLE: "modifiable">
 | <MODIFIABLE_REDUNDANTLY: "modifiable_redundantly">
@@ -755,6 +753,10 @@ TOKEN :
 | < PROVIDES: "provides" >
 | < TRANSITIVE: "transitive" >
 | < WHEN: "when" >
+
+| <MODEL: "model">
+| <GHOST: "ghost">
+
 | < SOURCE: "source">
 | < TRANSACTIONBEGIN: "#beginJavaCardTransaction" >
 | < TRANSACTIONCOMMIT: "#commitJavaCardTransaction" >
@@ -5341,7 +5343,7 @@ Statement BlockStatement():
             LOOKAHEAD( JmlDocStatements() )
             ret = JmlDocStatements()
          |
-            LOOKAHEAD( VariableDeclarationExpression() ";" )
+            LOOKAHEAD( VariableDeclarationExpression() /*";"*/ )
             expr = VariableDeclarationExpression()
             ";"
             { ret = new ExpressionStmt(range(expr, token()), expr); }

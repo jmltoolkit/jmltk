@@ -6,8 +6,11 @@ package com.github.javaparser.ast.key;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParserConfiguration;
+import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -30,5 +33,18 @@ public class GhostTest {
                 .getBody()
                 .get();
         System.out.println(result);
+    }
+
+    @ParameterizedTest
+    @CsvSource("""
+        ghost int a = 2;
+        model int a = 2;
+        model #t #a;
+        ghost #t #v0 = #vi;
+        ghost #t #v0; #v0 = #vi;
+        ghost #t #v0;
+        """)
+    void key(String e) {
+        StaticJavaParser.parseBlock("{"+e+"}");
     }
 }

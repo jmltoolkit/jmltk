@@ -21,10 +21,8 @@ import com.google.common.hash.Hashing.crc32
 import io.github.jmltoolkit.lint.JmlLintingConfig
 import io.github.jmltoolkit.lint.JmlLintingFacade
 import io.github.jmltoolkit.lsp.highlighting.JmlDocumentHighlighter
-import io.github.jmltoolkit.lsp.highlighting.KeyDocumentHighlighter
 import io.github.jmltoolkit.lsp.hover.JmlDocumentationIndex
 import io.github.jmltoolkit.lsp.symbols.JmlCatchSymbols
-import io.github.jmltoolkit.lsp.symbols.KeyCatchSymbols
 import org.eclipse.lsp4j.*
 import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.eclipse.lsp4j.services.TextDocumentService
@@ -189,8 +187,8 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
     val repo = AstRepository(server)
 
     val jmlDocumentHighlighter = JmlDocumentHighlighter()
-    val keyDocumentHighlighter = KeyDocumentHighlighter()
-    val highlighters = listOf(jmlDocumentHighlighter, keyDocumentHighlighter)
+    //val keyDocumentHighlighter = KeyDocumentHighlighter()
+    val highlighters = listOf(jmlDocumentHighlighter/*, keyDocumentHighlighter*/)
 
     override fun didOpen(params: DidOpenTextDocumentParams) {
         Logger.info("didOpen: {}", params)
@@ -328,7 +326,8 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
         Logger.info("params: {}", params)
         val uri = Uri(params.textDocument.uri)
         return if (uri.isKeyFile) {
-            CompletableFuture.supplyAsync { KeyCatchSymbols(uri).run() }
+            CompletableFuture.supplyAsync { mutableListOf() }
+            // CompletableFuture.supplyAsync { KeyCatchSymbols(uri).run() }
         } else {
             repo.get(uri).thenApply {
                 Logger.info("Parse: {}", it)
@@ -445,7 +444,7 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
             val text = doc.file.readText()
             when (doc.file.extension) {
                 "java" -> jmlDocumentHighlighter.analyzeJmlToken(text)
-                "key" -> keyDocumentHighlighter.analyzeJmlToken(text)
+                //"key" -> keyDocumentHighlighter.analyzeJmlToken(text)
                 else -> SemanticTokens()
             }
         }

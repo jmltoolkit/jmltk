@@ -48,11 +48,37 @@ jobs:
 
       - run: ./gradlew --parallel assemble
 
+      - name: Build CLI native image
+        run: ./gradlew :tools:cli:nativeCompile
+        env:
+          GRAALVM_HOME: ${{ env.JAVA_HOME }}
+
+      - name: Build LSP native image
+        run: ./gradlew :tools:lsp:nativeCompile
+        env:
+          GRAALVM_HOME: ${{ env.JAVA_HOME }}
+
       - name: Upload ShadowJar
         uses: actions/upload-artifact@v7
         with:
           name: distribution
           path: "tools/cli/build/distributions/*.zip"
+          retention-days: 7
+
+      - name: Upload CLI Native Image
+        uses: actions/upload-artifact@v7
+        with:
+          name: jmltk-native
+          path: "tools/cli/build/native/nativeCompile/jmltk"
+          compression-level: '9'
+          retention-days: 7
+
+      - name: Upload LSP Native Image
+        uses: actions/upload-artifact@v7
+        with:
+          name: jml-lsp-native
+          path: "tools/lsp/build/native/nativeCompile/jml-lsp"
+          compression-level: '9'
           retention-days: 7
 
       - name: Upload JavaDoc
@@ -76,10 +102,12 @@ jobs:
         id: create_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        #--notes-start-tag KEY-2.12.3 \
         run: |
           gh release create --generate-notes --title "Nightly Release" \
-             --prerelease nightly dokka.tar.xz tools/cli/build/distributions/*.zip
+             --prerelease nightly dokka.tar.xz \
+             tools/cli/build/distributions/*.zip \
+             tools/cli/build/native/nativeCompile/jmltk \
+             tools/lsp/build/native/nativeCompile/jml-lsp
 
       - name: Upload to SNAPSHOT repository
         if: false

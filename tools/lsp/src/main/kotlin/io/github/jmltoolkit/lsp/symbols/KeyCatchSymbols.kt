@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
  */
 package io.github.jmltoolkit.lsp.symbols
-
+/*
 import de.uka.ilkd.key.nparser.JavaKeYParser
 import de.uka.ilkd.key.nparser.JavaKeYParserBaseVisitor
 import de.uka.ilkd.key.nparser.ParsingFacade
@@ -91,3 +91,4 @@ class KeyCatchSymbols(private val uri: Uri) {
         )
     }
 }
+*/

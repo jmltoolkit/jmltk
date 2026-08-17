@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
  */
 package io.github.jmltoolkit.lsp.highlighting
-
+/*
 import de.uka.ilkd.key.nparser.JavaKeYLexer
 import de.uka.ilkd.key.nparser.ParsingFacade
 import org.antlr.v4.runtime.CharStreams
@@ -90,3 +90,4 @@ class KeyDocumentHighlighter : DocumentHighlighter {
         else -> 0
     }
 }
+*/

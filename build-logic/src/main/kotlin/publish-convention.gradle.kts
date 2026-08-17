@@ -55,16 +55,23 @@ mavenPublishing {
     pom {
         licenses {
             license {
-                name = "The GNU General Public License 2"
-                url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                name = "The GNU General Public License 3"
+                url = "http://www.gnu.org/licenses/gpl-3.0.html"
             }
         }
         developers {
+            developer {
+                id = "weigl"
+                name = "Alexander Weigl"
+                email = "weigl@kit.edu"
+                url = "https://formal.iti.kit.edu/~weigl"
+            }
+
         }
         scm {
-            connection = "scm:git:git://example.com/my-library.git"
-            developerConnection = "scm:git:ssh://example.com/my-library.git"
-            url = "http://example.com/my-library/"
+            connection = "scm:git:https://github.com/jmltoolkit/jmltk.git"
+            developerConnection = "scm:git:ssh://github.com/jmltoolkit/jmltk.git"
+            url = "https://github.com/jmltoolkit/jmltk"
         }
     }
 }
@@ -73,7 +80,7 @@ fun envOrPropertyValue(key: String): String =
     if (key in System.getenv()) {
         System.getenv(key)
     } else {
-        project.properties[key]?.toString() ?: ""
+        project.findProperty(key)?.toString() ?: ""
     }
 
 val emptyJavadocJar = tasks.findByName("plainJavadocJar")!!

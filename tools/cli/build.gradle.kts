@@ -1,6 +1,7 @@
 plugins {
     id("standard-kotlin")
     application
+    alias(libs.plugins.shadow)
 }
 
 application {
@@ -21,17 +22,6 @@ distributions {
         }
     }
 }
-
-/*
-tasks.named("startScripts") {
-    doLast {
-        def unixScript = file("$outputDir/$applicationName")
-        unixScript.text = unixScript.text.replace(
-            'DEFAULT_JVM_OPTS=',
-            'DEFAULT_JVM_OPTS=\'--enable-native-access=ALL-UNNAMED\' '
-        )
-    }
- */
 
 dependencies {
     implementation(libs.clickt)

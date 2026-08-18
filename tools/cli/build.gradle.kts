@@ -15,18 +15,18 @@ tasks.named<CreateStartScripts>("startScripts") {
     defaultJvmOpts = listOf("--enable-native-access=ALL-UNNAMED")
 }
 
-tasks.register<CreateStartScripts>("startLspScripts") {
-    description = "Create the jmltk-lsp start script"
-    applicationName = "jmltk-lsp"
-    mainClass = "io.github.jmltoolkit.lsp.Main"
-    classpath = tasks.named<CreateStartScripts>("startScripts").get().classpath
-    defaultJvmOpts = listOf("--enable-native-access=ALL-UNNAMED")
-    outputDir = layout.buildDirectory.file("install/jmltk/bin").get().asFile
-}
+fun createLauncher(name: String, mainClassName: String) =
+    tasks.register<CreateStartScripts>("${name}StartScripts") {
+        description = "Create a start script for $name"
+        classpath = tasks.named<CreateStartScripts>("startScripts").get().classpath
+        defaultJvmOpts = listOf("--enable-native-access=ALL-UNNAMED")
+        applicationName = name
+        mainClass.set(mainClassName)
+        classpath = files(tasks.named("jar"), configurations.runtimeClasspath)
+        outputDir = layout.buildDirectory.dir("scripts").get().asFile
+    }
 
-//tasks.named("installDist") {
-//    dependsOn(tasks.named("startLspScripts"))
-//}
+val lspStart = createLauncher("jmltk-lsp", "io.github.jmltoolkit.lsp.Main")
 
 distributions {
     main {
@@ -36,6 +36,12 @@ distributions {
             }
             from("$rootDir/LICENSE") {
                 into(".")
+            }
+            from(lspStart) {
+                into("bin")
+                filePermissions {
+                    unix("rwxr-xr-x")
+                }
             }
         }
     }

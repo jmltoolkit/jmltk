@@ -4,9 +4,10 @@
  */
 package io.github.jmltoolkit.lsp.project
 
+import com.github.javaparser.utils.Log
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.exists
@@ -33,8 +34,12 @@ object Project {
     }
 
     fun save(path: Path, pd: ProjectDefinition): Path {
-        val string = json.encodeToString(pd)
-        path.writeText(string)
+        try {
+            val string = json.encodeToString(pd)
+            path.writeText(string)
+        } catch (e: IOException) {
+            Log.error(e)
+        }
         return path
     }
 

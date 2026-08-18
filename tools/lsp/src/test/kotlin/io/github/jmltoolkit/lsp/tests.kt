@@ -156,18 +156,18 @@ class HighlighterTest : TestUtilities() {
             entries.add(entry)
         }
 
-        var line = -1
+        var line = 0
         var column = 0
         val text = Uri(file.uri).file.readText().split("\n")
 
-        for (entry in entries) {
-            line += entry.line
-            if (entry.line != 0) {
-                column = entry.column
+        for ((line1, column1, len) in entries) {
+            line += line1
+            if (line1 != 0) {
+                column = column1
             } else {
-                column += entry.column
+                column += column1
             }
-            val image = text[line].substring(column - 1, column - 1 + entry.len)
+            val image = text[line].substring(column, column + len)
             println(image)
         }
 

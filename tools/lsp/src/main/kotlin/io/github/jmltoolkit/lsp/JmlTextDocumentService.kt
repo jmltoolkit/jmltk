@@ -343,10 +343,10 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
 
     private fun findSymbol(position: Position, it: CompilationUnit): NameExpr? {
         val p = position.toJavaParser()
-        val queue: Queue<Node> = LinkedList()
+        val queue = LinkedList<Node>()
         queue.add(it)
         while (queue.isNotEmpty()) {
-            val n = queue.poll()
+            val n = queue.pollLast()
             val range = n.range.get()
             val contains = range.contains(p)
             if (contains && n is NameExpr) {
@@ -444,7 +444,7 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
         p: JPosition, it: Node,
         pred: (Node) -> Boolean = { it.childNodes.isEmpty() }
     ): Node? {
-        val queue: Queue<Node> = LinkedList()
+        val queue = LinkedList<Node>()
         queue.add(it)
         while (queue.isNotEmpty()) {
             val n = queue.poll()

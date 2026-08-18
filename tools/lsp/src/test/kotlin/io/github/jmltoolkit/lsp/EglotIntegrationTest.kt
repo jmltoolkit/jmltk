@@ -11,6 +11,8 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.eclipse.lsp4j.services.LanguageClient
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import java.io.File
 import java.nio.file.Paths
 import java.util.concurrent.CompletableFuture
@@ -358,8 +360,8 @@ class EglotIntegrationTest : TestUtilities() {
                         codeDescriptionSupport = false
                         tagSupport = Either.forRight(
                             DiagnosticsTagSupport().apply {
-                            valueSet = listOf(1, 2).map { DiagnosticTag.forValue(it) }
-                        }
+                                valueSet = listOf(1, 2).map { DiagnosticTag.forValue(it) }
+                            }
                         )
                     }
                 }
@@ -376,7 +378,7 @@ class EglotIntegrationTest : TestUtilities() {
             }
 
             workspaceFolders = listOf(
-                WorkspaceFolder("file:///home/weigl/work/emacs-lsp-jml/examples", "~/work/emacs-lsp-jml/examples/")
+                WorkspaceFolder(rootUri, rootPath)
             )
         }
         languageServer.connect(EmptyLanguageClient())
@@ -385,62 +387,24 @@ class EglotIntegrationTest : TestUtilities() {
         languageServer.initialized(InitializedParams())
     }
 
-    @Test
-    fun testHover() {
+    @ParameterizedTest
+    //        76,20
+    @CsvSource(
+        """
+        16,39
+        6,19
+        18,14
+        16,13
+        47,18
+        91,23
+        90,10"""
+    )
+    fun testHover(line: Int, column: Int) {
         val stackFile = File(workspace, "Stack.java")
         val stackUri = stackFile.toUri
-
-        // Open document
-        val openParams = DidOpenTextDocumentParams(
-            TextDocumentItem(
-                stackUri,
-                "java",
-                0,
-                stackFile.readText()
-            )
-        )
-        docService.didOpen(openParams)
-
-        // Test hover at line 7, character 4 (public keyword in model declaration)
-        val hover0Params = HoverParams(TextDocumentIdentifier(stackUri), Position(16, 39))
+        val hover0Params = HoverParams(TextDocumentIdentifier(stackUri), Position(line, column))
         val hover0Resp = docService.hover(hover0Params).get()
         Truth.assertThat(hover0Resp).isNotNull()
-
-        // Test hover at line 7, character 4 (public keyword in model declaration)
-        val hover1Params = HoverParams(TextDocumentIdentifier(stackUri), Position(6, 19))
-        val hover1Resp = docService.hover(hover1Params).get()
-        Truth.assertThat(hover1Resp).isNotNull()
-
-        // Test hover at line 19, character 14 (capacity parameter in constructor)
-        val hover2Params = HoverParams(TextDocumentIdentifier(stackUri), Position(19, 14))
-        val hover2Resp = docService.hover(hover2Params).get()
-        Truth.assertThat(hover2Resp).isNotNull()
-
-        val hover3Params = HoverParams(TextDocumentIdentifier(stackUri), Position(16, 13))
-        val hover3Resp = docService.hover(hover3Params).get()
-        Truth.assertThat(hover3Resp).isNotNull()
-
-        /*
-        // Test hover at line 30, character 14 (push method)
-        val hover4Params = HoverParams(TextDocumentIdentifier(stackUri), Position(31, 19))
-        val hover4Resp = docService.hover(hover4Params).get()
-        Truth.assertThat(hover4Resp).isNotNull()
-        */
-
-        // Test hover at line 48, character 20 (pop method)
-        val hover6Params = HoverParams(TextDocumentIdentifier(stackUri), Position(44, 18))
-        val hover6Resp = docService.hover(hover6Params).get()
-        Truth.assertThat(hover6Resp).isNotNull()
-
-        // Test hover at line 92, character 33 (top in invariant)
-        val hover10Params = HoverParams(TextDocumentIdentifier(stackUri), Position(88, 23))
-        val hover10Resp = docService.hover(hover10Params).get()
-        Truth.assertThat(hover10Resp).isNotNull()
-
-        // Test hover at line 88, character 0 (invariant comment)
-        val hover8Params = HoverParams(TextDocumentIdentifier(stackUri), Position(87, 10))
-        val hover8Resp = docService.hover(hover8Params).get()
-        Truth.assertThat(hover8Resp).isNotNull()
     }
 
     @Test

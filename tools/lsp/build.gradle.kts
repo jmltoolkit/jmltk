@@ -1,8 +1,6 @@
 plugins {
     id("standard-kotlin")
     kotlin("plugin.serialization") version "2.4.10"
-    id("com.gradleup.shadow") version "9.6.1"
-    id("application")
 }
 
 version = "1.0-SNAPSHOT"
@@ -11,12 +9,9 @@ dependencies {
     api(project(":jmlparser-symbol-solver-core"))
 
     testImplementation(kotlin("test"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.11.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
-    // implementation(kotlin("serialization"))
+    implementation(libs.kotlinx.serialization.core)
+    implementation(libs.kotlinx.serialization.json)
     implementation(kotlin("serialization"))
-    runtimeOnly("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
 
     implementation(project(":tools:utils"))
     implementation(project(":tools:smt"))
@@ -26,18 +21,14 @@ dependencies {
     implementation(project(":tools:lint"))
     implementation(project(":tools:jml2java"))
 
-    implementation("org.tinylog:tinylog-api-kotlin:2.7.0")
-    implementation("org.tinylog:tinylog-api:2.8.0-M1")
-    implementation("org.tinylog:tinylog-impl:2.7.0")
+    implementation(libs.tinylog.api.kotlin)
+    implementation(libs.tinylog.api)
+    implementation(libs.tinylog.impl)
 
-    implementation("org.eclipse.lsp4j:org.eclipse.lsp4j:1.0.0")
+    implementation(libs.eclipse.lsp4j)
+
+    implementation(libs.key.core)
+    implementation(libs.key.ui)
 
     implementation(libs.clickt)
-
-    implementation("org.key-project:key.core:3.0.0")
-    implementation("org.key-project:key.ui:3.0.0")
-}
-
-application {
-    mainClass = "io.github.jmltoolkit.lsp.Main"
 }

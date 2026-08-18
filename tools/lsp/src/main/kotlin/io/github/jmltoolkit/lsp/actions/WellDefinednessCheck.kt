@@ -6,18 +6,17 @@ package io.github.jmltoolkit.lsp.actions
 
 import com.github.javaparser.ast.expr.Expression
 import io.github.jmltoolkit.lsp.JmlLanguageServer
-import io.github.jmltoolkit.lsp.asRange
 import org.eclipse.lsp4j.*
 import java.util.concurrent.CompletableFuture
 
-object WellDefinednessCheck : LspAction<Expression> {
+class WellDefinednessCheck : LspAction<Expression> {
     override val id: String
         get() = "jml.welldefinedness-check"
     override val title: String
         get() = "Check expression for well-definedness"
 
-    override fun execute(server: JmlLanguageServer, value: List<Any>): CompletableFuture<Any> {
-        println("WellDefinednessCheck.execute server = [$server], value = [$value]")
+    override fun execute(server: JmlLanguageServer, value: List<Any>?): CompletableFuture<Any> {
+        // println("WellDefinednessCheck.execute server = [$server], value = [$value]")
         return CompletableFuture.completedFuture(null)
     }
 
@@ -30,5 +29,3 @@ object WellDefinednessCheck : LspAction<Expression> {
             it.kind = CodeActionKind.QuickFix
         }
 }
-
-//    val ca = Command("WD-check", "jml.welldefinedCheck", listOf(r))

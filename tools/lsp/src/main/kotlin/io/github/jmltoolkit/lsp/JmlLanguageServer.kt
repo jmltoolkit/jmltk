@@ -9,10 +9,13 @@ import io.github.jmltoolkit.lsp.highlighting.LEGEND
 import org.eclipse.lsp4j.*
 import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.eclipse.lsp4j.services.*
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.ForkJoinPool
+import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
 
 class JmlLanguageServer :
@@ -23,8 +26,10 @@ class JmlLanguageServer :
     internal val jmlWorkspaceService by lazy { JmlWorkspaceService(this) }
 
     internal lateinit var client: LanguageClient
-    internal var capabilities: ClientCapabilities? = null
+    internal lateinit var rootFolder: Path
     internal lateinit var workspaceFolders: List<WorkspaceFolder>
+    internal lateinit var capabilities: ClientCapabilities
+
     internal val jmlNotebookDocumentServices by lazy { JmlNotebookDocumentServices() }
 
     internal val config = ProjectDefinitionService()
@@ -34,7 +39,10 @@ class JmlLanguageServer :
     }
 
     override fun initialize(params: InitializeParams): CompletableFuture<InitializeResult> {
-        workspaceFolders = params.workspaceFolders
+        rootFolder = params.rootUri?.let { Uri(it) }?.path
+            ?: Paths.get(".").toAbsolutePath() // no better clue what to-do
+
+        workspaceFolders = params.workspaceFolders ?: emptyList()
         capabilities = params.capabilities
 
         config.update(workspaceFolders.map { Uri(it.uri) })
@@ -51,6 +59,9 @@ class JmlLanguageServer :
             // capabilities.signatureHelpProvider = SignatureHelpOptions()
             capabilities.setHoverProvider(true)
 
+            // capabilities.setDocumentFormattingProvider(true)
+            capabilities.foldingRangeProvider = null
+
             // capabilities.codeLensProvider = CodeLensOptions(false)
             capabilities.setSelectionRangeProvider(true)
 
@@ -66,16 +77,18 @@ class JmlLanguageServer :
                 )
             )
 
-            // capabilities.setCodeActionProvider(CodeActionOptions(listOf("validity")))
-            // capabilities.executeCommandProvider = ExecuteCommandOptions(actions.map { it.id })
+            capabilities.setCodeActionProvider(CodeActionOptions(listOf("validity", "key")))
+            capabilities.executeCommandProvider = ExecuteCommandOptions(actions.map { it.id })
 
             return@supplyAsync InitializeResult(capabilities)
         }
     }
 
     override fun shutdown(): CompletableFuture<Any> {
-        executorService.shutdownNow()
-        return CompletableFuture.completedFuture("finish")
+        executorService.shutdown()
+        val c = executorService.awaitTermination(5, TimeUnit.SECONDS)
+        val i = executorService.shutdownNow()
+        return CompletableFuture.completedFuture("Finish: Waited 5 seconds. $c, ${i.size} jobs killed.")
     }
 
     override fun exit() {

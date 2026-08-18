@@ -9,7 +9,7 @@ class JmlDocumentationIndex {
         val map = mutableMapOf<String, String>()
         val lines = javaClass.getResourceAsStream("/doc.md")
             ?.bufferedReader()?.readLines()
-            ?: error("Could not load /doc/index.properties")
+            ?: error("Could not load /doc.md")
 
         var keys = setOf<String>()
         val builder = StringBuilder()

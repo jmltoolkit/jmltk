@@ -17,11 +17,10 @@ import java.util.concurrent.CompletableFuture
  */
 interface LspAction<T : Node> {
     val id: String
+        get() = this::class.java.name
     val title: String
 
     fun command(args: List<Any>? = null): Command = Command(title, id, args)
-
-    fun execute(server: JmlLanguageServer, value: List<Any>): CompletableFuture<Any>
-
-    fun createCodeLens(node: T): CodeLens
+    fun createCodeLens(node: T): CodeLens? = null
+    fun execute(server: JmlLanguageServer, value: List<Any>?): CompletableFuture<Any>
 }

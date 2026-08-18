@@ -2,10 +2,10 @@
  * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
  * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
  */
+package io.github.jmltoolkit.lsp
+
 import com.google.common.truth.Truth
 import io.github.jmltoolkit.lsp.hover.JmlDocumentationIndex
-import io.github.jmltoolkit.lsp.JmlLanguageServer
-import io.github.jmltoolkit.lsp.Uri
 import org.eclipse.lsp4j.*
 import org.eclipse.lsp4j.services.LanguageClient
 import org.junit.jupiter.api.Disabled
@@ -16,38 +16,49 @@ import java.io.File
 import java.util.concurrent.CompletableFuture
 import kotlin.test.assertTrue
 
-private val File.toUri: String
-    get() = "file://$absolutePath"
+open class TestUtilities {
+    internal val File.toUri: String
+        get() = "file://$absolutePath"
 
-val workspace = File("workspace")
-val languageServer = JmlLanguageServer().also {
-    val params = InitializeParams()
-    val workspaceFolder = WorkspaceFolder(workspace.toUri, "Test Bed")
-    params.workspaceFolders = arrayListOf(workspaceFolder)
-    it.connect(EmptyLanguageClient())
-    it.initialize(params).get()
+    val workspace = File("workspace")
+    val languageServer = JmlLanguageServer().also {
+        val params = InitializeParams()
+        val workspaceFolder = WorkspaceFolder(workspace.toUri, "Test Bed")
+        params.workspaceFolders = arrayListOf(workspaceFolder)
+        params.rootUri = workspace.toUri
+        params.rootPath = workspace.absolutePath.toString()
+
+        params.capabilities = ClientCapabilities(
+            WorkspaceClientCapabilities(),
+            TextDocumentClientCapabilities(),
+            WindowClientCapabilities(), false
+        )
+
+        it.connect(EmptyLanguageClient())
+        it.initialize(params).get()
+    }
+
+    val docService = languageServer.textDocumentService
+
+    class EmptyLanguageClient : LanguageClient {
+        override fun telemetryEvent(`object`: Any?) {
+        }
+
+        override fun publishDiagnostics(diagnostics: PublishDiagnosticsParams?) {
+        }
+
+        override fun showMessage(messageParams: MessageParams?) {
+        }
+
+        override fun showMessageRequest(requestParams: ShowMessageRequestParams?): CompletableFuture<MessageActionItem> =
+            CompletableFuture.completedFuture(MessageActionItem("Test!"))
+
+        override fun logMessage(message: MessageParams?) {
+        }
+    }
 }
 
-val docService = languageServer.textDocumentService
-
-class EmptyLanguageClient : LanguageClient {
-    override fun telemetryEvent(`object`: Any?) {
-    }
-
-    override fun publishDiagnostics(diagnostics: PublishDiagnosticsParams?) {
-    }
-
-    override fun showMessage(messageParams: MessageParams?) {
-    }
-
-    override fun showMessageRequest(requestParams: ShowMessageRequestParams?): CompletableFuture<MessageActionItem> = CompletableFuture.completedFuture(MessageActionItem("Test!"))
-
-    override fun logMessage(message: MessageParams?) {
-    }
-}
-
-class HoverTest {
-
+class HoverTest : TestUtilities() {
     @Test
     fun docIndex() {
         val idx = JmlDocumentationIndex()
@@ -66,8 +77,9 @@ class HoverTest {
     }
 }
 
-class CodeActionTests {
-    @Test @Disabled
+class CodeActionTests : TestUtilities() {
+    @Test
+    @Disabled
     fun test1() {
         val file = TextDocumentIdentifier(File(workspace, "Example.java").toUri)
         val params = CodeActionParams(
@@ -83,7 +95,7 @@ class CodeActionTests {
     }
 }
 
-class FileDiagnosticTests {
+class FileDiagnosticTests : TestUtilities() {
     @Test
     fun test1() {
         val file = TextDocumentIdentifier(File(workspace, "Errors.java").toUri)
@@ -95,7 +107,7 @@ class FileDiagnosticTests {
     }
 }
 
-class DeclarationTests {
+class DeclarationTests : TestUtilities() {
     @Test
     fun test1() {
         val file = TextDocumentIdentifier(File(workspace, "Declarations.java").toUri)
@@ -111,7 +123,7 @@ class DeclarationTests {
     }
 }
 
-class HighlighterTest {
+class HighlighterTest : TestUtilities() {
     data class Entry(
         val line: Int,
         val column: Int,
@@ -144,18 +156,18 @@ class HighlighterTest {
             entries.add(entry)
         }
 
-        var line = -1
+        var line = 0
         var column = 0
         val text = Uri(file.uri).file.readText().split("\n")
 
-        for (entry in entries) {
-            line += entry.line
-            if (entry.line != 0) {
-                column = entry.column
+        for ((line1, column1, len) in entries) {
+            line += line1
+            if (line1 != 0) {
+                column = column1
             } else {
-                column += entry.column
+                column += column1
             }
-            val image = text[line].substring(column - 1, column - 1 + entry.len)
+            val image = text[line].substring(column, column + len)
             println(image)
         }
 
@@ -175,7 +187,7 @@ class HighlighterTest {
  * @author Alexander Weigl
  * @version 1 (20.07.22)
  */
-class DocumentSymbolTests {
+class DocumentSymbolTests : TestUtilities() {
     private fun testDocumentSymbols(javaFile: File, symbolsTruth: File) {
         val params = DocumentSymbolParams(TextDocumentIdentifier(javaFile.toUri))
         val result = docService.documentSymbol(params).get()

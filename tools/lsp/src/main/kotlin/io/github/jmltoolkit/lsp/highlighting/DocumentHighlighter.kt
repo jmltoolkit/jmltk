@@ -14,7 +14,7 @@ import org.eclipse.lsp4j.*
  */
 
 interface DocumentHighlighter {
-    fun analyzeJmlToken(text: String): SemanticTokens
+    fun analyzeToken(text: String): SemanticTokens
 }
 
 enum class SupportedTokenTypes(val kind: String) {
@@ -23,6 +23,7 @@ enum class SupportedTokenTypes(val kind: String) {
     KEYWORD(SemanticTokenTypes.Keyword),
     STRING(SemanticTokenTypes.String),
     NUMBER(SemanticTokenTypes.Number),
+    OPERATOR(SemanticTokenTypes.Operator),
     MODIFIER(SemanticTokenTypes.Modifier),
 }
 
@@ -59,7 +60,11 @@ data class SemanticTokensBuilder(val data: ArrayList<Int> = ArrayList(4096)) {
     private var lastLineStart = 0
     private var lastColumnStart = 0
     fun add(tok: Token, tokenType: Int, modifiers: Int) {
-        add(tok.beginLine, tok.beginColumn, tok.image.length, tokenType, modifiers)
+        // Conversion from jmltk to lsp:
+        //   line - 1
+        //   column - 1
+
+        add(tok.beginLine - 1, tok.beginColumn - 1, tok.image.length, tokenType, modifiers)
     }
 
     fun add(beginLine: Int, beginColumn: Int, length: Int, tokenType: Int, modifiers: Int) {

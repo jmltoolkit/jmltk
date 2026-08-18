@@ -4,6 +4,7 @@
  */
 package io.github.jmltoolkit.lsp
 
+import com.github.javaparser.Range
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.Expression
 import com.github.javaparser.ast.jml.body.JmlClassExprDeclaration
@@ -21,33 +22,33 @@ import kotlin.jvm.optionals.getOrNull
 /**
  * This visitor gathers actions, that can be executed on nodes within the given range.
  */
-class CodeActionCollector(val context: CodeActionContext?, private val range: com.github.javaparser.Range) : ResultingVisitor<MutableList<Either<Command, CodeAction>>>() {
+class CodeActionCollector(val context: CodeActionContext?, private val range: Range) : ResultingVisitor<MutableList<Either<Command, CodeAction>>>() {
     override val result = arrayListOf<Either<Command, CodeAction>>()
     fun add(x: Command) = result.add(Either.forLeft(x))
     fun add(x: CodeAction) = result.add(Either.forRight(x))
 
     override fun visit(n: JmlExpressionStmt, arg: Unit?) {
         if (n.kind != JmlExpressionStmt.JmlStmtKind.SET && n.kind != JmlExpressionStmt.JmlStmtKind.HENCE_BY) {
-            addWelldefinedCheck(n.expression)
+            addWelldefinednessCheck(n.expression)
         }
         super.visit(n, arg)
     }
 
     override fun visit(n: JmlSimpleExprClause, arg: Unit?) {
-        addWelldefinedCheck(n.expression)
+        addWelldefinednessCheck(n.expression)
     }
 
     override fun visit(n: JmlSignalsClause, arg: Unit?) {
-        addWelldefinedCheck(n.expression)
+        addWelldefinednessCheck(n.expression)
         super.visit(n, arg)
     }
 
     override fun visit(n: JmlClassExprDeclaration, arg: Unit?) {
-        addWelldefinedCheck(n.invariant)
+        addWelldefinednessCheck(n.invariant)
         super.visit(n, arg)
     }
 
-    private fun addWelldefinedCheck(n: Expression): Boolean {
+    private fun addWelldefinednessCheck(n: Expression): Boolean {
         if (inRange(n)) {
             val action = CodeAction("Well-definedness Check")
             add(action)

@@ -1,10 +1,12 @@
 name: Weekly Builds of JMLtk
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - "main"
   schedule:
     - cron: '0 6 * * 1' # every monday morning
-
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -58,9 +60,9 @@ jobs:
       - name: Upload JavaDoc
         uses: actions/upload-artifact@v7
         with:
-            path: "build/dokka/html/"
-            compression-level: '9'
-            retention-days: 7
+          path: "build/dokka/html/"
+          compression-level: '9'
+          retention-days: 7
 
       - name: Pack JavaDoc
         run: tar cvfj dokka.tar.xz build/dokka/html/
@@ -76,10 +78,9 @@ jobs:
         id: create_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        #--notes-start-tag KEY-2.12.3 \
         run: |
-          gh release create --generate-notes --title "Nightly Release" \
-             --prerelease nightly dokka.tar.xz tools/cli/build/distributions/*.zip
+          gh release create --generate-notes --title "Weekly Release" \
+             --prerelease nightly dokka.tar.xz tools/cli/build/distributions/*.zip tools/cli/libs/*-all.jar
 
       - name: Upload to SNAPSHOT repository
         if: false
@@ -87,9 +88,9 @@ jobs:
         env:
           BUILD_NUMBER: "SNAPSHOT"
           GITLAB_DEPLOY_TOKEN: ${{ secrets.GITLAB_DEPLOY_TOKEN }}
-#          SIGNING_KEY_ID: ${{secrents.SIGNING_KEY_ID}}
-#          GPG_PRIVATE_KEY: ${{secrents.GPG_PRIVATE_KEY}}
-#          GPG_PASSPHRASE: ${{secrents.GPG_PASSPHRASE}}
+    #          SIGNING_KEY_ID: ${{secrents.SIGNING_KEY_ID}}
+    #          GPG_PRIVATE_KEY: ${{secrents.GPG_PRIVATE_KEY}}
+    #          GPG_PASSPHRASE: ${{secrents.GPG_PASSPHRASE}}
 
     environment:
       name: github-pages

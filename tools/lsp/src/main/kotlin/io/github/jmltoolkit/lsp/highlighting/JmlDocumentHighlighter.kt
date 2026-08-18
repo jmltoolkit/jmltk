@@ -15,7 +15,7 @@ import org.eclipse.lsp4j.SemanticTokens
  * @version 1 (13.01.24)
  */
 class JmlDocumentHighlighter : DocumentHighlighter {
-    private fun analyzeJmlToken(result: SemanticTokensBuilder, tokens: MutableList<Token>) {
+    private fun analyzeJmlToken(result: SemanticTokensBuilder, tokens: List<Token>) {
         val sanitizer = JmlDocSanitizer(setOf())
         val text = sanitizer.asString(tokens, true)
         val lexer = GeneratedJavaParserTokenManager(
@@ -47,7 +47,7 @@ class JmlDocumentHighlighter : DocumentHighlighter {
         else -> 0
     }
 
-    override fun analyzeJmlToken(text: String): SemanticTokens {
+    override fun analyzeToken(text: String): SemanticTokens {
         val provider = Providers.provider(text)
         val lexer = GeneratedJavaParserTokenManager(SimpleCharStream(provider))
         val result = SemanticTokensBuilder()

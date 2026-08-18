@@ -45,6 +45,6 @@ public class GhostTest {
         ghost #t #v0;
         """)
     void key(String e) {
-        StaticJavaParser.parseBlock("{"+e+"}");
+        StaticJavaParser.parseBlock("{" + e + "}");
     }
 }

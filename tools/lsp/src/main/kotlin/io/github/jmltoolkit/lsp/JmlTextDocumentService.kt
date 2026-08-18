@@ -82,7 +82,8 @@ class AstRepository(val server: JmlLanguageServer) {
 
     fun createJavaParser() = JavaParser(config)
 
-    private fun isUpToDate(uri: Uri, content: String): Boolean = uri in cached && uri in version && crc32(content) == version[uri]
+    private fun isUpToDate(uri: Uri, content: String): Boolean =
+        uri in cached && uri in version && crc32(content) == version[uri]
 
     fun crc32(content: String) = crc32().hashBytes(content.toByteArray()).asLong()
 
@@ -172,7 +173,7 @@ class AstRepository(val server: JmlLanguageServer) {
         if (!it.isSuccessful) {
             server.client.publishDiagnostics(
                 PublishDiagnosticsParams(
-                    uri.toString(),
+                    uri.value,
                     it.problems.map {
                         Diagnostic(it.location.asRange, it.verboseMessage, DiagnosticSeverity.Error, "jmltk-parse")
                     }.toMutableList()
@@ -183,7 +184,7 @@ class AstRepository(val server: JmlLanguageServer) {
 
     fun invalidate(uri: Uri) {
         synchronized(inParsing) {
-            inParsing[uri]?.let { it.cancel(true) }
+            inParsing[uri]?.cancel(true)
             cached.remove(uri)
         }
     }
@@ -236,34 +237,39 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
         repo.invalidate(Uri(params.textDocument.uri))
     }
 
-    override fun hover(params: HoverParams): CompletableFuture<Hover?> = repo[params.textDocument]
-        .thenApplyAsync {
-            val symbol = findSymbol(params.position, it)
-            if (symbol == null) {
-                findKeyword(params, it)
-            } else {
-                val text = try {
-                    val r = symbol.resolve()
-                    getHoverMessage(r)
-                } catch (e: UnresolvedReferenceException) {
-                    try {
-                        val type = symbol.calculateResolvedType()
-                        getHoverMessage(type)
-                    } catch (e: UnresolvedReferenceException) {
-                        """---\nType and name unresolved"""
-                    }
-                }
-                Hover(
-                    MarkupContent(
-                        "markdown",
-                        """Symbol ${symbol.nameAsString}
+    override fun hover(params: HoverParams): CompletableFuture<Hover?> =
+        if (Uri(params.textDocument.uri).isKeyFile) {
+            CompletableFuture.supplyAsync { null }
+        } else {
+            repo[params.textDocument]
+                .thenApplyAsync {
+                    val symbol = findSymbol(params.position, it)
+                    if (symbol == null) {
+                        findKeyword(params, it)
+                    } else {
+                        val text = try {
+                            val r = symbol.resolve()
+                            getHoverMessage(r)
+                        } catch (e: UnresolvedReferenceException) {
+                            try {
+                                val type = symbol.calculateResolvedType()
+                                getHoverMessage(type)
+                            } catch (e: UnresolvedReferenceException) {
+                                """---\nType and name unresolved"""
+                            }
+                        }
+                        Hover(
+                            MarkupContent(
+                                "markdown",
+                                """Symbol ${symbol.nameAsString}
                         ---
                         $text "
 """.trimIndent()
-                    )
-                )
-            }
-        }.exceptionally { null }
+                            )
+                        )
+                    }
+                }.exceptionally { null }
+        }
 
     private fun getHoverMessage(r: ResolvedDeclaration?): String = if (r is AssociableToAST && r.toAst().isPresent) {
         getHoverMessage(r.toAst().get())
@@ -315,7 +321,8 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
         }
     }
 
-    override fun declaration(params: DeclarationParams): CompletableFuture<Either<MutableList<out Location>, MutableList<out LocationLink>>> = repo[params.textDocument]
+    override fun declaration(params: DeclarationParams): CompletableFuture<Either<MutableList<out Location>, MutableList<out LocationLink>>> =
+        repo[params.textDocument]
             .thenApplyAsync { findSymbol(params.position, it) }
             .thenApplyAsync { resolveSymbolInDocument(it) }
 
@@ -378,14 +385,10 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
         return if (uri.isKeyFile) {
             CompletableFuture.supplyAsync { KeyCatchSymbols(uri).run() }
         } else {
-            repo.getParseResult(uri).thenApply {
+            repo[uri].thenApply {
                 Logger.info("Parse: {}", it)
-                if (!it.result.isPresent) {
-                    mutableListOf()
-                } else {
-                    resolveSymbol(it.result.get())
-                }
-            }
+                resolveSymbol(it)
+            }.exceptionally { mutableListOf() }
         }
     }
 
@@ -400,7 +403,7 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
 
     override fun codeAction(params: CodeActionParams): CompletableFuture<MutableList<Either<Command, CodeAction>>> {
         Logger.info("codeAction: {}", params)
-        val codeActions = repo.getParseResult(Uri(params.textDocument.uri))
+        val codeActions = repo[Uri(params.textDocument.uri)]
             .applyOn(CodeActionCollector(params.context, params.range.asRange), arrayListOf())
         return codeActions.thenApply {
             it.addAll(universalCommands())
@@ -409,13 +412,13 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
     }
 
     internal fun universalCommands(): List<Either<Command, CodeAction>> = listOf(
-            Either.forLeft(CreateKeyProjectFile().command()),
-            Either.forLeft(StartKey().command())
-        )
+        Either.forLeft(CreateKeyProjectFile().command()),
+        Either.forLeft(StartKey().command())
+    )
 
     override fun codeLens(params: CodeLensParams): CompletableFuture<MutableList<out CodeLens>> {
         Logger.info("codeLens: {}", params)
-        return repo.getParseResult(Uri(params.textDocument.uri)).applyOn(CodeLensCollector(), arrayListOf())
+        return repo[params.textDocument].applyOn(CodeLensCollector(), arrayListOf())
     }
 
     override fun resolveCodeLens(unresolved: CodeLens): CompletableFuture<CodeLens> {
@@ -517,17 +520,15 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
 fun Position.toJavaParser() = JPosition(line + 1, character)
 fun JPosition.toLsp() = Position(line - 1, column)
 
-private fun <T> CompletableFuture<ParseResult<CompilationUnit>>.applyOn(
+private fun <T> CompletableFuture<CompilationUnit>.applyOn(
     collector: ResultingVisitor<T>,
     default: T
 ): CompletableFuture<T> =
-    this.thenApplyAsync {
-        if (it.result.isPresent) {
-            it.result.get().accept(collector, null)
-            val r = collector.result
-            Logger.info("Result: {}", r)
-            r
-        } else {
-            default
-        }
+    thenApplyAsync {
+        it.accept(collector, null)
+        val r = collector.result
+        Logger.info("Result: {}", r)
+        r
+    }.exceptionally {
+        default
     }

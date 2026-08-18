@@ -10,6 +10,7 @@ import org.eclipse.lsp4j.*
 import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.eclipse.lsp4j.services.*
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
@@ -38,8 +39,10 @@ class JmlLanguageServer :
     }
 
     override fun initialize(params: InitializeParams): CompletableFuture<InitializeResult> {
-        params.rootUri?.let { Uri(it) }?.let { rootFolder = it.path }
-        workspaceFolders = params.workspaceFolders
+        rootFolder = params.rootUri?.let { Uri(it) }?.path
+            ?: Paths.get(".").toAbsolutePath() // no better clue what to-do
+
+        workspaceFolders = params.workspaceFolders ?: emptyList()
         capabilities = params.capabilities
 
         config.update(workspaceFolders.map { Uri(it.uri) })

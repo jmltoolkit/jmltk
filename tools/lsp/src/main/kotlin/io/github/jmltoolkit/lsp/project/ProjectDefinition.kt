@@ -20,8 +20,8 @@ data class ProjectDefinition(
     var sourcePaths: List<SourcePath> = listOf(),
     var disabledLinter: Set<String> = setOf(),
     var disabledCodeActions: Set<String> = setOf(
-        VerifyAgainstParent.id,
-        WellDefinednessCheck.id,
+        VerifyAgainstParent().id,
+        WellDefinednessCheck().id,
     ),
 )
 

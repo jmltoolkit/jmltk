@@ -1,8 +1,6 @@
 plugins {
     id("standard-kotlin")
     kotlin("plugin.serialization") version "2.4.10"
-    alias(libs.plugins.shadow)
-    id("application")
 }
 
 version = "1.0-SNAPSHOT"
@@ -35,6 +33,4 @@ dependencies {
     implementation(libs.clickt)
 }
 
-application {
-    mainClass = "io.github.jmltoolkit.lsp.Main"
-}
+

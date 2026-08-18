@@ -13,13 +13,14 @@ import org.eclipse.lsp4j.MessageParams
 import org.eclipse.lsp4j.MessageType
 import java.util.concurrent.CompletableFuture
 
-object VerifyAgainstParent : LspAction<JmlContract> {
+class VerifyAgainstParent : LspAction<JmlContract> {
     override val id: String = "jml.verify.liskov"
     override val title: String = "Verify against parent"
 
     private val cache = CacheBuilder.newBuilder().softValues().build<Int, JmlContract>()
 
-    override fun execute(server: JmlLanguageServer, value: List<Any>): CompletableFuture<Any> {
+    override fun execute(server: JmlLanguageServer, value: List<Any>?): CompletableFuture<Any> {
+        if(value == null) return CompletableFuture.completedFuture(null)
         cache.getIfPresent(value.first())?.let {
             server.client.showMessage(
                 MessageParams(MessageType.Warning, "Prove is not implemented yet.")

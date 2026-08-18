@@ -1,2 +1,4 @@
 io.github.jmltoolkit.lsp.actions.VerifyAgainstParent
 io.github.jmltoolkit.lsp.actions.WellDefinednessCheck
+io.github.jmltoolkit.lsp.actions.CreateKeyProjectFile
+io.github.jmltoolkit.lsp.actions.StartKey

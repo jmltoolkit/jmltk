@@ -48,7 +48,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v5
 
-      - run: ./gradlew --parallel assemble
+      - run: ./gradlew --parallel assemble installDist shadowJar
 
       - name: Upload ShadowJar
         uses: actions/upload-artifact@v7
@@ -80,7 +80,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create --generate-notes --title "Weekly Release" \
-             --prerelease nightly dokka.tar.xz tools/cli/build/distributions/*.zip tools/cli/libs/*-all.jar
+             --prerelease nightly dokka.tar.xz tools/cli/build/distributions/jmltk-*.zip tools/cli/build/libs/*-all.jar
 
       - name: Upload to SNAPSHOT repository
         if: false

@@ -19,14 +19,14 @@ import java.util.concurrent.CompletableFuture
  * Integration test that simulates an Eglot (Emacs LSP client) session.
  * This test reproduces the exact LSP protocol exchange from an Eglot 1.17.30 client
  * connecting to the JML Language Server.
- * 
+ *
  * Test scenario:
  * 1. Initialize the language server with Eglot capabilities
  * 2. Open Stack.java document
  * 3. Perform multiple hover requests at various positions
  * 4. Simulate a document change (typo correction)
  * 5. Perform a declaration request
- * 
+ *
  * @author Alexander Weigl
  * @version 1 (17.08.2026)
  */
@@ -356,9 +356,11 @@ class EglotIntegrationTest : TestUtilities() {
                     publishDiagnostics = PublishDiagnosticsCapabilities().apply {
                         relatedInformation = false
                         codeDescriptionSupport = false
-                        tagSupport = Either.forRight(DiagnosticsTagSupport().apply {
+                        tagSupport = Either.forRight(
+                            DiagnosticsTagSupport().apply {
                             valueSet = listOf(1, 2).map { DiagnosticTag.forValue(it) }
-                        })
+                        }
+                        )
                     }
                 }
 
@@ -435,12 +437,10 @@ class EglotIntegrationTest : TestUtilities() {
         val hover10Resp = docService.hover(hover10Params).get()
         Truth.assertThat(hover10Resp).isNotNull()
 
-
         // Test hover at line 88, character 0 (invariant comment)
         val hover8Params = HoverParams(TextDocumentIdentifier(stackUri), Position(87, 10))
         val hover8Resp = docService.hover(hover8Params).get()
         Truth.assertThat(hover8Resp).isNotNull()
-
     }
 
     @Test
@@ -502,7 +502,7 @@ class EglotIntegrationTest : TestUtilities() {
 
     @Test
     fun testFullSemanticTokens() {
-        //{"jsonrpc":"2.0","id":3,"method":"textDocument/semanticTokens/full","params":{"textDocument":{"uri":"file:///home/weigl/work/javaparser/tools/lsp/workspace/test.key"}}}
+        // {"jsonrpc":"2.0","id":3,"method":"textDocument/semanticTokens/full","params":{"textDocument":{"uri":"file:///home/weigl/work/javaparser/tools/lsp/workspace/test.key"}}}
 
         val stackFile = File(workspace, "Stack.java")
         val stackUri = stackFile.toUri

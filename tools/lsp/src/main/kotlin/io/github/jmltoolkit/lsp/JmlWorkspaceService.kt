@@ -26,9 +26,7 @@ class JmlWorkspaceService(val jmlLanguageServer: JmlLanguageServer) : WorkspaceS
             ?: throw IllegalStateException("Command ${params.command} not found")
     }
 
-    override fun textDocumentContent(params: TextDocumentContentParams?): CompletableFuture<TextDocumentContentResult?>? {
-        return super.textDocumentContent(params)
-    }
+    override fun textDocumentContent(params: TextDocumentContentParams?): CompletableFuture<TextDocumentContentResult?>? = super.textDocumentContent(params)
 
     override fun symbol(params: WorkspaceSymbolParams?): CompletableFuture<Either<MutableList<out SymbolInformation>, MutableList<out WorkspaceSymbol>>> =
         super.symbol(params)

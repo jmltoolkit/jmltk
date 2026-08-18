@@ -32,5 +32,3 @@ dependencies {
 
     implementation(libs.clickt)
 }
-
-

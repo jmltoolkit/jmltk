@@ -15,14 +15,16 @@ class CreateKeyProjectFile : LspAction<Node> {
     override fun execute(server: JmlLanguageServer, value: List<Any>?): CompletableFuture<Any> {
         val root = server.rootFolder
         val keyFile = root.resolve("project.key")
-        if(keyFile.exists()) {
+        if (keyFile.exists()) {
             return CompletableFuture.completedFuture("Project key already exists")
         }
 
-        keyFile.writeText("""          
+        keyFile.writeText(
+            """
             \javaSrc "./src";
             \chooseContract
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         return CompletableFuture.completedFuture("")
     }

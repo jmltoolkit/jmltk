@@ -20,7 +20,7 @@ class VerifyAgainstParent : LspAction<JmlContract> {
     private val cache = CacheBuilder.newBuilder().softValues().build<Int, JmlContract>()
 
     override fun execute(server: JmlLanguageServer, value: List<Any>?): CompletableFuture<Any> {
-        if(value == null) return CompletableFuture.completedFuture(null)
+        if (value == null) return CompletableFuture.completedFuture(null)
         cache.getIfPresent(value.first())?.let {
             server.client.showMessage(
                 MessageParams(MessageType.Warning, "Prove is not implemented yet.")

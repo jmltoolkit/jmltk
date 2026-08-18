@@ -82,9 +82,7 @@ class AstRepository(val server: JmlLanguageServer) {
 
     fun createJavaParser() = JavaParser(config)
 
-    private fun isUpToDate(uri: Uri, content: String): Boolean {
-        return uri in cached && uri in version && crc32(content) == version[uri]
-    }
+    private fun isUpToDate(uri: Uri, content: String): Boolean = uri in cached && uri in version && crc32(content) == version[uri]
 
     fun crc32(content: String) = crc32().hashBytes(content.toByteArray()).asLong()
 
@@ -260,7 +258,8 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
                         "markdown",
                         """Symbol ${symbol.nameAsString}
                         ---
-                        $text """".trimIndent()
+                        $text "
+""".trimIndent()
                     )
                 )
             }
@@ -269,7 +268,7 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
     private fun getHoverMessage(r: ResolvedDeclaration?): String = if (r is AssociableToAST && r.toAst().isPresent) {
         getHoverMessage(r.toAst().get())
     } else {
-        """---\n${r.toString()}"""
+        """---\n$r"""
     }
 
     private fun getHoverMessage(ast: Node): String {
@@ -286,7 +285,6 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
     } else {
         """---\n$r"""
     }
-
 
     private fun findKeyword(params: HoverParams, cu: CompilationUnit): Hover? {
         val node = findTopMostJmlishNode(params.position, cu)
@@ -317,11 +315,9 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
         }
     }
 
-    override fun declaration(params: DeclarationParams): CompletableFuture<Either<MutableList<out Location>, MutableList<out LocationLink>>> {
-        return repo[params.textDocument]
+    override fun declaration(params: DeclarationParams): CompletableFuture<Either<MutableList<out Location>, MutableList<out LocationLink>>> = repo[params.textDocument]
             .thenApplyAsync { findSymbol(params.position, it) }
             .thenApplyAsync { resolveSymbolInDocument(it) }
-    }
 
     private fun resolveSymbolInDocument(nameExpr: NameExpr?): Either<MutableList<out Location>, MutableList<out LocationLink>> {
         if (nameExpr != null) {
@@ -412,12 +408,10 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
         }
     }
 
-    internal fun universalCommands(): List<Either<Command, CodeAction>> {
-        return listOf(
+    internal fun universalCommands(): List<Either<Command, CodeAction>> = listOf(
             Either.forLeft(CreateKeyProjectFile().command()),
             Either.forLeft(StartKey().command())
         )
-    }
 
     override fun codeLens(params: CodeLensParams): CompletableFuture<MutableList<out CodeLens>> {
         Logger.info("codeLens: {}", params)
@@ -434,8 +428,8 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
 
     private fun findTopMostJmlishNode(position: JPosition, cu: CompilationUnit): Node? =
         findNode(position, cu) {
-            it is Jmlish
-                || (it is Modifier && it.keyword.toString().startsWith("JML_"))
+            it is Jmlish ||
+                (it is Modifier && it.keyword.toString().startsWith("JML_"))
         }
 
     private fun findNode(

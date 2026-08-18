@@ -16,7 +16,7 @@ class WellDefinednessCheck : LspAction<Expression> {
         get() = "Check expression for well-definedness"
 
     override fun execute(server: JmlLanguageServer, value: List<Any>?): CompletableFuture<Any> {
-        //println("WellDefinednessCheck.execute server = [$server], value = [$value]")
+        // println("WellDefinednessCheck.execute server = [$server], value = [$value]")
         return CompletableFuture.completedFuture(null)
     }
 

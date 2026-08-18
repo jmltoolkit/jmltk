@@ -42,7 +42,6 @@ class KeyDocumentHighlighter : DocumentHighlighter {
         ERROR_CHAR,
             -> null
 
-
         TRUE,
         FALSE,
         BIN_LITERAL,
@@ -53,6 +52,7 @@ class KeyDocumentHighlighter : DocumentHighlighter {
         DOUBLE_LITERAL,
         FLOAT_LITERAL,
             -> SupportedTokenTypes.NUMBER.ordinal
+
         MODALITYD_STRING,
         MODALITYD_CHAR,
         STRING_LITERAL,

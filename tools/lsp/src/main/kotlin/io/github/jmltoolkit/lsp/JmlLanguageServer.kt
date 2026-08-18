@@ -17,7 +17,9 @@ import java.util.concurrent.ForkJoinPool
 import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
 
-class JmlLanguageServer : LanguageServer, LanguageClientAware {
+class JmlLanguageServer :
+    LanguageServer,
+    LanguageClientAware {
     internal val executorService: ExecutorService = ForkJoinPool.commonPool()
     internal val jmlTextDocumentService by lazy { JmlTextDocumentService(this) }
     internal val jmlWorkspaceService by lazy { JmlWorkspaceService(this) }
@@ -54,7 +56,7 @@ class JmlLanguageServer : LanguageServer, LanguageClientAware {
             // capabilities.signatureHelpProvider = SignatureHelpOptions()
             capabilities.setHoverProvider(true)
 
-            //capabilities.setDocumentFormattingProvider(true)
+            // capabilities.setDocumentFormattingProvider(true)
             capabilities.foldingRangeProvider = null
 
             // capabilities.codeLensProvider = CodeLensOptions(false)
@@ -83,7 +85,7 @@ class JmlLanguageServer : LanguageServer, LanguageClientAware {
         executorService.shutdown()
         val c = executorService.awaitTermination(5, TimeUnit.SECONDS)
         val i = executorService.shutdownNow()
-        return CompletableFuture.completedFuture("Finish: Waited 5 seconds. ${c}, ${i.size} jobs killed.")
+        return CompletableFuture.completedFuture("Finish: Waited 5 seconds. $c, ${i.size} jobs killed.")
     }
 
     override fun exit() {

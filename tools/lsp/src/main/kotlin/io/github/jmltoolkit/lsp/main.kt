@@ -37,11 +37,11 @@ class JmlLspCommand : CliktCommand() {
     private val client by option("--client").int()
 
     override fun run() {
-        Configuration.set("writer.console", "disabled");
-        Configuration.set("writer2", "file");
-        Configuration.set("writer2.level", "debug");
-        Configuration.set("writer2.file", "/tmp/lsp.log");
-        Configuration.set("writer2.format", "{date} {class}.{method}(): {message}");
+        Configuration.set("writer.console", "disabled")
+        Configuration.set("writer2", "file")
+        Configuration.set("writer2.level", "debug")
+        Configuration.set("writer2.file", "/tmp/lsp.log")
+        Configuration.set("writer2.format", "{date} {class}.{method}(): {message}")
 
         try {
             when {

@@ -1,3 +1,7 @@
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+
 plugins {
     id("standard-kotlin")
     application
@@ -23,7 +27,7 @@ fun createLauncher(name: String, mainClassName: String) =
         applicationName = name
         mainClass.set(mainClassName)
         classpath = files(tasks.named("jar"), configurations.runtimeClasspath)
-        outputDir = layout.buildDirectory.dir("scripts").get().asFile
+        outputDir = layout.buildDirectory.dir("tmp/scripts").get().asFile
     }
 
 val lspStart = createLauncher("jmltk-lsp", "io.github.jmltoolkit.lsp.Main")
@@ -42,6 +46,17 @@ distributions {
                 filePermissions {
                     unix("rwxr-xr-x")
                 }
+            }
+
+            from("distribution") {
+                into(".")
+                expand(
+                    "name" to rootProject.name,
+                    "version" to rootProject.version,
+                    "groupId" to rootProject.group,
+                    "artifactId" to "jmlparser-core",
+                    "date" to LocalDateTime.now(ZoneId.of("UTC")).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                )
             }
         }
     }

@@ -5,7 +5,7 @@
 package io.github.jmltoolkit.lint.rules
 
 import com.github.javaparser.ast.body.FieldDeclaration
-import com.github.javaparser.ast.jml.clauses.JmlClauseKind
+import com.github.javaparser.ast.jml.clauses.JmlClauseKind0
 import com.github.javaparser.ast.jml.clauses.JmlMultiExprClause
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import io.github.jmltoolkit.lint.LintProblemReporter
@@ -85,8 +85,8 @@ class AssignableValidator : LintRuleVisitor() {
     override val visitor: VoidVisitorAdapter<LintProblemReporter>
         get() = object : VoidVisitorAdapter<LintProblemReporter>() {
             override fun visit(n: JmlMultiExprClause, arg: LintProblemReporter) {
-                if (n.kind === JmlClauseKind.ASSIGNABLE ||
-                    n.kind === JmlClauseKind.ASSIGNABLE_REDUNDANTLY
+        if (n.kind.kind === JmlClauseKind0.ASSIGNABLE ||
+            n.kind.kind === JmlClauseKind0.ASSIGNABLE_REDUNDANTLY
                 ) {
                     checkFinalFieldsInAssignableClause(n, arg)
                 }

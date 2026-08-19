@@ -5,6 +5,8 @@
 package com.github.jmlparser.lint.rules
 
 import com.github.javaparser.ast.jml.clauses.JmlClauseKind
+import com.github.javaparser.ast.jml.clauses.JmlClauseKind0
+import com.github.javaparser.ast.jml.clauses.JmlClauseKind0
 import com.github.javaparser.ast.jml.clauses.JmlContract
 import com.github.javaparser.ast.jml.clauses.JmlSignalsOnlyClause
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
@@ -83,6 +85,15 @@ class ContextSensitiveForbiddenFunctionsValidator : LintRuleVisitor() {
         override fun visit(n: JmlContract, arg: LintProblemReporter) {
             if (n.parentNode.getOrNull() !is JmlContract) { // do not reset on nested contract
                 signalsOnlyCounter = 0
+        reportMultipleSignalsOnlyClauses(n, arg)
+    }
+
+    private fun reportMultipleSignalsOnlyClauses(n: JmlContract, arg: LintProblemReporter) {
+        for (clause in n.clauses) {
+            if (clause.kind.kind === JmlClauseKind0.SIGNALS_ONLY) signalsOnlyCounter++
+
+            if (signalsOnlyCounter > 1) {
+                arg.warn(clause, "", "", MULTIPLE_SIGNALS_ONLY)
             }
             super.visit(n, arg)
         }

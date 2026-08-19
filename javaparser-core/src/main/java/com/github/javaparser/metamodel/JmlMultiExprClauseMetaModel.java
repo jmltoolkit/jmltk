@@ -35,6 +35,4 @@ public class JmlMultiExprClauseMetaModel extends JmlClauseMetaModel {
     public PropertyMetaModel expressionsPropertyMetaModel;
 
     public PropertyMetaModel heapsPropertyMetaModel;
-
-    public PropertyMetaModel kindPropertyMetaModel;
 }

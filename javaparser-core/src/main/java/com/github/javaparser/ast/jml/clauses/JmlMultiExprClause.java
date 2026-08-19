@@ -34,8 +34,6 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
  */
 public class JmlMultiExprClause extends JmlClause {
 
-    private JmlClauseKind kind;
-
     @OptionalProperty
     private NodeList<SimpleName> heaps;
 
@@ -53,13 +51,7 @@ public class JmlMultiExprClause extends JmlClause {
             SimpleName label,
             NodeList<SimpleName> heaps,
             NodeList<Expression> exprs) {
-        this(range, JmlClauseKind.getKindByToken(begin), label, heaps, exprs);
-    }
-
-    @Override
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlClauseKind getKind() {
-        return kind;
+        this(range, new JmlClauseKind(begin), label, heaps, exprs);
     }
 
     @Override
@@ -106,17 +98,6 @@ public class JmlMultiExprClause extends JmlClause {
         if (this.heaps != null) this.heaps.setParentNode(null);
         this.heaps = heaps;
         setAsParentNodeOf(heaps);
-        return this;
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlMultiExprClause setKind(final @NonNull() JmlClauseKind kind) {
-        assertNotNull(kind);
-        if (kind == this.kind) {
-            return this;
-        }
-        notifyPropertyChange(ObservableProperty.KIND, this.kind, kind);
-        this.kind = kind;
         return this;
     }
 
@@ -188,8 +169,7 @@ public class JmlMultiExprClause extends JmlClause {
             SimpleName name,
             NodeList<SimpleName> heaps,
             NodeList<Expression> expressions) {
-        super(tokenRange, name);
-        setKind(kind);
+        super(tokenRange, kind, name);
         setHeaps(heaps);
         setExpressions(expressions);
         customInitialization();
@@ -249,7 +229,8 @@ public class JmlMultiExprClause extends JmlClause {
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @NonNull() JmlClauseKind kind() {
-        return Objects.requireNonNull(kind);
+    @NonNull()
+    public JmlClauseKind kind() {
+        return Objects.requireNonNull(getKind());
     }
 }

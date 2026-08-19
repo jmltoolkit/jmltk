@@ -863,7 +863,7 @@ public abstract class Node
         DIRECT_CHILDREN
     }
 
-    private Iterator<Node> treeIterator(TreeTraversal traversal) {
+    public Iterator<Node> treeIterator(TreeTraversal traversal) {
         switch (traversal) {
             case BREADTHFIRST:
                 return new BreadthFirstIterator(this);

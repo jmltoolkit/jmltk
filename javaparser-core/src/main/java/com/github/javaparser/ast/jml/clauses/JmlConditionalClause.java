@@ -33,15 +33,13 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
 public class JmlConditionalClause extends JmlClause
         implements NodeWithExpression<JmlConditionalClause>, NodeWithCondition<JmlConditionalClause> {
 
-    private JmlClauseKind kind;
-
     private Expression expression;
 
     private Expression condition;
 
     @AllFieldsConstructor
-    public JmlConditionalClause(SimpleName name, Expression condition, JmlClauseKind kind, Expression expression) {
-        this(null, name, condition, kind, expression);
+    public JmlConditionalClause(JmlClauseKind kind, SimpleName name, Expression condition, Expression expression) {
+        this(null, kind, name, condition, expression);
     }
 
     /**
@@ -77,12 +75,6 @@ public class JmlConditionalClause extends JmlClause
     }
 
     @Override
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlClauseKind getKind() {
-        return kind;
-    }
-
-    @Override
     @Generated("com.github.javaparser.generator.core.node.AcceptGenerator")
     public <R, A> R accept(final GenericVisitor<R, A> v, final A arg) {
         return v.visit(this, arg);
@@ -109,17 +101,6 @@ public class JmlConditionalClause extends JmlClause
         if (this.condition != null) this.condition.setParentNode(null);
         this.condition = condition;
         setAsParentNodeOf(condition);
-        return this;
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlConditionalClause setKind(final @NonNull() JmlClauseKind kind) {
-        assertNotNull(kind);
-        if (kind == this.kind) {
-            return this;
-        }
-        notifyPropertyChange(ObservableProperty.KIND, this.kind, kind);
-        this.kind = kind;
         return this;
     }
 
@@ -170,10 +151,9 @@ public class JmlConditionalClause extends JmlClause
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
     public JmlConditionalClause(
-            TokenRange tokenRange, SimpleName name, Expression condition, JmlClauseKind kind, Expression expression) {
-        super(tokenRange, name);
+            TokenRange tokenRange, JmlClauseKind kind, SimpleName name, Expression condition, Expression expression) {
+        super(tokenRange, kind, name);
         setCondition(condition);
-        setKind(kind);
         setExpression(expression);
         customInitialization();
     }
@@ -182,12 +162,6 @@ public class JmlConditionalClause extends JmlClause
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
     public @NonNull() Expression condition() {
         return Objects.requireNonNull(condition);
-    }
-
-    @com.github.javaparser.ast.key.IgnoreLexPrinting()
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @NonNull() JmlClauseKind kind() {
-        return Objects.requireNonNull(kind);
     }
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()

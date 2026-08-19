@@ -40,7 +40,5 @@ public class JmlInfFlowClauseMetaModel extends JmlClauseMetaModel {
 
     public PropertyMetaModel expressionsPropertyMetaModel;
 
-    public PropertyMetaModel kindPropertyMetaModel;
-
     public PropertyMetaModel newObjectsPropertyMetaModel;
 }

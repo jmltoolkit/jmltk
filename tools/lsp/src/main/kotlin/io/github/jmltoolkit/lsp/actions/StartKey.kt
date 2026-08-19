@@ -5,12 +5,8 @@
 package io.github.jmltoolkit.lsp.actions
 
 import com.github.javaparser.ast.Node
-import de.uka.ilkd.key.control.KeYEnvironment
 import de.uka.ilkd.key.gui.MainWindow
 import io.github.jmltoolkit.lsp.JmlLanguageServer
-import io.github.jmltoolkit.lsp.Uri
-import org.eclipse.lsp4j.HoverParams
-import org.eclipse.lsp4j.TextDocumentIdentifier
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -24,9 +20,11 @@ class StartKey : LspAction<Node> {
     var mainWindow: MainWindow? = null
 
     override fun execute(server: JmlLanguageServer, value: List<Any>?): CompletableFuture<Any> {
-        mainWindow = mainWindow?.let { MainWindow.getInstance(true) }
-        mainWindow!!.isVisible = true
-        mainWindow!!.requestFocus()
+        val mainWindow = mainWindow?.let { MainWindow.getInstance(true) }!!
+        mainWindow.isVisible = true
+        mainWindow.requestFocus()
+
+        this.mainWindow = mainWindow
 
         /*if (value != null) {
             val contract = value[0] as HoverParams // document + pos

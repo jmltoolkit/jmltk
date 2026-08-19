@@ -35,6 +35,4 @@ public class JmlConditionalClauseMetaModel extends JmlClauseMetaModel {
     public PropertyMetaModel conditionPropertyMetaModel;
 
     public PropertyMetaModel expressionPropertyMetaModel;
-
-    public PropertyMetaModel kindPropertyMetaModel;
 }

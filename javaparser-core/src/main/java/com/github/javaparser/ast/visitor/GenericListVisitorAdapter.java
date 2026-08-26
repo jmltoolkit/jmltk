@@ -1144,6 +1144,10 @@ public abstract class GenericListVisitorAdapter<R, A> implements GenericVisitor<
             if (tmp != null) result.addAll(tmp);
         }
         {
+            tmp = n.getJmlDocs().accept(this, arg);
+            if (tmp != null) result.addAll(tmp);
+        }
+        {
             tmp = n.getParameters().accept(this, arg);
             if (tmp != null) result.addAll(tmp);
         }

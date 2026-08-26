@@ -10,6 +10,7 @@ import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.comments.CommentsCollection;
 import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.expr.LambdaExpr;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.jml.ArbitraryNodeContainer;
 import com.github.javaparser.ast.jml.NodeWithContracts;
@@ -140,6 +141,13 @@ public class JmlProcessor extends Processor {
         @Nullable
         private ArbitraryNodeContainer parseJmlModifierLevel(NodeList<JmlDoc> jmlDocs) {
             ParseResult<ArbitraryNodeContainer> r = javaParser.parseJmlModifierLevel(sanitizer.asString(jmlDocs));
+            problems.addAll(r.getProblems());
+            return r.getResult().orElse(null);
+        }
+
+        @Nullable
+        private ArbitraryNodeContainer parseJmlLambdaContract(NodeList<JmlDoc> jmlDocs) {
+            ParseResult<ArbitraryNodeContainer> r = javaParser.parseJmlContracts(sanitizer.asString(jmlDocs));
             problems.addAll(r.getProblems());
             return r.getResult().orElse(null);
         }
@@ -325,6 +333,20 @@ public class JmlProcessor extends Processor {
                     }
                 }
             }
+        }
+
+        @Override
+        public Visitable visit(LambdaExpr n, Void arg) {
+            var docs = n.getJmlDocs();
+            if (docs.isNonEmpty()) {
+                var contracts = parseJmlLambdaContract(docs);
+                for (var child : contracts.getChildren()) {
+                    if (child instanceof JmlContract c) {
+                        n.addContract(c);
+                    }
+                }
+            }
+            return super.visit(n, arg);
         }
     }
 }

@@ -1,6 +1,6 @@
 plugins {
     id("standard-kotlin")
-    kotlin("plugin.serialization") version "2.4.10"
+    alias(libs.plugins.kotlin.serialization)
 }
 
 version = "1.0-SNAPSHOT"

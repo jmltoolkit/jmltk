@@ -1018,6 +1018,7 @@ public abstract class VoidVisitorAdapter<A> implements VoidVisitor<A> {
     @Override
     public void visit(final CompactConstructorDeclaration n, final A arg) {
         n.getBody().accept(this, arg);
+        n.getContracts().forEach(p -> p.accept(this, arg));
         n.getModifiers().forEach(p -> p.accept(this, arg));
         n.getName().accept(this, arg);
         n.getThrownExceptions().forEach(p -> p.accept(this, arg));

@@ -2911,6 +2911,10 @@ public abstract class GenericListVisitorAdapter<R, A> implements GenericVisitor<
             if (tmp != null) result.addAll(tmp);
         }
         {
+            tmp = n.getContracts().accept(this, arg);
+            if (tmp != null) result.addAll(tmp);
+        }
+        {
             tmp = n.getModifiers().accept(this, arg);
             if (tmp != null) result.addAll(tmp);
         }

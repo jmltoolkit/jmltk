@@ -1390,6 +1390,7 @@ public class EqualsVisitor implements GenericVisitor<Boolean, Visitable> {
     public Boolean visit(final CompactConstructorDeclaration n, final Visitable arg) {
         final CompactConstructorDeclaration n2 = (CompactConstructorDeclaration) arg;
         if (!nodeEquals(n.getBody(), n2.getBody())) return false;
+        if (!nodesEquals(n.getContracts(), n2.getContracts())) return false;
         if (!nodesEquals(n.getModifiers(), n2.getModifiers())) return false;
         if (!nodeEquals(n.getName(), n2.getName())) return false;
         if (!nodesEquals(n.getThrownExceptions(), n2.getThrownExceptions())) return false;

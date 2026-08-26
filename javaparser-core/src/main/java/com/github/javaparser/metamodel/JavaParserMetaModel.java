@@ -269,6 +269,9 @@ public final class JavaParserMetaModel {
                 .add(compactConstructorDeclarationMetaModel.thrownExceptionsPropertyMetaModel);
         compactConstructorDeclarationMetaModel
                 .getConstructorParameters()
+                .add(compactConstructorDeclarationMetaModel.contractsPropertyMetaModel);
+        compactConstructorDeclarationMetaModel
+                .getConstructorParameters()
                 .add(compactConstructorDeclarationMetaModel.bodyPropertyMetaModel);
         variableDeclaratorMetaModel.getConstructorParameters().add(variableDeclaratorMetaModel.typePropertyMetaModel);
         variableDeclaratorMetaModel.getConstructorParameters().add(variableDeclaratorMetaModel.namePropertyMetaModel);
@@ -1769,6 +1772,18 @@ public final class JavaParserMetaModel {
         compactConstructorDeclarationMetaModel
                 .getDeclaredPropertyMetaModels()
                 .add(compactConstructorDeclarationMetaModel.bodyPropertyMetaModel);
+        compactConstructorDeclarationMetaModel.contractsPropertyMetaModel = new PropertyMetaModel(
+                compactConstructorDeclarationMetaModel,
+                "contracts",
+                com.github.javaparser.ast.jml.clauses.JmlContract.class,
+                Optional.of(jmlContractMetaModel),
+                false,
+                false,
+                true,
+                false);
+        compactConstructorDeclarationMetaModel
+                .getDeclaredPropertyMetaModels()
+                .add(compactConstructorDeclarationMetaModel.contractsPropertyMetaModel);
         compactConstructorDeclarationMetaModel.modifiersPropertyMetaModel = new PropertyMetaModel(
                 compactConstructorDeclarationMetaModel,
                 "modifiers",

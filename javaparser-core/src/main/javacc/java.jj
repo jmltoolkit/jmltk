@@ -4600,6 +4600,7 @@ Expression PrimaryPrefix():
     JavaToken begin;
     Parameter p = null;
     SimpleName id = null;
+    NodeList<JmlDoc> docs = null;
 }
 {
     (
@@ -4631,20 +4632,21 @@ Expression PrimaryPrefix():
     |   LOOKAHEAD(3)
         ret=JmlPrimaryPrefix()
     |
+        [ docs = JmlDocs() { lambdaDocs = docs; } ]
         "(" { begin=token(); }
         (
             ")"
-            { ret = new LambdaExpr(range(begin, token()), params, new BlockStmt(), true); }
+            { ret = new LambdaExpr(range(begin, token()), params, new BlockStmt(), true); ret.asLambdaExpr().setJmlDocs(docs); }
          |
             LOOKAHEAD(Parameter())
             params = LambdaParameters()
             ")"
-            { ret = new LambdaExpr(range(begin, token()), params, new BlockStmt(), true); }
+            { ret = new LambdaExpr(range(begin, token()), params, new BlockStmt(), true); ret.asLambdaExpr().setJmlDocs(docs); }
          |
             LOOKAHEAD(VariableDeclaratorId() ",")
             params = InferredLambdaParameters()
             ")"
-            { ret = new LambdaExpr(range(begin, token()), params, new BlockStmt(), true); }
+            { ret = new LambdaExpr(range(begin, token()), params, new BlockStmt(), true); ret.asLambdaExpr().setJmlDocs(docs); }
          |
             // This could still be a lambda expression, but this is handled after matching -> elsewhere
             ret = Expression()

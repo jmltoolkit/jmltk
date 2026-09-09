@@ -965,6 +965,7 @@ public class EqualsVisitor implements GenericVisitor<Boolean, Visitable> {
         if (!nodeEquals(n.getBody(), n2.getBody())) return false;
         if (!nodesEquals(n.getContracts(), n2.getContracts())) return false;
         if (!objEquals(n.isEnclosingParameters(), n2.isEnclosingParameters())) return false;
+        if (!nodesEquals(n.getJmlDocs(), n2.getJmlDocs())) return false;
         if (!nodesEquals(n.getParameters(), n2.getParameters())) return false;
         if (!nodesEquals(n.getAssociatedSpecificationComments(), n2.getAssociatedSpecificationComments())) return false;
         if (!nodeEquals(n.getComment(), n2.getComment())) return false;
@@ -1390,6 +1391,7 @@ public class EqualsVisitor implements GenericVisitor<Boolean, Visitable> {
     public Boolean visit(final CompactConstructorDeclaration n, final Visitable arg) {
         final CompactConstructorDeclaration n2 = (CompactConstructorDeclaration) arg;
         if (!nodeEquals(n.getBody(), n2.getBody())) return false;
+        if (!nodesEquals(n.getContracts(), n2.getContracts())) return false;
         if (!nodesEquals(n.getModifiers(), n2.getModifiers())) return false;
         if (!nodeEquals(n.getName(), n2.getName())) return false;
         if (!nodesEquals(n.getThrownExceptions(), n2.getThrownExceptions())) return false;

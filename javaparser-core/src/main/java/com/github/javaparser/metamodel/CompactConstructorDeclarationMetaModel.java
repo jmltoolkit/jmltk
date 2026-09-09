@@ -34,6 +34,8 @@ public class CompactConstructorDeclarationMetaModel extends BodyDeclarationMetaM
 
     public PropertyMetaModel bodyPropertyMetaModel;
 
+    public PropertyMetaModel contractsPropertyMetaModel;
+
     public PropertyMetaModel modifiersPropertyMetaModel;
 
     public PropertyMetaModel namePropertyMetaModel;

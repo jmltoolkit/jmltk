@@ -689,6 +689,7 @@ public abstract class VoidVisitorAdapter<A> implements VoidVisitor<A> {
     public void visit(final LambdaExpr n, final A arg) {
         n.getBody().accept(this, arg);
         n.getContracts().forEach(p -> p.accept(this, arg));
+        n.getJmlDocs().forEach(p -> p.accept(this, arg));
         n.getParameters().forEach(p -> p.accept(this, arg));
         n.getAssociatedSpecificationComments().ifPresent(l -> l.forEach(v -> v.accept(this, arg)));
         n.getComment().ifPresent(l -> l.accept(this, arg));
@@ -1018,6 +1019,7 @@ public abstract class VoidVisitorAdapter<A> implements VoidVisitor<A> {
     @Override
     public void visit(final CompactConstructorDeclaration n, final A arg) {
         n.getBody().accept(this, arg);
+        n.getContracts().forEach(p -> p.accept(this, arg));
         n.getModifiers().forEach(p -> p.accept(this, arg));
         n.getName().accept(this, arg);
         n.getThrownExceptions().forEach(p -> p.accept(this, arg));

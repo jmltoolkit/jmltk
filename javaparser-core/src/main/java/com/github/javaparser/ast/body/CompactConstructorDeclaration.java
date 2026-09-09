@@ -8,6 +8,8 @@ import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.SimpleName;
+import com.github.javaparser.ast.jml.NodeWithContracts;
+import com.github.javaparser.ast.jml.clauses.JmlContract;
 import com.github.javaparser.ast.nodeTypes.*;
 import com.github.javaparser.ast.nodeTypes.modifiers.NodeWithAccessModifiers;
 import com.github.javaparser.ast.observer.ObservableProperty;
@@ -59,7 +61,8 @@ public class CompactConstructorDeclaration extends BodyDeclaration<CompactConstr
                 NodeWithSimpleName<CompactConstructorDeclaration>,
                 NodeWithThrownExceptions<CompactConstructorDeclaration>,
                 NodeWithTypeParameters<CompactConstructorDeclaration>,
-                Resolvable<ResolvedConstructorDeclaration> {
+                Resolvable<ResolvedConstructorDeclaration>,
+                NodeWithContracts<CompactConstructorDeclaration> {
 
     private NodeList<Modifier> modifiers;
 
@@ -71,6 +74,8 @@ public class CompactConstructorDeclaration extends BodyDeclaration<CompactConstr
 
     private NodeList<ReferenceType> thrownExceptions;
 
+    private NodeList<JmlContract> contracts = new NodeList<>();
+
     public CompactConstructorDeclaration() {
         this(
                 null,
@@ -78,6 +83,7 @@ public class CompactConstructorDeclaration extends BodyDeclaration<CompactConstr
                 new NodeList<>(),
                 new NodeList<>(),
                 new SimpleName(),
+                new NodeList<>(),
                 new NodeList<>(),
                 new BlockStmt());
     }
@@ -90,6 +96,7 @@ public class CompactConstructorDeclaration extends BodyDeclaration<CompactConstr
                 new NodeList<>(),
                 new SimpleName(name),
                 new NodeList<>(),
+                new NodeList<>(),
                 new BlockStmt());
     }
 
@@ -101,6 +108,7 @@ public class CompactConstructorDeclaration extends BodyDeclaration<CompactConstr
                 new NodeList<>(),
                 new SimpleName(name),
                 new NodeList<>(),
+                new NodeList<>(),
                 new BlockStmt());
     }
 
@@ -111,8 +119,30 @@ public class CompactConstructorDeclaration extends BodyDeclaration<CompactConstr
             NodeList<TypeParameter> typeParameters,
             SimpleName name,
             NodeList<ReferenceType> thrownExceptions,
+            NodeList<JmlContract> contracts,
             BlockStmt body) {
-        this(null, modifiers, annotations, typeParameters, name, thrownExceptions, body);
+        this(null, modifiers, annotations, typeParameters, name, thrownExceptions, contracts, body);
+    }
+
+    public CompactConstructorDeclaration(
+            NodeList<Modifier> modifiers,
+            NodeList<AnnotationExpr> annotations,
+            NodeList<TypeParameter> typeParameters,
+            SimpleName name,
+            NodeList<ReferenceType> thrownExceptions,
+            BlockStmt body) {
+        this(null, modifiers, annotations, typeParameters, name, thrownExceptions, new NodeList<>(), body);
+    }
+
+    public CompactConstructorDeclaration(
+            TokenRange tokenRange,
+            NodeList<Modifier> modifiers,
+            NodeList<AnnotationExpr> annotations,
+            NodeList<TypeParameter> typeParameters,
+            SimpleName name,
+            NodeList<ReferenceType> thrownExceptions,
+            BlockStmt body) {
+        this(tokenRange, modifiers, annotations, typeParameters, name, thrownExceptions, new NodeList<>(), body);
     }
 
     /**
@@ -126,12 +156,14 @@ public class CompactConstructorDeclaration extends BodyDeclaration<CompactConstr
             NodeList<TypeParameter> typeParameters,
             SimpleName name,
             NodeList<ReferenceType> thrownExceptions,
+            NodeList<JmlContract> contracts,
             BlockStmt body) {
         super(tokenRange, annotations);
         setModifiers(modifiers);
         setTypeParameters(typeParameters);
         setName(name);
         setThrownExceptions(thrownExceptions);
+        setContracts(contracts);
         setBody(body);
         customInitialization();
     }
@@ -288,6 +320,12 @@ public class CompactConstructorDeclaration extends BodyDeclaration<CompactConstr
         if (node == null) {
             return false;
         }
+        for (int i = 0; i < contracts.size(); i++) {
+            if (contracts.get(i) == node) {
+                contracts.remove(i);
+                return true;
+            }
+        }
         for (int i = 0; i < modifiers.size(); i++) {
             if (modifiers.get(i) == node) {
                 modifiers.remove(i);
@@ -330,6 +368,12 @@ public class CompactConstructorDeclaration extends BodyDeclaration<CompactConstr
         if (node == body) {
             setBody((BlockStmt) replacementNode);
             return true;
+        }
+        for (int i = 0; i < contracts.size(); i++) {
+            if (contracts.get(i) == node) {
+                contracts.set(i, (JmlContract) replacementNode);
+                return true;
+            }
         }
         for (int i = 0; i < modifiers.size(); i++) {
             if (modifiers.get(i) == node) {
@@ -422,5 +466,28 @@ public class CompactConstructorDeclaration extends BodyDeclaration<CompactConstr
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
     public @NonNull() NodeList<TypeParameter> typeParameters() {
         return Objects.requireNonNull(typeParameters);
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public NodeList<JmlContract> getContracts() {
+        return contracts;
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public CompactConstructorDeclaration setContracts(final @NonNull() NodeList<JmlContract> contracts) {
+        assertNotNull(contracts);
+        if (contracts == this.contracts) {
+            return this;
+        }
+        notifyPropertyChange(ObservableProperty.CONTRACTS, this.contracts, contracts);
+        if (this.contracts != null) this.contracts.setParentNode(null);
+        this.contracts = contracts;
+        setAsParentNodeOf(contracts);
+        return this;
+    }
+
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
+    public @NonNull() NodeList<JmlContract> contracts() {
+        return Objects.requireNonNull(contracts);
     }
 }

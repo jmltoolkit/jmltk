@@ -1,4 +1,19 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package jjbmc.trace;
+
+import com.github.javaparser.utils.Pair;
+import jjbmc.Assignment;
+import jjbmc.ErrorLogger;
+import jjbmc.JBMCOutput;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,6 +22,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -16,17 +32,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
-import jjbmc.Assignment;
-import jjbmc.ErrorLogger;
-import jjbmc.JBMCOutput;
-import com.github.javaparser.utils.Pair;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import static jjbmc.ErrorLogger.*;
 
@@ -41,14 +46,16 @@ public class TraceParser {
             * * Carnegie Mellon University, Computer Science Department * *
             * *                  kroening@kroening.com                  * *""";
 
-    public static JBMCOutput parse(File xmlFile, boolean printTrace) throws ParserConfigurationException, IOException, SAXException {
+    public static JBMCOutput parse(File xmlFile, boolean printTrace)
+            throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilder builder;
         builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = builder.parse(xmlFile);
         return parse(doc, printTrace);
     }
 
-    public static JBMCOutput parse(String xmlContent, boolean printTrace) throws ParserConfigurationException, SAXException, IOException {
+    public static JBMCOutput parse(String xmlContent, boolean printTrace)
+            throws ParserConfigurationException, SAXException, IOException {
         DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         try {
             InputSource is = new InputSource(new StringReader(xmlContent));
@@ -96,19 +103,19 @@ public class TraceParser {
                     int lineNumber = -1;
                     if (propertyElemnt.getAttribute("status").equals("FAILURE")) {
 
-                        Element failure = (Element) propertyElemnt
-                                .getElementsByTagName("failure")
-                                .item(0);
+                        Element failure = (Element)
+                                propertyElemnt.getElementsByTagName("failure").item(0);
                         reason = failure.getAttribute("reason");
-                        Element location = (Element) failure
-                                .getElementsByTagName("location")
-                                .item(0);
+                        Element location = (Element)
+                                failure.getElementsByTagName("location").item(0);
                         if (location == null) {
                             if (propertyElemnt.getAttribute("property").contains("unwind")) {
-                                res.addProperty("Unwinding assertion",
+                                res.addProperty(
+                                        "Unwinding assertion",
                                         new Trace(new ArrayList<>()),
                                         -1,
-                                        "Try to increase the unwinding parameter.", null);
+                                        "Try to increase the unwinding parameter.",
+                                        null);
                                 return res;
                             } else {
                                 throw new Exception("location was null.");
@@ -124,13 +131,19 @@ public class TraceParser {
                         for (int j = 0; j < assignmentList.getLength(); ++j) {
                             Element assignment = (Element) assignmentList.item(j);
                             if (assignment.getElementsByTagName("location").getLength() > 0) {
-                                Element location1 = (Element) assignment.getElementsByTagName("location").item(0);
-                                Element lhs = (Element) assignment.getElementsByTagName("full_lhs").item(0);
-                                Element value = (Element) assignment.getElementsByTagName("full_lhs_value").item(0);
+                                Element location1 = (Element) assignment
+                                        .getElementsByTagName("location")
+                                        .item(0);
+                                Element lhs = (Element) assignment
+                                        .getElementsByTagName("full_lhs")
+                                        .item(0);
+                                Element value = (Element) assignment
+                                        .getElementsByTagName("full_lhs_value")
+                                        .item(0);
                                 int line = Integer.parseInt(location1.getAttribute("line"));
-                                //int origLine = TraceInformation.getOriginalLine(line);
+                                // int origLine = TraceInformation.getOriginalLine(line);
                                 if (line > lastLine && line < relevantRange.b && line >= relevantRange.a) {
-                                    //trace.provideGuesses(lineAssignments);
+                                    // trace.provideGuesses(lineAssignments);
                                     lineAssignments = new ArrayList<>();
                                     lastLine = line;
                                 }
@@ -138,8 +151,8 @@ public class TraceParser {
                                 if (assignment.getAttribute("assignment_type").equals("actual_parameter")) {
                                     parameterName = assignment.getAttribute("display_name");
                                 }
-                                Assignment assignment1 = new Assignment(line,
-                                        lhs.getTextContent(), value.getTextContent(), null, parameterName);
+                                Assignment assignment1 = new Assignment(
+                                        line, lhs.getTextContent(), value.getTextContent(), null, parameterName);
                                 lineAssignments.add(assignment1);
                                 assignments.add(assignment1);
                             }
@@ -153,13 +166,15 @@ public class TraceParser {
                         res.addProperty(propertyElemnt.getAttribute("property"), null, lineNumber, null, null);
                     } else {
                         if (reason.contains("assertion")) {
-                            res.addProperty(propertyElemnt.getAttribute("property"),
+                            res.addProperty(
+                                    propertyElemnt.getAttribute("property"),
                                     trace,
                                     TraceInformation.getOriginalLine(lineNumber),
                                     reason,
                                     TraceInformation.getAssertForLine(lineNumber));
                         } else {
-                            res.addProperty(propertyElemnt.getAttribute("property"),
+                            res.addProperty(
+                                    propertyElemnt.getAttribute("property"),
                                     trace,
                                     TraceInformation.getOriginalLine(lineNumber),
                                     reason,

@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package jjbmc;
 
 import com.github.javaparser.JavaParser;
@@ -64,16 +68,15 @@ public class FunctionNameVisitor {
     }
 
     public void visit(CallableDeclaration<?> that) {
-        //var rm = that.resolve();
-        //not interested in methods of inner classes
+        // var rm = that.resolve();
+        // not interested in methods of inner classes
         if (that.getName().toString().contains("$")) {
             return;
         }
-        //String f = rm.getQualifiedName();
+        // String f = rm.getQualifiedName();
         var f = that.getNameAsString();
-        //String rtString = typeToString(that.getType());
-        String paramString =
-                that.getDeclarationAsString(false, false, false);
+        // String rtString = typeToString(that.getType());
+        String paramString = that.getDeclarationAsString(false, false, false);
         if (f.endsWith("Verification") || f.endsWith("<init>") || getAll) {
             functionNames.add(paramString);
         }
@@ -82,31 +85,36 @@ public class FunctionNameVisitor {
             if (that.hasModifier(Modifier.DefaultKeyword.STATIC)) {
                 name = "$static_" + f;
             }
-            paramMap.computeIfAbsent(name, it -> new LinkedList<>())
-                    .add(p.getNameAsString());
+            paramMap.computeIfAbsent(name, it -> new LinkedList<>()).add(p.getNameAsString());
         }
         translateAnnotations(that.getAnnotations());
     }
 
     private void translateAnnotations(NodeList<AnnotationExpr> annotations) {
         for (var annotation : annotations) {
-            //var ra = annotation.resolve();
+            // var ra = annotation.resolve();
             switch (annotation.getNameAsString()) {
                 case "Fails" -> functionBehaviours.add(TestBehaviour.Fails);
                 case "Verifyable" -> functionBehaviours.add(TestBehaviour.Verifyable);
                 case "Unwind" -> {
                     try {
-                        unwinds.add(annotation.asSingleMemberAnnotationExpr()
-                                .getMemberValue().asIntegerLiteralExpr()
+                        unwinds.add(annotation
+                                .asSingleMemberAnnotationExpr()
+                                .getMemberValue()
+                                .asIntegerLiteralExpr()
                                 .getValue());
                     } catch (Exception e) {
                         try {
-                            unwinds.add(annotation.asNormalAnnotationExpr()
-                                    .getPairs().getFirst().orElse(null)
-                                    .getValue().asIntegerLiteralExpr()
+                            unwinds.add(annotation
+                                    .asNormalAnnotationExpr()
+                                    .getPairs()
+                                    .getFirst()
+                                    .orElse(null)
+                                    .getValue()
+                                    .asIntegerLiteralExpr()
                                     .getValue());
                         } catch (Exception e1) {
-                            warn("Cannot parse annotation %s",annotation);
+                            warn("Cannot parse annotation %s", annotation);
                         }
                     }
                 }

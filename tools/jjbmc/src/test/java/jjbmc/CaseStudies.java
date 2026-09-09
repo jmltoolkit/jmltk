@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package jjbmc;
 
 import com.google.gson.JsonArray;
@@ -32,9 +36,7 @@ public class CaseStudies {
         System.setErr(new CostumPrintStream(System.err));
         System.setOut(new CostumPrintStream(System.out));
         try (var walk = Files.walk(Paths.get("testRes", "CaseStudy"))) {
-            var caseStudyFolder = walk
-                    .filter(Files::isRegularFile)
-                    .toList();
+            var caseStudyFolder = walk.filter(Files::isRegularFile).toList();
             for (var f : caseStudyFolder) {
                 for (List<String> l : getConfigsForFile(f.getFileName().toString())) {
                     l.addFirst(f.toAbsolutePath().toString());

@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package jjbmc.jml2java;
 
 import com.github.javaparser.JavaParser;
@@ -39,11 +43,17 @@ class Jml2JavaExpressionTranslatorTest {
         // of an expression, it is required that a symbolsolver is reachable.
 
         var config = new ParserConfiguration();
-        config.setSymbolResolver(new JavaSymbolSolver(new TypeSolverBuilder().withCurrentJRE().build()));
+        config.setSymbolResolver(
+                new JavaSymbolSolver(new TypeSolverBuilder().withCurrentJRE().build()));
         var jp = new JavaParser(config);
-        CompilationUnit cu = jp.parse(" public class A { void foo() {} } ").getResult().get();
-        parent = cu.getType(0).asClassOrInterfaceDeclaration()
-                .getMethodsByName("foo").get(0).getBody().get();
+        CompilationUnit cu =
+                jp.parse(" public class A { void foo() {} } ").getResult().get();
+        parent = cu.getType(0)
+                .asClassOrInterfaceDeclaration()
+                .getMethodsByName("foo")
+                .get(0)
+                .getBody()
+                .get();
     }
 
     public static Stream<Arguments> readExpressionTests() throws IOException {
@@ -51,14 +61,12 @@ class Jml2JavaExpressionTranslatorTest {
         try (var fw = Files.newBufferedReader(base.resolve("expr-translation-tests.yml"))) {
             List<Map<String, String>> obj = yaml.load(fw);
 
-            return obj.stream().map(
-                    it -> {
-                        var mode = TranslationMode.valueOf(it.getOrDefault("mode", TranslationMode.ASSERT.toString()));
-                        return Arguments.of(it.get("input"), it.get("expected"), mode);
-                    });
+            return obj.stream().map(it -> {
+                var mode = TranslationMode.valueOf(it.getOrDefault("mode", TranslationMode.ASSERT.toString()));
+                return Arguments.of(it.get("input"), it.get("expected"), mode);
+            });
         }
     }
-
 
     static BlockStmt parent;
 
@@ -68,10 +76,7 @@ class Jml2JavaExpressionTranslatorTest {
         config.setJmlKeys(Collections.singletonList(Collections.singletonList("jjbmc")));
 
         config.setSymbolResolver(new JavaSymbolSolver(
-                new TypeSolverBuilder()
-                        .withSourceCode(source)
-                        .withCurrentJRE()
-                        .build()));
+                new TypeSolverBuilder().withSourceCode(source).withCurrentJRE().build()));
 
         SourceRoot sourceRoot = new SourceRoot(source, config);
         return sourceRoot.tryToParse().stream().map(Arguments::of);
@@ -90,12 +95,10 @@ class Jml2JavaExpressionTranslatorTest {
         System.out.println(actual);
 
         final var originalPath = cu.getStorage().get().getPath().toAbsolutePath();
-        var path = expectedSources.resolve(
-                source.relativize(originalPath));
+        var path = expectedSources.resolve(source.relativize(originalPath));
 
         System.out.println(path);
         final var text = Jml2JavaFacade.pprint(actual);
-
 
         final var tmp = actualSources.resolve(source.relativize(originalPath));
         Files.createDirectories(tmp.getParent());
@@ -110,7 +113,8 @@ class Jml2JavaExpressionTranslatorTest {
         parent.addAndGetStatement(e);
         Jml2JavaExpressionTranslator.counter.set(0);
         var r = Jml2JavaFacade.translate(e, mode);
-        var actual = r.necessaryVars.stream().map(Objects::toString).collect(Collectors.joining("\n")) + "\n" + new BlockStmt(r.statements) + "\n" + r.value;
+        var actual = r.necessaryVars.stream().map(Objects::toString).collect(Collectors.joining("\n")) + "\n"
+                + new BlockStmt(r.statements) + "\n" + r.value;
         Truth.assertThat(actual.replaceAll("\\s+", " ").trim())
                 .isEqualTo(expected.replaceAll("\\s+", " ").trim());
     }

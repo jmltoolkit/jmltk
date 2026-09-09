@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package jjbmc.trace;
 
 import com.github.javaparser.utils.Pair;
@@ -7,7 +11,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.*;
 
 public class TraceInformation {
-    public static final List<String> ignoredVars = new ArrayList<>(Arrays.asList("enableAssume",
+    public static final List<String> ignoredVars = new ArrayList<>(Arrays.asList(
+            "enableAssume",
             "enableNondet",
             "(void *)",
             "nondet_array_length",
@@ -34,10 +39,10 @@ public class TraceInformation {
 
     public static boolean isRelevantValue(String value) {
         return !value.contains("@class_identifier");
-        //return !value.contains("{");
-        //if (value.contains("dynamic")) {
-        //return false;
-        //}
+        // return !value.contains("{");
+        // if (value.contains("dynamic")) {
+        // return false;
+        // }
     }
 
     public static String getMethod(int lineNumber) {
@@ -95,7 +100,6 @@ public class TraceInformation {
         return idx;
     }
 
-
     public static String getAssertForLine(int line) {
         if (!asserts.containsKey(line)) {
             throw new TranslationException("Tried to access assert for line " + line + " but found none.");
@@ -103,7 +107,6 @@ public class TraceInformation {
 
         return asserts.get(line);
     }
-
 
     public static int getOriginalLine(int line) {
         if (!lineMap.containsKey(line)) {
@@ -136,7 +139,6 @@ public class TraceInformation {
         return newLine != oldLine && newLine >= range.a && newLine < range.b;
     }
 
-
     private void addRelevantVar(String guess, int lineNumber) {
         Pair<Integer, Integer> range = getRelevantRange(lineNumber);
         for (int i = range.a; i <= range.b; ++i) {
@@ -146,7 +148,7 @@ public class TraceInformation {
                     assertVarsForLine.add(guess);
                 }
             } catch (RuntimeException e) {
-                //thats ok in this case
+                // thats ok in this case
             }
         }
     }
@@ -181,7 +183,6 @@ public class TraceInformation {
         return lhs;
     }
 
-
     public static @Nullable String applyExpressionMap(@Nullable String lhs) {
         expressionMap.put("returnVar", "\\result");
         if (lhs == null) {
@@ -193,5 +194,4 @@ public class TraceInformation {
         }
         return res;
     }
-
 }

@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package jjbmc.jml2java;
 
 import com.github.javaparser.ast.*;
@@ -89,17 +93,18 @@ public class Jml2JavaFacade {
     public static boolean isSubNode(Node parent, Node child) {
         AtomicBoolean res = new AtomicBoolean(false);
         parent.walk(i -> {
-                    if (i.equals(child)) {
-                        res.set(true);
-                    }
-                }
-        );
+            if (i.equals(child)) {
+                res.set(true);
+            }
+        });
         return res.get();
     }
 
-    public static NodeList<Statement> storeOld(Expression expression, List<JmlQuantifiedExpr> relevantQuantifiers, int maxArraySize) {
+    public static NodeList<Statement> storeOld(
+            Expression expression, List<JmlQuantifiedExpr> relevantQuantifiers, int maxArraySize) {
         relevantQuantifiers = new NodeList<>(relevantQuantifiers);
-        relevantQuantifiers.removeIf(v -> !isSubNode(expression, QuantifierSplitter.getVariable(v).getName()));
+        relevantQuantifiers.removeIf(
+                v -> !isSubNode(expression, QuantifierSplitter.getVariable(v).getName()));
         var translatedExpression = Jml2JavaFacade.translate(expression.clone(), TranslationMode.JAVA);
         expression.setParentNode(expression.getParentNode().get());
         var exprCopy = translatedExpression.value;
@@ -133,24 +138,26 @@ public class Jml2JavaFacade {
             e.printStackTrace();
         }
 
-
         for (int i = 0; i < relevantQuantifiers.size(); ++i) {
             type = new ArrayType(realType);
         }
-        VariableDeclarator varDecl = new VariableDeclarator(type,
+        VariableDeclarator varDecl = new VariableDeclarator(
+                type,
                 "old_" + Math.abs(expression.hashCode()),
-                new ArrayCreationExpr(realType,
+                new ArrayCreationExpr(
+                        realType,
                         new NodeList<>(new ArrayCreationLevel(new IntegerLiteralExpr(String.valueOf(maxArraySize)))),
                         null));
         res.add(new ExpressionStmt(new VariableDeclarationExpr(varDecl, Modifier.finalModifier())));
         Expression e = varDecl.getNameAsExpression();
         for (int i = relevantQuantifiers.size() - 1; i >= 0; --i) {
-            e = new ArrayAccessExpr(e,
+            e = new ArrayAccessExpr(
+                    e,
                     new BinaryExpr(
-                            QuantifierSplitter.getVariable(relevantQuantifiers.get(i)).getNameAsExpression(),
+                            QuantifierSplitter.getVariable(relevantQuantifiers.get(i))
+                                    .getNameAsExpression(),
                             new IntegerLiteralExpr(String.valueOf(maxArraySize)),
-                            BinaryExpr.Operator.REMAINDER)
-            );
+                            BinaryExpr.Operator.REMAINDER));
         }
 
         e = new AssignExpr(e, exprCopy, AssignExpr.Operator.ASSIGN);
@@ -158,16 +165,22 @@ public class Jml2JavaFacade {
 
         for (JmlQuantifiedExpr quantifiedExpr : relevantQuantifiers) {
             Expression lowerBound = QuantifierSplitter.getLowerBound(quantifiedExpr);
-            var translatedLowerBound = Jml2JavaFacade.translate((Expression) lowerBound.clone().setParentNode(quantifiedExpr), TranslationMode.DEMONIC);
+            var translatedLowerBound = Jml2JavaFacade.translate(
+                    (Expression) lowerBound.clone().setParentNode(quantifiedExpr), TranslationMode.DEMONIC);
             lowerBound = translatedLowerBound.value;
             Expression upperBound = QuantifierSplitter.getUpperBound(quantifiedExpr);
-            var translatedUpperBound = Jml2JavaFacade.translate((Expression) upperBound.clone().setParentNode(quantifiedExpr), TranslationMode.DEMONIC);
+            var translatedUpperBound = Jml2JavaFacade.translate(
+                    (Expression) upperBound.clone().setParentNode(quantifiedExpr), TranslationMode.DEMONIC);
             upperBound = translatedUpperBound.value;
 
-            var loopVarDecl = new VariableDeclarationExpr(PrimitiveType.intType(), "__tmp__" + Jml2JavaExpressionTranslator.counter.getAndIncrement());
+            var loopVarDecl = new VariableDeclarationExpr(
+                    PrimitiveType.intType(), "__tmp__" + Jml2JavaExpressionTranslator.counter.getAndIncrement());
             var loopVar = loopVarDecl.getVariable(0).getNameAsExpression();
-            st.accept(new ReplaceVariable(QuantifierSplitter.getVariable(quantifiedExpr), loopVar.getNameAsString()), null);
-            var forLoop = new ForStmt(new NodeList<>(new AssignExpr(loopVarDecl, lowerBound, AssignExpr.Operator.ASSIGN)),
+            st.accept(
+                    new ReplaceVariable(QuantifierSplitter.getVariable(quantifiedExpr), loopVar.getNameAsString()),
+                    null);
+            var forLoop = new ForStmt(
+                    new NodeList<>(new AssignExpr(loopVarDecl, lowerBound, AssignExpr.Operator.ASSIGN)),
                     new BinaryExpr(loopVar, upperBound, BinaryExpr.Operator.LESS_EQUALS),
                     new NodeList<Expression>(new UnaryExpr(loopVar, UnaryExpr.Operator.POSTFIX_INCREMENT)),
                     st);
@@ -190,7 +203,6 @@ public class Jml2JavaFacade {
             expression = expression.getParentNode().get();
         }
         expression.setParentNode(currentNode);
-
     }
 
     public static Statement havoc(Expression expression) {
@@ -243,12 +255,14 @@ public class Jml2JavaFacade {
         blockStmt.setParentNode(expr.getParentNode().get());
         var min = new IntegerLiteralExpr("0");
         var max = new FieldAccessExpr(expr.getName(), "length");
-        var loopVarDecl = new VariableDeclarationExpr(PrimitiveType.intType(), "__tmp__" + Jml2JavaExpressionTranslator.counter.getAndIncrement());
+        var loopVarDecl = new VariableDeclarationExpr(
+                PrimitiveType.intType(), "__tmp__" + Jml2JavaExpressionTranslator.counter.getAndIncrement());
         var loopVar = loopVarDecl.getVariable(0).getNameAsExpression();
         var element = expr.clone();
         element.setParentNode(blockStmt);
         element.setIndex(loopVar);
-        var forLoop = new ForStmt(new NodeList<>(new AssignExpr(loopVarDecl, min, AssignExpr.Operator.ASSIGN)),
+        var forLoop = new ForStmt(
+                new NodeList<>(new AssignExpr(loopVarDecl, min, AssignExpr.Operator.ASSIGN)),
                 new BinaryExpr(loopVar, max, BinaryExpr.Operator.LESS),
                 new NodeList<>(new UnaryExpr(loopVar, UnaryExpr.Operator.POSTFIX_INCREMENT)),
                 new BlockStmt());
@@ -260,13 +274,13 @@ public class Jml2JavaFacade {
     }
 
     public static CompilationUnit translate(CompilationUnit cu, JJBMCOptions options) {
-        //Normlize all binary expressions
+        // Normlize all binary expressions
         cu.accept(new NormalizeBinaryExpressions(), null);
 
-        //add method stubs for call to contracts
+        // add method stubs for call to contracts
         cu.accept(new CreateMethodContracts(options), null);
 
-        //rewrite methods and loops
+        // rewrite methods and loops
         var res = (CompilationUnit) cu.accept(new EmbeddContracts(options), null);
 
         // add exception type to the compilation unit
@@ -279,11 +293,8 @@ public class Jml2JavaFacade {
 
     public static AnnotationExpr createGeneratedAnnotation() {
         return new SingleMemberAnnotationExpr(
-                new Name("javax.annotation.processing.Generated"),
-                new StringLiteralExpr("JJBMC")
-        );
+                new Name("javax.annotation.processing.Generated"), new StringLiteralExpr("JJBMC"));
     }
-
 
     @Data
     @AllArgsConstructor
@@ -321,8 +332,7 @@ public class Jml2JavaFacade {
      * @return
      */
     public static String pprint(Node translation) {
-        DefaultPrettyPrinter pp = new DefaultPrettyPrinter(
-                MyPPrintVisitor::new, new DefaultPrinterConfiguration());
+        DefaultPrettyPrinter pp = new DefaultPrettyPrinter(MyPPrintVisitor::new, new DefaultPrinterConfiguration());
         return pp.print(translation);
     }
 
@@ -332,7 +342,7 @@ public class Jml2JavaFacade {
 
     public static ClassOrInterfaceDeclaration createExceptionClass() {
         var exceptionClass = new ClassOrInterfaceDeclaration();
-        //exceptionClass.addModifier(Modifier.DefaultKeyword.PUBLIC, Modifier.DefaultKeyword.STATIC);
+        // exceptionClass.addModifier(Modifier.DefaultKeyword.PUBLIC, Modifier.DefaultKeyword.STATIC);
         exceptionClass.setName("ReturnException");
         exceptionClass.setExtendedTypes(new NodeList<>(new ClassOrInterfaceType().setName("Exception")));
         exceptionClass.addSingleMemberAnnotation("javax.annotation.processing.Generated", "\"JJBMC\"");
@@ -349,8 +359,12 @@ public class Jml2JavaFacade {
         try {
             var annotation = node.getAnnotationByName("javax.annotation.processing.Generated");
             if (annotation.isPresent()) {
-                var value = annotation.get().asSingleMemberAnnotationExpr().getMemberValue()
-                        .asStringLiteralExpr().getValue();
+                var value = annotation
+                        .get()
+                        .asSingleMemberAnnotationExpr()
+                        .getMemberValue()
+                        .asStringLiteralExpr()
+                        .getValue();
                 return value.equals("JJBMC");
             }
         } catch (NoSuchElementException | ClassCastException | IllegalStateException ignored) {
@@ -362,7 +376,6 @@ public class Jml2JavaFacade {
         Jml2JavaExpressionTranslator j2jt = new Jml2JavaExpressionTranslator();
         return j2jt.accept(expression, mode);
     }
-
 
     public static boolean containsJmlExpression(Expression expression) {
         Stack<Expression> search = new Stack<>();
@@ -387,32 +400,22 @@ public class Jml2JavaFacade {
             }
 
             if (e instanceof BinaryExpr be) {
-                if (be.getOperator() == BinaryExpr.Operator.IMPLICATION)
-                    return true;
-                if (be.getOperator() == BinaryExpr.Operator.RIMPLICATION)
-                    return true;
-                if (be.getOperator() == BinaryExpr.Operator.EQUIVALENCE)
-                    return true;
-                if (be.getOperator() == BinaryExpr.Operator.SUB_LOCK)
-                    return true;
-                if (be.getOperator() == BinaryExpr.Operator.SUB_LOCKE)
-                    return true;
-                if (be.getOperator() == BinaryExpr.Operator.SUBTYPE)
-                    return true;
-                if (be.getOperator() == BinaryExpr.Operator.RANGE)
-                    return true;
-                if (be.getOperator() == BinaryExpr.Operator.ANTIVALENCE)
-                    return true;
+                if (be.getOperator() == BinaryExpr.Operator.IMPLICATION) return true;
+                if (be.getOperator() == BinaryExpr.Operator.RIMPLICATION) return true;
+                if (be.getOperator() == BinaryExpr.Operator.EQUIVALENCE) return true;
+                if (be.getOperator() == BinaryExpr.Operator.SUB_LOCK) return true;
+                if (be.getOperator() == BinaryExpr.Operator.SUB_LOCKE) return true;
+                if (be.getOperator() == BinaryExpr.Operator.SUBTYPE) return true;
+                if (be.getOperator() == BinaryExpr.Operator.RANGE) return true;
+                if (be.getOperator() == BinaryExpr.Operator.ANTIVALENCE) return true;
             }
 
             for (Node childNode : e.getChildNodes()) {
-                if (childNode instanceof Expression ex)
-                    search.add(ex);
+                if (childNode instanceof Expression ex) search.add(ex);
             }
         }
         return false;
     }
-
 
     public static Expression unroll(JmlMultiCompareExpr n) {
         Expression r;
@@ -448,8 +451,7 @@ public class Jml2JavaFacade {
                         case BOOLEAN -> PrimitiveType.Primitive.BOOLEAN;
                         case FLOAT -> PrimitiveType.Primitive.FLOAT;
                         case DOUBLE -> PrimitiveType.Primitive.DOUBLE;
-                    }
-            );
+                    });
         }
 
         if (type.isArray()) {

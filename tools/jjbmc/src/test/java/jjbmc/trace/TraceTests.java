@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package jjbmc.trace;
 
 import jjbmc.ErrorLogger;
@@ -23,7 +27,6 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 @Execution(ExecutionMode.SAME_THREAD)
 public class TraceTests {
     @BeforeAll
@@ -33,35 +36,27 @@ public class TraceTests {
 
     public static Stream<Arguments> getParameters() {
         return Stream.of(
-                Arguments.of("src/test/resources/traceTest/TraceTestCases.java",
+                Arguments.of(
+                        "src/test/resources/traceTest/TraceTestCases.java",
                         "TmpTestOut.txt",
                         List.of("k", "tt", "table"),
                         "test"),
-                Arguments.of("src/test/resources/traceTest/TraceTestCases.java",
-                        "TmpTestOut2.txt",
-                        List.of(),
-                        "test2"),
-                Arguments.of("src/test/resources/traceTest/TraceTestCases.java",
+                Arguments.of("src/test/resources/traceTest/TraceTestCases.java", "TmpTestOut2.txt", List.of(), "test2"),
+                Arguments.of(
+                        "src/test/resources/traceTest/TraceTestCases.java",
                         "TmpTestOut3.txt",
                         List.of("iotable"),
                         "test3"),
-                Arguments.of("src/test/resources/traceTest/TraceTestCases.java",
-                        "TmpTestOut4.txt",
-                        List.of(),
-                        "test4"),
-                Arguments.of("src/test/resources/traceTest/TraceTestCases.java",
-                        "TmpTestOut5.txt",
-                        List.of(),
-                        "test5"),
-                Arguments.of("src/test/resources/traceTest/TraceTestCases.java",
-                        "TmpTestOut6.txt",
-                        List.of(),
-                        "test6"));
+                Arguments.of("src/test/resources/traceTest/TraceTestCases.java", "TmpTestOut4.txt", List.of(), "test4"),
+                Arguments.of("src/test/resources/traceTest/TraceTestCases.java", "TmpTestOut5.txt", List.of(), "test5"),
+                Arguments.of(
+                        "src/test/resources/traceTest/TraceTestCases.java", "TmpTestOut6.txt", List.of(), "test6"));
     }
 
     @ParameterizedTest
     @MethodSource("getParameters")
-    public void traceTest(Path inputFile, String outFile, List<String> relevantVars, String functionName) throws Exception {
+    public void traceTest(Path inputFile, String outFile, List<String> relevantVars, String functionName)
+            throws Exception {
 
         JJBMCOptions options = new JJBMCOptions();
         options.reset();
@@ -69,7 +64,8 @@ public class TraceTests {
         options.keepTranslation = true;
         options.functionName = functionName;
         options.getRelevantVars().addAll(relevantVars);
-        options.setTmpFolder(Paths.get("tmp").resolve("TraceTests").resolve(functionName).toAbsolutePath());
+        options.setTmpFolder(
+                Paths.get("tmp").resolve("TraceTests").resolve(functionName).toAbsolutePath());
         options.setFileName(inputFile);
 
         Operations operations = new Operations(options);
@@ -98,7 +94,5 @@ public class TraceTests {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
-
 }

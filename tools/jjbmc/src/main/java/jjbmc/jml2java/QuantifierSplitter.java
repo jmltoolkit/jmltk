@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package jjbmc.jml2java;
 
 import com.github.javaparser.ast.body.Parameter;
@@ -32,40 +36,42 @@ public class QuantifierSplitter {
     }
 
     private static Expression getUpperBound(BinaryExpr e, NameExpr variable) {
-        if(e.getOperator().equals(BinaryExpr.Operator.AND)) {
+        if (e.getOperator().equals(BinaryExpr.Operator.AND)) {
             Expression leftCandidate = null;
-            if(e.getLeft() instanceof BinaryExpr be) {
+            if (e.getLeft() instanceof BinaryExpr be) {
                 leftCandidate = getUpperBound(be, variable);
             }
             Expression rightCandidate = null;
-            if(e.getRight() instanceof BinaryExpr be) {
+            if (e.getRight() instanceof BinaryExpr be) {
                 rightCandidate = getUpperBound(be, variable);
             }
-            if(rightCandidate == null && leftCandidate == null) {
+            if (rightCandidate == null && leftCandidate == null) {
                 return null;
             }
-            if(rightCandidate != null && leftCandidate != null) {
+            if (rightCandidate != null && leftCandidate != null) {
                 throw new IllegalStateException("Ubiquitous lower bound found in: " + e);
             }
-            if(rightCandidate != null) {
+            if (rightCandidate != null) {
                 return rightCandidate;
             }
             return leftCandidate;
         }
 
-        if(e.getOperator().equals(BinaryExpr.Operator.LESS) && e.getLeft().equals(variable)) {
+        if (e.getOperator().equals(BinaryExpr.Operator.LESS) && e.getLeft().equals(variable)) {
             return e.getRight();
         }
 
-        if (e.getOperator().equals(BinaryExpr.Operator.LESS_EQUALS) && e.getLeft().equals(variable)) {
+        if (e.getOperator().equals(BinaryExpr.Operator.LESS_EQUALS)
+                && e.getLeft().equals(variable)) {
             return new BinaryExpr(e.getRight(), new IntegerLiteralExpr("1"), BinaryExpr.Operator.PLUS);
         }
 
-        if(e.getOperator().equals(BinaryExpr.Operator.GREATER) && e.getRight().equals(variable)) {
+        if (e.getOperator().equals(BinaryExpr.Operator.GREATER) && e.getRight().equals(variable)) {
             return new BinaryExpr(e.getLeft(), new IntegerLiteralExpr("1"), BinaryExpr.Operator.PLUS);
         }
 
-        if(e.getOperator().equals(BinaryExpr.Operator.GREATER_EQUALS) && e.getRight().equals(variable)) {
+        if (e.getOperator().equals(BinaryExpr.Operator.GREATER_EQUALS)
+                && e.getRight().equals(variable)) {
             return e.getLeft();
         }
 
@@ -73,73 +79,95 @@ public class QuantifierSplitter {
     }
 
     private static Expression getUpperBound(JmlMultiCompareExpr expr, NameExpr variable) {
-        if(expr.getExpressions().size() != 3 || expr.getOperators().size() != 2) {
+        if (expr.getExpressions().size() != 3 || expr.getOperators().size() != 2) {
             throw new IllegalStateException("Unable to find lower bound in: " + expr);
         }
-        Expression firstCandidate = getUpperBound(new BinaryExpr(expr.getExpressions().get(0), expr.getExpressions().get(1), expr.getOperators().get(0)), variable);
-        Expression secondCandidate = getUpperBound(new BinaryExpr(expr.getExpressions().get(1), expr.getExpressions().get(2), expr.getOperators().get(1)), variable);
-        if(firstCandidate == null && secondCandidate == null) {
+        Expression firstCandidate = getUpperBound(
+                new BinaryExpr(
+                        expr.getExpressions().get(0),
+                        expr.getExpressions().get(1),
+                        expr.getOperators().get(0)),
+                variable);
+        Expression secondCandidate = getUpperBound(
+                new BinaryExpr(
+                        expr.getExpressions().get(1),
+                        expr.getExpressions().get(2),
+                        expr.getOperators().get(1)),
+                variable);
+        if (firstCandidate == null && secondCandidate == null) {
             return null;
         }
-        if(firstCandidate != null && secondCandidate != null) {
+        if (firstCandidate != null && secondCandidate != null) {
             throw new IllegalStateException("Ubiquitous lower bound found in: " + expr);
         }
-        if(firstCandidate != null) {
+        if (firstCandidate != null) {
             return firstCandidate;
         }
         return secondCandidate;
     }
 
     private static Expression getLowerBound(BinaryExpr e, NameExpr variable) {
-        if(e.getOperator().equals(BinaryExpr.Operator.AND)) {
+        if (e.getOperator().equals(BinaryExpr.Operator.AND)) {
             Expression leftCandidate = null;
-            if(e.getLeft() instanceof BinaryExpr be) {
+            if (e.getLeft() instanceof BinaryExpr be) {
                 leftCandidate = getLowerBound(be, variable);
             }
             Expression rightCandidate = null;
-            if(e.getRight() instanceof BinaryExpr be) {
+            if (e.getRight() instanceof BinaryExpr be) {
                 rightCandidate = getLowerBound(be, variable);
             }
-            if(rightCandidate == null && leftCandidate == null) {
+            if (rightCandidate == null && leftCandidate == null) {
                 return null;
             }
-            if(rightCandidate != null && leftCandidate != null) {
+            if (rightCandidate != null && leftCandidate != null) {
                 throw new IllegalStateException("Ubiquitous lower bound found in: " + e);
             }
-            if(rightCandidate != null) {
+            if (rightCandidate != null) {
                 return rightCandidate;
             }
             return leftCandidate;
         }
 
-        if(e.getOperator().equals(BinaryExpr.Operator.LESS) && e.getRight().equals(variable)) {
+        if (e.getOperator().equals(BinaryExpr.Operator.LESS) && e.getRight().equals(variable)) {
             return new BinaryExpr(e.getLeft(), new IntegerLiteralExpr("1"), BinaryExpr.Operator.PLUS);
         }
-        if(e.getOperator().equals(BinaryExpr.Operator.LESS_EQUALS) && e.getRight().equals(variable)) {
+        if (e.getOperator().equals(BinaryExpr.Operator.LESS_EQUALS)
+                && e.getRight().equals(variable)) {
             return e.getLeft();
         }
-        if(e.getOperator().equals(BinaryExpr.Operator.GREATER) && e.getLeft().equals(variable)) {
+        if (e.getOperator().equals(BinaryExpr.Operator.GREATER) && e.getLeft().equals(variable)) {
             return new BinaryExpr(e.getRight(), new IntegerLiteralExpr("1"), BinaryExpr.Operator.PLUS);
         }
-        if(e.getOperator().equals(BinaryExpr.Operator.GREATER_EQUALS) && e.getLeft().equals(variable)) {
+        if (e.getOperator().equals(BinaryExpr.Operator.GREATER_EQUALS)
+                && e.getLeft().equals(variable)) {
             return e.getRight();
         }
         return null;
     }
 
     private static Expression getLowerBound(JmlMultiCompareExpr expr, NameExpr variable) {
-        if(expr.getExpressions().size() != 3 || expr.getOperators().size() != 2) {
+        if (expr.getExpressions().size() != 3 || expr.getOperators().size() != 2) {
             throw new IllegalStateException("Unable to find lower bound in: " + expr);
         }
-        Expression firstCandidate = getLowerBound(new BinaryExpr(expr.getExpressions().get(0), expr.getExpressions().get(1), expr.getOperators().get(0)), variable);
-        Expression secondCandidate = getLowerBound(new BinaryExpr(expr.getExpressions().get(1), expr.getExpressions().get(2), expr.getOperators().get(1)), variable);
-        if(firstCandidate == null && secondCandidate == null) {
+        Expression firstCandidate = getLowerBound(
+                new BinaryExpr(
+                        expr.getExpressions().get(0),
+                        expr.getExpressions().get(1),
+                        expr.getOperators().get(0)),
+                variable);
+        Expression secondCandidate = getLowerBound(
+                new BinaryExpr(
+                        expr.getExpressions().get(1),
+                        expr.getExpressions().get(2),
+                        expr.getOperators().get(1)),
+                variable);
+        if (firstCandidate == null && secondCandidate == null) {
             return null;
         }
-        if(firstCandidate != null && secondCandidate != null) {
+        if (firstCandidate != null && secondCandidate != null) {
             throw new IllegalStateException("Ubiquitous lower bound found in: " + expr);
         }
-        if(firstCandidate != null) {
+        if (firstCandidate != null) {
             return firstCandidate;
         }
         return secondCandidate;
@@ -151,15 +179,15 @@ public class QuantifierSplitter {
         }
         NameExpr variable = getVariable(n).getNameAsExpression();
 
-        if(n.getExpressions().get(0) instanceof BinaryExpr be) {
+        if (n.getExpressions().get(0) instanceof BinaryExpr be) {
             var res = getLowerBound(be, variable);
-            if(res != null) {
+            if (res != null) {
                 return res;
             }
         }
-        if(n.getExpressions().get(0) instanceof JmlMultiCompareExpr be) {
+        if (n.getExpressions().get(0) instanceof JmlMultiCompareExpr be) {
             var res = getLowerBound(be, variable);
-            if(res != null) {
+            if (res != null) {
                 return res;
             }
         }
@@ -174,13 +202,13 @@ public class QuantifierSplitter {
 
         if (n.getExpressions().get(0) instanceof BinaryExpr be) {
             var res = getUpperBound(be, variable);
-            if(res != null) {
+            if (res != null) {
                 return res;
             }
         }
         if (n.getExpressions().get(0) instanceof JmlMultiCompareExpr be) {
             var res = getUpperBound(be, variable);
-            if(res != null) {
+            if (res != null) {
                 return res;
             }
         }

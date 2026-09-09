@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package jjbmc.jml2java;
 
 import com.github.javaparser.ast.Node;
@@ -42,7 +46,6 @@ public class EmbeddContracts extends ModifierVisitor<@Nullable Object> {
         this(options.forceInliningMethods, options.getMaxArraySize());
     }
 
-
     public static Expression gatherAnd(JmlContract contract, JmlClauseKind jmlClauseKind) {
         List<Expression> all = gather(contract, jmlClauseKind);
         if (all.size() == 1) {
@@ -67,10 +70,8 @@ public class EmbeddContracts extends ModifierVisitor<@Nullable Object> {
         var seq = new LinkedList<Expression>();
         for (JmlClause clause : contract.getClauses()) {
             if (clause.getKind() == jmlClauseKind) {
-                if (clause instanceof JmlSimpleExprClause c)
-                    seq.add(c.getExpression());
-                else if (clause instanceof JmlMultiExprClause c)
-                    seq.addAll(c.getExpression());
+                if (clause instanceof JmlSimpleExprClause c) seq.add(c.getExpression());
+                else if (clause instanceof JmlMultiExprClause c) seq.addAll(c.getExpression());
             }
         }
         return seq;
@@ -79,8 +80,7 @@ public class EmbeddContracts extends ModifierVisitor<@Nullable Object> {
     public static boolean containsInvalidClauses(JmlContract contract) {
         for (JmlClause clause : contract.getClauses()) {
             switch (clause.getKind()) {
-                case ASSIGNABLE, REQUIRES, ENSURES, SIGNALS_ONLY -> {
-                }
+                case ASSIGNABLE, REQUIRES, ENSURES, SIGNALS_ONLY -> {}
                 default -> {
                     return true;
                 }
@@ -100,12 +100,14 @@ public class EmbeddContracts extends ModifierVisitor<@Nullable Object> {
             // Only one contract currently supported
             if (contracts.size() > 1) {
                 return n;
-                //throw new UnsupportedException("Only methods with exactly one contract supported for now. Failed for: " + n.getNameAsString());
+                // throw new UnsupportedException("Only methods with exactly one contract supported for now. Failed for:
+                // " + n.getNameAsString());
             }
 
             if (n.getParentNode().isPresent()) {
                 var copy = n.clone();
-                ClassOrInterfaceDeclaration parentClass = (ClassOrInterfaceDeclaration) n.getParentNode().get();
+                ClassOrInterfaceDeclaration parentClass =
+                        (ClassOrInterfaceDeclaration) n.getParentNode().get();
                 copy.getContracts().clear();
                 parentClass.addMember(copy);
             }
@@ -123,13 +125,12 @@ public class EmbeddContracts extends ModifierVisitor<@Nullable Object> {
                 assignable.forEach(a -> a.setParentNode(contract));
                 sigOnly = gather(contract, JmlClauseKind.SIGNALS_ONLY);
                 sigOnly.forEach(a -> a.setParentNode(contract));
-
             }
 
             if (assignable.isEmpty()) {
                 assignable = Collections.singletonList(new NameExpr("\\everything"));
             }
-            contracts.clear();//delete the contract
+            contracts.clear(); // delete the contract
 
             Jml2JavaFacade.currentNode = n;
             n.setBody(constructMethodBody(n, ensures, requires, assignable, sigOnly));
@@ -139,10 +140,12 @@ public class EmbeddContracts extends ModifierVisitor<@Nullable Object> {
         return n;
     }
 
-    private BlockStmt constructMethodBody(MethodDeclaration method,
-                                          Expression ensures, Expression requires,
-                                          List<Expression> assignable,
-                                          List<Expression> sigOnly) {
+    private BlockStmt constructMethodBody(
+            MethodDeclaration method,
+            Expression ensures,
+            Expression requires,
+            List<Expression> assignable,
+            List<Expression> sigOnly) {
         var block = new BlockStmt();
         block.setParentNode(method);
         if (!method.getType().isVoidType()) {
@@ -167,10 +170,7 @@ public class EmbeddContracts extends ModifierVisitor<@Nullable Object> {
             block.addStatement(body);
         } else {
             // build try-statement
-            var bodyTry = new TryStmt(
-                    body,
-                    new NodeList<>(), null
-            );
+            var bodyTry = new TryStmt(body, new NodeList<>(), null);
             var excBody = new BlockStmt();
             if (foundReturn) {
                 Parameter excParam = new Parameter(RETURN_EXCEPTION_TYPE, RETURN_EXCEPTION_NAME);
@@ -178,17 +178,16 @@ public class EmbeddContracts extends ModifierVisitor<@Nullable Object> {
                 bodyTry.getCatchClauses().add(returnCatchClause);
             }
             for (Expression sigOnlyClause : sigOnly) {
-                bodyTry.getCatchClauses().add(new CatchClause(
-                        new Parameter(new ClassOrInterfaceType().setName(sigOnlyClause.toString()), "exc"),
-                        excBody
-                ));
+                bodyTry.getCatchClauses()
+                        .add(new CatchClause(
+                                new Parameter(new ClassOrInterfaceType().setName(sigOnlyClause.toString()), "exc"),
+                                excBody));
             }
             block.addStatement(bodyTry);
         }
 
-        //assert the post-condition
+        // assert the post-condition
         block.addStatement(Jml2JavaFacade.assert_(ensures));
-
 
         if (!method.getType().isVoidType()) {
             // return stored result
@@ -206,10 +205,11 @@ public class EmbeddContracts extends ModifierVisitor<@Nullable Object> {
             var decreases = gather(contract, JmlClauseKind.DECREASES);
 
             if (decreases.size() != 1) {
-                throw new IllegalStateException("Only exactly one decreases clause supported. However found " +
-                        decreases.size() + " in " + n.getContracts());
+                throw new IllegalStateException("Only exactly one decreases clause supported. However found "
+                        + decreases.size() + " in " + n.getContracts());
             }
-            return handleLoop(loopInvar, assignables, decreases.get(0), n.getCondition(), n.getBody(), new NodeList<>(), n);
+            return handleLoop(
+                    loopInvar, assignables, decreases.get(0), n.getCondition(), n.getBody(), new NodeList<>(), n);
         }
         return super.visit(n, arg);
     }
@@ -229,32 +229,39 @@ public class EmbeddContracts extends ModifierVisitor<@Nullable Object> {
             var assignables = gather(contract, JmlClauseKind.ASSIGNABLE);
             var decreases = gather(contract, JmlClauseKind.DECREASES);
 
-
             if (decreases.size() != 1) {
                 throw new IllegalStateException("Too many decreases clauses");
             }
-            var res = handleLoop(loopInvar, assignables, decreases.get(0),
-                    n.getCompare().orElse(new BooleanLiteralExpr(true)), body, n.getInitialization(), n);
+            var res = handleLoop(
+                    loopInvar,
+                    assignables,
+                    decreases.get(0),
+                    n.getCompare().orElse(new BooleanLiteralExpr(true)),
+                    body,
+                    n.getInitialization(),
+                    n);
             res.setParentNode(n);
             return res;
         }
         return n;
     }
 
-    public BlockStmt handleLoop(List<Expression> loopInvars, List<Expression> assignables, Expression decreases,
-                                Expression loopCondition, Statement body, List<Expression> inits, Node parent) {
+    public BlockStmt handleLoop(
+            List<Expression> loopInvars,
+            List<Expression> assignables,
+            Expression decreases,
+            Expression loopCondition,
+            Statement body,
+            List<Expression> inits,
+            Node parent) {
         var block = new BlockStmt();
         block.setParentNode(parent);
         for (Expression e : inits) {
             block.addStatement(new ExpressionStmt(e));
         }
         var oldD = "oldD" + Jml2JavaExpressionTranslator.counter.getAndIncrement();
-        block.addStatement(
-                new VariableDeclarationExpr(
-                        new VariableDeclarator(
-                                new PrimitiveType(PrimitiveType.Primitive.INT),
-                                oldD,
-                                decreases.clone())));
+        block.addStatement(new VariableDeclarationExpr(
+                new VariableDeclarator(new PrimitiveType(PrimitiveType.Primitive.INT), oldD, decreases.clone())));
 
         for (Expression loopInvar : loopInvars) {
             block.addStatement(Jml2JavaFacade.assert_(loopInvar.clone()));
@@ -271,12 +278,10 @@ public class EmbeddContracts extends ModifierVisitor<@Nullable Object> {
             thenBlock.addStatement(Jml2JavaFacade.assert_(loopInvar).clone());
         }
         if (decreases != null) {
-            thenBlock.addStatement(Jml2JavaFacade.assertStatement(
-                    new BinaryExpr(
-                            new BinaryExpr(decreases.clone(), new NameExpr(oldD), BinaryExpr.Operator.LESS),
-                            new BinaryExpr(new IntegerLiteralExpr("0"), decreases.clone(), BinaryExpr.Operator.LESS_EQUALS),
-                            BinaryExpr.Operator.AND)
-            ));
+            thenBlock.addStatement(Jml2JavaFacade.assertStatement(new BinaryExpr(
+                    new BinaryExpr(decreases.clone(), new NameExpr(oldD), BinaryExpr.Operator.LESS),
+                    new BinaryExpr(new IntegerLiteralExpr("0"), decreases.clone(), BinaryExpr.Operator.LESS_EQUALS),
+                    BinaryExpr.Operator.AND)));
         }
         thenBlock.addStatement(Jml2JavaFacade.assumeStatement(new BooleanLiteralExpr(false)));
         for (Expression loopInvar : loopInvars) {
@@ -306,7 +311,8 @@ public class EmbeddContracts extends ModifierVisitor<@Nullable Object> {
         for (Expression argument : n.getArguments()) {
             arguments.add((Expression) argument.accept(this, arg));
         }
-        var contractCall = new MethodCallExpr(n.getName().toString() + "Contract", n.getArguments().toArray(Expression[]::new));
+        var contractCall = new MethodCallExpr(
+                n.getName().toString() + "Contract", n.getArguments().toArray(Expression[]::new));
         return contractCall;
     }
 
@@ -319,7 +325,8 @@ public class EmbeddContracts extends ModifierVisitor<@Nullable Object> {
             Expression returnVal = (Expression) n.getExpression().get().accept(this, arg);
             block.addStatement(new AssignExpr(new NameExpr(RESULTVAR), returnVal, AssignExpr.Operator.ASSIGN));
         }
-        block.addStatement(new ThrowStmt(new ObjectCreationExpr(null, new ClassOrInterfaceType().setName(RETURN_EXCEPTION_TYPE.asString()), new NodeList<>())));
+        block.addStatement(new ThrowStmt(new ObjectCreationExpr(
+                null, new ClassOrInterfaceType().setName(RETURN_EXCEPTION_TYPE.asString()), new NodeList<>())));
         return block;
     }
 }

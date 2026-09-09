@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package jjbmc;
 
 import jjbmc.utils.Utils;
@@ -22,7 +26,7 @@ public class IntegrationTests {
 
     @TestFactory
     public Stream<DynamicTest> fiTests() throws Exception {
-        //JJBMCOptions.forceInliningMethods = false;
+        // JJBMCOptions.forceInliningMethods = false;
         return getTestStream("FITests.java");
     }
 
@@ -37,21 +41,20 @@ public class IntegrationTests {
     }
 
     private static Stream<DynamicTest> getTestStream(String filename) throws Exception {
-        return getTestStream(filename, (it) -> {
-        });
+        return getTestStream(filename, (it) -> {});
     }
 
-    private static Stream<DynamicTest> getTestStream(String filename, Consumer<JJBMCOptions> configure) throws Exception {
+    private static Stream<DynamicTest> getTestStream(String filename, Consumer<JJBMCOptions> configure)
+            throws Exception {
         return Utils.prepareParameters(Utils.SRC_TEST_RESOURCES.resolve("tests").resolve(filename))
                 .map(it -> {
                     JJBMCOptions o = it.op().getOptions();
                     String displayName = o.getFileName().getFileName() + "::" + o.functionName;
 
-                    return DynamicTest.dynamicTest(displayName,
-                            () -> {
-                                configure.accept(o);
-                                Utils.runTests(it);
-                            });
+                    return DynamicTest.dynamicTest(displayName, () -> {
+                        configure.accept(o);
+                        Utils.runTests(it);
+                    });
                 });
     }
 }

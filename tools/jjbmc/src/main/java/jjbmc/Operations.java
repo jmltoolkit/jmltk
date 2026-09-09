@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package jjbmc;
 
 import com.github.javaparser.JavaParser;
@@ -14,10 +18,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
-import javax.tools.DiagnosticCollector;
-import javax.tools.JavaCompiler;
-import javax.tools.JavaFileObject;
-import javax.tools.ToolProvider;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -27,14 +27,21 @@ import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.concurrent.*;
 
+import javax.tools.DiagnosticCollector;
+import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
+import javax.tools.ToolProvider;
+
 import static jjbmc.ErrorLogger.*;
 
 @RequiredArgsConstructor
 @Getter
 public class Operations implements Callable<Integer> {
     private final JJBMCOptions options;
+
     @Nullable
     private Process jbmcProcess;
+
     private List<String> jbmcOptions = new LinkedList<>();
 
     public static CompilationUnit translate(File file, JJBMCOptions options) throws Exception {
@@ -48,11 +55,10 @@ public class Operations implements Callable<Integer> {
         ParserConfiguration config = new ParserConfiguration();
         config.setJmlKeys(ImmutableList.of(ImmutableList.of("openjml")));
         config.setProcessJml(true);
-        config.setSymbolResolver(new JavaSymbolSolver(
-                new TypeSolverBuilder()
-                        .withSourceCode(options.getTmpFolder())
-                        .withCurrentJRE()
-                        .build()));
+        config.setSymbolResolver(new JavaSymbolSolver(new TypeSolverBuilder()
+                .withSourceCode(options.getTmpFolder())
+                .withCurrentJRE()
+                .build()));
         JavaParser parser = new JavaParser(config);
 
         List<CompilationUnit> compilationUnits = new ArrayList<>(32);
@@ -63,7 +69,8 @@ public class Operations implements Callable<Integer> {
         } else {
             result.getProblems().forEach(System.out::println);
             final var first = result.getProblems().get(0);
-            throw new RuntimeException(first.getVerboseMessage(), first.getCause().orElse(null));
+            throw new RuntimeException(
+                    first.getVerboseMessage(), first.getCause().orElse(null));
         }
     }
 
@@ -93,7 +100,6 @@ public class Operations implements Callable<Integer> {
             warn("Unwinds is set to less than maxArraySize + 2. This may lead to unsound behaviour.");
         }
 
-
         final var file = options.getFileName();
         if (!Files.exists(file)) {
             throw new FileNotFoundException("Could not find file " + file);
@@ -122,8 +128,10 @@ public class Operations implements Callable<Integer> {
             long finish = System.currentTimeMillis();
             debug("Translation.Translation took: " + (finish - start) + "ms");
 
-            String packageName = translation.getPackageDeclaration()
-                    .map(NodeWithName::getNameAsString).orElse("");
+            String packageName = translation
+                    .getPackageDeclaration()
+                    .map(NodeWithName::getNameAsString)
+                    .orElse("");
             Files.deleteIfExists(tmpFile);
             packageName = packageName.replace(".", "/");
             var packageFolder = options.getTmpFolder().resolve(packageName);
@@ -150,8 +158,8 @@ public class Operations implements Callable<Integer> {
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         var fileManager = javac.getStandardFileManager(diagnostics, Locale.ENGLISH, Charset.defaultCharset());
 
-        //StringWriter output = new StringWriter();
-        //List<String> classes = new ArrayList<>();
+        // StringWriter output = new StringWriter();
+        // List<String> classes = new ArrayList<>();
         try (var s = Files.walk(options.getTmpFolder())) {
             var files = s.filter(f -> !Files.isDirectory(f))
                     .filter(f -> f.getFileName().toString().endsWith(".java"))
@@ -160,8 +168,8 @@ public class Operations implements Callable<Integer> {
             Iterable<? extends JavaFileObject> compilationUnits =
                     fileManager.getJavaFileObjects(files.toArray(new Path[0]));
 
-            JavaCompiler.CompilationTask task = javac.getTask(new PrintWriter(System.out),
-                    fileManager, diagnostics, List.of("-g"), List.of(), compilationUnits);
+            JavaCompiler.CompilationTask task = javac.getTask(
+                    new PrintWriter(System.out), fileManager, diagnostics, List.of("-g"), List.of(), compilationUnits);
 
             long start = System.currentTimeMillis();
             var b = task.call();
@@ -178,12 +186,15 @@ public class Operations implements Callable<Integer> {
 
     private void compileWithJavac() throws Exception {
         var tmpFile = options.getTmpFile();
-        var commands = new ArrayList<>(List.of(options.getJavacBinary().toString(), "-g",
+        var commands = new ArrayList<>(List.of(
+                options.getJavacBinary().toString(),
+                "-g",
                 options.getTmpFolder().relativize(tmpFile).toString()));
         commands.addAll(options.apiArgs);
 
         debug("Compiling translated file: " + commands);
-        var out = ProcessBuilder.Redirect.to(options.getTmpFolder().resolve("compilationErrors.txt").toFile());
+        var out = ProcessBuilder.Redirect.to(
+                options.getTmpFolder().resolve("compilationErrors.txt").toFile());
         ProcessBuilder pb = new ProcessBuilder(commands)
                 .redirectOutput(out)
                 .redirectError(out)
@@ -236,7 +247,9 @@ public class Operations implements Callable<Integer> {
             if (!options.functionName.endsWith("Verification")) {
                 options.functionName = options.functionName + "Verification";
             }
-            functionNames = functionNames.stream().filter(f -> f.contains("." + options.functionName + ":")).toList();
+            functionNames = functionNames.stream()
+                    .filter(f -> f.contains("." + options.functionName + ":"))
+                    .toList();
             if (functionNames.isEmpty()) {
                 warn("Function " + options.functionName + " could not be found in the specified file.");
                 warn("Found the following functions: " + allFunctionNames);
@@ -288,7 +301,6 @@ public class Operations implements Callable<Integer> {
             info("JBMC took " + time + "ms.");
         }
 
-
         if (output.getErrors().isEmpty()) {
             if (options.runWithTrace) {
                 String traces = output.printAllTraces();
@@ -296,7 +308,7 @@ public class Operations implements Callable<Integer> {
                     info(traces);
                 }
             }
-            //Arrays.stream(traces.split("\n")).forEach(s -> log.info(s));
+            // Arrays.stream(traces.split("\n")).forEach(s -> log.info(s));
             String status = output.printStatus();
             if (status.contains("SUCC")) {
                 info(GREEN_BOLD + status + RESET);
@@ -314,7 +326,7 @@ public class Operations implements Callable<Integer> {
             debug("Running jbmc for function: " + functionName);
             String classFile = options.getTmpFile().getFileName().toString().replace(".java", "");
             classFile = classFile.substring(classFile.lastIndexOf(File.separator + "tmp") + 5);
-            //classFile = "." + classFile;
+            // classFile = "." + classFile;
 
             ArrayList<String> tmp = new ArrayList<>();
             if (options.isWindows()) {
@@ -334,9 +346,9 @@ public class Operations implements Callable<Integer> {
             jbmcOptions = prepareJBMCOptions(options.getJbmcOptions());
             tmp.addAll(options.getJbmcOptions());
             tmp.add("--xml-ui");
-            //tmp.add("--cp");
+            // tmp.add("--cp");
             String libPath = System.getProperty("java.library.path");
-            //tmp.add(libPath);
+            // tmp.add(libPath);
             String[] commands = new String[tmp.size()];
             commands = tmp.toArray(commands);
 
@@ -353,13 +365,9 @@ public class Operations implements Callable<Integer> {
 
             jbmcProcess = rt.exec(commands, null, options.getTmpFolder().toFile());
 
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(jbmcProcess.getInputStream()));
 
-            BufferedReader stdInput = new BufferedReader(new
-                    InputStreamReader(jbmcProcess.getInputStream()));
-
-            BufferedReader stdError = new BufferedReader(new
-                    InputStreamReader(jbmcProcess.getErrorStream()));
-
+            BufferedReader stdError = new BufferedReader(new InputStreamReader(jbmcProcess.getErrorStream()));
 
             StringBuilder sb = new StringBuilder();
             String line = stdInput.readLine();
@@ -373,20 +381,19 @@ public class Operations implements Callable<Integer> {
                 return;
             }
 
-            //Has to stay down here otherwise not reading the output may block the process
+            // Has to stay down here otherwise not reading the output may block the process
             jbmcProcess.waitFor();
             long end = System.currentTimeMillis();
 
             String xmlOutput = sb.toString();
-            //String error = sb2.toString();
-
+            // String error = sb2.toString();
 
             if ((jbmcProcess.exitValue() != 0 && jbmcProcess.exitValue() != 10) || options.keepTranslation) {
                 options.keepTranslation = true;
                 Files.writeString(options.getTmpFolder().toAbsolutePath().resolve("xmlout.xml"), xmlOutput);
                 if (jbmcProcess.exitValue() != 0 && jbmcProcess.exitValue() != 10) {
-                    error("JBMC did not terminate as expected for function: " + functionName +
-                            "\nif ran with -kt option jbmc output can be found in xmlout.xml in the tmp folder");
+                    error("JBMC did not terminate as expected for function: " + functionName
+                            + "\nif ran with -kt option jbmc output can be found in xmlout.xml in the tmp folder");
                     return;
                 }
             } else {
@@ -395,7 +402,8 @@ public class Operations implements Callable<Integer> {
 
             if ((options.isFullTraceRequested() || !options.getRelevantVars().isEmpty()) && !options.runWithTrace) {
                 options.runWithTrace = true;
-                warn("Options concerning the trace where found but not -tr option was given. \"-tr\" was automatically added.");
+                warn(
+                        "Options concerning the trace where found but not -tr option was given. \"-tr\" was automatically added.");
             }
 
             if (xmlOutput.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {
@@ -422,7 +430,7 @@ public class Operations implements Callable<Integer> {
                 try {
                     Files.deleteIfExists(options.getTmpFolder());
                 } catch (IOException e) {
-                    //log.info("Could not delete tmp folder.");
+                    // log.info("Could not delete tmp folder.");
                 }
             }
         }
@@ -432,13 +440,12 @@ public class Operations implements Callable<Integer> {
     public static void deleteFolder(Path folder, boolean all) throws IOException {
         if (Files.exists(folder)) {
             try (var walk = Files.walk(folder)) {
-                walk.sorted(Comparator.reverseOrder())
-                        .forEach(path -> {
-                            try {
-                                Files.deleteIfExists(path);
-                            } catch (IOException ignored) {
-                            }
-                        });
+                walk.sorted(Comparator.reverseOrder()).forEach(path -> {
+                    try {
+                        Files.deleteIfExists(path);
+                    } catch (IOException ignored) {
+                    }
+                });
             }
         }
         /*File[] tmpFiles = folder.listFiles();
@@ -467,11 +474,10 @@ public class Operations implements Callable<Integer> {
     }
 
     private boolean verifyJavaVersion(String binary) {
-        String[] commands = new String[]{binary, "-version"};
+        String[] commands = new String[] {binary, "-version"};
         Process p;
         try {
-            ProcessBuilder pb = new ProcessBuilder().command(commands)
-                    .redirectErrorStream(true);
+            ProcessBuilder pb = new ProcessBuilder().command(commands).redirectErrorStream(true);
             p = pb.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String line = reader.readLine();
@@ -503,6 +509,4 @@ public class Operations implements Callable<Integer> {
         }
         return 0;
     }
-
-
 }

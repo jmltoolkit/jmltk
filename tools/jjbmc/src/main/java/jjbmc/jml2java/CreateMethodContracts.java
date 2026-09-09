@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package jjbmc.jml2java;
 
 import com.github.javaparser.ast.Modifier;
@@ -26,28 +30,29 @@ import static jjbmc.jml2java.EmbeddContracts.*;
  */
 @RequiredArgsConstructor
 public class CreateMethodContracts extends VoidVisitorAdapter<@Nullable Object> {
-    @Nullable TypeDeclaration<?> last;
+    @Nullable
+    TypeDeclaration<?> last;
+
     private final int maxArraySize;
 
     public CreateMethodContracts(JJBMCOptions options) {
         this(options.getMaxArraySize());
     }
 
-
     @Override
     public void visit(ClassOrInterfaceDeclaration n, Object arg) {
         last = n;
 
         // Make a copy to avoid concurrent modification exception as new methods are created
-        //var seq = new ArrayList<>(n.getMembers());
+        // var seq = new ArrayList<>(n.getMembers());
         NodeList<BodyDeclaration<?>> newMembers = new NodeList<>();
         for (BodyDeclaration bd : n.getMembers()) {
             newMembers.add(bd.clone());
         }
         n.setMembers(newMembers);
-        //seq.forEach((p) -> {
-        //p.accept(this, arg);
-        //});
+        // seq.forEach((p) -> {
+        // p.accept(this, arg);
+        // });
     }
 
     @Override
@@ -58,14 +63,15 @@ public class CreateMethodContracts extends VoidVisitorAdapter<@Nullable Object> 
             return;
         }
         if (contracts.getFirst().isEmpty() || contracts.size() != 1) {
-            throw new IllegalStateException("The number of contracts is " + contracts.size() + " only 1 contract supported for method: " + n.getNameAsString());
+            throw new IllegalStateException("The number of contracts is " + contracts.size()
+                    + " only 1 contract supported for method: " + n.getNameAsString());
         }
 
         var contract = contracts.getFirst().get();
         if (EmbeddContracts.containsInvalidClauses(contract)) {
             throw new IllegalStateException("Found invalid clause in: " + contract);
         }
-        //assert !EmbeddContracts.containsInvalidClauses(contract);
+        // assert !EmbeddContracts.containsInvalidClauses(contract);
 
         var ensures = gatherAnd(contract, JmlClauseKind.ENSURES);
         var requires = gatherAnd(contract, JmlClauseKind.REQUIRES);

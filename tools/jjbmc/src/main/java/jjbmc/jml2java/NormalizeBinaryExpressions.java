@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package jjbmc.jml2java;
 
 import com.github.javaparser.ast.Node;
@@ -33,10 +37,10 @@ public class NormalizeBinaryExpressions extends ModifierVisitor<@Nullable Object
     }
 
     private JmlQuantifiedExpr.JmlDefaultBinder getDualQuantifier(JmlQuantifiedExpr.JmlBinder quantifier) {
-        if(quantifier.equals(JmlQuantifiedExpr.JmlDefaultBinder.FORALL)) {
+        if (quantifier.equals(JmlQuantifiedExpr.JmlDefaultBinder.FORALL)) {
             return JmlQuantifiedExpr.JmlDefaultBinder.EXISTS;
         }
-        if(quantifier.equals(JmlQuantifiedExpr.JmlDefaultBinder.EXISTS)) {
+        if (quantifier.equals(JmlQuantifiedExpr.JmlDefaultBinder.EXISTS)) {
             return JmlQuantifiedExpr.JmlDefaultBinder.FORALL;
         }
         throw new UnsupportedException("Quantifier " + quantifier + " not supported.");
@@ -44,7 +48,7 @@ public class NormalizeBinaryExpressions extends ModifierVisitor<@Nullable Object
 
     @Override
     public Visitable visit(BinaryExpr n, Object arg) {
-        if(n.getOperator().equals(BinaryExpr.Operator.ANTIVALENCE)) {
+        if (n.getOperator().equals(BinaryExpr.Operator.ANTIVALENCE)) {
             return swapOperator(n, BinaryExpr.Operator.NOT_EQUALS);
         }
         return super.visit(n, arg);
@@ -52,15 +56,20 @@ public class NormalizeBinaryExpressions extends ModifierVisitor<@Nullable Object
 
     @Override
     public Visitable visit(UnaryExpr n, Object arg) {
-        if(n.getOperator().equals(UnaryExpr.Operator.LOGICAL_COMPLEMENT)) {
-            if(n.getChildNodes().get(0) instanceof JmlQuantifiedExpr) {
-                JmlQuantifiedExpr quantifiedExpression = (JmlQuantifiedExpr) n.getChildNodes().get(0);
-                Expression inner = quantifiedExpression.getExpressions().getLast().get();
+        if (n.getOperator().equals(UnaryExpr.Operator.LOGICAL_COMPLEMENT)) {
+            if (n.getChildNodes().get(0) instanceof JmlQuantifiedExpr) {
+                JmlQuantifiedExpr quantifiedExpression =
+                        (JmlQuantifiedExpr) n.getChildNodes().get(0);
+                Expression inner =
+                        quantifiedExpression.getExpressions().getLast().get();
                 inner = addNot(inner);
                 NodeList<Expression> expressions = new NodeList<>();
-                expressions.addAll(quantifiedExpression.getExpressions().subList(0, quantifiedExpression.getExpressions().size() - 1));
+                expressions.addAll(quantifiedExpression
+                        .getExpressions()
+                        .subList(0, quantifiedExpression.getExpressions().size() - 1));
                 expressions.add(inner);
-                JmlQuantifiedExpr newQuantifiedExpr = new JmlQuantifiedExpr(quantifiedExpression.getTokenRange().get(),
+                JmlQuantifiedExpr newQuantifiedExpr = new JmlQuantifiedExpr(
+                        quantifiedExpression.getTokenRange().get(),
                         getDualQuantifier(quantifiedExpression.getBinder()),
                         quantifiedExpression.getVariables(),
                         expressions);

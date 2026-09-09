@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package jjbmc;
 
 import jjbmc.trace.Trace;
@@ -15,7 +19,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class JBMCOutput {
-    @Setter private String proverStatus = "";
+    @Setter
+    private String proverStatus = "";
+
     private List<String> messages = new ArrayList<>();
     private List<String> errors = new ArrayList<>();
     private List<String> properties = new ArrayList<>();
@@ -24,7 +30,8 @@ public class JBMCOutput {
     private List<@Nullable Trace> traces = new ArrayList<>();
     private List<Integer> lineNumbers = new ArrayList<>();
 
-    public void addProperty(String name, @Nullable Trace trace, int lineNumber, @Nullable String reason, @Nullable String ass) {
+    public void addProperty(
+            String name, @Nullable Trace trace, int lineNumber, @Nullable String reason, @Nullable String ass) {
         properties.add(name);
         traces.add(trace);
         lineNumbers.add(lineNumber);
@@ -43,7 +50,11 @@ public class JBMCOutput {
             return "";
         }
 
-        sb.append("Trace for PVC: ").append(property).append(" in line ").append(lineNumbers.get(idx)).append("\n");
+        sb.append("Trace for PVC: ")
+                .append(property)
+                .append(" in line ")
+                .append(lineNumbers.get(idx))
+                .append("\n");
         trace.filterAssignments();
         trace.getFinalVals();
         if (printGuesses) {
@@ -58,11 +69,21 @@ public class JBMCOutput {
             if (assertion != null && assertion.contains("\"Illegal assignment ")) {
                 assertion = assertion.substring(assertion.indexOf("\"") + 1, assertion.length() - 2);
             }
-            sb.append("Fail in line ").append(lineNumbers.get(idx)).append(": ").append(assertion).append(" (").append(reasons.get(idx)).append(")\n");
+            sb.append("Fail in line ")
+                    .append(lineNumbers.get(idx))
+                    .append(": ")
+                    .append(assertion)
+                    .append(" (")
+                    .append(reasons.get(idx))
+                    .append(")\n");
             sb.append("with concrete values: \n");
             sb.append(printFinalVals(traces.get(idx)));
         } else {
-            sb.append("Fail in line ").append(lineNumbers.get(idx)).append(": ").append(reasons.get(idx)).append("\n");
+            sb.append("Fail in line ")
+                    .append(lineNumbers.get(idx))
+                    .append(": ")
+                    .append(reasons.get(idx))
+                    .append("\n");
         }
         sb.append("\n");
         return sb.toString();
@@ -110,7 +131,6 @@ public class JBMCOutput {
         return sb.toString();
     }
 
-
     private String cutArrayString(String s, int size) {
         int pos = s.indexOf(",");
         while (--size > 0 && pos != -1) {
@@ -118,6 +138,4 @@ public class JBMCOutput {
         }
         return s.substring(0, pos - 1) + "}";
     }
-
-
 }

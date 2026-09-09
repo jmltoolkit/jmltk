@@ -1,3 +1,4 @@
-@NullMarked package jjbmc;
+@NullMarked
+package jjbmc;
 
 import org.jspecify.annotations.NullMarked;

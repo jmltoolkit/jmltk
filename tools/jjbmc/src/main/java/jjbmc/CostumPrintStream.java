@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package jjbmc;
 
 import java.io.File;
@@ -6,8 +10,8 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
 /*
-    This only prevents some error messages from being displayed.
-     */
+This only prevents some error messages from being displayed.
+ */
 public class CostumPrintStream extends PrintStream {
     private static boolean filtered = false;
     private static boolean active = true;

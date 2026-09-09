@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package jjbmc.utils;
 
 import com.github.javaparser.JavaParser;
@@ -44,8 +48,8 @@ public class Utils {
         options.keepTranslation = true;
         options.setDebugMode(true);
         options.setFileName(fileName);
-        options.setTmpFolder(TMP_FOLDER.resolve(
-                fileName.getFileName().toString().replace(".java", "")));
+        options.setTmpFolder(
+                TMP_FOLDER.resolve(fileName.getFileName().toString().replace(".java", "")));
 
         createAnnotationsFolder(options.getTmpFolder());
 
@@ -57,11 +61,10 @@ public class Utils {
         ParserConfiguration config = new ParserConfiguration();
         config.setJmlKeys(ImmutableList.of(ImmutableList.of("openjml")));
         config.setProcessJml(true);
-        config.setSymbolResolver(new JavaSymbolSolver(
-                new TypeSolverBuilder()
-                        .withSourceCode(options.getTmpFolder())
-                        .withCurrentJRE()
-                        .build()));
+        config.setSymbolResolver(new JavaSymbolSolver(new TypeSolverBuilder()
+                .withSourceCode(options.getTmpFolder())
+                .withCurrentJRE()
+                .build()));
         JavaParser parser = new JavaParser(config);
 
         ParseResult<CompilationUnit> result;
@@ -87,22 +90,24 @@ public class Utils {
         return params;
     }
 
-
     private static void createAnnotationsFolder(Path path) throws IOException {
         var dir = path.resolve("jjbmc");
         info("Copying Annotation files to %s", dir.toAbsolutePath());
 
         Files.createDirectories(dir);
 
-        Files.copy(SRC_TEST_JAVA.resolve("jjbmc/Fails.java"),
+        Files.copy(
+                SRC_TEST_JAVA.resolve("jjbmc/Fails.java"),
                 dir.resolve("Fails.java"),
                 StandardCopyOption.REPLACE_EXISTING);
 
-        Files.copy(SRC_TEST_JAVA.resolve("jjbmc/Verifyable.java"),
+        Files.copy(
+                SRC_TEST_JAVA.resolve("jjbmc/Verifyable.java"),
                 dir.resolve("Verifyable.java"),
                 StandardCopyOption.REPLACE_EXISTING);
 
-        Files.copy(SRC_TEST_JAVA.resolve("jjbmc/Unwind.java"),
+        Files.copy(
+                SRC_TEST_JAVA.resolve("jjbmc/Unwind.java"),
                 dir.resolve("Unwind.java"),
                 StandardCopyOption.REPLACE_EXISTING);
     }
@@ -128,7 +133,7 @@ public class Utils {
                 function = function.replace("<init>", "<clinit>");
             }
             function = "\"%s\"".formatted(function);
-            //classFile = classFile.replaceAll("\\\\", "/");
+            // classFile = classFile.replaceAll("\\\\", "/");
             commandList.add("cmd.exe");
             commandList.add("/c");
         }
@@ -147,16 +152,12 @@ public class Utils {
 
         var parentDir = opts.getTmpFolder();
 
-        Process proc = new ProcessBuilder(commandList)
-                .directory(parentDir.toFile())
-                .start();
+        Process proc =
+                new ProcessBuilder(commandList).directory(parentDir.toFile()).start();
 
+        BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 
-        BufferedReader stdInput = new BufferedReader(new
-                InputStreamReader(proc.getInputStream()));
-
-        BufferedReader stdError = new BufferedReader(new
-                InputStreamReader(proc.getErrorStream()));
+        BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
         proc.waitFor();
 
         var out = stdInput.lines().toList();

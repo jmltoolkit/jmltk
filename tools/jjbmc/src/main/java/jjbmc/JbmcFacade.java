@@ -1,5 +1,8 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package jjbmc;
-
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,20 +15,18 @@ import static jjbmc.ErrorLogger.*;
 public class JbmcFacade {
     static boolean verifyJBMCVersion(String jbmcBin, boolean isWindows) {
         try {
-            String[] commands = new String[]{jbmcBin};
+            String[] commands = new String[] {jbmcBin};
             if (isWindows) {
-                commands = new String[]{"cmd.exe", "/c", jbmcBin};
+                commands = new String[] {"cmd.exe", "/c", jbmcBin};
             }
 
             Runtime rt = Runtime.getRuntime();
 
             Process process = rt.exec(commands);
 
-            BufferedReader stdInput = new BufferedReader(new
-                    InputStreamReader(process.getInputStream()));
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
-            BufferedReader stdError = new BufferedReader(new
-                    InputStreamReader(process.getErrorStream()));
+            BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
             StringBuilder sb = new StringBuilder();
             String line = stdInput.readLine();
@@ -43,30 +44,33 @@ public class JbmcFacade {
                 line = stdError.readLine();
             }
 
-            //Has to stay down here otherwise not reading the output may block the process
+            // Has to stay down here otherwise not reading the output may block the process
             process.waitFor();
 
             String output = sb.toString();
             String error = sb2;
             if (output.toLowerCase().contains("jbmc version")) {
                 debug("Found valid jbmc version: " + output);
-                Pattern pattern = Pattern.compile("jbmc version (\\d*)\\.(\\d*)\\.(\\d*)? \\(", Pattern.CASE_INSENSITIVE);
+                Pattern pattern =
+                        Pattern.compile("jbmc version (\\d*)\\.(\\d*)\\.(\\d*)? \\(", Pattern.CASE_INSENSITIVE);
                 Matcher matcher = pattern.matcher(output);
                 boolean matchFound = matcher.find();
                 if (Integer.parseInt(matcher.group(1)) < JJBMCOptions.jbmcMajorVer) {
                     error("Error validating jbmc binary \"" + jbmcBin + "\"");
                     error("Found version: " + output);
-                    error("but at least version " + JJBMCOptions.jbmcMajorVer + "." + JJBMCOptions.jbmcMinorVer + " is required.");
-                    error("Either install jbmc and make sure it is included in the path or provide " +
-                            "a jbmc binary manually with the -jbmcBinary option");
+                    error("but at least version " + JJBMCOptions.jbmcMajorVer + "." + JJBMCOptions.jbmcMinorVer
+                            + " is required.");
+                    error("Either install jbmc and make sure it is included in the path or provide "
+                            + "a jbmc binary manually with the -jbmcBinary option");
                     error("To install jbmc (as part of cbmc) head to https://github.com/diffblue/cbmc/releases/ ");
                     return false;
                 } else if (Integer.parseInt(matcher.group(2)) < JJBMCOptions.jbmcMinorVer) {
                     error("Error validating jbmc binary \"" + jbmcBin + "\"");
                     error("Found version: " + output);
-                    error("but at least version " + JJBMCOptions.jbmcMajorVer + "." + JJBMCOptions.jbmcMinorVer + " is required.");
-                    error("Either install jbmc and make sure it is included in the path or provide " +
-                            "a jbmc binary manually with the -jbmcBinary option");
+                    error("but at least version " + JJBMCOptions.jbmcMajorVer + "." + JJBMCOptions.jbmcMinorVer
+                            + " is required.");
+                    error("Either install jbmc and make sure it is included in the path or provide "
+                            + "a jbmc binary manually with the -jbmcBinary option");
                     error("To install jbmc (as part of cbmc) head to https://github.com/diffblue/cbmc/releases/ ");
                     return false;
                 }
@@ -74,13 +78,15 @@ public class JbmcFacade {
             }
         } catch (IOException | InterruptedException e) {
             error("Error validating jbmc binary \"" + jbmcBin + "\" (" + e.getMessage() + ")");
-            error("Either install jbmc and make sure it is included in the path or provide a jbmc binary manually with the -jbmcBinary option");
+            error(
+                    "Either install jbmc and make sure it is included in the path or provide a jbmc binary manually with the -jbmcBinary option");
             error("To install jbmc (as part of cbmc) head to https://github.com/diffblue/cbmc/releases/ ");
-            //e.printStackTrace();
+            // e.printStackTrace();
             return false;
         }
         error("Error validating jbmc binary \"" + jbmcBin + "\"");
-        error("Either install jbmc and make sure it is included in the path or provide a jbmc binary manually with the -jbmcBinary option");
+        error(
+                "Either install jbmc and make sure it is included in the path or provide a jbmc binary manually with the -jbmcBinary option");
         error("To install jbmc (as part of cbmc) head to https://github.com/diffblue/cbmc/releases/ ");
         return true;
     }

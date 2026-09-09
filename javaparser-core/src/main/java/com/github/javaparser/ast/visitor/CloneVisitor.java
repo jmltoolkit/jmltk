@@ -1853,6 +1853,7 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
     @Override
     public Visitable visit(final CompactConstructorDeclaration n, final Object arg) {
         BlockStmt body = cloneNode(n.getBody(), arg);
+        NodeList<JmlContract> contracts = cloneList(n.getContracts(), arg);
         NodeList<Modifier> modifiers = cloneList(n.getModifiers(), arg);
         SimpleName name = cloneNode(n.getName(), arg);
         NodeList<ReferenceType> thrownExceptions = cloneList(n.getThrownExceptions(), arg);
@@ -1862,7 +1863,14 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
                 cloneList(n.getAssociatedSpecificationComments().orElse(null), arg);
         Comment comment = cloneNode(n.getComment(), arg);
         CompactConstructorDeclaration r = new CompactConstructorDeclaration(
-                n.getTokenRange().orElse(null), modifiers, annotations, typeParameters, name, thrownExceptions, body);
+                n.getTokenRange().orElse(null),
+                modifiers,
+                annotations,
+                typeParameters,
+                name,
+                thrownExceptions,
+                contracts,
+                body);
         r.setComment(comment);
         n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
         copyData(n, r);

@@ -1,6 +1,8 @@
 plugins {
-    id("buildlogic.java-conventions")
+    id("standard-kotlin")
 }
+
+description = "io.github.jmltoolkit:jmlparser-jml-tests"
 
 dependencies {
     testImplementation(project(":jmlparser-core"))
@@ -10,6 +12,5 @@ dependencies {
     testImplementation(project(":jmlparser-symbol-solver-testing"))
     testImplementation(libs.bundles.testing)
     testRuntimeOnly(libs.bundles.testing.runtime)
+    testImplementation(kotlin("test"))
 }
-
-description = "io.github.jmltoolkit:jmlparser-jml-tests"

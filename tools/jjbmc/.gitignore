@@ -1,0 +1,20 @@
+#ignore tmp files
+*~
+*.swp
+*tmp.java
+**/tmp
+
+#Java
+*.class
+
+#IntelliJ
+.idea/
+
+#Gradle
+build/
+.gradle/
+gradle/
+gradlew
+gradlew.bat
+JJBMC.jar
+

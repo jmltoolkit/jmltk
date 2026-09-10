@@ -2,120 +2,125 @@
  * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
  * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
  */
-package jjbmc.jml2java;
+package jjbmc.jml2java
 
-import com.github.javaparser.JavaParser;
-import com.github.javaparser.ParseResult;
-import com.github.javaparser.ParserConfiguration;
-import com.github.javaparser.StaticJavaParser;
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.symbolsolver.JavaSymbolSolver;
-import com.github.javaparser.symbolsolver.resolution.typesolvers.TypeSolverBuilder;
-import com.github.javaparser.utils.SourceRoot;
-import com.google.common.truth.Truth;
-import jjbmc.JJBMCOptions;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.yaml.snakeyaml.Yaml;
+import com.github.javaparser.*
+import com.github.javaparser.ast.CompilationUnit
+import com.github.javaparser.ast.expr.Expression
+import com.github.javaparser.ast.stmt.BlockStmt
+import com.github.javaparser.ast.stmt.Statement
+import com.github.javaparser.symbolsolver.JavaSymbolSolver
+import com.github.javaparser.symbolsolver.resolution.typesolvers.TypeSolverBuilder
+import com.github.javaparser.utils.SourceRoot
+import com.google.common.truth.Truth
+import jjbmc.JJBMCOptions
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
+import org.yaml.snakeyaml.Yaml
+import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.util.*
+import java.util.function.Consumer
+import java.util.stream.Collectors
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-class Jml2JavaExpressionTranslatorTest {
-    private static final Path base = Paths.get("src", "test", "resources", "unit-tests");
-    private static final Path source = base.resolve("input").toAbsolutePath();
-    private static final Path expectedSources = base.resolve("expected").toAbsolutePath();
-    private static final Path actualSources = base.resolve("actual").toAbsolutePath();
-
-    static {
-        // Using an own JavaParser to configure a SymbolSolver. This is necessary, because for type resolution
-        // of an expression, it is required that a symbolsolver is reachable.
-
-        var config = new ParserConfiguration();
-        config.setSymbolResolver(
-                new JavaSymbolSolver(new TypeSolverBuilder().withCurrentJRE().build()));
-        var jp = new JavaParser(config);
-        CompilationUnit cu =
-                jp.parse(" public class A { void foo() {} } ").getResult().get();
-        parent = cu.getType(0)
-                .asClassOrInterfaceDeclaration()
-                .getMethodsByName("foo")
-                .get(0)
-                .getBody()
-                .get();
-    }
-
-    public static Stream<Arguments> readExpressionTests() throws IOException {
-        Yaml yaml = new Yaml();
-        try (var fw = Files.newBufferedReader(base.resolve("expr-translation-tests.yml"))) {
-            List<Map<String, String>> obj = yaml.load(fw);
-
-            return obj.stream().map(it -> {
-                var mode = TranslationMode.valueOf(it.getOrDefault("mode", TranslationMode.ASSERT.toString()));
-                return Arguments.of(it.get("input"), it.get("expected"), mode);
-            });
-        }
-    }
-
-    static BlockStmt parent;
-
-    public static Stream<Arguments> findCompleteTranslationTests() throws IOException {
-        var config = new ParserConfiguration();
-        config.setProcessJml(true);
-        config.setJmlKeys(Collections.singletonList(Collections.singletonList("jjbmc")));
-
-        config.setSymbolResolver(new JavaSymbolSolver(
-                new TypeSolverBuilder().withSourceCode(source).withCurrentJRE().build()));
-
-        SourceRoot sourceRoot = new SourceRoot(source, config);
-        return sourceRoot.tryToParse().stream().map(Arguments::of);
-    }
-
+internal class Jml2JavaExpressionTranslatorTest {
     @ParameterizedTest
     @MethodSource("findCompleteTranslationTests")
-    void testTranslation(ParseResult<CompilationUnit> check) throws IOException {
+    @Throws(IOException::class)
+    fun testTranslation(check: ParseResult<CompilationUnit>) {
         if (!check.isSuccessful()) {
-            check.getProblems().forEach(System.err::println);
-            Assertions.fail("Error during parsing");
+            check.getProblems().forEach(Consumer { x: Problem? -> System.err.println(x) })
+            error("Error during parsing")
         }
 
-        var cu = check.getResult().get();
-        var actual = Jml2JavaFacade.translate(cu, new JJBMCOptions());
-        System.out.println(actual);
+        val cu = check.getResult().get()
+        val actual = Jml2JavaFacade.translate(cu, JJBMCOptions())
+        println(actual)
 
-        final var originalPath = cu.getStorage().get().getPath().toAbsolutePath();
-        var path = expectedSources.resolve(source.relativize(originalPath));
+        val originalPath = cu.getStorage().get().getPath().toAbsolutePath()
+        val path: Path = expectedSources.resolve(source.relativize(originalPath))
 
-        System.out.println(path);
-        final var text = Jml2JavaFacade.pprint(actual);
+        println(path)
+        val text = Jml2JavaFacade.pprint(actual)
 
-        final var tmp = actualSources.resolve(source.relativize(originalPath));
-        Files.createDirectories(tmp.getParent());
-        Files.writeString(tmp, text);
-        Assertions.assertEquals(Files.readString(path), text);
+        val tmp: Path = actualSources.resolve(source.relativize(originalPath))
+        Files.createDirectories(tmp.getParent())
+        Files.writeString(tmp, text)
+        Assertions.assertEquals(Files.readString(path), text)
     }
 
     @ParameterizedTest
     @MethodSource("readExpressionTests")
-    void testTranslation(String expr, String expected, TranslationMode mode) {
-        var e = StaticJavaParser.parseJmlExpression(expr);
-        parent.addAndGetStatement(e);
-        Jml2JavaExpressionTranslator.counter.set(0);
-        var r = Jml2JavaFacade.translate(e, mode);
-        var actual = r.necessaryVars.stream().map(Objects::toString).collect(Collectors.joining("\n")) + "\n"
-                + new BlockStmt(r.statements) + "\n" + r.value;
-        Truth.assertThat(actual.replaceAll("\\s+", " ").trim())
-                .isEqualTo(expected.replaceAll("\\s+", " ").trim());
+    fun testTranslation(expr: String, expected: String, mode: TranslationMode) {
+        val e = StaticJavaParser.parseJmlExpression<Expression>(expr)
+        parent.addAndGetStatement(e)
+        Jml2JavaExpressionTranslator.counter.set(0)
+        val r = Jml2JavaFacade.translate(e, mode)
+        val actual = (
+            r.necessaryVars.stream().map<String?> { o: Statement? -> Objects.toString(o) }
+            .collect(Collectors.joining("\n")) + "\n" +
+            BlockStmt(r.statements) + "\n" + r.value
+        )
+        Truth.assertThat(actual.replace("\\s+".toRegex(), " ").trim { it <= ' ' })
+            .isEqualTo(expected.replace("\\s+".toRegex(), " ").trim { it <= ' ' })
+    }
+
+    companion object {
+        private val base: Path = Paths.get("src", "test", "resources", "unit-tests")
+        private val source: Path = base.resolve("input").toAbsolutePath()
+        private val expectedSources: Path = base.resolve("expected").toAbsolutePath()
+        private val actualSources: Path = base.resolve("actual").toAbsolutePath()
+
+        @Throws(IOException::class)
+        fun readExpressionTests(): Sequence<Arguments> {
+            val yaml: Yaml = Yaml()
+            Files.newBufferedReader(base.resolve("expr-translation-tests.yml")).use { fw ->
+                val obj: MutableList<MutableMap<String, String>> = yaml.load(fw)
+                return obj.asSequence().map {
+                    val mode = TranslationMode.valueOf(it!!.getOrDefault("mode", TranslationMode.ASSERT.toString())!!)
+                    Arguments.of(it["input"], it["expected"], mode)
+                }
+            }
+        }
+
+        var parent: BlockStmt
+
+        init {
+            // Using an own JavaParser to configure a SymbolSolver. This is necessary, because for type resolution
+            // of an expression, it is required that a symbolsolver is reachable.
+
+            val config = ParserConfiguration()
+            config.setSymbolResolver(
+                JavaSymbolSolver(TypeSolverBuilder().withCurrentJRE().build())
+            )
+            val jp = JavaParser(config)
+            val cu =
+                jp.parse(" public class A { void foo() {} } ").getResult().get()
+            parent = cu.getType(0)
+                .asClassOrInterfaceDeclaration()
+                .getMethodsByName("foo")[0]
+                .getBody()
+                .get()
+        }
+
+        @Throws(IOException::class)
+        fun findCompleteTranslationTests(): Sequence<Arguments> {
+            val config = ParserConfiguration()
+            config.setProcessJml(true)
+            config.setJmlKeys(listOf(listOf("jjbmc")))
+
+            config.setSymbolResolver(
+                JavaSymbolSolver(
+                    TypeSolverBuilder().withSourceCode(source).withCurrentJRE().build()
+                )
+            )
+
+            val sourceRoot = SourceRoot(source, config)
+            return sourceRoot.tryToParse().asSequence().map { Arguments.of(it) }
+        }
     }
 }

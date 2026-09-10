@@ -2,59 +2,45 @@
  * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
  * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
  */
-package jjbmc;
+package jjbmc
 
-import jjbmc.utils.Utils;
-import org.junit.jupiter.api.DynamicTest;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.TestFactory;
-
-import java.util.function.Consumer;
-import java.util.stream.Stream;
+import jjbmc.utils.Utils
+import jjbmc.utils.Utils.prepareParameters
+import org.junit.jupiter.api.DynamicTest
+import org.junit.jupiter.api.Order
+import org.junit.jupiter.api.TestFactory
+import java.util.function.Consumer
 
 @Order(value = 1)
-public class IntegrationTests {
+class IntegrationTests {
     @TestFactory
-    public Stream<DynamicTest> assignableTests() throws Exception {
-        return getTestStream("AssignableTests.java");
-    }
+    fun assignableTests() = getTestStream("AssignableTests.java")
 
     @TestFactory
-    public Stream<DynamicTest> assignableTests2() throws Exception {
-        return getTestStream("AssignableTests2.java");
-    }
+    fun assignableTests2() = getTestStream("AssignableTests2.java")
 
     @TestFactory
-    public Stream<DynamicTest> fiTests() throws Exception {
-        // JJBMCOptions.forceInliningMethods = false;
-        return getTestStream("FITests.java");
-    }
+    fun fiTests() = getTestStream("FITests.java")
+    // JJBMCOptions.forceInliningMethods = false;
 
     @TestFactory
-    public Stream<DynamicTest> ppTests() throws Exception {
-        return getTestStream("PPTests.java", (it) -> it.proofPreconditions = true);
-    }
+    fun ppTests() = getTestStream("PPTests.java") { it: JJBMCOptions? -> it!!.proofPreconditions = true }
 
     @TestFactory
-    public Stream<DynamicTest> runTestSuite() throws Exception {
-        return getTestStream("TestSuite.java");
-    }
+    fun runTestSuite() = getTestStream("TestSuite.java")
 
-    private static Stream<DynamicTest> getTestStream(String filename) throws Exception {
-        return getTestStream(filename, (it) -> {});
-    }
-
-    private static Stream<DynamicTest> getTestStream(String filename, Consumer<JJBMCOptions> configure)
-            throws Exception {
-        return Utils.prepareParameters(Utils.SRC_TEST_RESOURCES.resolve("tests").resolve(filename))
-                .map(it -> {
-                    JJBMCOptions o = it.op().getOptions();
-                    String displayName = o.getFileName().getFileName() + "::" + o.functionName;
-
-                    return DynamicTest.dynamicTest(displayName, () -> {
-                        configure.accept(o);
-                        Utils.runTests(it);
-                    });
-                });
+    companion object {
+        @Throws(Exception::class)
+        private fun getTestStream(filename: String, configure: Consumer<JJBMCOptions> = {}): Sequence<DynamicTest> {
+            val fileName = Utils.SRC_TEST_RESOURCES.resolve("tests").resolve(filename)
+            return prepareParameters(fileName).map {
+                val o = it.op.options
+                val displayName = o.getFileName().fileName.toString() + "::" + o.functionName
+                DynamicTest.dynamicTest(displayName) {
+                    configure.accept(o)
+                    Utils.runTests(it)
+                }
+            }
+        }
     }
 }

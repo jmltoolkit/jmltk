@@ -2,8 +2,9 @@
  * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
  * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
  */
-package jjbmc.utils;
+package jjbmc.utils
 
-import jjbmc.Operations;
+import jjbmc.Operations
 
-public record JJBMCTest(Operations op, TestOptions topts) {}
+@JvmRecord
+data class JJBMCTest(@JvmField val op: Operations, val topts: TestOptions)

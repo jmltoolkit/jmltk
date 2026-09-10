@@ -2,12 +2,6 @@
  * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
  * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
  */
-package jjbmc;
+package jjbmc
 
-public class PrettyPrintInformation {
-    String prettyPrinted;
-
-    public PrettyPrintInformation(String s) {
-        this.prettyPrinted = s;
-    }
-}
+class PrettyPrintInformation(var prettyPrinted: String?)

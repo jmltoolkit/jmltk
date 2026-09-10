@@ -4,11 +4,10 @@
  */
 package jjbmc
 
-@Retention(AnnotationRetention.RUNTIME)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY_SETTER,
-    AnnotationTarget.CONSTRUCTOR
-)
-annotation class Unwind(val number: Int = 0)
+enum class Level {
+    FATAL,
+    ERROR,
+    INFO,
+    WARN,
+    DEBUG
+}

@@ -2,87 +2,87 @@
  * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
  * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
  */
-package jjbmc;
+package jjbmc
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
+import jjbmc.ErrorLogger.info
+import java.io.File
+import java.io.IOException
+import java.nio.file.Path
+import java.nio.file.Paths
+import kotlin.io.path.isRegularFile
+import kotlin.io.path.readText
+import kotlin.io.path.walk
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+class CaseStudies {
+    private var configString: String? = null
+    private val configFilePath: Path = File("testRes" + File.separator + "CaseStudyConfig.json").toPath()
+    private var configs: JsonObject? = null
 
-import static jjbmc.ErrorLogger.info;
-
-public class CaseStudies {
-    private String configString = null;
-    private final Path configFilePath = new File("testRes" + File.separator + "CaseStudyConfig.json").toPath();
-    private JsonObject configs = null;
-
-    public static void main(String[] args) {
-        try {
-            new CaseStudies().runCaseStudies();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void runCaseStudies() throws Exception {
-        System.setErr(new CostumPrintStream(System.err));
-        System.setOut(new CostumPrintStream(System.out));
-        try (var walk = Files.walk(Paths.get("testRes", "CaseStudy"))) {
-            var caseStudyFolder = walk.filter(Files::isRegularFile).toList();
-            for (var f : caseStudyFolder) {
-                for (List<String> l : getConfigsForFile(f.getFileName().toString())) {
-                    l.addFirst(f.toAbsolutePath().toString());
-                    l.addFirst("-c");
-                    var args = l.toArray(new String[0]);
-                    info("Running Casestudy: %s", f.getFileName());
-                    info("with params: " + Arrays.toString(args));
-                    Main.main(args);
-                }
+    @Throws(Exception::class)
+    fun runCaseStudies() {
+        Paths.get("testRes", "CaseStudy").walk()
+            .forEach { walk ->
+                walk.filter { it.isRegularFile() }
+                    .forEach { f ->
+                        for (l in getConfigsForFile(f.fileName.toString())) {
+                            l.addFirst(f.toAbsolutePath().toString())
+                            l.addFirst("-c")
+                            val args = l.toTypedArray()
+                            info("Running Casestudy: %s", f.fileName)
+                            info("with params: " + args.contentToString())
+                            Main.main(args)
+                        }
+                    }
             }
-        }
     }
 
-    public List<List<String>> getConfigsForFile(String file) {
+    fun getConfigsForFile(file: String): MutableList<MutableList<String>> {
         if (configString == null) {
-            readConfigString();
-            configs = (JsonObject) JsonParser.parseString(configString);
+            readConfigString()
+            configs = JsonParser.parseString(configString) as JsonObject?
         }
-        JsonArray config = (JsonArray) configs.get(file);
+        val config = configs!!.get(file) as JsonArray?
         if (config == null) {
-            List<String> innerList = new ArrayList<>();
-            List<List<String>> outerList = new ArrayList<>();
-            outerList.add(innerList);
-            return outerList;
+            val innerList = ArrayList<String>()
+            val outerList = ArrayList<MutableList<String>>()
+            outerList.add(innerList)
+            return outerList
         }
-        return jsonToList(config);
+        return jsonToList(config)
     }
 
-    private List<List<String>> jsonToList(JsonArray arr) {
-        List<List<String>> configs = new ArrayList<>();
-        for (int i = 0; i < arr.size(); ++i) {
-            List<String> config = new ArrayList<>();
-            JsonArray jsonConfig = (JsonArray) arr.get(i);
-            for (int j = 0; j < jsonConfig.size(); ++j) {
-                config.add(jsonConfig.get(j).getAsString());
+    private fun jsonToList(arr: JsonArray): MutableList<MutableList<String>> {
+        val configs = ArrayList<MutableList<String>>()
+        for (i in 0..<arr.size()) {
+            val config = ArrayList<String>(16)
+            val jsonConfig = arr.get(i) as JsonArray
+            for (j in 0..<jsonConfig.size()) {
+                config.add(jsonConfig.get(j).asString)
             }
-            configs.add(config);
+            configs.add(config)
         }
-        return configs;
+        return configs
     }
 
-    private void readConfigString() {
+    private fun readConfigString() {
         try {
-            configString = String.join("\n", Files.readAllLines(configFilePath));
-        } catch (IOException e) {
-            assert false;
+            configString = configFilePath.readText()
+        } catch (_: IOException) {
+            assert(false)
+        }
+    }
+
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            try {
+                CaseStudies().runCaseStudies()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 }

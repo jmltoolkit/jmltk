@@ -12,13 +12,13 @@ class JBMCOutput(
     val messages: MutableList<String> = ArrayList(),
     val errors: MutableList<String> = ArrayList(),
     val properties: MutableList<String> = ArrayList(),
-    val reasons: MutableList<String> = ArrayList(),
-    val asserts: MutableList<String> = ArrayList(),
-    val traces: MutableList<Trace> = ArrayList(),
+    val reasons: MutableList<String?> = ArrayList(),
+    val asserts: MutableList<String?> = ArrayList(),
+    val traces: MutableList<Trace?> = ArrayList(),
     val lineNumbers: MutableList<Int> = ArrayList()
 ) {
 
-    fun addProperty(name: String, trace: Trace, lineNumber: Int, reason: String, ass: String) {
+    fun addProperty(name: String, trace: Trace?, lineNumber: Int, reason: String?, ass: String?) {
         properties.add(name)
         traces.add(trace)
         lineNumbers.add(lineNumber)
@@ -33,10 +33,7 @@ class JBMCOutput(
         if (idx == -1) {
             return ""
         }
-        val trace = traces[idx]
-        if (trace == null) {
-            return ""
-        }
+        val trace = traces[idx] ?: return ""
 
         sb.append("Trace for PVC: ")
             .append(property)

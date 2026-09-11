@@ -5,7 +5,10 @@
 package jjbmc
 
 import com.github.javaparser.JavaParser
+import com.github.javaparser.ParserConfiguration
 import com.github.javaparser.ast.CompilationUnit
+import com.github.javaparser.symbolsolver.JavaSymbolSolver
+import com.github.javaparser.symbolsolver.resolution.typesolvers.TypeSolverBuilder
 import jjbmc.jml2java.Jml2JavaFacade
 import jjbmc.trace.TraceParser
 import java.io.*
@@ -22,7 +25,7 @@ import javax.tools.ToolProvider
 
 class Operations(val options: JJBMCOptions) : Callable<Int> {
     private var jbmcProcess: Process? = null
-    private var jbmcOptions: MutableList<String?> = LinkedList<String?>()
+    private var jbmcOptions: MutableList<String?> = LinkedList()
     private var didCleanUp = false
 
     @Throws(Exception::class)
@@ -60,7 +63,7 @@ class Operations(val options: JJBMCOptions) : Callable<Int> {
              */
             copyLibraryFiles(options.getTmpFolder())
             createCProverFolder(options.getTmpFolder())
-            Companion.copySubjectOfVerification(file, tmpFile)
+            copySubjectOfVerification(file, tmpFile)
 
             val start = System.currentTimeMillis()
             val translation: CompilationUnit = translate(options, tmpFile)
@@ -72,7 +75,7 @@ class Operations(val options: JJBMCOptions) : Callable<Int> {
             packageName = packageName.replace(".", "/")
             val packageFolder = options.getTmpFolder().resolve(packageName)
             Files.createDirectories(packageFolder)
-            options.setTmpFile(packageFolder.resolve(tmpFile.getFileName()))
+            options.setTmpFile(packageFolder.resolve(tmpFile.fileName))
             val content = Jml2JavaFacade.pprint(translation)
             Files.writeString(options.getTmpFile(), content, StandardOpenOption.CREATE)
         } finally {
@@ -90,36 +93,33 @@ class Operations(val options: JJBMCOptions) : Callable<Int> {
 
     @Throws(IOException::class)
     private fun compileWithApi(): Boolean {
-        val javac = ToolProvider.getSystemJavaCompiler()
-        if (javac == null) return false
+        val javac = ToolProvider.getSystemJavaCompiler() ?: return false
 
-        val diagnostics = DiagnosticCollector<JavaFileObject?>()
+        val diagnostics = DiagnosticCollector<JavaFileObject>()
         val fileManager = javac.getStandardFileManager(diagnostics, Locale.ENGLISH, Charset.defaultCharset())
 
-        Files.walk(options.getTmpFolder()).use { s ->
-            val files = s.filter { f: Path? -> !Files.isDirectory(f) }
-                .filter { f: Path? -> f!!.fileName.toString().endsWith(".java") }
-                .toList()
-            val compilationUnits =
-                fileManager.getJavaFileObjects(*files.toTypedArray<Path?>())
+        val files = Files.walk(options.getTmpFolder())
+            .filter { f: Path? -> f!!.fileName.toString().endsWith(".java") }
+            .toList()
 
-            val task = javac.getTask(
-                PrintWriter(System.out),
-                fileManager,
-                diagnostics,
-                mutableListOf<String?>("-g"),
-                mutableListOf<String?>(),
-                compilationUnits
-            )
+        val compilationUnits = fileManager.getJavaFileObjects(*files.toTypedArray<Path>())
 
-            val start = System.currentTimeMillis()
-            val b = task.call()
-            val stop = System.currentTimeMillis()
+        val task = javac.getTask(
+            PrintWriter(System.out),
+            fileManager,
+            diagnostics,
+            mutableListOf<String?>("-g"),
+            mutableListOf<String?>(),
+            compilationUnits
+        )
 
-            ErrorLogger.info("Compilation took %d ms using the internal API", stop - start)
-            for (diagnostic in diagnostics.getDiagnostics()) {
-                ErrorLogger.info("%s", diagnostic)
-            }
+        val start = System.currentTimeMillis()
+        val b = task.call()
+        val stop = System.currentTimeMillis()
+
+        ErrorLogger.info("Compilation took %d ms using the internal API", stop - start)
+        for (diagnostic in diagnostics.getDiagnostics()) {
+            ErrorLogger.info("%s", diagnostic)
         }
         return true
     }
@@ -182,20 +182,20 @@ class Operations(val options: JJBMCOptions) : Callable<Int> {
 
         val allFunctionNames = arrayListOf(functionNames)
 
-        if (options.functionName != null) {
-            if (!options.functionName.endsWith("Verification")) {
+        options.functionName?.let {
+            if (!it.endsWith("Verification")) {
                 options.functionName += "Verification"
             }
             functionNames = functionNames
-                .filter { f -> f.contains("." + options.functionName + ":") }
+                .filter { f -> f.contains(".$it:") }
                 .toList()
             if (functionNames.isEmpty()) {
-                ErrorLogger.warn("Function " + options.functionName + " could not be found in the specified file.")
+                ErrorLogger.warn("Function $it could not be found in the specified file.")
                 ErrorLogger.warn("Found the following functions: %s", allFunctionNames)
                 return
             }
         }
-        ErrorLogger.info("Run jbmc for " + functionNames.size + " functions.")
+        ErrorLogger.info("Run jbmc for %s functions.", functionNames.size)
 
         for (functionName in functionNames) {
             var functionName = functionName
@@ -213,7 +213,7 @@ class Operations(val options: JJBMCOptions) : Callable<Int> {
                     val handler = executerService.submit(worker)
                     handler.get(options.timeout.toLong(), TimeUnit.MILLISECONDS)
                 }
-            } catch (e: TimeoutException) {
+            } catch (_: TimeoutException) {
                 if (jbmcProcess != null) {
                     jbmcProcess!!.destroyForcibly()
                 }
@@ -226,7 +226,7 @@ class Operations(val options: JJBMCOptions) : Callable<Int> {
         }
     }
 
-    fun printOutput(@Nullable output: JBMCOutput?, time: Long, functionName: String?) {
+    fun printOutput(output: JBMCOutput?, time: Long, functionName: String?) {
         if (output == null) {
             options.keepTranslation = true
             ErrorLogger.error("Error parsing xml-output of JBMC.")
@@ -245,7 +245,7 @@ class Operations(val options: JJBMCOptions) : Callable<Int> {
             ErrorLogger.info("JBMC took " + time + "ms.")
         }
 
-        if (output.getErrors().isEmpty()) {
+        if (output.errors.isEmpty()) {
             if (options.runWithTrace) {
                 val traces = output.printAllTraces()
                 if (!traces.isEmpty()) {
@@ -265,14 +265,14 @@ class Operations(val options: JJBMCOptions) : Callable<Int> {
         }
     }
 
-    fun runJBMC(functionName: String?, paramMap: MutableMap<String?, MutableList<String?>?>?) {
+    fun runJBMC(functionName: String, paramMap: Map<String, List<String>>) {
         try {
-            ErrorLogger.debug("Running jbmc for function: " + functionName)
-            var classFile = options.getTmpFile().getFileName().toString().replace(".java", "")
+            ErrorLogger.debug("Running jbmc for function: %s", functionName)
+            var classFile = options.getTmpFile().fileName.toString().replace(".java", "")
             classFile = classFile.substring(classFile.lastIndexOf(File.separator + "tmp") + 5)
 
             // classFile = "." + classFile;
-            val tmp = ArrayList<String?>()
+            val tmp = ArrayList<String>()
             if (options.isWindows()) {
                 tmp.add("cmd.exe")
                 tmp.add("/c")
@@ -287,28 +287,24 @@ class Operations(val options: JJBMCOptions) : Callable<Int> {
             tmp.add("--max-nondet-array-length")
             tmp.add(options.getMaxArraySize().toString())
 
-            jbmcOptions = prepareJBMCOptions(options.getJbmcOptions())
-            tmp.addAll(options.getJbmcOptions())
+            jbmcOptions = prepareJBMCOptions(options.jbmcOptions)
+            tmp.addAll(options.jbmcOptions)
             tmp.add("--xml-ui")
             // tmp.add("--cp");
             val libPath = System.getProperty("java.library.path")
             // tmp.add(libPath);
             var commands = arrayOfNulls<String>(tmp.size)
-            commands = tmp.toArray<String?>(commands)
+            commands = tmp.toArray(commands)
 
             ErrorLogger.debug(commands.contentToString())
             val rt = Runtime.getRuntime()
-            rt.addShutdownHook(
-                Thread(
-                    Runnable {
+            rt.addShutdownHook(Thread {
                 try {
                     cleanUp()
                 } catch (e: IOException) {
                     throw RuntimeException(e)
                 }
-            }
-                )
-            )
+            })
             val start = System.currentTimeMillis()
 
             jbmcProcess = rt.exec(commands, null, options.getTmpFolder().toFile())
@@ -343,8 +339,8 @@ class Operations(val options: JJBMCOptions) : Callable<Int> {
                     ErrorLogger.error(
                         (
                             "JBMC did not terminate as expected for function: " + functionName +
-                            "\nif ran with -kt option jbmc output can be found in xmlout.xml in the tmp folder"
-                        )
+                                "\nif ran with -kt option jbmc output can be found in xmlout.xml in the tmp folder"
+                            )
                     )
                     return
                 }
@@ -352,7 +348,7 @@ class Operations(val options: JJBMCOptions) : Callable<Int> {
                 ErrorLogger.debug("JBMC terminated normally.")
             }
 
-            if ((options.isFullTraceRequested() || !options.getRelevantVars().isEmpty()) && !options.runWithTrace) {
+            if ((options.isFullTraceRequested() || options.relevantVars.isNotEmpty()) && !options.runWithTrace) {
                 options.runWithTrace = true
                 ErrorLogger.warn(
                     "Options concerning the trace where found but not -tr option was given. \"-tr\" was automatically added."
@@ -383,7 +379,7 @@ class Operations(val options: JJBMCOptions) : Callable<Int> {
             if (!options.keepTranslation) {
                 try {
                     Files.deleteIfExists(options.getTmpFolder())
-                } catch (e: IOException) {
+                } catch (_: IOException) {
                     // log.info("Could not delete tmp folder.");
                 }
             }
@@ -392,7 +388,7 @@ class Operations(val options: JJBMCOptions) : Callable<Int> {
     }
 
     private fun verifyJavaVersion(binary: String?): Boolean {
-        val commands = arrayOf<String?>(binary, "-version")
+        val commands = arrayOf(binary, "-version")
         val p: Process
         try {
             val pb = ProcessBuilder().command(*commands).redirectErrorStream(true)
@@ -402,7 +398,7 @@ class Operations(val options: JJBMCOptions) : Callable<Int> {
             if (line != null) {
                 return line.contains("1.8")
             }
-        } catch (e: IOException) {
+        } catch (_: IOException) {
             return false
         }
         return false
@@ -434,8 +430,8 @@ class Operations(val options: JJBMCOptions) : Callable<Int> {
 
         @Throws(Exception::class)
         fun translate(options: JJBMCOptions, fileName: Path?): CompilationUnit {
-            val config: ParserConfiguration = ParserConfiguration()
-            config.setJmlKeys(ImmutableList.of(ImmutableList.of("openjml")))
+            val config = ParserConfiguration()
+            config.setJmlKeys(listOf(listOf("openjml")))
             config.setProcessJml(true)
             config.setSymbolResolver(
                 JavaSymbolSolver(
@@ -445,20 +441,19 @@ class Operations(val options: JJBMCOptions) : Callable<Int> {
                         .build()
                 )
             )
-            val parser: JavaParser = JavaParser(config)
+            val parser = JavaParser(config)
 
-            val compilationUnits: MutableList<CompilationUnit?> = ArrayList<CompilationUnit?>(32)
-            val result: ParseResult<CompilationUnit?> = parser.parse(fileName)
-            if (result.isSuccessful()) {
-                val compilationUnit =
-                    result.getResult().get()
+            val compilationUnits = ArrayList<CompilationUnit>(32)
+            val result = parser.parse(fileName)
+            if (result.isSuccessful) {
+                val compilationUnit = result.getResult().get()
                 return rewriteAssert(compilationUnit, options)
             } else {
-                result.getProblems().forEach(System.out::println)
+                result.problems.forEach(System.out::println)
                 val first =
-                    result.getProblems().get(0)
+                    result.problems[0]
                 throw RuntimeException(
-                    first.getVerboseMessage(), first.getCause().orElse(null)
+                    first.verboseMessage, first.cause.orElse(null)
                 )
             }
         }
@@ -473,15 +468,15 @@ class Operations(val options: JJBMCOptions) : Callable<Int> {
             val dir = folder.resolve("org/cprover")
             ErrorLogger.debug("Copying CProver.java to %s", dir.toAbsolutePath())
             Files.createDirectories(dir)
-            JJBMCOptions::class.java.getResourceAsStream("/cli/CProver.java").use { `is` ->
-                Files.copy(Objects.requireNonNull<InputStream?>(`is`), dir.resolve("CProver.java"))
+            JJBMCOptions::class.java.getResourceAsStream("/cli/CProver.java")?.use { inputStream ->
+                Files.copy(inputStream, dir.resolve("CProver.java"))
             }
         }
 
         private fun prepareJBMCOptions(options: MutableList<String>): MutableList<String?> {
-            val res: MutableList<String?> = ArrayList<String?>()
+            val res = ArrayList<String?>()
             for (s in options) {
-                res.addAll(listOf<String>(*s.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()))
+                res.addAll(s.split(" ".toRegex()).dropLastWhile { it.isEmpty() })
             }
             return res
         }
@@ -490,10 +485,10 @@ class Operations(val options: JJBMCOptions) : Callable<Int> {
         fun deleteFolder(folder: Path, all: Boolean) {
             if (Files.exists(folder)) {
                 Files.walk(folder).use { walk ->
-                    walk.sorted(Comparator.reverseOrder<Path>()).forEach { path: Path? ->
+                    walk.sorted(Comparator.reverseOrder()).forEach { path: Path ->
                         try {
                             Files.deleteIfExists(path)
-                        } catch (ignored: IOException) {
+                        } catch (_: IOException) {
                         }
                     }
                 }
@@ -519,6 +514,7 @@ class Operations(val options: JJBMCOptions) : Callable<Int> {
         }*/
         }
 
-        fun rewriteAssert(cu: CompilationUnit, options: JJBMCOptions?): CompilationUnit = Jml2JavaFacade.translate(cu, options)
+        fun rewriteAssert(cu: CompilationUnit, options: JJBMCOptions): CompilationUnit =
+            Jml2JavaFacade.translate(cu, options)
     }
 }

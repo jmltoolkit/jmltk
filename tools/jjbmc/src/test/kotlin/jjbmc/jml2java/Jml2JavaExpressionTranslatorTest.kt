@@ -75,13 +75,14 @@ internal class Jml2JavaExpressionTranslatorTest {
         private val expectedSources: Path = base.resolve("expected").toAbsolutePath()
         private val actualSources: Path = base.resolve("actual").toAbsolutePath()
 
+        @JvmStatic
         @Throws(IOException::class)
         fun readExpressionTests(): Sequence<Arguments> {
             val yaml: Yaml = Yaml()
             Files.newBufferedReader(base.resolve("expr-translation-tests.yml")).use { fw ->
                 val obj: MutableList<MutableMap<String, String>> = yaml.load(fw)
                 return obj.asSequence().map {
-                    val mode = TranslationMode.valueOf(it!!.getOrDefault("mode", TranslationMode.ASSERT.toString())!!)
+                    val mode = TranslationMode.valueOf(it.getOrDefault("mode", TranslationMode.ASSERT.toString()))
                     Arguments.of(it["input"], it["expected"], mode)
                 }
             }
@@ -108,6 +109,7 @@ internal class Jml2JavaExpressionTranslatorTest {
         }
 
         @Throws(IOException::class)
+        @JvmStatic
         fun findCompleteTranslationTests(): Sequence<Arguments> {
             val config = ParserConfiguration()
             config.setProcessJml(true)

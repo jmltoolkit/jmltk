@@ -19,19 +19,19 @@ data class Trace(
     private val reverseObjectMap: MutableMap<String, String> = HashMap()
     var finalVals: MutableMap<String, Any> = HashMap()
 
-    private fun isRelevantVar(`var`: String): Boolean {
-        if (`var` == null) {
+    private fun isRelevantVar(v: String): Boolean {
+        if (v == null) {
             return false
         }
-        if (`var`.startsWith("(") && `var`.endsWith(")")) {
+        if (v.startsWith("(") && v.endsWith(")")) {
             return false
         }
-        if (`var`.contains("@")) {
+        if (v.contains("@")) {
             return false
         }
         for (s in relevantVars) {
             var s = s
-            val vars = `var`.split("=".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            val vars = v.split("=".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             for (v in vars) {
                 var v = v
                 s = s.replace("this.", "").trim { it <= ' ' }
@@ -41,7 +41,7 @@ data class Trace(
                 }
             }
         }
-        return `var`.contains("[") && isRelevantVar(`var`.substring(0, `var`.lastIndexOf("[")))
+        return v.contains("[") && isRelevantVar(v.substring(0, v.lastIndexOf("[")))
     }
 
     fun filterAssignments() {
@@ -106,7 +106,7 @@ data class Trace(
         }
 
         if (fullTraceRequested) {
-            res = res.filter { isRelevantVar(it.guess) }.toList()
+            res = res.filter { isRelevantVar(it?.guess!!) }.toMutableList()
         }
     }
 
@@ -123,17 +123,17 @@ data class Trace(
         }
         try {
             return value.toInt()
-        } catch (e: NumberFormatException) {
+        } catch (_: NumberFormatException) {
             // this may happen
         }
         try {
             return value.toFloat()
-        } catch (e: NumberFormatException) {
+        } catch (_: NumberFormatException) {
             // this may happen
         }
         try {
             return value.toLong()
-        } catch (e: NumberFormatException) {
+        } catch (_: NumberFormatException) {
             // this may happen
         }
         try {
@@ -173,7 +173,7 @@ data class Trace(
                     val innerVal = `val`.substring(`val`.indexOf("=") + 1).trim { it <= ' ' }
 
                     if (!key.startsWith("@") && !key.contains("this$0")) {
-                        vals.put(key, getValue(innerVal, idx))
+                        vals[key] = getValue(innerVal, idx)
                     }
                 }
                 return vals
@@ -187,7 +187,7 @@ data class Trace(
         // group = group.stream().filter(a -> !a.value.contains("dynamic_object")).collect(Collectors.toList());
         val groupMap = LinkedHashMap<String?, Assignment?>()
         for (a in group) {
-            groupMap.put(a.guess, a)
+            groupMap[a.guess] = a
         }
         groupMap.remove(null)
         return ArrayList<Assignment>(groupMap.values)
@@ -252,7 +252,7 @@ data class Trace(
                 val s: String = allAssignments[i].jbmcVarname
                 val fieldName = s.substring(s.indexOf(".") + 1)
                 if (!fieldName.startsWith("@") && !fieldName.contains("this$")) {
-                    valMap.put(fieldName, getValue(allAssignments[i].value))
+                    valMap[fieldName] = getValue(allAssignments[i].value)
                 }
             }
         }
@@ -263,13 +263,13 @@ data class Trace(
         for (rv in relevantVars) {
             var rv = rv
             for (a in this.filteredAssignments) {
-                val vars: Array<String> = a.guess?.split("=") ?: arrayOf()
+                val vars = a.guess?.split("=") ?: listOf()
                 for (v in vars) {
                     var v = v
                     v = v.trim { it <= ' ' }.replace("this.", "")
                     rv = rv.trim { it <= ' ' }.replace("this.", "")
                     if (v == rv) {
-                        finalVals.put(rv, a.guessedValue.toString())
+                        finalVals[rv] = a.guessedValue.toString()
                     }
                 }
             }
@@ -307,9 +307,9 @@ data class Trace(
                 a.guess = (guessVariable(a.jbmcVarname))
                 if (a.guess != null && a.parameterName != null) {
                     val method = TraceInformation.getMethod(TraceInformation.getStartingLineForMethodAt(a.lineNumber))
-                    if (a.parameterName.contains(method)) {
-                        if (!a.guess.isEmpty()) {
-                            relevantVars.add(a.guess)
+                    if (method != null && a.parameterName.contains(method)) {
+                        if (a.guess?.isNotEmpty() ?: false) {
+                            relevantVars.add(a.guess!!)
                         }
                     }
                 }
@@ -320,7 +320,7 @@ data class Trace(
 
     private fun processArrayInit(lineAssignments: MutableList<Assignment>, idx: Int) {
         var arrayIdx = 0
-        val arrayName: String? = lineAssignments[idx].value
+        val arrayName = lineAssignments[idx].value
         val length = findArrayLength(arrayName, idx, lineAssignments)
         if (length <= 0) {
             return
@@ -335,7 +335,7 @@ data class Trace(
                 var newIdx = -1
                 try {
                     newIdx = a.value.toInt()
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     println("Error parsing trace.")
                 }
                 if (newIdx == length) {
@@ -352,10 +352,7 @@ data class Trace(
         var arrayName = arrayName
         var startIdx = startIdx
         while (startIdx < assignments.size - 1 &&
-            (
-                assignments[startIdx].lineNumber
-                === assignments[startIdx + 1].lineNumber
-            )
+            (assignments[startIdx].lineNumber == assignments[startIdx + 1].lineNumber)
         ) {
             startIdx++
         }

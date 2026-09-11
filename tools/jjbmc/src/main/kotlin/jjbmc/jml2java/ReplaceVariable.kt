@@ -5,13 +5,14 @@
 package jjbmc.jml2java
 
 import com.github.javaparser.ast.body.Parameter
+import com.github.javaparser.ast.body.VariableDeclarator
 import com.github.javaparser.ast.expr.NameExpr
 import com.github.javaparser.ast.visitor.ModifierVisitor
 import com.github.javaparser.ast.visitor.Visitable
 
-class ReplaceVariable(val orig: Parameter, val replacement: String) : ModifierVisitor<Void>() {
+class ReplaceVariable(val orig: String, val replacement: String) : ModifierVisitor<Void>() {
     override fun visit(n: NameExpr, arg: Void): Visitable {
-        if (n.nameAsString == orig.nameAsString) {
+        if (n.nameAsString == orig) {
             n.setName(replacement)
         }
         return super.visit(n, arg)

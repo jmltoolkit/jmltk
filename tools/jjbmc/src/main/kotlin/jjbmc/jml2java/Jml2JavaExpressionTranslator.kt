@@ -4,21 +4,21 @@
  */
 package jjbmc.jml2java
 
-import com.github.javaparser.ast.*
-import com.github.javaparser.ast.body.*
+import com.github.javaparser.ast.Modifier
+import com.github.javaparser.ast.Node
+import com.github.javaparser.ast.NodeList
+import com.github.javaparser.ast.body.VariableDeclarator
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.expr.BinaryExpr.Operator.*
-import com.github.javaparser.ast.jml.*
-import com.github.javaparser.ast.jml.body.*
-import com.github.javaparser.ast.jml.clauses.*
 import com.github.javaparser.ast.jml.expr.*
-import com.github.javaparser.ast.jml.type.*
 import com.github.javaparser.ast.stmt.*
-import com.github.javaparser.ast.type.*
+import com.github.javaparser.ast.type.PrimitiveType
+import com.github.javaparser.ast.type.VarType
 import com.github.javaparser.ast.visitor.GenericVisitorAdapter
 import com.github.javaparser.ast.visitor.ModifierVisitor
 import com.github.javaparser.ast.visitor.Visitable
 import jjbmc.jml2java.Jml2JavaFacade.resolvedType2Type
+import jjbmc.jml2java.Jml2JavaFacade.unroll
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -33,9 +33,9 @@ class Jml2JavaExpressionTranslator {
 
     fun accept(e: Expression, arg: TranslationMode): Jml2JavaFacade.Result {
         if (Jml2JavaFacade.containsJmlExpression(e)) {
-            return e.accept(Jml2JavaExpressionTranslator.Jml2JavaVisitor(), arg)
+            return e.accept(this.Jml2JavaVisitor(), arg)
         }
-        return Jml2JavaFacade.Result(e)
+        return Jml2JavaFacade.Result(value = e)
     }
 
     private fun createAssignmentFor(e: Expression?): Statement {
@@ -57,7 +57,7 @@ class Jml2JavaExpressionTranslator {
 
     private inner class Jml2JavaVisitor : GenericVisitorAdapter<Jml2JavaFacade.Result, TranslationMode>() {
         var quantifierSplitter = QuantifierSplitter
-        private val replaceStack: MutableMap<String?, String?> = TreeMap<String?, String?>()
+        private val replaceStack = TreeMap<String, String>()
 
         override fun visit(n: ConditionalExpr, arg: TranslationMode): Jml2JavaFacade.Result = super.visit(n, arg)
 
@@ -65,9 +65,9 @@ class Jml2JavaExpressionTranslator {
             if (n.binder === JmlQuantifiedExpr.JmlDefaultBinder.FORALL) {
                 return if (arg == TranslationMode.ASSERT) {
                     visitForall(
-                n,
-                arg
-            )
+                        n,
+                        arg
+                    )
                 } else {
                     visitForallLoop(n, arg)
                 }
@@ -75,9 +75,9 @@ class Jml2JavaExpressionTranslator {
             if (n.binder === JmlQuantifiedExpr.JmlDefaultBinder.EXISTS) {
                 return if (arg == TranslationMode.ASSUME) {
                     visitExists(
-                n,
-                arg
-            )
+                        n,
+                        arg
+                    )
                 } else {
                     visitExistsLoop(n, arg)
                 }
@@ -99,26 +99,25 @@ class Jml2JavaExpressionTranslator {
             val boundedVar = n.variables[0].nameAsString
             replaceStack.put(boundedVar, loopVar)
 
-            val lowerBoundRes = QuantifierSplitter.getLowerBound(n).accept(this, arg)
-            val upperBoundRes = QuantifierSplitter.getUpperBound(n).accept(this, arg)
-            val lowerBound = lowerBoundRes.value
-            val upperBound = upperBoundRes.value
+            val lowerBoundRes = QuantifierSplitter.getLowerBound(n)?.accept(this, arg)
+            val upperBoundRes = QuantifierSplitter.getUpperBound(n)?.accept(this, arg)
+            val lowerBound = lowerBoundRes!!.value
+            val upperBound = upperBoundRes!!.value
             b.statements.addAll(lowerBoundRes.statements)
             b.statements.addAll(upperBoundRes.statements)
 
             // add: boolean bN = true
-            val varDefs =
-                NodeList(
-                    ExpressionStmt(
-                        VariableDeclarationExpr(
-                            VariableDeclarator(
-                                PrimitiveType(PrimitiveType.Primitive.BOOLEAN),
-                                boolVar,
-                                BooleanLiteralExpr(true)
-                            )
+            val varDefs = NodeList<Statement>(
+                ExpressionStmt(
+                    VariableDeclarationExpr(
+                        VariableDeclarator(
+                            PrimitiveType(PrimitiveType.Primitive.BOOLEAN),
+                            boolVar,
+                            BooleanLiteralExpr(true)
                         )
                     )
                 )
+            )
 
             //
             val init = VariableDeclarationExpr(
@@ -131,9 +130,9 @@ class Jml2JavaExpressionTranslator {
             val clone = n.expressions.last().clone()
             val res = clone.accept(this, arg)
             res.value = res.value.accept(
-                ReplaceVariable(n.variables[0], init.getVariable(0).nameAsString),
+                ReplaceVariable(n.variables[0].nameAsString, init.getVariable(0).nameAsString),
                 null
-            ) as Expression?
+            ) as Expression
             forBody.statements.addAll(res.statements)
             varDefs.addAll(res.necessaryVars)
 
@@ -150,7 +149,7 @@ class Jml2JavaExpressionTranslator {
             replaceStack.remove(boundedVar)
 
             b.addStatement(ForStmt(NodeList(init), compare, NodeList(update), forBody))
-            return Jml2JavaFacade.Result(b.statements, NameExpr(boolVar), varDefs)
+            return Jml2JavaFacade.Result(NameExpr(boolVar), b.statements, varDefs)
         }
 
         /**
@@ -164,7 +163,7 @@ class Jml2JavaExpressionTranslator {
             val lowerBound = QuantifierSplitter.getLowerBound(n)
             val upperBound = QuantifierSplitter.getUpperBound(n)
             // add: boolean bN = false
-            val varDefs: NodeList<Statement?> =
+            val varDefs: NodeList<Statement> =
                 NodeList(
                     ExpressionStmt(
                         VariableDeclarationExpr(
@@ -190,10 +189,10 @@ class Jml2JavaExpressionTranslator {
             forBody.statements.addAll(res.statements)
             res.value = res.value.accept(
                 ReplaceVariable(
-                    n.variables[0], init.getVariable(0).nameAsString
+                    n.variables[0].nameAsString, init.getVariable(0).nameAsString
                 ),
                 null
-            ) as Expression?
+            ) as Expression
             varDefs.addAll(res.necessaryVars)
 
             // boolVar = (boolVar || val)
@@ -206,7 +205,7 @@ class Jml2JavaExpressionTranslator {
             )
 
             b.addStatement(ForStmt(NodeList(init), compare, NodeList(update), forBody))
-            return Jml2JavaFacade.Result(b.statements, NameExpr(boolVar), varDefs)
+            return Jml2JavaFacade.Result(NameExpr(boolVar), b.statements, varDefs)
         }
 
         fun visitForall(n: JmlQuantifiedExpr, arg: TranslationMode): Jml2JavaFacade.Result {
@@ -240,13 +239,13 @@ class Jml2JavaExpressionTranslator {
             return newExpr
         }
 
-        fun assignNondet(para: Parameter): Statement = ExpressionStmt(
-                VariableDeclarationExpr(
-                    VariableDeclarator(
-                        para.type, para.nameAsString, MethodCallExpr("CProver.nondetInt")
-                    )
+        fun assignNondet(para: VariableDeclarator): Statement = ExpressionStmt(
+            VariableDeclarationExpr(
+                VariableDeclarator(
+                    para.type, para.nameAsString, MethodCallExpr("CProver.nondetInt")
                 )
             )
+        )
 
         /**
          * `<pre>
@@ -283,12 +282,12 @@ class Jml2JavaExpressionTranslator {
             inner.addAndGetStatement(
                 AssignExpr(NameExpr(target.asString()), body.value, AssignExpr.Operator.ASSIGN)
             )
-            return Jml2JavaFacade.Result(outer.statements, NameExpr(target.asString()))
+            return Jml2JavaFacade.Result(NameExpr(target.asString()), outer.statements)
         }
 
         fun declareAndAssign(variable: VariableDeclarator, value: Expression?): Statement = ExpressionStmt(
-                VariableDeclarationExpr(VariableDeclarator(variable.type, variable.name, value))
-            )
+            VariableDeclarationExpr(VariableDeclarator(variable.type, variable.name, value))
+        )
 
         override fun visit(n: BinaryExpr, arg: TranslationMode): Jml2JavaFacade.Result {
             val left = accept(n.left, arg)
@@ -343,7 +342,7 @@ class Jml2JavaExpressionTranslator {
             n.addAll(right.statements)
             val n1 = NodeList(left.necessaryVars)
             n1.addAll(right.necessaryVars)
-            return Jml2JavaFacade.Result(n, expr, n1)
+            return Jml2JavaFacade.Result(expr, n, n1)
         }
 
         fun negate(value: Expression?): Expression = UnaryExpr(value, UnaryExpr.Operator.LOGICAL_COMPLEMENT)
@@ -351,10 +350,11 @@ class Jml2JavaExpressionTranslator {
         fun combine(before: NodeList<Statement>, combination: Statement, expr: BinaryExpr): Jml2JavaFacade.Result {
             val n = NodeList(before)
             n.add(combination)
-            return Jml2JavaFacade.Result(n, expr)
+            return Jml2JavaFacade.Result(expr, n)
         }
 
-        fun ifThen(value: Expression, statements: NodeList<Statement>): IfStmt = IfStmt(value, BlockStmt(statements), null)
+        fun ifThen(value: Expression, statements: NodeList<Statement>): IfStmt =
+            IfStmt(value, BlockStmt(statements), null)
 
         override fun visit(n: ArrayAccessExpr, arg: TranslationMode): Jml2JavaFacade.Result {
             val name =
@@ -363,8 +363,8 @@ class Jml2JavaExpressionTranslator {
                 n.index.accept(this, arg)
             name.statements.addAll(index.statements)
             return Jml2JavaFacade.Result(
-                name.statements,
                 ArrayAccessExpr(name.value, index.value),
+                name.statements,
                 name.necessaryVars
             )
         }
@@ -373,36 +373,42 @@ class Jml2JavaExpressionTranslator {
 
         override fun visit(n: ArrayInitializerExpr, arg: TranslationMode): Jml2JavaFacade.Result = super.visit(n, arg)
 
-        override fun visit(n: AssignExpr, arg: TranslationMode): Jml2JavaFacade.Result? = throw IllegalStateException("Assignments are forbidden in JML.")
+        override fun visit(n: AssignExpr, arg: TranslationMode): Jml2JavaFacade.Result? =
+            throw IllegalStateException("Assignments are forbidden in JML.")
 
-        override fun visit(n: ClassExpr, arg: TranslationMode): Jml2JavaFacade.Result? = throw IllegalStateException("Assignments are forbidden in JML.")
+        override fun visit(n: ClassExpr, arg: TranslationMode): Jml2JavaFacade.Result? =
+            throw IllegalStateException("Assignments are forbidden in JML.")
 
-        override fun visit(n: BooleanLiteralExpr, arg: TranslationMode): Jml2JavaFacade.Result = Jml2JavaFacade.Result(n)
+        override fun visit(n: BooleanLiteralExpr, arg: TranslationMode): Jml2JavaFacade.Result =
+            Jml2JavaFacade.Result(value = n)
 
         override fun visit(n: CastExpr, arg: TranslationMode): Jml2JavaFacade.Result {
             val inner =
                 n.expression.accept(this, arg)
-            return Jml2JavaFacade.Result(inner.statements, CastExpr(n.type, inner.value), inner.necessaryVars)
+            return Jml2JavaFacade.Result(CastExpr(n.type, inner.value), inner.statements, inner.necessaryVars)
         }
 
-        override fun visit(n: CharLiteralExpr, arg: TranslationMode): Jml2JavaFacade.Result = Jml2JavaFacade.Result(n)
+        override fun visit(n: CharLiteralExpr, arg: TranslationMode): Jml2JavaFacade.Result =
+            Jml2JavaFacade.Result(value = n)
 
-        override fun visit(n: DoubleLiteralExpr, arg: TranslationMode): Jml2JavaFacade.Result = Jml2JavaFacade.Result(n)
+        override fun visit(n: DoubleLiteralExpr, arg: TranslationMode): Jml2JavaFacade.Result =
+            Jml2JavaFacade.Result(value = n)
+
 
         override fun visit(n: EnclosedExpr, arg: TranslationMode): Jml2JavaFacade.Result {
             val inner =
                 n.inner.accept(this, arg)
-            return Jml2JavaFacade.Result(inner.statements, EnclosedExpr(inner.value), inner.necessaryVars)
+            return Jml2JavaFacade.Result(EnclosedExpr(inner.value), inner.statements, inner.necessaryVars)
         }
 
         override fun visit(n: FieldAccessExpr, arg: TranslationMode): Jml2JavaFacade.Result {
             val inner =
                 n.scope.accept(this, arg)
             return Jml2JavaFacade.Result(
-                inner.statements,
                 FieldAccessExpr(
                     inner.value, n.typeArguments.orElse(null), SimpleName(n.nameAsString)
                 ),
+                inner.statements,
                 inner.necessaryVars
             )
         }
@@ -411,13 +417,14 @@ class Jml2JavaExpressionTranslator {
             val inner =
                 n.expression.accept(this, arg)
             return Jml2JavaFacade.Result(
-                inner.statements,
                 InstanceOfExpr(inner.value, n.type),
+                inner.statements,
                 inner.necessaryVars
             )
         }
 
-        override fun visit(n: IntegerLiteralExpr, arg: TranslationMode): Jml2JavaFacade.Result = Jml2JavaFacade.Result(n)
+        override fun visit(n: IntegerLiteralExpr, arg: TranslationMode): Jml2JavaFacade.Result =
+            Jml2JavaFacade.Result(n)
 
         override fun visit(n: LongLiteralExpr, arg: TranslationMode): Jml2JavaFacade.Result = Jml2JavaFacade.Result(n)
 
@@ -458,8 +465,8 @@ class Jml2JavaExpressionTranslator {
                 args.add(a.value)
             }
             return Jml2JavaFacade.Result(
-                statements,
-                MethodCallExpr(scope, n.typeArguments.orElse(null), n.nameAsString, args)
+                MethodCallExpr(scope, n.typeArguments.orElse(null), n.nameAsString, args),
+                statements
             )
         }
 
@@ -472,9 +479,11 @@ class Jml2JavaExpressionTranslator {
 
         override fun visit(n: NullLiteralExpr, arg: TranslationMode): Jml2JavaFacade.Result = Jml2JavaFacade.Result(n)
 
-        override fun visit(n: ObjectCreationExpr?, arg: TranslationMode): Jml2JavaFacade.Result? = throw IllegalStateException("Object creation not allowed")
+        override fun visit(n: ObjectCreationExpr?, arg: TranslationMode): Jml2JavaFacade.Result? =
+            throw IllegalStateException("Object creation not allowed")
 
-        override fun visit(n: SingleMemberAnnotationExpr?, arg: TranslationMode): Jml2JavaFacade.Result? = throw IllegalStateException("Object creation not allowed")
+        override fun visit(n: SingleMemberAnnotationExpr?, arg: TranslationMode): Jml2JavaFacade.Result? =
+            throw IllegalStateException("Object creation not allowed")
 
         override fun visit(n: StringLiteralExpr, arg: TranslationMode): Jml2JavaFacade.Result = Jml2JavaFacade.Result(n)
 
@@ -485,20 +494,26 @@ class Jml2JavaExpressionTranslator {
         override fun visit(n: UnaryExpr, arg: TranslationMode): Jml2JavaFacade.Result {
             val inner =
                 n.expression.accept(this, arg.switchPolarity())
-            return Jml2JavaFacade.Result(inner.statements, UnaryExpr(inner.value, n.operator), inner.necessaryVars)
+            return Jml2JavaFacade.Result(UnaryExpr(inner.value, n.operator), inner.statements, inner.necessaryVars)
         }
 
-        override fun visit(n: VariableDeclarationExpr?, arg: TranslationMode): Jml2JavaFacade.Result? = throw IllegalStateException("Object creation not allowed")
+        override fun visit(n: VariableDeclarationExpr?, arg: TranslationMode): Jml2JavaFacade.Result? =
+            throw IllegalStateException("Object creation not allowed")
 
-        override fun visit(n: LambdaExpr?, arg: TranslationMode): Jml2JavaFacade.Result? = throw IllegalStateException("Object creation not allowed")
+        override fun visit(n: LambdaExpr?, arg: TranslationMode): Jml2JavaFacade.Result? =
+            throw IllegalStateException("Object creation not allowed")
 
-        override fun visit(n: MethodReferenceExpr?, arg: TranslationMode): Jml2JavaFacade.Result? = throw IllegalStateException("Object creation not allowed")
+        override fun visit(n: MethodReferenceExpr?, arg: TranslationMode): Jml2JavaFacade.Result? =
+            throw IllegalStateException("Object creation not allowed")
 
-        override fun visit(n: TypeExpr?, arg: TranslationMode): Jml2JavaFacade.Result? = throw IllegalStateException("Object creation not allowed")
+        override fun visit(n: TypeExpr?, arg: TranslationMode): Jml2JavaFacade.Result? =
+            throw IllegalStateException("Object creation not allowed")
 
-        override fun visit(n: SwitchExpr?, arg: TranslationMode): Jml2JavaFacade.Result? = throw IllegalStateException("SwitchExpr not allowed")
+        override fun visit(n: SwitchExpr?, arg: TranslationMode): Jml2JavaFacade.Result? =
+            throw IllegalStateException("SwitchExpr not allowed")
 
-        override fun visit(n: TextBlockLiteralExpr, arg: TranslationMode): Jml2JavaFacade.Result = Jml2JavaFacade.Result(n)
+        override fun visit(n: TextBlockLiteralExpr, arg: TranslationMode): Jml2JavaFacade.Result =
+            Jml2JavaFacade.Result(n)
 
         override fun visit(n: TypePatternExpr, arg: TranslationMode): Jml2JavaFacade.Result? = Jml2JavaFacade.Result(n)
 
@@ -509,9 +524,11 @@ class Jml2JavaExpressionTranslator {
             return inner
         }
 
-        override fun visit(n: JmlMultiCompareExpr?, arg: TranslationMode): Jml2JavaFacade.Result = unroll(n).accept(this, arg)
+        override fun visit(n: JmlMultiCompareExpr, arg: TranslationMode): Jml2JavaFacade.Result =
+            unroll(n).accept(this, arg)
 
-        override fun visit(n: JmlBinaryInfixExpr?, arg: TranslationMode): Jml2JavaFacade.Result? = throw IllegalStateException("not allowed")
+        override fun visit(n: JmlBinaryInfixExpr?, arg: TranslationMode): Jml2JavaFacade.Result? =
+            throw IllegalStateException("not allowed")
     }
 
     companion object {
@@ -519,7 +536,9 @@ class Jml2JavaExpressionTranslator {
         fun findBound(n: JmlQuantifiedExpr): Expression {
             if (n.expressions.size == 2) {
                 return n.expressions[0]
-            } else if (n.expressions.size == 1) if (n.expressions[0] is BinaryExpr) return be.getLeft()
+            } else if (n.expressions.size == 1)
+                if (n.expressions[0] is BinaryExpr)
+                    return (n.expressions[0] as BinaryExpr).getLeft()
             throw IllegalArgumentException("Could not determine bound.")
         }
 

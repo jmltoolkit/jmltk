@@ -18,18 +18,17 @@ import com.github.javaparser.ast.stmt.ReturnStmt
 import com.github.javaparser.ast.stmt.Statement
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import jjbmc.JJBMCOptions
-import org.jspecify.annotations.Nullable
 
 /**
  * @author Alexander Weigl
  * @version 1 (06.05.23)
  */
-class CreateMethodContracts(private val maxArraySize: Int) : VoidVisitorAdapter<@Nullable Any?>() {
+class CreateMethodContracts(private val maxArraySize: Int) : VoidVisitorAdapter<Any>() {
     var last: TypeDeclaration<*>? = null
 
     constructor(options: JJBMCOptions) : this(options.getMaxArraySize())
 
-    override fun visit(n: ClassOrInterfaceDeclaration, arg: Any?) {
+    override fun visit(n: ClassOrInterfaceDeclaration, arg: Any) {
         last = n
 
         // Make a copy to avoid concurrent modification exception as new methods are created
@@ -40,7 +39,7 @@ class CreateMethodContracts(private val maxArraySize: Int) : VoidVisitorAdapter<
         n.setMembers(newMembers)
     }
 
-    override fun visit(n: MethodDeclaration, arg: Any?) {
+    override fun visit(n: MethodDeclaration, arg: Any) {
         val contracts = n.contracts
         // Only one contract currently supported
         if (contracts.isEmpty()) {

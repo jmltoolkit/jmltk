@@ -22,23 +22,20 @@ import com.github.javaparser.ast.type.Type
 import com.github.javaparser.ast.visitor.ModifierVisitor
 import com.github.javaparser.ast.visitor.Visitable
 import jjbmc.JJBMCOptions
-import org.jspecify.annotations.Nullable
 import java.util.*
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * @author Alexander Weigl
  * @version 1 (06.05.23)
  */
-class EmbeddContracts(
-    private val forceInliningMethods: Boolean,
-    private val maxArraySize: Int
-) : ModifierVisitor<@Nullable Any?>() {
-
+class EmbeddContracts(private val forceInliningMethods: Boolean, private val maxArraySize: Int) :
+    ModifierVisitor<Any>() {
     private var foundReturn = false
 
     constructor(options: JJBMCOptions) : this(options.forceInliningMethods, options.getMaxArraySize())
 
-    override fun visit(n: MethodDeclaration, arg: Any?): Visitable {
+    override fun visit(n: MethodDeclaration, arg: Any): Visitable {
         if (!Jml2JavaFacade.ignoreNodeByAnnotation(n)) {
             val contracts = n.contracts
             var ensures: Expression = BooleanLiteralExpr(true)
@@ -110,7 +107,7 @@ class EmbeddContracts(
         Jml2JavaFacade.storeOlds(ensures, maxArraySize).forEach(block::addStatement)
 
         foundReturn = false
-        var body = method.body.get().accept(this, null) as BlockStmt
+        val body = method.body.get().accept(this, null) as BlockStmt
 
         if (!foundReturn && sigOnly.isEmpty()) {
             block.addStatement(body)
@@ -127,9 +124,9 @@ class EmbeddContracts(
                 bodyTry.catchClauses
                     .add(
                         CatchClause(
-                        Parameter(ClassOrInterfaceType().setName(sigOnlyClause.toString()), "exc"),
-                        excBody
-                    )
+                            Parameter(ClassOrInterfaceType().setName(sigOnlyClause.toString()), "exc"),
+                            excBody
+                        )
                     )
             }
             block.addStatement(bodyTry)
@@ -145,7 +142,7 @@ class EmbeddContracts(
         return block
     }
 
-    override fun visit(n: WhileStmt, arg: Any?): Visitable {
+    override fun visit(n: WhileStmt, arg: Any): Visitable {
         if (n.contracts.size == 1) {
             val contract = n.contracts.first()
             val loopInvar: List<Expression> = gather(contract, JmlClauseKind.LOOP_INVARIANT)
@@ -155,7 +152,7 @@ class EmbeddContracts(
             if (decreases.size != 1) {
                 throw IllegalStateException(
                     "Only exactly one decreases clause supported. However found " +
-                    decreases.size + " in " + n.contracts
+                        decreases.size + " in " + n.contracts
                 )
             }
             return handleLoop(
@@ -165,10 +162,10 @@ class EmbeddContracts(
         return super.visit(n, arg)
     }
 
-    override fun visit(n: ForStmt, arg: Any?): Visitable {
+    override fun visit(n: ForStmt, arg: Any): Visitable {
         if (n.contracts.size == 1) {
 
-            var body = ensureBlock(n.body.clone())
+            val body = ensureBlock(n.body.clone())
             body.setParentNode(n)
             for (expression in n.update) {
                 body.addStatement(expression)
@@ -186,7 +183,7 @@ class EmbeddContracts(
                 loopInvar,
                 assignables,
                 decreases.get(0),
-                n.compare.orElse(BooleanLiteralExpr(true)),
+                n.compare.getOrNull() ?: BooleanLiteralExpr(true),
                 body,
                 n.initialization,
                 n
@@ -200,13 +197,13 @@ class EmbeddContracts(
     fun handleLoop(
         loopInvars: List<Expression>,
         assignables: List<Expression>,
-        decreases: Expression,
+        decreases: Expression?,
         loopCondition: Expression,
         body: Statement,
         inits: List<Expression>,
         parent: Node
     ): BlockStmt {
-        var block = BlockStmt()
+        val block = BlockStmt()
         block.setParentNode(parent)
         for (e in inits) {
             block.addStatement(ExpressionStmt(e))
@@ -214,7 +211,7 @@ class EmbeddContracts(
         val oldD = "oldD" + Jml2JavaExpressionTranslator.counter.getAndIncrement()
         block.addStatement(
             VariableDeclarationExpr(
-            VariableDeclarator(PrimitiveType(PrimitiveType.Primitive.INT), oldD, decreases.clone())
+                VariableDeclarator(PrimitiveType(PrimitiveType.Primitive.INT), oldD, decreases?.clone())
             )
         )
 
@@ -225,10 +222,10 @@ class EmbeddContracts(
             block.addStatement(Jml2JavaFacade.havoc(assignable))
         }
 
-        var thenBlock = BlockStmt()
+        val thenBlock = BlockStmt()
         val ifThen = IfStmt(loopCondition.clone(), thenBlock, null)
         ifThen.setParentNode(block)
-        thenBlock.addStatement(body.accept(this, null) as Statement)
+        thenBlock.addStatement(body.accept(this, Any()) as Statement)
         for (loopInvar in loopInvars) {
             thenBlock.addStatement(Jml2JavaFacade.assert_(loopInvar).clone())
         }
@@ -236,9 +233,9 @@ class EmbeddContracts(
             thenBlock.addStatement(
                 Jml2JavaFacade.assertStatement(
                     BinaryExpr(
-                BinaryExpr(decreases.clone(), NameExpr(oldD), BinaryExpr.Operator.LESS),
-                BinaryExpr(IntegerLiteralExpr("0"), decreases.clone(), BinaryExpr.Operator.LESS_EQUALS),
-                BinaryExpr.Operator.AND
+                        BinaryExpr(decreases.clone(), NameExpr(oldD), BinaryExpr.Operator.LESS),
+                        BinaryExpr(IntegerLiteralExpr("0"), decreases.clone(), BinaryExpr.Operator.LESS_EQUALS),
+                        BinaryExpr.Operator.AND
                     )
                 )
             )
@@ -253,14 +250,14 @@ class EmbeddContracts(
 
     private fun ensureBlock(clone: Statement): BlockStmt {
         if (clone is BlockStmt) return clone
-        var b = BlockStmt()
+        val b = BlockStmt()
         b.addStatement(clone)
         return b
     }
 
     private fun declareVariable(type: Type, name: String): Expression = VariableDeclarationExpr(type, name)
 
-    override fun visit(n: MethodCallExpr, arg: Any?): Visitable {
+    override fun visit(n: MethodCallExpr, arg: Any): Visitable {
         if (forceInliningMethods) {
             return super.visit(n, arg)
         }
@@ -268,15 +265,13 @@ class EmbeddContracts(
         for (argument in n.arguments) {
             arguments.add(argument.accept(this, arg) as Expression)
         }
-        val contractCall = MethodCallExpr(
-            n.name.toString() + "Contract", n.arguments.toTypedArray()
-        )
+        val contractCall = MethodCallExpr("${n.name}Contract", *n.arguments.toTypedArray())
         return contractCall
     }
 
-    override fun visit(n: ReturnStmt, arg: Any?): Visitable {
+    override fun visit(n: ReturnStmt, arg: Any): Visitable {
         foundReturn = true
-        var block = BlockStmt()
+        val block = BlockStmt()
         block.setParentNode(n.parentNodeForChildren)
         if (n.expression.isPresent) {
             val returnVal: Expression = n.expression.get().accept(this, arg) as Expression
@@ -285,7 +280,7 @@ class EmbeddContracts(
         block.addStatement(
             ThrowStmt(
                 ObjectCreationExpr(
-            null, ClassOrInterfaceType().setName(RETURN_EXCEPTION_TYPE.asString()), NodeList()
+                    null, ClassOrInterfaceType().setName(RETURN_EXCEPTION_TYPE.asString()), NodeList()
                 )
             )
         )
@@ -299,18 +294,15 @@ class EmbeddContracts(
 
         fun gatherAnd(contract: JmlContract, jmlClauseKind: JmlClauseKind): Expression {
             val all = gather(contract, jmlClauseKind)
-            if (all.size == 1) {
-                return all.first()
-            }
-
             if (all.isEmpty()) {
                 return BooleanLiteralExpr(true)
             }
 
-            var res: Expression = all.removeFirst()
-            while (!all.isEmpty()) {
-                res = BinaryExpr(res, all.removeFirst(), BinaryExpr.Operator.AND)
+            if (all.size == 1) {
+                return all.first()
             }
+
+            val res: Expression = all.reduce { acc, expr -> BinaryExpr(expr, acc, BinaryExpr.Operator.AND) }
             res.setParentNode(contract)
             return res
         }
@@ -333,7 +325,8 @@ class EmbeddContracts(
             for (clause in contract.clauses) {
                 when (clause.getKind()) {
                     JmlClauseKind.ASSIGNABLE, JmlClauseKind.REQUIRES, JmlClauseKind.ENSURES,
-                    JmlClauseKind.SIGNALS_ONLY -> {}
+                    JmlClauseKind.SIGNALS_ONLY -> {
+                    }
 
                     else -> return true
                 }

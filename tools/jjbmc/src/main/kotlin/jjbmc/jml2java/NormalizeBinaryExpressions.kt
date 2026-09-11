@@ -15,7 +15,7 @@ import com.github.javaparser.ast.visitor.ModifierVisitor
 import com.github.javaparser.ast.visitor.Visitable
 import jjbmc.UnsupportedException
 
-class NormalizeBinaryExpressions : ModifierVisitor<Any>() {
+class NormalizeBinaryExpressions : ModifierVisitor<Any?>() {
     private fun swapOperator(expr: BinaryExpr, newOp: BinaryExpr.Operator): Expression {
         val left: Expression = expr.left.accept(this, Any()) as Expression
         val right: Expression = expr.right.accept(this, Any()) as Expression
@@ -44,14 +44,14 @@ class NormalizeBinaryExpressions : ModifierVisitor<Any>() {
         throw UnsupportedException("Quantifier $quantifier not supported.")
     }
 
-    override fun visit(n: BinaryExpr, arg: Any): Visitable {
+    override fun visit(n: BinaryExpr, arg: Any?): Visitable {
         if (n.operator.equals(BinaryExpr.Operator.ANTIVALENCE)) {
             return swapOperator(n, BinaryExpr.Operator.NOT_EQUALS)
         }
         return super.visit(n, arg)
     }
 
-    override fun visit(n: UnaryExpr, arg: Any): Visitable {
+    override fun visit(n: UnaryExpr, arg: Any?): Visitable {
         if (n.operator.equals(UnaryExpr.Operator.LOGICAL_COMPLEMENT)) {
             if (n.childNodes[0] is JmlQuantifiedExpr) {
                 val quantifiedExpression: JmlQuantifiedExpr =

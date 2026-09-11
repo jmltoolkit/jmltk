@@ -8,9 +8,12 @@ import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import jjbmc.FunctionNameVisitor.TestBehaviour
 
+
 class TestOptionsListener : VoidVisitorAdapter<MutableList<TestOptions>>() {
     override fun visit(n: MethodDeclaration, testOptions: MutableList<TestOptions>) {
-        val to = getQualifiedNameTestOptions(TestBehaviour.Verifyable, 5, n.resolve().getQualifiedName())
+        val to = TestOptions(
+            TestBehaviour.Verifyable, 5, n.resolve().getQualifiedName()
+        )
         testOptions.add(to)
     }
 }

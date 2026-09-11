@@ -19,7 +19,7 @@ import java.nio.file.Path
 import java.util.*
 
 class FunctionNameVisitor(cu: CompilationUnit, private val getAll: Boolean) {
-    val unwinds: MutableList<String> = ArrayList<String>()
+    val unwinds: MutableList<String?> = ArrayList<String?>()
     val functionNames: MutableList<String> = ArrayList<String>()
     val paramMap = HashMap<String, MutableList<String>>()
     val functionBehaviours: MutableList<TestBehaviour> = LinkedList<TestBehaviour>()
@@ -80,7 +80,7 @@ class FunctionNameVisitor(cu: CompilationUnit, private val getAll: Boolean) {
                                 .asIntegerLiteralExpr()
                                 .getValue()
                         )
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         try {
                             unwinds.add(
                                 annotation.asNormalAnnotationExpr()
@@ -88,7 +88,7 @@ class FunctionNameVisitor(cu: CompilationUnit, private val getAll: Boolean) {
                                     .asIntegerLiteralExpr()
                                     .getValue()
                             )
-                        } catch (e1: Exception) {
+                        } catch (_: Exception) {
                             ErrorLogger.warn("Cannot parse annotation %s", annotation)
                         }
                     }

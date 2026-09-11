@@ -32,6 +32,15 @@ import java.util.concurrent.atomic.AtomicBoolean
 object Jml2JavaFacade {
     var currentNode: Node? = null
 
+    private fun setCurrentNode0(expression: Node) {
+        var expression: Node = expression
+        while (expression.parentNode.isPresent) {
+            expression.parentNode.get()
+            expression = expression.parentNode.get()
+        }
+        expression.setParentNode(currentNode)
+    }
+
     fun assumeStatement(e: Expression): Statement = ExpressionStmt(MethodCallExpr(NameExpr("CProver"), "assume", NodeList(e)))
 
     fun assertStatement(e: Expression?): Statement = AssertStmt(e)
@@ -113,10 +122,10 @@ object Jml2JavaFacade {
 
         var type: Type = VarType()
 
-        var resolvedType: ResolvedType? = null
+        var resolvedType: ResolvedType?
         var realType: Type? = null
         try {
-            setCurrentNode(expression)
+            setCurrentNode0(expression)
             resolvedType = expression.calculateResolvedType()
             realType = resolvedType2Type(resolvedType)
         } catch (e: IllegalStateException) {
@@ -156,12 +165,12 @@ object Jml2JavaFacade {
         st.addStatement(ExpressionStmt(e))
 
         for (quantifiedExpr in relevantQuantifiers) {
-            var lowerBound = QuantifierSplitter.getLowerBound(quantifiedExpr)
+            var lowerBound = QuantifierSplitter.getLowerBound(quantifiedExpr)!!
             val translatedLowerBound = translate(
                 lowerBound.clone().also { it.setParentNode(quantifiedExpr) }, TranslationMode.DEMONIC
             )
             lowerBound = translatedLowerBound.value
-            var upperBound: Expression? = QuantifierSplitter.getUpperBound(quantifiedExpr)
+            var upperBound = QuantifierSplitter.getUpperBound(quantifiedExpr)!!
             val translatedUpperBound = translate(
                 upperBound.clone().also { it.setParentNode(quantifiedExpr) }, TranslationMode.DEMONIC
             )
@@ -172,10 +181,8 @@ object Jml2JavaFacade {
             )
             val loopVar =
                 loopVarDecl.getVariable(0).nameAsExpression
-            st.accept(
-                ReplaceVariable(QuantifierSplitter.getVariable(quantifiedExpr), loopVar.nameAsString),
-                null
-            )
+            val orig = QuantifierSplitter.getVariable(quantifiedExpr)
+            st.accept(ReplaceVariable(orig.nameAsString, loopVar.nameAsString), null)
             val forLoop = ForStmt(
                 NodeList(AssignExpr(loopVarDecl, lowerBound, AssignExpr.Operator.ASSIGN)),
                 BinaryExpr(loopVar, upperBound, BinaryExpr.Operator.LESS_EQUALS),
@@ -195,14 +202,7 @@ object Jml2JavaFacade {
         return res
     }
 
-    private fun setCurrentNode(expression: Node) {
-        var expression: Node = expression
-        while (expression.parentNode.isPresent) {
-            expression.parentNode.get()
-            expression = expression.parentNode.get()
-        }
-        expression.setParentNode(currentNode)
-    }
+
 
     fun havoc(expression: Expression): Statement = havoc(expression, true)
 
@@ -212,28 +212,20 @@ object Jml2JavaFacade {
             return BlockStmt()
         }
         val type: ResolvedType = expression.calculateResolvedType()
-        var functionName = ""
         if (expression is ArrayAccessExpr) {
             if (expression.toString().contains("*") || expression.toString().contains("..")) {
                 return havocArray(expression)
             }
         }
 
-        functionName = when (type) {
+        val functionName: String = when (type) {
             INT -> "nondetInt"
-
             CHAR -> "nondetChar"
-
             BOOLEAN -> "nondetBoolean"
-
             SHORT -> "nondetShort"
-
             BYTE -> "nondetByte"
-
             LONG -> "nondetLong"
-
             FLOAT -> "nondetFloat"
-
             DOUBLE -> "nondetDouble"
 
             else ->
@@ -278,13 +270,13 @@ object Jml2JavaFacade {
 
     fun translate(cu: CompilationUnit, options: JJBMCOptions): CompilationUnit {
         // Normlize all binary expressions
-        cu.accept(NormalizeBinaryExpressions(), null)
+        cu.accept(NormalizeBinaryExpressions(), Any())
 
         // add method stubs for call to contracts
-        cu.accept(CreateMethodContracts(options), null)
+        cu.accept(CreateMethodContracts(options), Any())
 
         // rewrite methods and loops
-        val res = cu.accept(EmbeddContracts(options), null)
+        val res = cu.accept(EmbeddContracts(options), Any())
 
         // add exception type to the compilation unit
         cu.addType(createExceptionClass())
@@ -330,7 +322,7 @@ object Jml2JavaFacade {
         try {
             val value = node.getAnnotationByName("javax.annotation.processing.Generated").orElse(null)
                 ?.asSingleMemberAnnotationExpr()?.memberValue?.asStringLiteralExpr()?.getValue()
-            return value!!.equals("JJBMC")
+            return value == "JJBMC"
         } catch (_: NoSuchElementException) {
         } catch (_: ClassCastException) {
         } catch (_: IllegalStateException) {
@@ -435,8 +427,8 @@ object Jml2JavaFacade {
     }
 
     data class Result(
-        var statements: NodeList<Statement> = NodeList(),
         var value: Expression,
+        var statements: NodeList<Statement> = NodeList(),
         var necessaryVars: NodeList<Statement> = NodeList()
     )
 

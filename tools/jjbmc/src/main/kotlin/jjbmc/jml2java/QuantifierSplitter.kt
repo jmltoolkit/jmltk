@@ -33,20 +33,17 @@ object QuantifierSplitter {
         return n.variables.first()
     }
 
-    private fun getUpperBound(e: BinaryExpr, variable: NameExpr?): Expression? {
+    private fun getUpperBound(e: BinaryExpr, variable: NameExpr): Expression? {
         if (e.operator.equals(BinaryExpr.Operator.AND)) {
-            var leftCandidate: Expression? = null
-            if (e.left is BinaryExpr) {
-                leftCandidate = QuantifierSplitter.getUpperBound(e.left, variable)
-            }
-            var rightCandidate: Expression? = null
-            if (e.right is BinaryExpr) {
-                rightCandidate = QuantifierSplitter.getUpperBound(e.right, variable)
-            }
+            val leftCandidate =
+                (e.left as? BinaryExpr)?.let { getUpperBound(it, variable) }
+            val rightCandidate =
+                (e.right as? BinaryExpr)?.let { getUpperBound(it, variable) }
+
             if (rightCandidate == null && leftCandidate == null) {
                 return null
             }
-            check(!(rightCandidate != null && leftCandidate != null)) { "Ubiquitous lower bound found in: " + e }
+            check(!(rightCandidate != null && leftCandidate != null)) { "Ubiquitous lower bound found in: $e" }
             if (rightCandidate != null) {
                 return rightCandidate
             }
@@ -76,10 +73,10 @@ object QuantifierSplitter {
         return null
     }
 
-    private fun getUpperBound(expr: JmlMultiCompareExpr, variable: NameExpr?): Expression? {
-        check(
-            !(expr.expressions.size !== 3 || expr.operators.size !== 2)
-        ) { "Unable to find lower bound in: " + expr }
+    private fun getUpperBound(expr: JmlMultiCompareExpr, variable: NameExpr): Expression? {
+        check(!(expr.expressions.size != 3 || expr.operators.size != 2)) {
+            "Unable to find lower bound in: $expr"
+        }
         val firstCandidate: Expression? = getUpperBound(
             BinaryExpr(
                 expr.expressions[0],
@@ -99,7 +96,7 @@ object QuantifierSplitter {
         if (firstCandidate == null && secondCandidate == null) {
             return null
         }
-        check(!(firstCandidate != null && secondCandidate != null)) { "Ubiquitous lower bound found in: " + expr }
+        check(!(firstCandidate != null && secondCandidate != null)) { "Ubiquitous lower bound found in: $expr" }
         if (firstCandidate != null) {
             return firstCandidate
         }
@@ -108,18 +105,16 @@ object QuantifierSplitter {
 
     private fun getLowerBound(e: BinaryExpr, variable: NameExpr?): Expression? {
         if (e.operator.equals(BinaryExpr.Operator.AND)) {
-            var leftCandidate: Expression? = null
-            if (e.left is BinaryExpr) {
-                leftCandidate = QuantifierSplitter.getLowerBound(e.left, variable)
+            val leftCandidate = (e.left as? BinaryExpr)?.let {
+                getLowerBound(it, variable)
             }
-            var rightCandidate: Expression? = null
-            if (e.right is BinaryExpr) {
-                rightCandidate = QuantifierSplitter.getLowerBound(e.right, variable)
+            val rightCandidate = (e.right as? BinaryExpr)?.let {
+                getLowerBound(it, variable)
             }
             if (rightCandidate == null && leftCandidate == null) {
                 return null
             }
-            check(!(rightCandidate != null && leftCandidate != null)) { "Ubiquitous lower bound found in: " + e }
+            check(!(rightCandidate != null && leftCandidate != null)) { "Ubiquitous lower bound found in: $e" }
             if (rightCandidate != null) {
                 return rightCandidate
             }
@@ -147,8 +142,8 @@ object QuantifierSplitter {
 
     private fun getLowerBound(expr: JmlMultiCompareExpr, variable: NameExpr?): Expression? {
         check(
-            !(expr.expressions.size !== 3 || expr.operators.size !== 2)
-        ) { "Unable to find lower bound in: " + expr }
+            !(expr.expressions.size != 3 || expr.operators.size != 2)
+        ) { "Unable to find lower bound in: $expr" }
         val firstCandidate: Expression? = getLowerBound(
             BinaryExpr(
                 expr.expressions[0],
@@ -168,7 +163,7 @@ object QuantifierSplitter {
         if (firstCandidate == null && secondCandidate == null) {
             return null
         }
-        check(!(firstCandidate != null && secondCandidate != null)) { "Ubiquitous lower bound found in: " + expr }
+        check(!(firstCandidate != null && secondCandidate != null)) { "Ubiquitous lower bound found in: $expr" }
         if (firstCandidate != null) {
             return firstCandidate
         }
@@ -181,27 +176,27 @@ object QuantifierSplitter {
         }
         val variable: NameExpr? = getVariable(n).nameAsExpression
 
-        if (n.expressions[0] is BinaryExpr) {
-            val res: Expression? = QuantifierSplitter.getLowerBound(n.expressions[0], variable)
+        (n.expressions[0] as? BinaryExpr)?.let {
+            val res: Expression? = getLowerBound(it, variable)
             if (res != null) {
                 return res
             }
         }
-        if (n.expressions[0] is JmlMultiCompareExpr) {
-            val res: Expression? = QuantifierSplitter.getLowerBound(n.expressions[0], variable)
+
+        (n.expressions[0] as? JmlMultiCompareExpr)?.let {
+            val res = getLowerBound(it, variable)
             if (res != null) {
                 return res
             }
         }
-        throw IllegalStateException("Mis-formed binder guard in: " + n)
+        throw IllegalStateException("Mis-formed binder guard in: $n")
     }
 
     fun getUpperBound(n: JmlQuantifiedExpr): Expression? {
         if (n.expressions.size == 3) { // bounded format
             return n.expressions[0]
         }
-        val variable: NameExpr? = getVariable(n).nameAsExpression
-
+        val variable = getVariable(n).nameAsExpression
         val e = n.expressions[0]
         if (e is BinaryExpr) {
             val res: Expression? = getUpperBound(e, variable)
@@ -215,6 +210,6 @@ object QuantifierSplitter {
                 return res
             }
         }
-        throw IllegalStateException("Mis-formed binder guard in: " + n)
+        throw IllegalStateException("Mis-formed binder guard in: $n")
     }
 }

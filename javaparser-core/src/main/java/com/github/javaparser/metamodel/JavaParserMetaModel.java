@@ -328,6 +328,7 @@ public final class JavaParserMetaModel {
         lambdaExprMetaModel.getConstructorParameters().add(lambdaExprMetaModel.parametersPropertyMetaModel);
         lambdaExprMetaModel.getConstructorParameters().add(lambdaExprMetaModel.bodyPropertyMetaModel);
         lambdaExprMetaModel.getConstructorParameters().add(lambdaExprMetaModel.isEnclosingParametersPropertyMetaModel);
+        lambdaExprMetaModel.getConstructorParameters().add(lambdaExprMetaModel.contractsPropertyMetaModel);
         longLiteralExprMetaModel.getConstructorParameters().add(literalStringValueExprMetaModel.valuePropertyMetaModel);
         markerAnnotationExprMetaModel.getConstructorParameters().add(annotationExprMetaModel.namePropertyMetaModel);
         memberValuePairMetaModel.getConstructorParameters().add(memberValuePairMetaModel.namePropertyMetaModel);
@@ -2188,6 +2189,16 @@ public final class JavaParserMetaModel {
         lambdaExprMetaModel
                 .getDeclaredPropertyMetaModels()
                 .add(lambdaExprMetaModel.isEnclosingParametersPropertyMetaModel);
+        lambdaExprMetaModel.jmlDocsPropertyMetaModel = new PropertyMetaModel(
+                lambdaExprMetaModel,
+                "jmlDocs",
+                com.github.javaparser.ast.jml.doc.JmlDoc.class,
+                Optional.of(jmlDocMetaModel),
+                false,
+                false,
+                true,
+                false);
+        lambdaExprMetaModel.getDeclaredPropertyMetaModels().add(lambdaExprMetaModel.jmlDocsPropertyMetaModel);
         lambdaExprMetaModel.parametersPropertyMetaModel = new PropertyMetaModel(
                 lambdaExprMetaModel,
                 "parameters",

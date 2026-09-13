@@ -526,6 +526,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getBody().accept(this, arg)) * 31
                 + (n.getContracts().accept(this, arg)) * 31
                 + (n.isEnclosingParameters() ? 1 : 0) * 31
+                + (n.getJmlDocs().accept(this, arg)) * 31
                 + (n.getParameters().accept(this, arg)) * 31
                 + (n.getAssociatedSpecificationComments().isPresent()
                                 ? n.getAssociatedSpecificationComments().get().accept(this, arg)

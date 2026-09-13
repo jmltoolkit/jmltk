@@ -11,6 +11,7 @@ import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.comments.CommentsCollection;
 import com.github.javaparser.ast.expr.*;
+import com.github.javaparser.ast.jml.doc.JmlDoc;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.*;
 import com.github.javaparser.utils.Pair;
@@ -26,6 +27,8 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
  * Base class for {@link GeneratedJavaParser}
  */
 abstract class GeneratedJavaParserBase {
+    protected NodeList<JmlDoc> lambdaDocs = null;
+
     //// Interface with the generated code
     abstract GeneratedJavaParserTokenManager getTokenSource();
 

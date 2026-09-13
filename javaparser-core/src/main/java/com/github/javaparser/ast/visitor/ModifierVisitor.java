@@ -1238,12 +1238,14 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
     public Visitable visit(final LambdaExpr n, final A arg) {
         Statement body = (Statement) n.getBody().accept(this, arg);
         NodeList<JmlContract> contracts = modifyList(n.getContracts(), arg);
+        NodeList<JmlDoc> jmlDocs = modifyList(n.getJmlDocs(), arg);
         NodeList<Parameter> parameters = modifyList(n.getParameters(), arg);
         NodeList<Comment> associatedSpecificationComments = modifyList(n.getAssociatedSpecificationComments(), arg);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
         if (body == null) return null;
         n.setBody(body);
         n.setContracts(contracts);
+        n.setJmlDocs(jmlDocs);
         n.setParameters(parameters);
         n.setAssociatedSpecificationComments(associatedSpecificationComments);
         n.setComment(comment);

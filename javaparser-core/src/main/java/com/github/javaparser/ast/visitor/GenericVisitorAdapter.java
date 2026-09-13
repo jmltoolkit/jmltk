@@ -1844,6 +1844,10 @@ public abstract class GenericVisitorAdapter<R, A> implements GenericVisitor<R, A
             if (result != null) return result;
         }
         {
+            result = n.getJmlDocs().accept(this, arg);
+            if (result != null) return result;
+        }
+        {
             result = n.getParameters().accept(this, arg);
             if (result != null) return result;
         }

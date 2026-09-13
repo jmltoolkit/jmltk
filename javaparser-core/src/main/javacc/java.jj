@@ -4600,7 +4600,7 @@ Expression PrimaryPrefix():
     JavaToken begin;
     Parameter p = null;
     SimpleName id = null;
-    NodeList<JmlDoc> docs = null;
+    NodeList<JmlDoc> docs = new NodeList<>();
 }
 {
     (

@@ -373,6 +373,7 @@ public class LambdaExpr extends Expression implements NodeWithParameters<LambdaE
     }
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
     public @NonNull() NodeList<JmlDoc> jmlDocs() {
         return Objects.requireNonNull(jmlDocs);
     }

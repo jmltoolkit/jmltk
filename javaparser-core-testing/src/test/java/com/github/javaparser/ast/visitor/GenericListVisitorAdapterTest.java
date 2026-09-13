@@ -1173,9 +1173,10 @@ class GenericListVisitorAdapterTest {
 
         // When
         Mockito.when(node.getBody()).thenReturn(mock(Statement.class));
+        Mockito.when(node.getContracts()).thenReturn(mock(NodeList.class));
+        Mockito.when(node.getJmlDocs()).thenReturn(mock(NodeList.class));
         Mockito.when(node.getParameters()).thenReturn(mock(NodeList.class));
         Mockito.when(node.getComment()).thenReturn(Optional.of(mock(Comment.class)));
-        Mockito.when(node.getContracts()).thenReturn(mock(NodeList.class));
 
         // Then
         List<Object> result = visitor.visit(node, argument);
@@ -1186,6 +1187,8 @@ class GenericListVisitorAdapterTest {
         // Verify
         InOrder order = Mockito.inOrder(node);
         order.verify(node).getBody();
+        order.verify(node).getContracts();
+        order.verify(node).getJmlDocs();
         order.verify(node).getParameters();
         order.verify(node, times(2)).getComment();
         order.verifyNoMoreInteractions();

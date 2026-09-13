@@ -338,6 +338,7 @@ public class JmlProcessor extends Processor {
         @Override
         public Visitable visit(LambdaExpr n, Void arg) {
             var docs = n.getJmlDocs();
+            processedJmlDoc.addAll(docs);
             if (docs.isNonEmpty()) {
                 var contracts = parseJmlLambdaContract(docs);
                 for (var child : contracts.getChildren()) {

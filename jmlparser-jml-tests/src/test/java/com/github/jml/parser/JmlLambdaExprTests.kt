@@ -12,14 +12,13 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 
 /**
  *
  * @author Alexander Weigl
  * @version 1 (26.08.26)
  */
-class LambdaExprTests {
+class JmlLambdaExprTests {
     private val config = ParserConfiguration().also {
         it.isProcessJml = true
         it.languageLevel = ParserConfiguration.LanguageLevel.JAVA_25
@@ -40,6 +39,9 @@ class LambdaExprTests {
         """.trimIndent()
 
         val result = javaParser.parse(code)
+        if (!result.isSuccessful) {
+            result.problems.forEach { println(it) }
+        }
         assertTrue(result.isSuccessful, "Parsing should succeed")
 
         val cu = result.result.get()

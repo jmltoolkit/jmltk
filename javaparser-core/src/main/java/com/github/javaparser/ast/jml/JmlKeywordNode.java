@@ -50,8 +50,8 @@ public abstract class JmlKeywordNode<T extends JmlKeyword, S extends Node> exten
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.CloneGenerator")
-    public JmlKeywordNode<?, ?> clone() {
-        return (JmlKeywordNode<?, ?>) accept(new CloneVisitor(), null);
+    public JmlKeywordNode<?> clone() {
+        return (JmlKeywordNode<?>) accept(new CloneVisitor(), null);
     }
 
     @Override

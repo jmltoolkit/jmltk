@@ -4,16 +4,22 @@
  */
 package io.github.jmltoolkit.lsp.actions
 
+import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.jml.clauses.JmlContract
 import com.google.common.cache.CacheBuilder
 import io.github.jmltoolkit.lsp.JmlLanguageServer
+import io.github.jmltoolkit.lsp.asLeft
 import io.github.jmltoolkit.lsp.asRange
+import io.github.jmltoolkit.lsp.asRight
+import org.eclipse.lsp4j.CodeAction
 import org.eclipse.lsp4j.CodeLens
+import org.eclipse.lsp4j.Command
 import org.eclipse.lsp4j.MessageParams
 import org.eclipse.lsp4j.MessageType
+import org.eclipse.lsp4j.jsonrpc.messages.Either
 import java.util.concurrent.CompletableFuture
 
-class VerifyAgainstParent : LspAction<JmlContract> {
+class VerifyAgainstParent : LspAction {
     override val id: String = "jml.verify.liskov"
     override val title: String = "Verify against parent"
 
@@ -29,8 +35,10 @@ class VerifyAgainstParent : LspAction<JmlContract> {
         return CompletableFuture.completedFuture("")
     }
 
-    override fun createCodeLens(node: JmlContract): CodeLens {
-        cache.put(node.hashCode(), node)
-        return CodeLens(node.asRange, command(listOf(node.hashCode())), null)
+    override fun createCodeAction(
+        uri: String,
+        node: Node
+    ): Either<Command, CodeAction> {
+        return command(listOf(node.hashCode())).asLeft()
     }
 }

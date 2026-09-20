@@ -24,6 +24,8 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * The {@code \type} expression: denotes the type value associated with a given JML/Java type.
+ *
  * @author Alexander Weigl
  * @version 1 (12/29/21)
  */

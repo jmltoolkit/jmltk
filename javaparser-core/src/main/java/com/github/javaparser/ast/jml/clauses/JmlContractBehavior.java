@@ -22,6 +22,11 @@ import java.util.Objects;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * AST node holding the behaviour keyword ({@link JmlBehaviorKind}) that introduces a contract,
+ * e.g. {@code behavior} or {@code normal_behavior}.
+ *
+ * For example: <pre>{@code behavior}</pre>
+ *
  * @author Alexander Weigl
  * @version 1 (3/14/21)
  */

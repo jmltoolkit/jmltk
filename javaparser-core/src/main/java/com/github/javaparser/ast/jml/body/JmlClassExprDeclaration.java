@@ -28,6 +28,9 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * A class-level JML declaration of a predicate relative to a body clause kind, e.g. an
+ * {@code invariant}, {@code constraint}, {@code initially} or {@code axiom} clause.
+ *
  * @author Alexander Weigl
  * @version 1 (2/21/21)
  */

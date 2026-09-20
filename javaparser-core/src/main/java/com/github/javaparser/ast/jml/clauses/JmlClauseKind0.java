@@ -9,6 +9,10 @@ import com.github.javaparser.JavaToken;
 import com.github.javaparser.ast.jml.JmlKeyword;
 
 /**
+ * Enumeration of the keywords that may introduce a JML clause, such as {@code requires},
+ * {@code ensures}, {@code assignable}, {@code signals}, {@code signals_only}, {@code callable},
+ * {@code diverges}, {@code invariant} and the loop contracts.
+ *
  * @author Alexander Weigl
  * @version 1 (20.09.26)
  */

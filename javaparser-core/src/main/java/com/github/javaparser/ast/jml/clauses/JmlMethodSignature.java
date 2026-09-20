@@ -27,6 +27,9 @@ import java.util.Optional;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * A method signature (optionally with expression arguments) used, e.g., inside a
+ * {@code callable} clause.
+ *
  * @author Alexander Weigl
  * @version 1 (02.05.24)
  */

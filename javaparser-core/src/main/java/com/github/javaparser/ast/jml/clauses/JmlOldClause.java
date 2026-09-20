@@ -24,6 +24,9 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * The {@code \old(oldVariables; expression)} clause: introduces bounded variables that capture
+ * values from the pre-state for use in postconditions.
+ *
  * @author Alexander Weigl
  * @version 1 (12/12/21)
  */

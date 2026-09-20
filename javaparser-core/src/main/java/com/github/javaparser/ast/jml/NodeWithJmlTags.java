@@ -9,6 +9,8 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.SimpleName;
 
 /**
+ * Mixin interface for AST nodes that carry a list of JML tags ({@link com.github.javaparser.ast.expr.SimpleName}).
+ *
  * @author Alexander Weigl
  * @version 1 (30.05.22)
  */

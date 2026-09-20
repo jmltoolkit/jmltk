@@ -28,6 +28,9 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * A labelled JML expression of the form {@code \lbl}, {@code \lblpos} or {@code \lblneg}, tagging
+ * an expression with a name that is used for specification and proof support.
+ *
  * @author Alexander Weigl
  * @version 1 (2/21/21)
  */

@@ -9,6 +9,9 @@ import java.util.EnumSet;
 import static com.github.javaparser.ast.jml.clauses.JmlClauseKind0.*;
 
 /**
+ * Enumeration of the contract contexts supported by this framework, in particular method and loop
+ * contracts, together with the set of clause kinds that are valid in each context.
+ *
  * @author Alexander Weigl
  * @version 1 (04.05.24)
  */

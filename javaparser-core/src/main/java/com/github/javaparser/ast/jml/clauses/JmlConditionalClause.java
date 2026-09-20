@@ -26,10 +26,16 @@ import java.util.function.Consumer;
 
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
-/**
- * @author Alexander Weigl
- * @version 1 (2/22/21)
- */
+/// A clause that pairs a guard `condition` with an `expression`, used for conditional or
+/// case-differentiated contract specifications.
+///
+/// For example:
+/// ```
+/// callable <expression> \if <condition>;
+/// ```
+///
+/// @author Alexander Weigl
+/// @version 1 (2/22/21)
 public class JmlConditionalClause extends JmlClause
         implements NodeWithExpression<JmlConditionalClause>, NodeWithCondition<JmlConditionalClause> {
 

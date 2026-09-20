@@ -29,6 +29,9 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * A clause that holds a list of expressions, e.g. the {@code assignable} / {@code accessible}
+ * frame conditions listing the locations that may change or be read.
+ *
  * @author Alexander Weigl
  * @version 1 (25.02.22)
  */

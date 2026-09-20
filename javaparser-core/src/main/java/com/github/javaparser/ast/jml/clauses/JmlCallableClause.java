@@ -24,10 +24,16 @@ import java.util.function.Consumer;
 
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
-/**
- * @author Alexander Weigl
- * @version 1 (2/22/21)
- */
+/// The `callable` clause of a contract: lists the method signatures that may be invoked
+/// during the execution of the specified method.
+///
+/// For example:
+/// ```
+/// callable push(), pop();
+/// ```
+///
+/// @author Alexander Weigl
+/// @version 1 (2/22/21)
 public class JmlCallableClause extends JmlClause {
 
     private NodeList<JmlMethodSignature> methodSignatures = new NodeList<JmlMethodSignature>();

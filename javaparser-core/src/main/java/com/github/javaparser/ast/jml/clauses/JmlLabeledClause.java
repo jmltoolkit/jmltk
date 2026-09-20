@@ -30,6 +30,8 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * A clause introduced with an explicit {@code label}, pairing the label with an expression.
+ *
  * @author Alexander Weigl
  * @version 1 (2/21/21)
  */

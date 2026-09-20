@@ -113,6 +113,61 @@ open class BitVectorArithmeticTranslator(val smtLog: SmtQuery) : ArithmeticTrans
         TODO("Not yet implemented")
     }
 
+    private val declaredBoxing: MutableSet<String> = HashSet()
+
+    override fun unbox(obj: SExpr, primitive: ResolvedPrimitiveType): SExpr {
+        declareBoxing(primitive)
+        return term.list(
+            primitive, getPrimitiveType(primitive),
+            term.symbol("unbox$" + primitive.describe()), obj
+        )
+    }
+
+    override fun box(value: SExpr, primitive: ResolvedPrimitiveType): SExpr {
+        declareBoxing(primitive)
+        return term.list(
+            null, SmtType.JAVA_OBJECT,
+            term.symbol("box$" + primitive.describe()), value
+        )
+    }
+
+    /**
+     * Declares `box$T` / `unbox$T` for the given primitive type together with
+     * the round-trip axiom `forall x. unbox$T (box$T x) = x`. Idempotent.
+     */
+    private fun declareBoxing(primitive: ResolvedPrimitiveType) {
+        if (!declaredBoxing.add(primitive.describe())) return
+        val st = getPrimitiveType(primitive)
+        val boxName = "box$" + primitive.describe()
+        val unboxName = "unbox$" + primitive.describe()
+
+        // (declare-fun box$T (sort) Object)
+        smtLog.addCommand(
+            "declare-fun", term.symbol(boxName),
+            term.list(null, SmtType.TYPE, term.type(st)),
+            term.type(SmtType.JAVA_OBJECT)
+        )
+        // (declare-fun unbox$T (Object) sort)
+        smtLog.addCommand(
+            "declare-fun", term.symbol(unboxName),
+            term.list(null, SmtType.TYPE, term.type(SmtType.JAVA_OBJECT)),
+            term.type(st)
+        )
+        // (assert (forall ((x sort)) (= (unbox$T (box$T x)) x)))
+        val binder = term.binder(st, "x")
+        val x = term.variable(st, null, "x")
+        val boxed = term.list(null, SmtType.JAVA_OBJECT, term.symbol(boxName), x)
+        smtLog.addAssert(
+            term.forall(
+                listOf(binder),
+                term.equality(
+                    term.list(primitive, st, term.symbol(unboxName), boxed),
+                    x
+                )
+            )
+        )
+    }
+
     open fun getPrimitiveType(rType: ResolvedPrimitiveType) =
         when (rType) {
             BOOLEAN -> SmtType.BOOL

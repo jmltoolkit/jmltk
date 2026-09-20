@@ -12,6 +12,7 @@ import io.github.jmltoolkit.smt.BitVectorArithmeticTranslator
 import io.github.jmltoolkit.smt.SmtQuery
 import io.github.jmltoolkit.smt.SmtTermFactory
 import io.github.jmltoolkit.smt.model.SExpr
+import io.github.jmltoolkit.smt.solver.JavaSmtSolver
 import io.github.jmltoolkit.smt.solver.SolverAnswer
 
 /**
@@ -37,20 +38,51 @@ object WdFacade {
     }
 
     private fun isWelldefined(e: Expression): Boolean {
-        val query = SmtQuery()
-        val translator: ArithmeticTranslator = BitVectorArithmeticTranslator(query)
-        val visitor = WDVisitorExpr(query, translator)
-        val res: SExpr = e.accept(visitor, null)
-        if ("true" == res.toString()) {
+        val query = createQuery()
+        val res: SExpr? = e.accept(createVisitor(query), null)
+        if (res == null || "true" == res.toString()) {
             return true
         }
         query.addAssert(SmtTermFactory.not(res))
         query.checkSat()
-        val solver = io.github.jmltoolkit.smt.solver.Solver()
-        val ans: SolverAnswer = solver.run(query)
+        val ans: SolverAnswer = solve(query)
         println(query.toString())
         println(ans.toString())
         ans.consumeErrors()
         return ans.isSymbol("unsat")
     }
+
+    /**
+     * Solves the query with the java-smt backend, if available, and falls
+     * back to the external z3 process otherwise.
+     */
+    private fun solve(query: SmtQuery): SolverAnswer = try {
+        JavaSmtSolver().use { solver -> solver.run(query) }
+    } catch (t: Throwable) {
+        println("java-smt backend failed, falling back to external z3: $t")
+        io.github.jmltoolkit.smt.solver.Solver().run(query)
+    }
+
+    /**
+     * Creates a fresh SMT query with the object formalization declared,
+     * cf. [io.github.jmltoolkit.smt.SmtObjectModel].
+     */
+    fun createQuery(): SmtQuery {
+        val query = SmtQuery()
+        query.defineObjectModel()
+        return query
+    }
+
+    fun createVisitor(query: SmtQuery): WDVisitorExpr {
+        val translator: ArithmeticTranslator = BitVectorArithmeticTranslator(query)
+        return WDVisitorExpr(query, translator)
+    }
+
+    /**
+     * Computes the well-definedness formula of the given expression. The
+     * formula is true iff the expression is well-defined; useful for testing
+     * and debugging.
+     */
+    fun wdFormula(e: Expression): SExpr = e.accept(createVisitor(createQuery()), null)!!
 }
+

@@ -109,9 +109,40 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
     override fun visit(n: AssignExpr?, arg: Any?): SExpr? = super.visit(n, arg)
 
     override fun visit(n: BinaryExpr, arg: Any?): SExpr {
-        val left = n.left.accept(this, arg)
-        val right = n.right.accept(this, arg)
-        return translator.binary(n.operator, left, right)
+        // operands of arithmetic operations are subject to unboxing
+        // conversion (JLS 5.6.2): a boxed operand is translated into an
+        // object term and has to be unboxed for the primitive operation
+        val left = operand(n.left, n.operator, arg)
+        val right = operand(n.right, n.operator, arg)
+        return translator.binary(n.operator, left!!, right!!)
+    }
+
+    private fun operand(e: Expression, op: BinaryExpr.Operator, arg: Any?): SExpr? {
+        val t: SExpr = e.accept(this, arg) ?: return null
+        if (!op.isArithmeticOperand()) return t
+        val primitive = try {
+            Boxing.primitiveOf(e.calculateResolvedType())
+        } catch (t2: Throwable) {
+            null
+        } ?: return t
+        if (t.smtType != SmtType.JAVA_OBJECT) return t
+        return try {
+            translator.unbox(t, primitive)
+        } catch (t2: Throwable) {
+            t
+        }
+    }
+
+    private fun BinaryExpr.Operator.isArithmeticOperand(): Boolean = when (this) {
+        BinaryExpr.Operator.PLUS, BinaryExpr.Operator.MINUS,
+        BinaryExpr.Operator.MULTIPLY, BinaryExpr.Operator.DIVIDE,
+        BinaryExpr.Operator.REMAINDER, BinaryExpr.Operator.LESS,
+        BinaryExpr.Operator.GREATER, BinaryExpr.Operator.LESS_EQUALS,
+        BinaryExpr.Operator.GREATER_EQUALS, BinaryExpr.Operator.LEFT_SHIFT,
+        BinaryExpr.Operator.SIGNED_RIGHT_SHIFT, BinaryExpr.Operator.UNSIGNED_RIGHT_SHIFT,
+        BinaryExpr.Operator.BINARY_AND, BinaryExpr.Operator.BINARY_OR,
+        BinaryExpr.Operator.XOR -> true
+        else -> false
     }
 
     override fun visit(n: ThisExpr?, arg: Any?): SExpr = termFactory.makeThis()
@@ -162,11 +193,19 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
     }
 
     override fun visit(n: InstanceOfExpr, arg: Any?): SExpr {
-        val leftType = n.expression.calculateResolvedType()
-        val rightType = n.type.resolve()
-
-        // TODO weigl return leftType.asReferenceType()
-        // Pattern matching
+        val value: SExpr? = try {
+            n.expression.accept(this, arg)
+        } catch (e: Throwable) {
+            null
+        }
+        if (value != null && value.smtType == SmtType.JAVA_OBJECT) {
+            val typeName = try {
+                n.type.resolve().describe()
+            } catch (e: Throwable) {
+                n.typeAsString
+            }
+            return termFactory.instanceOf(value, typeName)
+        }
         return termFactory.makeTrue()
     }
 

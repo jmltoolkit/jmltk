@@ -67,6 +67,25 @@ class SmtQuery : AppendableTo {
         commands.add(term.command("assert", nonNull))
     }
 
+    /**
+     * The accumulated SMT-LIB commands of this query, in order.
+     */
+    fun commands(): List<SExpr> = java.util.Collections.unmodifiableList(commands)
+
+    /**
+     * Adds an arbitrary SMT-LIB command to the query.
+     */
+    fun addCommand(symbol: String, vararg args: SExpr) {
+        commands.add(term.command(symbol, *args))
+    }
+
+    /**
+     * Declares the formalization of Java objects, see [SmtObjectModel].
+     */
+    fun defineObjectModel() {
+        SmtObjectModel.declare(this)
+    }
+
     fun checkSat() {
         commands.add(term.command("check-sat"))
     }

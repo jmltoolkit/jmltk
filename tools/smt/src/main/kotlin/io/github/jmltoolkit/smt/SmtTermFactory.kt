@@ -25,10 +25,12 @@ object SmtTermFactory {
 
     //region boolean operators
     fun and(vararg terms: SExpr): SExpr = and(terms.toList())
-    fun and(seq: List<SExpr>): SExpr = fnApply(BOOLEAN, SmtType.BOOL, "and", seq)
+    fun and(seq: List<SExpr>): SExpr =
+        if (seq.isEmpty()) makeTrue() else fnApply(BOOLEAN, SmtType.BOOL, "and", seq)
 
     fun or(vararg terms: SExpr): SExpr = or(terms.toList())
-    fun or(terms: List<SExpr>) = fnApply(BOOLEAN, SmtType.BOOL, "or", terms)
+    fun or(terms: List<SExpr>) =
+        if (terms.isEmpty()) makeFalse() else fnApply(BOOLEAN, SmtType.BOOL, "or", terms)
 
     fun impl(premise: SExpr, concl: SExpr): SExpr = fnApply(BOOLEAN, SmtType.BOOL, "=>", premise, concl)
 
@@ -73,7 +75,7 @@ object SmtTermFactory {
     }
 
     // TODO weigl correct?
-    fun list(variables: List<SExpr>): SExpr = SList(null, null, listOf())
+    fun list(variables: List<SExpr>): SExpr = SList(null, null, variables)
 
     //region polymorphic operators
     fun bor(left: SExpr, right: SExpr): SExpr {
@@ -306,7 +308,7 @@ object SmtTermFactory {
 
     fun makeInt(value: String): SExpr = intValue(value)
 
-    fun makeNull(): SExpr = symbol("null")
+    fun makeNull(): SExpr = symbolAndValueCache.get("null") { SAtom(SmtType.JAVA_OBJECT, null, "null") }
 
     fun makeThis(): SExpr = symbol("this")
 
@@ -323,6 +325,7 @@ object SmtTermFactory {
         if (type === SmtType.FP32) return fpType(32)
         if (type === SmtType.FP64) return fpType(64)
         if (type === SmtType.BOOL) return boolType()
+        if (type === SmtType.STRING) return symbol("String")
         if (type is SmtType.Array) {
             return arrayType(
             type(type.from),
@@ -358,5 +361,14 @@ object SmtTermFactory {
 
     fun nonNull(expr: SExpr): SExpr = not(equality(expr, makeNull()))
 
+    fun isNull(expr: SExpr): SExpr = equality(expr, makeNull())
+
     fun binder(type: SmtType, name: String): SExpr = list(null, SmtType.JAVA_OBJECT, name, type(type))
+
+    /**
+     * Instance-of test against a (fully qualified) class name:
+     * `(instanceof obj className)`. See [SmtObjectModel].
+     */
+    fun instanceOf(obj: SExpr, className: String): SExpr =
+        list(null, SmtType.BOOL, "instanceof", obj, className)
 }

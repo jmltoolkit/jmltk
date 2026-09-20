@@ -18,7 +18,9 @@ import io.github.jmltoolkit.smt.ArithmeticTranslator
 import io.github.jmltoolkit.smt.JmlExpr2Smt
 import io.github.jmltoolkit.smt.SmtQuery
 import io.github.jmltoolkit.smt.SmtTermFactory
+import io.github.jmltoolkit.smt.Boxing
 import io.github.jmltoolkit.smt.model.SExpr
+import io.github.jmltoolkit.smt.model.SmtType
 import java.math.BigInteger
 
 /**
@@ -43,10 +45,32 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
         }
     }
 
-    override fun visit(n: ArrayAccessExpr, arg: Any?): SExpr = term.and(
-            n.name.accept(this, arg),
-            n.index.accept(this, arg)
+    /**
+     * An array access `a[i]` is well-defined iff `a` and `i` are well-defined
+     * and the index is within the bounds of the array (JLS 10.4, no
+     * ArrayIndexOutOfBoundsException).
+     */
+    override fun visit(n: ArrayAccessExpr, arg: Any?): SExpr {
+        val base = term.and(
+            wd(n.name),
+            wd(n.index)
         )
+        val array = smtTerm(n.name) ?: return base
+        val index = smtTerm(n.index) ?: return base
+        return try {
+            val length = translator.arrayLength(array)
+            val zero = translator.makeInt(BigInteger.ZERO)
+            term.and(
+                base,
+                term.lessOrEquals(zero, index, true),
+                term.lessThan(index, length)
+            )
+        } catch (e: Throwable) {
+            // fall back to the well-definedness of the sub-expressions,
+            // e.g. if types could not be resolved
+            base
+        }
+    }
 
     override fun visit(n: ArrayCreationExpr, arg: Any?): SExpr {
         // TODO
@@ -71,23 +95,59 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
             }
 
             BinaryExpr.Operator.DIVIDE, BinaryExpr.Operator.REMAINDER -> {
-                val fml = n.right.accept(smtFormula, arg)
-                return term.and(
-                    n.right.accept(this, arg),
-                    n.left.accept(this, arg),
+                // division by zero and unboxing of a null operand
+                // (JLS 5.6.2) make the expression undefined
+                val npe = term.and(listOfNotNull(npeUnboxing(n.left), npeUnboxing(n.right)))
+                val divisorNotZero = try {
+                    val fml = n.right.accept(smtFormula, arg)
                     term.not(
                         translator.binary(
                             BinaryExpr.Operator.EQUALS,
                             fml, smtFormula.translator.makeInt(BigInteger.ZERO)
                         )
                     )
+                } catch (t: Throwable) {
+                    // types could not be resolved, e.g. an unresolvable
+                    // operand; fall back to the sub-expressions' well-definedness
+                    term.makeTrue()
+                }
+                return term.and(
+                    n.right.accept(this, arg),
+                    n.left.accept(this, arg),
+                    npe,
+                    divisorNotZero
                 )
             }
 
-            else -> return term.and(
-                n.right.accept(this, arg),
-                n.left.accept(this, arg)
-            )
+            else -> {
+                // unboxing of a null operand causes a NullPointerException
+                val npe = term.and(listOfNotNull(npeUnboxing(n.left), npeUnboxing(n.right)))
+                return term.and(
+                    n.right.accept(this, arg),
+                    n.left.accept(this, arg),
+                    npe
+                )
+            }
+        }
+    }
+
+    /**
+     * Well-definedness contribution of an unboxing conversion (JLS 5.6.2):
+     * if the operand is a boxed primitive, its value must be non-null,
+     * otherwise `x.intValue()` throws a NullPointerException.
+     */
+    private fun npeUnboxing(e: Expression): SExpr? {
+        val primitive = try {
+            Boxing.primitiveOf(e.calculateResolvedType())
+        } catch (t: Throwable) {
+            null
+        } ?: return null
+        val obj = smtTerm(e) ?: return null
+        return try {
+            translator.unbox(obj, primitive)
+            term.nonNull(obj)
+        } catch (t: Throwable) {
+            null
         }
     }
 
@@ -106,7 +166,22 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
 
     override fun visit(n: EnclosedExpr, arg: Any?): SExpr = wd(n.inner)
 
-    override fun visit(n: FieldAccessExpr, arg: Any?): SExpr = wd(n.scope)
+    /**
+     * A field access `expr.f` is well-defined iff `expr` is well-defined and
+     * its value is non-null (no NullPointerException). Static field accesses,
+     * i.e. a scope naming a type, cannot be translated into an object term
+     * and are skipped.
+     */
+    override fun visit(n: FieldAccessExpr, arg: Any?): SExpr {
+        val scopeWd = wd(n.scope)
+        if (n.scope is ThisExpr || n.scope is SuperExpr || n.scope is TypeExpr) {
+            // `this` and `super` are always non-null in a well-formed
+            // specification context
+            return scopeWd
+        }
+        val receiver = smtTerm(n.scope) ?: return scopeWd
+        return term.and(scopeWd, term.nonNull(receiver))
+    }
 
     override fun visit(n: InstanceOfExpr, arg: Any?): SExpr = n.expression.accept(this, arg)
 
@@ -161,9 +236,27 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
         )
     }
 
+    override fun visit(n: NullLiteralExpr, arg: Any?): SExpr = term.makeTrue()
+
+    override fun visit(n: ObjectCreationExpr, arg: Any?): SExpr =
+        term.and(n.arguments.map { e: Expression -> wd(e) })
+
     private fun valueOf(e: Expression): SExpr = e.accept(smtFormula, null)
 
-    private fun wd(e: Expression): SExpr = e.accept(this, null)
+    private fun wd(e: Expression): SExpr = e.accept(this, null) ?: term.makeTrue()
+
+    /**
+     * Translates an expression into an object term of the SMT object
+     * formalization, cf. [io.github.jmltoolkit.smt.SmtObjectModel].
+     * Returns `null` if the expression is not an object (e.g. a primitive or
+     * array term) or cannot be resolved.
+     */
+    private fun smtTerm(e: Expression): SExpr? = try {
+        val t = e.accept(smtFormula, null)
+        if (t != null && t.smtType == SmtType.JAVA_OBJECT) t else null
+    } catch (t: Throwable) {
+        null
+    }
 
     override fun visit(n: JmlExpressionStmt, arg: Any?): SExpr = wd(n.expression)
 
@@ -178,6 +271,11 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
     override fun visit(n: JmlMultiExprClause, arg: Any?) =
         term.and(n.expressions.map { e: Expression -> this.wd(e) })
 
+    /**
+     * A method invocation `expr.m(...)` is well-defined iff the receiver (if
+     * any) is well-defined and non-null (no NullPointerException) and all
+     * arguments are well-defined.
+     */
     override fun visit(n: MethodCallExpr, arg: Any?): SExpr {
         val name = n.nameAsString
         when (name) {
@@ -190,8 +288,19 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
                    if present, must be the identifier corresponding to an in-scope label or a built-in label. */
                 return n.arguments[0].accept(this, arg)
         }
-        val seq = n.arguments.map { it: Expression -> it.accept(this, arg) }
-        return term.and(seq)
+        val parts: MutableList<SExpr> = ArrayList()
+        n.scope.ifPresent { scope: Expression ->
+            parts.add(wd(scope))
+            if (scope !is ThisExpr && scope !is SuperExpr && scope !is TypeExpr) {
+                val receiver = smtTerm(scope)
+                if (receiver != null) {
+                    parts.add(term.nonNull(receiver))
+                }
+            }
+        }
+        n.arguments.forEach { e: Expression -> parts.add(e.accept(this, arg) ?: term.makeTrue()) }
+        if (parts.isEmpty()) return term.makeTrue()
+        return term.and(parts)
     }
 
     companion object {

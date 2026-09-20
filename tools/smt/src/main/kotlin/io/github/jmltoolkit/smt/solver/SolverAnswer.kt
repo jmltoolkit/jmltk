@@ -58,6 +58,8 @@ class SolverAnswer(private val answers: List<SExpr>) {
             peek().asList().get(0).asSymbolValue().equals("error")
         } catch (e: ClassCastException) {
             false
+        } catch (e: IndexOutOfBoundsException) {
+            false
         }
 
     override fun toString(): String {

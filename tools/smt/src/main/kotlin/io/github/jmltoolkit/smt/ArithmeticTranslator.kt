@@ -7,6 +7,7 @@ package io.github.jmltoolkit.smt
 import com.github.javaparser.ast.NodeList
 import com.github.javaparser.ast.body.VariableDeclarator
 import com.github.javaparser.ast.expr.*
+import com.github.javaparser.resolution.types.ResolvedPrimitiveType
 import com.github.javaparser.resolution.types.ResolvedType
 import io.github.jmltoolkit.smt.model.SExpr
 import io.github.jmltoolkit.smt.model.SmtType
@@ -43,4 +44,21 @@ interface ArithmeticTranslator {
     fun makeInt(i: Long): SExpr
 
     fun makeVar(rtype: ResolvedType): SExpr
+
+    /**
+     * Unboxing conversion (JLS 5.1.8) of a boxed object term into its
+     * primitive value, modeled by `(unbox$T obj)`. The functions are declared
+     * lazily in the query together with the round-trip axiom
+     * `forall x. unbox$T (box$T x) = x`.
+     *
+     * Unboxing `null` is a NullPointerException; the well-definedness check
+     * has to ensure the receiver is non-null.
+     */
+    fun unbox(obj: SExpr, primitive: ResolvedPrimitiveType): SExpr
+
+    /**
+     * Boxing conversion (JLS 5.1.7) of a primitive value into an object,
+     * modeled by `(box$T value)`, cf. [unbox].
+     */
+    fun box(value: SExpr, primitive: ResolvedPrimitiveType): SExpr
 }

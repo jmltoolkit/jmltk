@@ -30,7 +30,13 @@ public enum JmlBehaviorKind implements Jmlish, JmlKeyword {
     }
 
     public static JmlBehaviorKind getByToken(JavaToken token) {
-        return null;
+        final var text = token.getText();
+        for (JmlBehaviorKind k : values()) {
+            if(k.jmlSymbol().equals(text)) {
+                return k;
+            }
+        }
+        throw new AssertionError("No such behavior: " + text);
     }
 
     @Override

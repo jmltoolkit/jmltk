@@ -139,7 +139,7 @@ class JmlCatchSymbols : GenericVisitorAdapter<MutableList<DocumentSymbol>?, Unit
         val children = acceptAll(n.subContracts) + acceptAll(n.clauses)
         return arrayListOf(
             DocumentSymbol(
-                "Contract: ${n.name()?.toString() ?: n.behavior.asString()}",
+                "Contract: ${n.name()?.toString() ?: n.behavior.kind.asString()}",
                 SymbolKind.Key,
                 n.asRange, n.asRange, "${n.jmlTags}", children
             )

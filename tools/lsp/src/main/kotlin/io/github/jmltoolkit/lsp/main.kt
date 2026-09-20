@@ -9,16 +9,21 @@ import com.github.ajalt.clikt.core.main
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
+import com.google.gson.GsonBuilder
+import org.eclipse.lsp4j.jsonrpc.Launcher
 import org.eclipse.lsp4j.launch.LSPLauncher
 import org.eclipse.lsp4j.services.LanguageClient
+import org.eclipse.lsp4j.services.LanguageServer
 import org.tinylog.Logger
 import org.tinylog.configuration.Configuration
-import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
+import java.io.PrintWriter
 import java.net.InetAddress
 import java.net.ServerSocket
 import java.net.Socket
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.ForkJoinPool
 
 /**
  * @author Alexander Weigl
@@ -32,6 +37,10 @@ object Main {
 }
 
 class JmlLspCommand : CliktCommand() {
+    private val executorService: ExecutorService = ForkJoinPool.commonPool()
+
+    private val traceEnabled by option("--trace")
+
     private val stdioMode by option("--stdio").flag()
     private val serverMode by option("--server").int()
     private val client by option("--client").int()
@@ -56,14 +65,14 @@ class JmlLspCommand : CliktCommand() {
 
     private fun runAsClient(port: Int) {
         val socket = Socket("localhost", port)
+        socket.tcpNoDelay = true
+        socket.keepAlive = true
         launchLanguageServer(socket.getInputStream(), socket.getOutputStream())
     }
 
     private fun launchLanguageServer(input: InputStream, output: OutputStream) {
-        val teeInput = TeeInputStream(input, "/tmp/in.txt")
-        val teeOutput = TeeOutputStream(output, "/tmp/out.txt")
         val server = JmlLanguageServer()
-        val launcher = LSPLauncher.createServerLauncher(server, teeInput, teeOutput)
+        val launcher = createServerLauncher(server, input, output)
         val client: LanguageClient = launcher.remoteProxy
         server.connect(client)
         launcher.startListening()
@@ -75,6 +84,10 @@ class JmlLspCommand : CliktCommand() {
                 ServerSocket(port, 1, InetAddress.getLoopbackAddress()).use { serverSocket ->
                     Logger.info("Listening on {}", serverSocket.localSocketAddress)
                     val socket = serverSocket.accept()
+
+                    socket.tcpNoDelay = true
+                    socket.keepAlive = true
+
                     launchLanguageServer(socket.getInputStream(), socket.getOutputStream())
                 }
             } catch (e: Exception) {
@@ -82,8 +95,45 @@ class JmlLspCommand : CliktCommand() {
             }
         }
     }
+
+
+    fun createServerLauncher(
+        server: LanguageServer,
+        input: InputStream,
+        output: OutputStream
+    ): Launcher<LanguageClient> {
+        val l = LSPLauncher.Builder<LanguageClient>()
+            .setLocalService(server)
+            .setRemoteInterface(LanguageClient::class.java)
+            .setInput(input)
+            .setOutput(output)
+            .setExecutorService(executorService)
+            .validateMessages(true)
+            // .wrapMessages(wrapper)
+            .configureGson(JmlLspCommand::configureJson)
+            .setClassLoader(javaClass.classLoader)
+
+        traceEnabled?.let {
+            Logger.info("Tracing enabled: {}", it)
+            if (it == "-") {
+                l.traceMessages(PrintWriter(System.err))
+            } else {
+                l.traceMessages(PrintWriter(it))
+            }
+        }
+
+        return l.create()
+    }
+
+    companion object {
+        @JvmStatic
+        fun configureJson(builder: GsonBuilder): GsonBuilder {
+            return builder
+        }
+    }
 }
 
+/*
 class TeeInputStream(private val inputStream: InputStream, logPath: String) : InputStream() {
     private val logStream = FileOutputStream(logPath)
 
@@ -134,3 +184,4 @@ class TeeOutputStream(private val outputStream: OutputStream, logPath: String) :
         logStream.close()
     }
 }
+*/

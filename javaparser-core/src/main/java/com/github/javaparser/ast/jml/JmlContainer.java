@@ -14,6 +14,9 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.SimpleName;
 
 /**
+ * Container node that holds a list of JML elements together with their tags and single-line
+ * marker. Marked as deprecated; use the more specific JML container nodes instead.
+ *
  * @author Alexander Weigl
  * @version 1 (3/21/21)
  */

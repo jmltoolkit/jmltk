@@ -27,10 +27,16 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.CodeGenerationUtils.f;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
-/**
- * @author Alexander Weigl
- * @version 1 (2/21/21)
- */
+/// Base class of all JML specification clauses that appear in a method or loop contract. Concrete
+/// clauses provide preconditions, postconditions, frame conditions and related properties.
+///
+/// For example:
+/// ```
+/// requires x >= 0;
+/// ```
+///
+/// @author Alexander Weigl
+/// @version 1 (2/21/21)
 @NullMarked
 public abstract class JmlClause extends Node implements Jmlish, NodeWithOptionalSimpleName<JmlClause> {
 

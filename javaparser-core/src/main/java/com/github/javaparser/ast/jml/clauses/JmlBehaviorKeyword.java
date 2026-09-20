@@ -9,10 +9,14 @@ import com.github.javaparser.ast.Jmlish;
 import com.github.javaparser.ast.jml.JmlKeyword;
 
 /**
+ * The behaviour keyword that introduces a method specification case, such as
+ * {@code behavior}, {@code normal_behavior}, {@code exceptional_behavior} or
+ * {@code model_behavior}.
+ *
  * @author Alexander Weigl
  * @version 1 (20.09.26)
  */
-public enum JmlBehaviorKind implements Jmlish, JmlKeyword {
+public enum JmlBehaviorKeyword implements Jmlish, JmlKeyword {
     NONE(""),
     BEHAVIOR("behavior"),
     NORMAL("normal_behavior"),
@@ -25,17 +29,23 @@ public enum JmlBehaviorKind implements Jmlish, JmlKeyword {
 
     private final String symbol;
 
-    JmlBehaviorKind(String symbol) {
+    JmlBehaviorKeyword(String symbol) {
         this.symbol = symbol;
     }
 
-    public static JmlBehaviorKind getByToken(JavaToken token) {
+    public static JmlBehaviorKeyword getByToken(JavaToken token) {
         final var text = token.getText();
-        for (JmlBehaviorKind k : values()) {
-            if(k.jmlSymbol().equals(text)) {
+        for (JmlBehaviorKeyword k : values()) {
+            if (k.jmlSymbol().equals(text)) {
                 return k;
             }
         }
+        for (JmlBehaviorKeyword k : values()) {
+            if (k.jmlSymbol().replace("behavior", "behaviour").equals(text)) {
+                return k;
+            }
+        }
+        if ("feasible_behavior".equalsIgnoreCase(text) || "feasible_behaviour".equalsIgnoreCase(text)) return BEHAVIOR;
         throw new AssertionError("No such behavior: " + text);
     }
 

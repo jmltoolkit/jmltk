@@ -25,6 +25,9 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * The {@code signals_only} clause: restricts the set of exception types that may be thrown by the
+ * specified method, or {@code \nothing} if no exception may escape.
+ *
  * @author Alexander Weigl
  * @version 1 (2/21/21)
  */

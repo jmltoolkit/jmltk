@@ -36,7 +36,7 @@ public enum JmlBehaviorKind implements Jmlish, JmlKeyword {
     public static JmlBehaviorKind getByToken(JavaToken token) {
         final var text = token.getText();
         for (JmlBehaviorKind k : values()) {
-            if(k.jmlSymbol().equals(text)) {
+            if (k.jmlSymbol().equals(text)) {
                 return k;
             }
         }
@@ -47,9 +47,7 @@ public enum JmlBehaviorKind implements Jmlish, JmlKeyword {
             }
         }
 
-        if("feasible_behavior".equalsIgnoreCase(text)||
-            "feasible_behaviour".equalsIgnoreCase(text))
-            return  BEHAVIOR;
+        if ("feasible_behavior".equalsIgnoreCase(text) || "feasible_behaviour".equalsIgnoreCase(text)) return BEHAVIOR;
 
         throw new AssertionError("No such behavior: " + text);
     }

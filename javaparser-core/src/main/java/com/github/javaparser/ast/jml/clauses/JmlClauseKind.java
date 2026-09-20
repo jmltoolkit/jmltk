@@ -23,14 +23,14 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * AST node representing the keyword kind of a JML clause (e.g. {@code requires}, {@code ensures},
- * {@code signals}), wrapping a {@link JmlClauseKind0} value.
+ * {@code signals}), wrapping a {@link JmlClauseKeyword} value.
  */
-public class JmlClauseKind extends JmlKeywordNode<JmlClauseKind0, JmlClauseKind> {
+public class JmlClauseKind extends JmlKeywordNode<JmlClauseKind> {
 
-    private JmlClauseKind0 value;
+    private JmlClauseKeyword value;
 
     @AllFieldsConstructor
-    public JmlClauseKind(JmlClauseKind0 value) {
+    public JmlClauseKind(JmlClauseKeyword value) {
         this(null, value);
     }
 
@@ -38,14 +38,14 @@ public class JmlClauseKind extends JmlKeywordNode<JmlClauseKind0, JmlClauseKind>
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlClauseKind(TokenRange tokenRange, JmlClauseKind0 value) {
+    public JmlClauseKind(TokenRange tokenRange, JmlClauseKeyword value) {
         super(tokenRange);
         setValue(value);
         customInitialization();
     }
 
     public JmlClauseKind(JavaToken kind) {
-        this(new TokenRange(kind, kind), JmlClauseKind0.getKindByToken(kind));
+        this(new TokenRange(kind, kind), JmlClauseKeyword.getKindByToken(kind));
     }
 
     @Override
@@ -60,14 +60,13 @@ public class JmlClauseKind extends JmlKeywordNode<JmlClauseKind0, JmlClauseKind>
         v.visit(this, arg);
     }
 
-    @Override
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlClauseKind0 getValue() {
+    public JmlClauseKeyword getValue() {
         return value;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlClauseKind setValue(final @NonNull() JmlClauseKind0 value) {
+    public JmlClauseKind setValue(final @NonNull() JmlClauseKeyword value) {
         assertNotNull(value);
         if (value == this.value) {
             return this;
@@ -79,7 +78,7 @@ public class JmlClauseKind extends JmlKeywordNode<JmlClauseKind0, JmlClauseKind>
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @NonNull() JmlClauseKind0 value() {
+    public @NonNull() JmlClauseKeyword value() {
         return Objects.requireNonNull(value);
     }
 

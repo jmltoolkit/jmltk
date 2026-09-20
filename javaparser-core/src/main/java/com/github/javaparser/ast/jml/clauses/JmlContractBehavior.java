@@ -22,7 +22,7 @@ import java.util.Objects;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
- * AST node holding the behaviour keyword ({@link JmlBehaviorKind}) that introduces a contract,
+ * AST node holding the behaviour keyword ({@link JmlBehaviorKeyword}) that introduces a contract,
  * e.g. {@code behavior} or {@code normal_behavior}.
  *
  * For example: <pre>{@code behavior}</pre>
@@ -30,12 +30,12 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
  * @author Alexander Weigl
  * @version 1 (3/14/21)
  */
-public class JmlContractBehavior extends JmlKeywordNode<JmlBehaviorKind, JmlContractBehavior> {
+public class JmlContractBehavior extends JmlKeywordNode<JmlContractBehavior> {
 
-    private JmlBehaviorKind value;
+    private JmlBehaviorKeyword value;
 
     @AllFieldsConstructor
-    public JmlContractBehavior(JmlBehaviorKind value) {
+    public JmlContractBehavior(JmlBehaviorKeyword value) {
         this(null, value);
     }
 
@@ -43,14 +43,14 @@ public class JmlContractBehavior extends JmlKeywordNode<JmlBehaviorKind, JmlCont
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlContractBehavior(TokenRange tokenRange, JmlBehaviorKind value) {
+    public JmlContractBehavior(TokenRange tokenRange, JmlBehaviorKeyword value) {
         super(tokenRange);
         setValue(value);
         customInitialization();
     }
 
     public JmlContractBehavior(JavaToken token) {
-        this(new TokenRange(token, token), JmlBehaviorKind.getByToken(token));
+        this(new TokenRange(token, token), JmlBehaviorKeyword.getByToken(token));
     }
 
     @Override
@@ -65,14 +65,13 @@ public class JmlContractBehavior extends JmlKeywordNode<JmlBehaviorKind, JmlCont
         v.visit(this, arg);
     }
 
-    @Override
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlBehaviorKind getValue() {
+    public JmlBehaviorKeyword getValue() {
         return value;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlContractBehavior setValue(final @NonNull() JmlBehaviorKind value) {
+    public JmlContractBehavior setValue(final @NonNull() JmlBehaviorKeyword value) {
         assertNotNull(value);
         if (value == this.value) {
             return this;
@@ -84,7 +83,7 @@ public class JmlContractBehavior extends JmlKeywordNode<JmlBehaviorKind, JmlCont
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @NonNull() JmlBehaviorKind value() {
+    public @NonNull() JmlBehaviorKeyword value() {
         return Objects.requireNonNull(value);
     }
 

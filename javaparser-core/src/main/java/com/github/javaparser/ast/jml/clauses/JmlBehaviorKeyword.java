@@ -16,7 +16,7 @@ import com.github.javaparser.ast.jml.JmlKeyword;
  * @author Alexander Weigl
  * @version 1 (20.09.26)
  */
-public enum JmlBehaviorKind implements Jmlish, JmlKeyword {
+public enum JmlBehaviorKeyword implements Jmlish, JmlKeyword {
     NONE(""),
     BEHAVIOR("behavior"),
     NORMAL("normal_behavior"),
@@ -29,18 +29,18 @@ public enum JmlBehaviorKind implements Jmlish, JmlKeyword {
 
     private final String symbol;
 
-    JmlBehaviorKind(String symbol) {
+    JmlBehaviorKeyword(String symbol) {
         this.symbol = symbol;
     }
 
-    public static JmlBehaviorKind getByToken(JavaToken token) {
+    public static JmlBehaviorKeyword getByToken(JavaToken token) {
         final var text = token.getText();
-        for (JmlBehaviorKind k : values()) {
+        for (JmlBehaviorKeyword k : values()) {
             if (k.jmlSymbol().equals(text)) {
                 return k;
             }
         }
-        for (JmlBehaviorKind k : values()) {
+        for (JmlBehaviorKeyword k : values()) {
             if (k.jmlSymbol().replace("behavior", "behaviour").equals(text)) {
                 return k;
             }

@@ -6,7 +6,7 @@ package io.github.jmltoolkit.lint.rules
 
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.expr.NameExpr
-import com.github.javaparser.ast.jml.clauses.JmlClauseKind0.*
+import com.github.javaparser.ast.jml.clauses.JmlClauseKeyword.*
 import com.github.javaparser.ast.jml.clauses.JmlSimpleExprClause
 import io.github.jmltoolkit.lint.LintProblemReporter
 import io.github.jmltoolkit.lint.LintRuleVisitor
@@ -32,7 +32,7 @@ class ResultVarCheck : LintRuleVisitor() {
 
     override fun visit(n: JmlSimpleExprClause, arg: LintProblemReporter?) {
         inPostCondition =
-            when (n.kind.kind) {
+            when (n.kind.value) {
                 ENSURES -> true
                 ENSURES_FREE -> true
                 ENSURES_REDUNDANTLY -> true

@@ -7,7 +7,7 @@ package com.github.jml.parser
 import com.github.javaparser.JavaParser
 import com.github.javaparser.ParserConfiguration
 import com.github.javaparser.ast.expr.LambdaExpr
-import com.github.javaparser.ast.jml.clauses.JmlClauseKind0
+import com.github.javaparser.ast.jml.clauses.JmlClauseKeyword
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
@@ -48,7 +48,7 @@ class JmlLambdaExprTests {
         assertEquals(1, lambdaExpr.contracts.size, "Should have one contract")
         val contract = lambdaExpr.contracts[0]
         assertEquals(1, contract.clauses.size, "Contract should have one clause")
-        assertEquals(JmlClauseKind0.ENSURES, contract.clauses[0].kind.kind, "Should be an ensures clause")
+        assertEquals(JmlClauseKeyword.ENSURES, contract.clauses[0].kind.value, "Should be an ensures clause")
     }
 
     @Test
@@ -73,7 +73,7 @@ class JmlLambdaExprTests {
         assertEquals(1, lambdaExpr.contracts.size, "Should have one contract")
         val contract = lambdaExpr.contracts[0]
         assertEquals(1, contract.clauses.size, "Contract should have one clause")
-        assertEquals(JmlClauseKind0.REQUIRES, contract.clauses[0].kind.value, "Should be a requires clause")
+        assertEquals(JmlClauseKeyword.REQUIRES, contract.clauses[0].kind.value, "Should be a requires clause")
         assertEquals(2, lambdaExpr.parameters.size, "Lambda should have 2 parameters")
     }
 
@@ -126,8 +126,8 @@ class JmlLambdaExprTests {
         assertEquals(1, lambdaExpr.contracts.size, "Should have one contract")
         val contract = lambdaExpr.contracts[0]
         assertEquals(2, contract.clauses.size, "Contract should have two clauses")
-        assertEquals(JmlClauseKind0.REQUIRES, contract.clauses[0].kind.kind, "First clause should be requires")
-        assertEquals(JmlClauseKind0.ENSURES, contract.clauses[1].kind.kind, "Second clause should be ensures")
+        assertEquals(JmlClauseKeyword.REQUIRES, contract.clauses[0].kind.value, "First clause should be requires")
+        assertEquals(JmlClauseKeyword.ENSURES, contract.clauses[1].kind.value, "Second clause should be ensures")
     }
 
     @Test

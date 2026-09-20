@@ -6,7 +6,7 @@ package com.github.javaparser.ast.jml.clauses;
 
 import java.util.EnumSet;
 
-import static com.github.javaparser.ast.jml.clauses.JmlClauseKind0.*;
+import static com.github.javaparser.ast.jml.clauses.JmlClauseKeyword.*;
 
 /**
  * Enumeration of the contract contexts supported by this framework, in particular method and loop
@@ -167,13 +167,13 @@ public enum ContractType {
             DIVERGES,
             DURATION);
 
-    final EnumSet<JmlClauseKind0> validKinds;
+    final EnumSet<JmlClauseKeyword> validKinds;
 
-    ContractType(JmlClauseKind0 first, JmlClauseKind0... kinds) {
+    ContractType(JmlClauseKeyword first, JmlClauseKeyword... kinds) {
         validKinds = EnumSet.of(first, kinds);
     }
 
-    public boolean isValidClauseKind(JmlClauseKind0 clauseKind) {
+    public boolean isValidClauseKind(JmlClauseKeyword clauseKind) {
         return validKinds.contains(clauseKind);
     }
 }

@@ -16,7 +16,7 @@ import com.github.javaparser.ast.jml.JmlKeyword;
  * @author Alexander Weigl
  * @version 1 (20.09.26)
  */
-public enum JmlBodyClauseKind0 implements JmlKeyword {
+public enum JmlBodyClauseKeyword implements JmlKeyword {
     CONSTRAINT(GeneratedJavaParserConstants.CONSTRAINT),
     CONSTRAINT_REDUNDANTLY(GeneratedJavaParserConstants.CONSTRAINT_REDUNDANTLY),
     AXIOM(GeneratedJavaParserConstants.AXIOM),
@@ -29,12 +29,12 @@ public enum JmlBodyClauseKind0 implements JmlKeyword {
 
     private final int tokenType;
 
-    JmlBodyClauseKind0(int tokenType) {
+    JmlBodyClauseKeyword(int tokenType) {
         this.tokenType = tokenType;
         jmlSymbol = name().toLowerCase();
     }
 
-    JmlBodyClauseKind0(String jmlSymbol, int tokenType) {
+    JmlBodyClauseKeyword(String jmlSymbol, int tokenType) {
         this.jmlSymbol = jmlSymbol;
         this.tokenType = tokenType;
     }
@@ -48,8 +48,8 @@ public enum JmlBodyClauseKind0 implements JmlKeyword {
         return tokenType;
     }
 
-    public static JmlBodyClauseKind0 getKindByToken(JavaToken token) {
-        for (JmlBodyClauseKind0 it : JmlBodyClauseKind0.values()) {
+    public static JmlBodyClauseKeyword getKindByToken(JavaToken token) {
+        for (JmlBodyClauseKeyword it : JmlBodyClauseKeyword.values()) {
             if (it.jmlSymbol.equals(token.getText())) {
                 return it;
             }

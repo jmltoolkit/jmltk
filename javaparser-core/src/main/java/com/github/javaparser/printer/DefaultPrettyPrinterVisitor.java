@@ -1619,7 +1619,8 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
         printer.print(n.kind().toString());
         printer.print(" ");
         printList(n.getExpressions(), ", ");
-        if (n.kind().getKind() == JmlClauseKind0.DETERMINES || n.kind().getKind() == JmlClauseKind0.LOOP_DETERMINES) {
+        if (n.kind().getValue() == JmlClauseKeyword.DETERMINES
+                || n.kind().getValue() == JmlClauseKeyword.LOOP_DETERMINES) {
             printer.print(" \\by ");
             printList(n.getBy(), ", ");
         }

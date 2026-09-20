@@ -56,7 +56,7 @@ public class JmlSignalsClause extends JmlClause {
     }
 
     public JmlSignalsClause(Parameter parameter, Expression expression) {
-        this(null, new JmlClauseKind(JmlClauseKind0.SIGNALS), null, parameter, expression);
+        this(null, new JmlClauseKind(JmlClauseKeyword.SIGNALS), null, parameter, expression);
     }
 
     @Override

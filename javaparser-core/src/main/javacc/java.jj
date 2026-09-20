@@ -5345,7 +5345,7 @@ Statement BlockStatement():
             LOOKAHEAD( JmlDocStatements() )
             ret = JmlDocStatements()
          |
-            LOOKAHEAD( VariableDeclarationExpression() /*";"*/ )
+            LOOKAHEAD( VariableDeclarationExpression() ";")
             expr = VariableDeclarationExpression()
             ";"
             { ret = new ExpressionStmt(range(expr, token()), expr); }

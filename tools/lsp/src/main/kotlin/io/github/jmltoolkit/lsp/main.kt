@@ -96,7 +96,6 @@ class JmlLspCommand : CliktCommand() {
         }
     }
 
-
     fun createServerLauncher(
         server: LanguageServer,
         input: InputStream,
@@ -127,9 +126,7 @@ class JmlLspCommand : CliktCommand() {
 
     companion object {
         @JvmStatic
-        fun configureJson(builder: GsonBuilder): GsonBuilder {
-            return builder
-        }
+        fun configureJson(builder: GsonBuilder): GsonBuilder = builder
     }
 }
 

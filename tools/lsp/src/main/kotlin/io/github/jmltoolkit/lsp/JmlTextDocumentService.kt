@@ -411,7 +411,6 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
                     }
             }
 
-
     internal fun universalCommands(): List<Either<Command, CodeAction>> = listOf(
         Either.forLeft(CreateKeyProjectFile().command())
     )

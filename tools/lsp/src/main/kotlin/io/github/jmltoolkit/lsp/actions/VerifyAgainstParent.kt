@@ -38,7 +38,5 @@ class VerifyAgainstParent : LspAction {
     override fun createCodeAction(
         uri: String,
         node: Node
-    ): Either<Command, CodeAction> {
-        return command(listOf(node.hashCode())).asLeft()
-    }
+    ): Either<Command, CodeAction> = command(listOf(node.hashCode())).asLeft()
 }

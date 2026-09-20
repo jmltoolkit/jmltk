@@ -33,6 +33,7 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
  * @version 1 (25.02.22)
  */
 public class JmlMultiExprClause extends JmlClause {
+
     @OptionalProperty
     private NodeList<SimpleName> heaps;
 
@@ -169,7 +170,6 @@ public class JmlMultiExprClause extends JmlClause {
             NodeList<SimpleName> heaps,
             NodeList<Expression> expressions) {
         super(tokenRange, kind, name);
-        setKind(kind);
         setHeaps(heaps);
         setExpressions(expressions);
         customInitialization();
@@ -229,7 +229,8 @@ public class JmlMultiExprClause extends JmlClause {
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @NonNull() JmlClauseKind kind() {
+    @NonNull()
+    public JmlClauseKind kind() {
         return Objects.requireNonNull(getKind());
     }
 }

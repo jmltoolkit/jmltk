@@ -42,7 +42,7 @@ public class JmlSignalsOnlyClause extends JmlClause {
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
     public JmlSignalsOnlyClause(TokenRange tokenRange, JmlClauseKind kind, NodeList<Type> types) {
-        super(tokenRange);
+        super(tokenRange, kind);
         setTypes(types);
         customInitialization();
     }
@@ -132,7 +132,6 @@ public class JmlSignalsOnlyClause extends JmlClause {
     public JmlSignalsOnlyClauseMetaModel getMetaModel() {
         return JavaParserMetaModel.jmlSignalsOnlyClauseMetaModel;
     }
-
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")

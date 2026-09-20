@@ -31,7 +31,9 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
  * @version 1 (2/21/21)
  */
 public class JmlSimpleExprClause extends JmlClause {
+
     private NodeList<SimpleName> heaps;
+
     private Expression expression;
 
     @AllFieldsConstructor
@@ -160,7 +162,6 @@ public class JmlSimpleExprClause extends JmlClause {
             NodeList<SimpleName> heaps,
             Expression expression) {
         super(tokenRange, kind, name);
-        setKind(kind);
         setHeaps(heaps);
         setExpression(expression);
         customInitialization();

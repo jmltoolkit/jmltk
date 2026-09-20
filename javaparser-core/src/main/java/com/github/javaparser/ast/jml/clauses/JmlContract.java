@@ -107,18 +107,19 @@ public class JmlContract extends Node
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlContractBehavior getBehavior() {
-        return behavior;
+    public Optional<JmlContractBehavior> getBehavior() {
+        return Optional.ofNullable(behavior);
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlContract setBehavior(final @NonNull() JmlContractBehavior behavior) {
-        assertNotNull(behavior);
+    public JmlContract setBehavior(final @Nullable() JmlContractBehavior behavior) {
         if (behavior == this.behavior) {
             return this;
         }
         notifyPropertyChange(ObservableProperty.BEHAVIOR, this.behavior, behavior);
+        if (this.behavior != null) this.behavior.setParentNode(null);
         this.behavior = behavior;
+        setAsParentNodeOf(behavior);
         return this;
     }
 
@@ -182,6 +183,12 @@ public class JmlContract extends Node
         if (node == null) {
             return false;
         }
+        if (behavior != null) {
+            if (node == behavior) {
+                removeBehavior();
+                return true;
+            }
+        }
         for (int i = 0; i < clauses.size(); i++) {
             if (clauses.get(i) == node) {
                 clauses.remove(i);
@@ -220,6 +227,12 @@ public class JmlContract extends Node
     public boolean replace(Node node, Node replacementNode) {
         if (node == null) {
             return false;
+        }
+        if (behavior != null) {
+            if (node == behavior) {
+                setBehavior((JmlContractBehavior) replacementNode);
+                return true;
+            }
         }
         for (int i = 0; i < clauses.size(); i++) {
             if (clauses.get(i) == node) {
@@ -402,8 +415,8 @@ public class JmlContract extends Node
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @NonNull() JmlContractBehavior behavior() {
-        return Objects.requireNonNull(behavior);
+    public @Nullable() JmlContractBehavior behavior() {
+        return behavior;
     }
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
@@ -440,5 +453,10 @@ public class JmlContract extends Node
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
     public @NonNull() ContractType type() {
         return Objects.requireNonNull(type);
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
+    public JmlContract removeBehavior() {
+        return setBehavior((JmlContractBehavior) null);
     }
 }

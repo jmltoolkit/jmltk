@@ -35,8 +35,6 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
  */
 public class JmlLabeledClause extends JmlClause implements NodeWithExpression<JmlLabeledClause> {
 
-    private JmlClauseKind kind;
-
     @OptionalProperty
     private SimpleName label;
 
@@ -56,8 +54,7 @@ public class JmlLabeledClause extends JmlClause implements NodeWithExpression<Jm
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
     public JmlLabeledClause(TokenRange tokenRange, JmlClauseKind kind, SimpleName label, Expression expression) {
-        super(tokenRange);
-        setKind(kind);
+        super(tokenRange, kind);
         setLabel(label);
         setExpression(expression);
         customInitialization();
@@ -169,13 +166,6 @@ public class JmlLabeledClause extends JmlClause implements NodeWithExpression<Jm
     }
 
     @Override
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlClauseKind getKind() {
-        return kind;
-    }
-
-
-    @Override
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public boolean isJmlClauseLabel() {
         return true;
@@ -204,12 +194,6 @@ public class JmlLabeledClause extends JmlClause implements NodeWithExpression<Jm
     @NonNull()
     public Expression expr() {
         return Objects.requireNonNull(expression);
-    }
-
-    @com.github.javaparser.ast.key.IgnoreLexPrinting()
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @NonNull() JmlClauseKind kind() {
-        return Objects.requireNonNull(kind);
     }
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()

@@ -42,7 +42,7 @@ public class JmlForallClause extends JmlClause {
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
     public JmlForallClause(TokenRange tokenRange, JmlClauseKind kind, NodeList<Parameter> boundedVariables) {
-        super(tokenRange, kind, null);
+        super(tokenRange, kind);
         setBoundedVariables(boundedVariables);
         customInitialization();
     }

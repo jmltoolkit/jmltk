@@ -6,17 +6,38 @@ package com.github.javaparser.ast.jml.clauses;
 
 import com.github.javaparser.JavaToken;
 import com.github.javaparser.TokenRange;
+import com.github.javaparser.ast.AllFieldsConstructor;
+import com.github.javaparser.ast.Generated;
 import com.github.javaparser.ast.jml.JmlKeywordNode;
+import com.github.javaparser.ast.observer.ObservableProperty;
+import com.github.javaparser.ast.visitor.CloneVisitor;
 import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
+import com.github.javaparser.metamodel.JavaParserMetaModel;
+import com.github.javaparser.metamodel.JmlClauseKindMetaModel;
+import org.jspecify.annotations.NonNull;
 
-public class JmlClauseKind extends JmlKeywordNode<JmlClauseKind0> {
-    public JmlClauseKind(JmlClauseKind0 kind) {
-        this(null, kind);
+import java.util.Objects;
+
+import static com.github.javaparser.utils.Utils.assertNotNull;
+
+public class JmlClauseKind extends JmlKeywordNode<JmlClauseKind0, JmlClauseKind> {
+
+    private JmlClauseKind0 value;
+
+    @AllFieldsConstructor
+    public JmlClauseKind(JmlClauseKind0 value) {
+        this(null, value);
     }
 
-    public JmlClauseKind(TokenRange tokenRange, JmlClauseKind0 kind) {
-        super(tokenRange, kind);
+    /**
+     * This constructor is used by the parser and is considered private.
+     */
+    @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
+    public JmlClauseKind(TokenRange tokenRange, JmlClauseKind0 value) {
+        super(tokenRange);
+        setValue(value);
+        customInitialization();
     }
 
     public JmlClauseKind(JavaToken kind) {
@@ -24,11 +45,49 @@ public class JmlClauseKind extends JmlKeywordNode<JmlClauseKind0> {
     }
 
     @Override
-    public <R, A> R accept(GenericVisitor<R, A> v, A arg) {
-        return null;
+    @Generated("com.github.javaparser.generator.core.node.AcceptGenerator")
+    public <R, A> R accept(final GenericVisitor<R, A> v, final A arg) {
+        return v.visit(this, arg);
     }
 
     @Override
-    public <A> void accept(VoidVisitor<A> v, A arg) {
+    @Generated("com.github.javaparser.generator.core.node.AcceptGenerator")
+    public <A> void accept(final VoidVisitor<A> v, final A arg) {
+        v.visit(this, arg);
+    }
+
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public JmlClauseKind0 getValue() {
+        return value;
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public JmlClauseKind setValue(final @NonNull() JmlClauseKind0 value) {
+        assertNotNull(value);
+        if (value == this.value) {
+            return this;
+        }
+        notifyPropertyChange(ObservableProperty.VALUE, this.value, value);
+        this.value = value;
+        return this;
+    }
+
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public @NonNull() JmlClauseKind0 value() {
+        return Objects.requireNonNull(value);
+    }
+
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.CloneGenerator")
+    public JmlClauseKind clone() {
+        return (JmlClauseKind) accept(new CloneVisitor(), null);
+    }
+
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.GetMetaModelGenerator")
+    public JmlClauseKindMetaModel getMetaModel() {
+        return JavaParserMetaModel.jmlClauseKindMetaModel;
     }
 }

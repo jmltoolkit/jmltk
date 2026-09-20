@@ -120,7 +120,8 @@ class JREClassStubGenerator(private val clazz: Class<*>) {
                 ClassOrInterfaceType(
                     null,
                     it.parameterizedType.typeName
-                ), it.name
+                ),
+                    it.name
             )
         }
 

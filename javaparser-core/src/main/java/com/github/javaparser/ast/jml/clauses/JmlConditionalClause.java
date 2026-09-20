@@ -32,6 +32,7 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
  */
 public class JmlConditionalClause extends JmlClause
         implements NodeWithExpression<JmlConditionalClause>, NodeWithCondition<JmlConditionalClause> {
+
     private Expression expression;
 
     private Expression condition;
@@ -72,7 +73,6 @@ public class JmlConditionalClause extends JmlClause
     public JmlConditionalClause clone() {
         return (JmlConditionalClause) accept(new CloneVisitor(), null);
     }
-
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.AcceptGenerator")
@@ -154,7 +154,6 @@ public class JmlConditionalClause extends JmlClause
             TokenRange tokenRange, JmlClauseKind kind, SimpleName name, Expression condition, Expression expression) {
         super(tokenRange, kind, name);
         setCondition(condition);
-        setKind(kind);
         setExpression(expression);
         customInitialization();
     }
@@ -164,7 +163,6 @@ public class JmlConditionalClause extends JmlClause
     public @NonNull() Expression condition() {
         return Objects.requireNonNull(condition);
     }
-
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")

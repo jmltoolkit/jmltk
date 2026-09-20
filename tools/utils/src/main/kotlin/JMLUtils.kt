@@ -30,26 +30,18 @@ object JMLUtils {
     const val GENERATED_COMBINED: String = "_generated_combined_"
 
     // Returns true iff the node is in side a JML context
-    tailrec fun Node?.isInJML(): Boolean {
-        return when (this) {
+    tailrec fun Node?.isInJML(): Boolean = when (this) {
             null -> false
             is Jmlish -> true
             else -> parentNode.getOrNull()?.isInJML() ?: false
         }
-    }
 
     /* */
-    inline fun <reified T> Node.findTopMostAncestorConsecutive(): T? {
-        return treeIterator(Node.TreeTraversal.PARENTS).asSequence()
+    inline fun <reified T> Node.findTopMostAncestorConsecutive(): T? = treeIterator(Node.TreeTraversal.PARENTS).asSequence()
             .takeWhile { it is T }
             .lastOrNull() as T?
-    }
 
-    inline fun <reified T> Node.findTopMostAncestor(): T? {
-        return treeIterator(Node.TreeTraversal.PARENTS).asSequence().lastOrNull { it is T } as T?
-    }
-
-
+    inline fun <reified T> Node.findTopMostAncestor(): T? = treeIterator(Node.TreeTraversal.PARENTS).asSequence().lastOrNull { it is T } as T?
 
     @Suppress("unused")
     fun unroll(n: JmlMultiCompareExpr): Expression {

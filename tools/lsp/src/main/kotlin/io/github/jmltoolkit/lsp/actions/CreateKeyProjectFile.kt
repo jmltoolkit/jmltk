@@ -36,7 +36,7 @@ class CreateKeyProjectFile : LspAction {
     override fun createCodeAction(uri: String, node: Node) = null
 
     private fun command(rootUri: String): WorkspaceEdit {
-        val uri = "${rootUri}/project.key"
+        val uri = "$rootUri/project.key"
         val p = Position(0, 0)
         val range = Range(p, p)
         val text = """

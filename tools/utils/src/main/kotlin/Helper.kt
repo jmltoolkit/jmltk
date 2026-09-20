@@ -17,9 +17,7 @@ import kotlin.jvm.optionals.getOrNull
  * @version 1 (11.02.23)
  */
 object Helper {
-    inline fun <reified T : Node> CompilationUnit.findAll(noinline pred: (T) -> Boolean): List<T> {
-        return this.findAll<T>(T::class.java, pred)
-    }
+    inline fun <reified T : Node> CompilationUnit.findAll(noinline pred: (T) -> Boolean): List<T> = this.findAll<T>(T::class.java, pred)
 
     fun Range.contains(n: Node): Boolean = n.range.getOrNull()?.let { contains(it) } ?: false
 

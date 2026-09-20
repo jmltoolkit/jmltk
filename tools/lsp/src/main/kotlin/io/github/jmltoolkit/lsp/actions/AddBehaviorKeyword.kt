@@ -5,7 +5,7 @@
 package io.github.jmltoolkit.lsp.actions
 
 import com.github.javaparser.ast.Node
-import com.github.javaparser.ast.jml.clauses.JmlBehaviorKind
+import com.github.javaparser.ast.jml.clauses.JmlBehaviorKeyword
 import com.github.javaparser.ast.jml.clauses.JmlContract
 import io.github.jmltoolkit.lsp.JmlLanguageServer
 import io.github.jmltoolkit.lsp.asLeft
@@ -59,7 +59,7 @@ class AddBehaviorKeyword : LspAction {
             Range(afterNode, afterNode),
                 StringValue(
                 StringValueKind.SNIPPET,
-                " \${1:${JmlBehaviorKind.entries.joinToString("|") { it.jmlSymbol() }}: "
+                " \${1:${JmlBehaviorKeyword.entries.joinToString("|") { it.jmlSymbol() }}: "
             )
         )
     }

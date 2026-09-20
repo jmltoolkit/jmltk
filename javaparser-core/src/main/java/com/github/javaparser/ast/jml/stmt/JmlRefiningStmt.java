@@ -26,6 +26,9 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * A JML {@code refining} specification statement, used to introduce a more detailed specification
+ * refinement at a point in the method body.
+ *
  * @author Alexander Weigl
  * @version 1 (2/21/21)
  */

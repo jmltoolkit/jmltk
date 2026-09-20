@@ -17,6 +17,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
+ * Base class for JML statements that appear in the body of a method or initializer and are used
+ * to aid verification, such as asserts, assumes, set statements and refinement specifications.
+ *
  * @author Alexander Weigl
  * @version 1 (3/18/21)
  */

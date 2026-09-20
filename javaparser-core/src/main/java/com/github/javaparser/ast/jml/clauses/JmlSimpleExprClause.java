@@ -27,6 +27,10 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * A clause consisting of a single expression over an optional set of heap locations, used for
+ * preconditions ({@code requires}), postconditions ({@code ensures}), {@code diverges} and similar
+ * simple clauses.
+ *
  * @author Alexander Weigl
  * @version 1 (2/21/21)
  */

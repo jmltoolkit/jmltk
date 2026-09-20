@@ -9,6 +9,9 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.SimpleName;
 
 /**
+ * Default, no-op implementation of {@link JmlContainer} used as a placeholder for nodes that
+ * must conform to the {@link JmlContainer} interface but do not hold any meaningful JML content.
+ *
  * @author Alexander Weigl
  * @version 1 (3/21/21)
  */

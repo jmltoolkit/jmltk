@@ -9,6 +9,9 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.SimpleName;
 
 /**
+ * Represents an AST node that carries JML tags, i.e. the {@code public}, {@code protected} or
+ * {@code private} visibility tags that make a Java element visible to JML specifications.
+ *
  * @author Alexander Weigl
  * @version 1 (9/8/21)
  */

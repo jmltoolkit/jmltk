@@ -7,6 +7,9 @@ package com.github.javaparser.ast.jml;
 import com.github.javaparser.printer.Stringable;
 
 /**
+ * A JML keyword (such as {@code ensures} or {@code requires}) that can be rendered as its
+ * specification symbol via {@link #jmlSymbol()}.
+ *
  * @author Alexander Weigl
  * @version 1 (3/20/21)
  */

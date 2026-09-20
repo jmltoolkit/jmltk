@@ -4481,7 +4481,7 @@ public final class JavaParserMetaModel {
         jmlContractBehaviorMetaModel.valuePropertyMetaModel = new PropertyMetaModel(
                 jmlContractBehaviorMetaModel,
                 "value",
-                com.github.javaparser.ast.jml.clauses.JmlBehaviorKind.class,
+                com.github.javaparser.ast.jml.clauses.JmlBehaviorKeyword.class,
                 Optional.empty(),
                 false,
                 false,
@@ -4493,7 +4493,7 @@ public final class JavaParserMetaModel {
         jmlClauseKindMetaModel.valuePropertyMetaModel = new PropertyMetaModel(
                 jmlClauseKindMetaModel,
                 "value",
-                com.github.javaparser.ast.jml.clauses.JmlClauseKind0.class,
+                com.github.javaparser.ast.jml.clauses.JmlClauseKeyword.class,
                 Optional.empty(),
                 false,
                 false,
@@ -4503,7 +4503,7 @@ public final class JavaParserMetaModel {
         jmlBodyClauseKindMetaModel.valuePropertyMetaModel = new PropertyMetaModel(
                 jmlBodyClauseKindMetaModel,
                 "value",
-                com.github.javaparser.ast.jml.body.JmlBodyClauseKind0.class,
+                com.github.javaparser.ast.jml.body.JmlBodyClauseKeyword.class,
                 Optional.empty(),
                 false,
                 false,

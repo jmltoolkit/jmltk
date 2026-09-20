@@ -17,6 +17,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
+ * Base class for JML-specific expressions, such as quantified expressions, let-bound
+ * expressions, labelled expressions and type expressions.
+ *
  * @author Alexander Weigl
  * @version 1 (4/6/26)
  */

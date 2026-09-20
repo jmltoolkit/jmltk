@@ -7,7 +7,7 @@ package io.github.jmltoolkit.stat
 import com.github.javaparser.ast.Modifier
 import com.github.javaparser.ast.expr.SimpleName
 import com.github.javaparser.ast.jml.clauses.JmlClauseKind
-import com.github.javaparser.ast.jml.clauses.JmlClauseKind0
+import com.github.javaparser.ast.jml.clauses.JmlClauseKeyword
 import java.util.*
 import kotlin.math.max
 
@@ -31,7 +31,7 @@ object StatisticKeys {
         }
     }
 
-    fun jmlClause(kind: JmlClauseKind0) = getOrCreate("CLAUSE_$kind")
+    fun jmlClause(kind: JmlClauseKeyword) = getOrCreate("CLAUSE_$kind")
     fun modifier(keyword: Modifier.Keyword) = getOrCreate("MODIFIER_$keyword")
     fun classExpr(keyword: SimpleName) = getOrCreate("CLASS_$keyword")
     fun classExpr(keyword: String) = getOrCreate("CLASS_$keyword")

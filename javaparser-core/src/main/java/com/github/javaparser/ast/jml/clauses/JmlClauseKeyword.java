@@ -9,10 +9,14 @@ import com.github.javaparser.JavaToken;
 import com.github.javaparser.ast.jml.JmlKeyword;
 
 /**
+ * Enumeration of the keywords that may introduce a JML clause, such as {@code requires},
+ * {@code ensures}, {@code assignable}, {@code signals}, {@code signals_only}, {@code callable},
+ * {@code diverges}, {@code invariant} and the loop contracts.
+ *
  * @author Alexander Weigl
  * @version 1 (20.09.26)
  */
-public enum JmlClauseKind0 implements JmlKeyword {
+public enum JmlClauseKeyword implements JmlKeyword {
     ENSURES(GeneratedJavaParserConstants.ENSURES),
     ENSURES_FREE(GeneratedJavaParserConstants.ENSURES_FREE),
     ENSURES_REDUNDANTLY(GeneratedJavaParserConstants.ENSURES_REDUNDANTLY),
@@ -75,12 +79,12 @@ public enum JmlClauseKind0 implements JmlKeyword {
 
     private final int tokenType;
 
-    JmlClauseKind0(int tokenType) {
+    JmlClauseKeyword(int tokenType) {
         this.tokenType = tokenType;
         jmlSymbol = name().toLowerCase();
     }
 
-    JmlClauseKind0(String jmlSymbol, int tokenType) {
+    JmlClauseKeyword(String jmlSymbol, int tokenType) {
         this.jmlSymbol = jmlSymbol;
         this.tokenType = tokenType;
     }
@@ -94,8 +98,8 @@ public enum JmlClauseKind0 implements JmlKeyword {
         return tokenType;
     }
 
-    public static JmlClauseKind0 getKindByToken(JavaToken token) {
-        for (JmlClauseKind0 it : JmlClauseKind0.values()) {
+    public static JmlClauseKeyword getKindByToken(JavaToken token) {
+        for (JmlClauseKeyword it : JmlClauseKeyword.values()) {
             if (it.jmlSymbol.equals(token.getText())) {
                 return it;
             }

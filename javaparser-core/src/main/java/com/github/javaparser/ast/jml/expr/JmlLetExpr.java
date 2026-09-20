@@ -25,6 +25,9 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * A {@code \let} expression: declares one or more local variables whose values are bound for the
+ * evaluation of a body expression.
+ *
  * @author Alexander Weigl
  * @version 1 (2/21/21)
  */

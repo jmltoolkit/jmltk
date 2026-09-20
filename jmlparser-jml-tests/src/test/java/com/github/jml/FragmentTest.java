@@ -48,7 +48,7 @@ class FragmentTest {
 
         Assumptions.assumeFalse(r.getProblems().stream().anyMatch(it -> ignorableMessages(it.getMessage())));
 
-        r.getProblems().forEach(it -> System.out.println(it.getMessage()));
+        r.getProblems().forEach(it -> System.out.format("%s %s%n", it.getLocation(), it.getMessage()));
         if (!r.isSuccessful()) {
             System.out.println(f.getAbsolutePath());
         }

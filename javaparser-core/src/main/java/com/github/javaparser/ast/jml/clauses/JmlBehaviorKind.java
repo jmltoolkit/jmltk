@@ -40,6 +40,17 @@ public enum JmlBehaviorKind implements Jmlish, JmlKeyword {
                 return k;
             }
         }
+
+        for (JmlBehaviorKind k : values()) {
+            if (k.jmlSymbol().replace("behavior", "behaviour").equals(text)) {
+                return k;
+            }
+        }
+
+        if("feasible_behavior".equalsIgnoreCase(text)||
+            "feasible_behaviour".equalsIgnoreCase(text))
+            return  BEHAVIOR;
+
         throw new AssertionError("No such behavior: " + text);
     }
 

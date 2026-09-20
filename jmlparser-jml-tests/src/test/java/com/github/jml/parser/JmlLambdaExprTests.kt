@@ -73,7 +73,7 @@ class JmlLambdaExprTests {
         assertEquals(1, lambdaExpr.contracts.size, "Should have one contract")
         val contract = lambdaExpr.contracts[0]
         assertEquals(1, contract.clauses.size, "Contract should have one clause")
-        assertEquals(JmlClauseKind0.REQUIRES, contract.clauses[0].kind, "Should be a requires clause")
+        assertEquals(JmlClauseKind0.REQUIRES, contract.clauses[0].kind.value, "Should be a requires clause")
         assertEquals(2, lambdaExpr.parameters.size, "Lambda should have 2 parameters")
     }
 

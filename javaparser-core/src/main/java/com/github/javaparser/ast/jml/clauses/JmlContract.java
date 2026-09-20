@@ -64,7 +64,7 @@ public class JmlContract extends Node
                 (TokenRange) null,
                 new NodeList<>(),
                 ContractType.METHOD,
-                new JmlContractBehavior(JmlBehaviorKind.NONE),
+                new JmlContractBehavior(JmlBehaviorKeyword.NONE),
                 null,
                 new NodeList<>(),
                 new NodeList<>(),

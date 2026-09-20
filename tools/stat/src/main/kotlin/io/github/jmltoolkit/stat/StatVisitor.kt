@@ -130,7 +130,7 @@ class StatVisitor(
     //endregion
     override fun visit(n: JmlClassExprDeclaration, arg: Element) {
         if (active(n)) {
-            val e = newElement(arg, n.kind.kind.jmlSymbol)
+            val e = newElement(arg, n.kind.value.jmlSymbol)
             val expr = getExpressionStat(n.invariant)
             e.appendChild(expr)
             if (n.name.isPresent) {
@@ -253,37 +253,37 @@ class StatVisitor(
     }
 
     override fun visit(n: JmlSimpleExprClause, arg: Element) {
-        val e = newElement(arg, n.kind.kind.jmlSymbol)
+        val e = newElement(arg, n.kind.value.jmlSymbol)
         e.appendChild(getExpressionStat(n.expression))
     }
 
     override fun visit(n: JmlSignalsClause, arg: Element) {
-        newElement(arg, n.kind.kind.jmlSymbol)
+        newElement(arg, n.kind.value.jmlSymbol)
     }
 
     override fun visit(n: JmlSignalsOnlyClause, arg: Element) {
-        val e = newElement(arg, n.kind.kind.jmlSymbol)
+        val e = newElement(arg, n.kind.value.jmlSymbol)
         e.setAttribute("numOfTypes", "" + n.types.size)
     }
 
     override fun visit(n: JmlOldClause, arg: Element) {
-        val e = newElement(arg, n.kind.kind.jmlSymbol)
+        val e = newElement(arg, n.kind.value.jmlSymbol)
         e.setAttribute("numOfDecls", "" + n.declarations.variables.size)
     }
 
     override fun visit(n: JmlMultiExprClause, arg: Element) {
-        val e = newElement(arg, n.kind.kind.jmlSymbol)
+        val e = newElement(arg, n.kind.value.jmlSymbol)
         for (expression in n.expressions) {
             e.appendChild(getExpressionStat(expression))
         }
     }
 
     override fun visit(n: JmlCallableClause, arg: Element) {
-        val e = newElement(arg, n.kind.kind.jmlSymbol)
+        val e = newElement(arg, n.kind.value.jmlSymbol)
     }
 
     override fun visit(n: JmlForallClause, arg: Element) {
-        val e = newElement(arg, n.kind.kind.jmlSymbol)
+        val e = newElement(arg, n.kind.value.jmlSymbol)
         e.setAttribute("numVars", "" + n.boundedVariables.size)
     }
 

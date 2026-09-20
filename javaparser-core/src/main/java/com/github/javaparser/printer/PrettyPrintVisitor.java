@@ -1102,7 +1102,8 @@ public class PrettyPrintVisitor implements VoidVisitor<Void> {
         printer.print(n.kind().toString());
         printer.print(" ");
         printArguments(n.getExpressions(), arg);
-        if (n.kind().getKind() == JmlClauseKind0.DETERMINES || n.kind().getKind() == JmlClauseKind0.LOOP_DETERMINES) {
+        if (n.kind().getValue() == JmlClauseKeyword.DETERMINES
+                || n.kind().getValue() == JmlClauseKeyword.LOOP_DETERMINES) {
             printer.print(" \\by ");
             printArguments(n.getBy(), arg);
         }

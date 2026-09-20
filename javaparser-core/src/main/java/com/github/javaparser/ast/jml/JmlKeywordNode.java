@@ -20,7 +20,7 @@ import com.github.javaparser.metamodel.JmlKeywordNodeMetaModel;
  * @author Alexander Weigl
  * @version 1 (20.09.26)
  */
-public abstract class JmlKeywordNode<T extends JmlKeyword, S extends Node> extends Node implements Jmlish {
+public abstract class JmlKeywordNode<S extends Node> extends Node implements Jmlish {
 
     @AllFieldsConstructor
     public JmlKeywordNode() {
@@ -34,18 +34,6 @@ public abstract class JmlKeywordNode<T extends JmlKeyword, S extends Node> exten
     public JmlKeywordNode(TokenRange tokenRange) {
         super(tokenRange);
         customInitialization();
-    }
-
-    public abstract T getValue();
-
-    public abstract S setValue(T value);
-
-    public T getKind() {
-        return getValue();
-    }
-
-    public S setKind(T kind) {
-        return setValue(kind);
     }
 
     @Override

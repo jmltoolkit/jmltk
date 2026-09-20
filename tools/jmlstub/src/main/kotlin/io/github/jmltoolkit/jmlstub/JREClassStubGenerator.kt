@@ -12,7 +12,7 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.jml.clauses.*
-import com.github.javaparser.ast.jml.clauses.JmlClauseKind0.*
+import com.github.javaparser.ast.jml.clauses.JmlClauseKeyword.*
 import com.github.javaparser.ast.type.ClassOrInterfaceType
 import com.github.javaparser.ast.type.ReferenceType
 import java.lang.reflect.Constructor
@@ -137,7 +137,7 @@ private fun MethodDeclaration.addStubExceptionalBehaviorContract() {
     if (this.thrownExceptions.isEmpty()) return
 
     val c = JmlContract()
-    c.setBehavior(JmlContractBehavior(JmlBehaviorKind.EXCEPTIONAL))
+    c.setBehavior(JmlContractBehavior(JmlBehaviorKeyword.EXCEPTIONAL))
     c.addModifier(Modifier.DefaultKeyword.PUBLIC)
     c.setName(SimpleName("with_exception"))
 
@@ -155,7 +155,7 @@ private fun MethodDeclaration.addStubExceptionalBehaviorContract() {
 
 private fun MethodDeclaration.addStubNormalBehaviorContract() {
     val c = JmlContract()
-    c.setBehavior(JmlContractBehavior(JmlBehaviorKind.NORMAL))
+    c.setBehavior(JmlContractBehavior(JmlBehaviorKeyword.NORMAL))
     c.addModifier(Modifier.DefaultKeyword.PUBLIC)
     c.setName(SimpleName("normal"))
 

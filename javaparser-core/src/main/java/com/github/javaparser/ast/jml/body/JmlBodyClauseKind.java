@@ -23,17 +23,17 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
  * AST node representing the keyword kind of a JML body clause (e.g. {@code invariant},
- * {@code constraint}, {@code axiom} or {@code initially}), wrapping a {@link JmlBodyClauseKind0}.
+ * {@code constraint}, {@code axiom} or {@code initially}), wrapping a {@link JmlBodyClauseKeyword}.
  *
  * @author Alexander Weigl
  * @version 1 (15.08.26)
  */
-public class JmlBodyClauseKind extends JmlKeywordNode<JmlBodyClauseKind0, JmlBodyClauseKind> {
+public class JmlBodyClauseKind extends JmlKeywordNode<JmlBodyClauseKind> {
 
-    private JmlBodyClauseKind0 value;
+    private JmlBodyClauseKeyword value;
 
     @AllFieldsConstructor
-    public JmlBodyClauseKind(JmlBodyClauseKind0 value) {
+    public JmlBodyClauseKind(JmlBodyClauseKeyword value) {
         this(null, value);
     }
 
@@ -41,14 +41,14 @@ public class JmlBodyClauseKind extends JmlKeywordNode<JmlBodyClauseKind0, JmlBod
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlBodyClauseKind(TokenRange tokenRange, JmlBodyClauseKind0 value) {
+    public JmlBodyClauseKind(TokenRange tokenRange, JmlBodyClauseKeyword value) {
         super(tokenRange);
         setValue(value);
         customInitialization();
     }
 
     public JmlBodyClauseKind(JavaToken begin) {
-        this(new TokenRange(begin, begin), JmlBodyClauseKind0.getKindByToken(begin));
+        this(new TokenRange(begin, begin), JmlBodyClauseKeyword.getKindByToken(begin));
     }
 
     @Override
@@ -63,14 +63,13 @@ public class JmlBodyClauseKind extends JmlKeywordNode<JmlBodyClauseKind0, JmlBod
         v.visit(this, arg);
     }
 
-    @Override
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlBodyClauseKind0 getValue() {
+    public JmlBodyClauseKeyword getValue() {
         return value;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlBodyClauseKind setValue(final @NonNull() JmlBodyClauseKind0 value) {
+    public JmlBodyClauseKind setValue(final @NonNull() JmlBodyClauseKeyword value) {
         assertNotNull(value);
         if (value == this.value) {
             return this;
@@ -82,7 +81,7 @@ public class JmlBodyClauseKind extends JmlKeywordNode<JmlBodyClauseKind0, JmlBod
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @NonNull() JmlBodyClauseKind0 value() {
+    public @NonNull() JmlBodyClauseKeyword value() {
         return Objects.requireNonNull(value);
     }
 

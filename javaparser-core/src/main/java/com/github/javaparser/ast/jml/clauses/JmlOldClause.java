@@ -107,11 +107,6 @@ public class JmlOldClause extends JmlClause {
     }
 
     @Override
-    public JmlClauseKind getKind() {
-        return JmlClauseKind.OLD;
-    }
-
-    @Override
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public boolean isJmlOldClause() {
         return true;

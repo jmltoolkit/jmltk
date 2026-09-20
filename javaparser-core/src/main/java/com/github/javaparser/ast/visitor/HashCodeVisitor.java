@@ -44,9 +44,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getModifiers().accept(this, arg)) * 31
                 + (n.getName().accept(this, arg)) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -57,9 +55,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getName().accept(this, arg)) * 31
                 + (n.getType().accept(this, arg)) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -67,9 +63,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final ArrayAccessExpr n, final Void arg) {
         return (n.getIndex().accept(this, arg)) * 31
                 + (n.getName().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -78,9 +72,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getElementType().accept(this, arg)) * 31
                 + (n.getInitializer().isPresent() ? n.getInitializer().get().accept(this, arg) : 0) * 31
                 + (n.getLevels().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -88,18 +80,14 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final ArrayCreationLevel n, final Void arg) {
         return (n.getAnnotations().accept(this, arg)) * 31
                 + (n.getDimension().isPresent() ? n.getDimension().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final ArrayInitializerExpr n, final Void arg) {
         return (n.getValues().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -108,9 +96,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getComponentType().accept(this, arg)) * 31
                 + (n.getOrigin().hashCode()) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -118,9 +104,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final AssertStmt n, final Void arg) {
         return (n.getCheck().accept(this, arg)) * 31
                 + (n.getMessage().isPresent() ? n.getMessage().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -129,9 +113,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getOperator().hashCode()) * 31
                 + (n.getTarget().accept(this, arg)) * 31
                 + (n.getValue().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -140,18 +122,14 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getLeft().accept(this, arg)) * 31
                 + (n.getOperator().hashCode()) * 31
                 + (n.getRight().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final BlockComment n, final Void arg) {
         return (n.getContent().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -159,27 +137,21 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final BlockStmt n, final Void arg) {
         return (n.getContracts().accept(this, arg)) * 31
                 + (n.getStatements().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final BooleanLiteralExpr n, final Void arg) {
         return (n.isValue() ? 1 : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final BreakStmt n, final Void arg) {
         return (n.getLabel().isPresent() ? n.getLabel().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -187,9 +159,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final CastExpr n, final Void arg) {
         return (n.getExpression().accept(this, arg)) * 31
                 + (n.getType().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -197,27 +167,21 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final CatchClause n, final Void arg) {
         return (n.getBody().accept(this, arg)) * 31
                 + (n.getParameter().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final CharLiteralExpr n, final Void arg) {
         return (n.getValue().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final ClassExpr n, final Void arg) {
         return (n.getType().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -233,9 +197,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getModifiers().accept(this, arg)) * 31
                 + (n.getName().accept(this, arg)) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -245,9 +207,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getScope().isPresent() ? n.getScope().get().accept(this, arg) : 0) * 31
                 + (n.getTypeArguments().isPresent() ? n.getTypeArguments().get().accept(this, arg) : 0) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -260,9 +220,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                                 : 0)
                         * 31
                 + (n.getTypes().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -271,9 +229,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getCondition().accept(this, arg)) * 31
                 + (n.getElseExpr().accept(this, arg)) * 31
                 + (n.getThenExpr().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -291,18 +247,14 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getThrownExceptions().accept(this, arg)) * 31
                 + (n.getTypeParameters().accept(this, arg)) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final ContinueStmt n, final Void arg) {
         return (n.getLabel().isPresent() ? n.getLabel().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -311,35 +263,27 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getBody().accept(this, arg)) * 31
                 + (n.getCondition().accept(this, arg)) * 31
                 + (n.getContracts().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final DoubleLiteralExpr n, final Void arg) {
         return (n.getValue().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final EmptyStmt n, final Void arg) {
-        return (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+        return 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final EnclosedExpr n, final Void arg) {
         return (n.getInner().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -349,9 +293,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getClassBody().accept(this, arg)) * 31
                 + (n.getName().accept(this, arg)) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -363,9 +305,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getModifiers().accept(this, arg)) * 31
                 + (n.getName().accept(this, arg)) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -375,18 +315,14 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getExpression().isPresent() ? n.getExpression().get().accept(this, arg) : 0) * 31
                 + (n.isThis() ? 1 : 0) * 31
                 + (n.getTypeArguments().isPresent() ? n.getTypeArguments().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final ExpressionStmt n, final Void arg) {
         return (n.getExpression().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -395,9 +331,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getName().accept(this, arg)) * 31
                 + (n.getScope().accept(this, arg)) * 31
                 + (n.getTypeArguments().isPresent() ? n.getTypeArguments().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -406,9 +340,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getModifiers().accept(this, arg)) * 31
                 + (n.getVariables().accept(this, arg)) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -419,9 +351,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getContracts().accept(this, arg)) * 31
                 + (n.getInitialization().accept(this, arg)) * 31
                 + (n.getUpdate().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -431,9 +361,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getContracts().accept(this, arg)) * 31
                 + (n.getIterable().accept(this, arg)) * 31
                 + (n.getVariable().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -442,9 +370,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getCondition().accept(this, arg)) * 31
                 + (n.getElseStmt().isPresent() ? n.getElseStmt().get().accept(this, arg) : 0) * 31
                 + (n.getThenStmt().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -455,9 +381,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.isModule() ? 1 : 0) * 31
                 + (n.isStatic() ? 1 : 0) * 31
                 + (n.getName().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -466,9 +390,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getBody().accept(this, arg)) * 31
                 + (n.isStatic() ? 1 : 0) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -477,18 +399,14 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getExpression().accept(this, arg)) * 31
                 + (n.getPattern().isPresent() ? n.getPattern().get().accept(this, arg) : 0) * 31
                 + (n.getType().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final IntegerLiteralExpr n, final Void arg) {
         return (n.getValue().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -496,18 +414,14 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final IntersectionType n, final Void arg) {
         return (n.getElements().accept(this, arg)) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final TraditionalJavadocComment n, final Void arg) {
         return (n.getContent().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -515,9 +429,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final LabeledStmt n, final Void arg) {
         return (n.getLabel().accept(this, arg)) * 31
                 + (n.getStatement().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -528,54 +440,42 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.isEnclosingParameters() ? 1 : 0) * 31
                 + (n.getJmlDocs().accept(this, arg)) * 31
                 + (n.getParameters().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final LineComment n, final Void arg) {
         return (n.getContent().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final LocalClassDeclarationStmt n, final Void arg) {
         return (n.getClassDeclaration().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final LocalRecordDeclarationStmt n, final Void arg) {
         return (n.getRecordDeclaration().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final LongLiteralExpr n, final Void arg) {
         return (n.getValue().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final MarkerAnnotationExpr n, final Void arg) {
         return (n.getName().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -583,9 +483,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final MemberValuePair n, final Void arg) {
         return (n.getName().accept(this, arg)) * 31
                 + (n.getValue().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -595,9 +493,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getName().accept(this, arg)) * 31
                 + (n.getScope().isPresent() ? n.getScope().get().accept(this, arg) : 0) * 31
                 + (n.getTypeArguments().isPresent() ? n.getTypeArguments().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -616,9 +512,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getThrownExceptions().accept(this, arg)) * 31
                 + (n.getTypeParameters().accept(this, arg)) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -627,18 +521,14 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getIdentifier().hashCode()) * 31
                 + (n.getScope().accept(this, arg)) * 31
                 + (n.getTypeArguments().isPresent() ? n.getTypeArguments().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final NameExpr n, final Void arg) {
         return (n.getName().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -646,9 +536,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final Name n, final Void arg) {
         return (n.getIdentifier().hashCode()) * 31
                 + (n.getQualifier().isPresent() ? n.getQualifier().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -664,17 +552,13 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final NormalAnnotationExpr n, final Void arg) {
         return (n.getPairs().accept(this, arg)) * 31
                 + (n.getName().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final NullLiteralExpr n, final Void arg) {
-        return (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+        return 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -688,9 +572,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getScope().isPresent() ? n.getScope().get().accept(this, arg) : 0) * 31
                 + (n.getType().accept(this, arg)) * 31
                 + (n.getTypeArguments().isPresent() ? n.getTypeArguments().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -698,9 +580,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final PackageDeclaration n, final Void arg) {
         return (n.getAnnotations().accept(this, arg)) * 31
                 + (n.getName().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -712,9 +592,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getName().accept(this, arg)) * 31
                 + (n.getType().accept(this, arg)) * 31
                 + (n.getVarArgsAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -722,27 +600,21 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final PrimitiveType n, final Void arg) {
         return (n.getType().hashCode()) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final ReturnStmt n, final Void arg) {
         return (n.getExpression().isPresent() ? n.getExpression().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final SimpleName n, final Void arg) {
         return (n.getIdentifier().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -750,27 +622,21 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final SingleMemberAnnotationExpr n, final Void arg) {
         return (n.getMemberValue().accept(this, arg)) * 31
                 + (n.getName().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final StringLiteralExpr n, final Void arg) {
         return (n.getValue().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final SuperExpr n, final Void arg) {
         return (n.getTypeName().isPresent() ? n.getTypeName().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -781,9 +647,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getLabels().accept(this, arg)) * 31
                 + (n.getStatements().accept(this, arg)) * 31
                 + (n.getType().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -791,9 +655,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final SwitchStmt n, final Void arg) {
         return (n.getEntries().accept(this, arg)) * 31
                 + (n.getSelector().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -801,27 +663,21 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final SynchronizedStmt n, final Void arg) {
         return (n.getBody().accept(this, arg)) * 31
                 + (n.getExpression().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final ThisExpr n, final Void arg) {
         return (n.getTypeName().isPresent() ? n.getTypeName().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final ThrowStmt n, final Void arg) {
         return (n.getExpression().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -831,18 +687,14 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getFinallyBlock().isPresent() ? n.getFinallyBlock().get().accept(this, arg) : 0) * 31
                 + (n.getResources().accept(this, arg)) * 31
                 + (n.getTryBlock().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final TypeExpr n, final Void arg) {
         return (n.getType().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -851,9 +703,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getName().accept(this, arg)) * 31
                 + (n.getTypeBound().accept(this, arg)) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -861,9 +711,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final UnaryExpr n, final Void arg) {
         return (n.getExpression().accept(this, arg)) * 31
                 + (n.getOperator().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -871,18 +719,14 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final UnionType n, final Void arg) {
         return (n.getElements().accept(this, arg)) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final UnknownType n, final Void arg) {
         return (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -891,9 +735,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getAnnotations().accept(this, arg)) * 31
                 + (n.getModifiers().accept(this, arg)) * 31
                 + (n.getVariables().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -902,18 +744,14 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getInitializer().isPresent() ? n.getInitializer().get().accept(this, arg) : 0) * 31
                 + (n.getName().accept(this, arg)) * 31
                 + (n.getType().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     public Integer visit(final VoidType n, final Void arg) {
         return (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -922,9 +760,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getBody().accept(this, arg)) * 31
                 + (n.getCondition().accept(this, arg)) * 31
                 + (n.getContracts().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -933,9 +769,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getExtendedType().isPresent() ? n.getExtendedType().get().accept(this, arg) : 0) * 31
                 + (n.getSuperType().isPresent() ? n.getSuperType().get().accept(this, arg) : 0) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -945,9 +779,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getDirectives().accept(this, arg)) * 31
                 + (n.isOpen() ? 1 : 0) * 31
                 + (n.getName().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -955,9 +787,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final ModuleRequiresDirective n, final Void arg) {
         return (n.getModifiers().accept(this, arg)) * 31
                 + (n.getName().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -966,9 +796,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final ModuleExportsDirective n, final Void arg) {
         return (n.getModuleNames().accept(this, arg)) * 31
                 + (n.getName().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -977,9 +805,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final ModuleProvidesDirective n, final Void arg) {
         return (n.getName().accept(this, arg)) * 31
                 + (n.getWith().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -987,9 +813,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override()
     public Integer visit(final ModuleUsesDirective n, final Void arg) {
         return (n.getName().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -998,18 +822,14 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final ModuleOpensDirective n, final Void arg) {
         return (n.getModuleNames().accept(this, arg)) * 31
                 + (n.getName().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     @Override
     public Integer visit(final UnparsableStmt n, final Void arg) {
-        return (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+        return 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1019,9 +839,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getAnnotations().accept(this, arg)) * 31
                 + (n.getName().accept(this, arg)) * 31
                 + (n.getType().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1029,9 +847,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final VarType n, final Void arg) {
         return (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1039,9 +855,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final Modifier n, final Void arg) {
         return (n.getKeyword().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1050,9 +864,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final SwitchExpr n, final Void arg) {
         return (n.getEntries().accept(this, arg)) * 31
                 + (n.getSelector().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1060,9 +872,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final YieldStmt n, final Void arg) {
         return (n.getExpression().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1070,9 +880,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final TextBlockLiteralExpr n, final Void arg) {
         return (n.getValue().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1082,9 +890,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getModifiers().accept(this, arg)) * 31
                 + (n.getName().accept(this, arg)) * 31
                 + (n.getType().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1094,9 +900,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getBinder().hashCode()) * 31
                 + (n.getExpressions().accept(this, arg)) * 31
                 + (n.getVariables().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1107,9 +911,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getKind().hashCode()) * 31
                 + (n.getLabel().isPresent() ? n.getLabel().get().accept(this, arg) : 0) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1119,9 +921,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getExpression().accept(this, arg)) * 31
                 + (n.getJmlTags().accept(this, arg)) * 31
                 + (n.getKind().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1131,9 +931,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getExpression().accept(this, arg)) * 31
                 + (n.getKind().hashCode()) * 31
                 + (n.getLabel().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1142,9 +940,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final JmlLetExpr n, final Void arg) {
         return (n.getBody().accept(this, arg)) * 31
                 + (n.getVariables().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1153,9 +949,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final JmlMultiCompareExpr n, final Void arg) {
         return (n.getExpressions().accept(this, arg)) * 31
                 + (n.getOperators().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1166,9 +960,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getHeaps().accept(this, arg)) * 31
                 + (n.getKind().hashCode()) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1178,9 +970,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getExpression().accept(this, arg)) * 31
                 + (n.getParameter().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1189,9 +979,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final JmlSignalsOnlyClause n, final Void arg) {
         return (n.getTypes().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1199,9 +987,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final JmlUnreachableStmt n, final Void arg) {
         return (n.getJmlTags().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1210,9 +996,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final JmlCallableClause n, final Void arg) {
         return (n.getMethodSignatures().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1221,9 +1005,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final JmlForallClause n, final Void arg) {
         return (n.getBoundedVariables().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1231,9 +1013,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final JmlRefiningStmt n, final Void arg) {
         return (n.getJmlTags().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1244,9 +1024,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getExpression().accept(this, arg)) * 31
                 + (n.getKind().hashCode()) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1259,9 +1037,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getModifiers().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1274,9 +1050,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getModifiers().accept(this, arg)) * 31
                 + (n.getVariable().accept(this, arg)) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1288,36 +1062,30 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getModifiers().accept(this, arg)) * 31
                 + (n.getName().accept(this, arg)) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     @Override
     public Integer visit(final JmlContract n, final Void arg) {
-        return (n.getBehavior().hashCode()) * 31
+        return (0 * 31
                 + (n.getClauses().accept(this, arg)) * 31
                 + (n.getJmlTags().accept(this, arg)) * 31
                 + (n.getModifiers().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0) * 31
                 + (n.getSubContracts().accept(this, arg)) * 31
                 + (n.getType().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
-                + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
+                + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0));
     }
 
     @Override
     public Integer visit(final JmlSetComprehensionExpr n, final Void arg) {
         return (n.getBinding().accept(this, arg)) * 31
                 + (n.getPredicate().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1326,9 +1094,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final JmlGhostStmt n, final Void arg) {
         return (n.getJmlTags().accept(this, arg)) * 31
                 + (n.getStatement().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1346,9 +1112,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getModifiers().accept(this, arg)) * 31
                 + (n.getName().accept(this, arg)) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1361,9 +1125,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getThrownExceptions().accept(this, arg)) * 31
                 + (n.getTypeParameters().accept(this, arg)) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1373,9 +1135,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getModifiers().accept(this, arg)) * 31
                 + (n.getPatternList().accept(this, arg)) * 31
                 + (n.getType().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1384,9 +1144,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final KeyCcatchBreak n, final Void arg) {
         return (n.getBlock().isPresent() ? n.getBlock().get().accept(this, arg) : 0) * 31
                 + (n.getLabel().isPresent() ? n.getLabel().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1395,9 +1153,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final KeyCcatchContinue n, final Void arg) {
         return (n.getBlock().isPresent() ? n.getBlock().get().accept(this, arg) : 0) * 31
                 + (n.getLabel().isPresent() ? n.getLabel().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1406,9 +1162,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final KeyCcatchParameter n, final Void arg) {
         return (n.getBlock().isPresent() ? n.getBlock().get().accept(this, arg) : 0) * 31
                 + (n.getParameter().isPresent() ? n.getParameter().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1417,9 +1171,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final KeyCcatchReturn n, final Void arg) {
         return (n.getBlock().isPresent() ? n.getBlock().get().accept(this, arg) : 0) * 31
                 + (n.getParameter().isPresent() ? n.getParameter().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1428,9 +1180,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final KeyCatchAllStmt n, final Void arg) {
         return (n.getBlock().accept(this, arg)) * 31
                 + (n.getLabel().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1439,9 +1189,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final KeyEscapeExpression n, final Void arg) {
         return (n.getArguments().isPresent() ? n.getArguments().get().accept(this, arg) : 0) * 31
                 + (n.getCallee().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1450,9 +1198,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final KeyExecStmt n, final Void arg) {
         return (n.getBranches().accept(this, arg)) * 31
                 + (n.getExecBlock().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1462,9 +1208,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getContext().accept(this, arg)) * 31
                 + (n.getInstance().isPresent() ? n.getInstance().get().accept(this, arg) : 0) * 31
                 + (n.getSignature().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1473,9 +1217,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final KeyLoopScopeBlockStmt n, final Void arg) {
         return (n.getBlock().accept(this, arg)) * 31
                 + (n.getIndexPV().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1483,9 +1225,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final KeyMergePointStmt n, final Void arg) {
         return (n.getExpr().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1495,9 +1235,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getExpr().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0) * 31
                 + (n.getSource().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1507,9 +1245,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getBlock().accept(this, arg)) * 31
                 + (n.getContext().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1518,9 +1254,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final KeyMethodSignature n, final Void arg) {
         return (n.getName().accept(this, arg)) * 31
                 + (n.getParamTypes().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1528,9 +1262,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final KeyTransactionStmt n, final Void arg) {
         return (n.getType().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1542,9 +1274,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getSignature().isPresent() ? n.getSignature().get().accept(this, arg) : 0) * 31
                 + (n.getStatements().accept(this, arg)) * 31
                 + (n.getTr().isPresent() ? n.getTr().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1552,9 +1282,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final KeyExecCtxtSV n, final Void arg) {
         return (n.getText().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1562,9 +1290,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final KeyExpressionSV n, final Void arg) {
         return (n.getText().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1572,9 +1298,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final KeyJumpLabelSV n, final Void arg) {
         return (n.getText().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1583,9 +1307,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final KeyMetaConstructExpression n, final Void arg) {
         return (n.getChild().accept(this, arg)) * 31
                 + (n.getText().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1595,9 +1317,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getChild().accept(this, arg)) * 31
                 + (n.getKind().hashCode()) * 31
                 + (n.getSchemas().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1607,9 +1327,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getExpr().accept(this, arg)) * 31
                 + (n.getKind().hashCode()) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1617,9 +1335,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final KeyMethodSignatureSV n, final Void arg) {
         return (n.getText().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1627,9 +1343,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final KeyPassiveExpression n, final Void arg) {
         return (n.getExpr().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1637,9 +1351,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final KeyProgramVariableSV n, final Void arg) {
         return (n.getText().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1647,9 +1359,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final KeyStatementSV n, final Void arg) {
         return (n.getText().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1658,9 +1368,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final KeyTypeSV n, final Void arg) {
         return (n.getText().hashCode()) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1668,9 +1376,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final KeyCcatchSV n, final Void arg) {
         return (n.getText().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1678,9 +1384,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final KeyExecutionContextSV n, final Void arg) {
         return (n.getText().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1688,9 +1392,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final MatchAllPatternExpr n, final Void arg) {
         return (n.getModifiers().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1698,9 +1400,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final MarkdownComment n, final Void arg) {
         return (n.getContent().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1711,9 +1411,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getJmlTags().accept(this, arg)) * 31
                 + (n.getMethodDeclaration().accept(this, arg)) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1723,9 +1421,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getLeft().accept(this, arg)) * 31
                 + (n.getOperator().accept(this, arg)) * 31
                 + (n.getRight().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1734,9 +1430,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final JmlDocDeclaration n, final Void arg) {
         return (n.getJmlComments().accept(this, arg)) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1744,9 +1438,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final JmlDocStmt n, final Void arg) {
         return (n.getJmlComments().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1754,9 +1446,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final JmlDoc n, final Void arg) {
         return (n.getContent().hashCode()) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1768,9 +1458,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getModifiers().accept(this, arg)) * 31
                 + (n.getName().accept(this, arg)) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1780,9 +1468,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getDecl().accept(this, arg)) * 31
                 + (n.getJmlTags().accept(this, arg)) * 31
                 + (n.getAnnotations().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1791,9 +1477,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final JmlOldClause n, final Void arg) {
         return (n.getDeclarations().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1801,9 +1485,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final JmlTypeExpr n, final Void arg) {
         return (n.getType().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1814,9 +1496,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getHeaps().isPresent() ? n.getHeaps().get().accept(this, arg) : 0) * 31
                 + (n.getKind().hashCode()) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1824,9 +1504,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final JmlBeginStmt n, final Void arg) {
         return (n.getJmlTags().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1834,9 +1512,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final JmlEndStmt n, final Void arg) {
         return (n.getJmlTags().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1845,9 +1521,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final JmlLabelStmt n, final Void arg) {
         return (n.getJmlTags().accept(this, arg)) * 31
                 + (n.getLabel().accept(this, arg)) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1857,9 +1531,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getArgumentTypes().accept(this, arg)) * 31
                 + (n.getName().accept(this, arg)) * 31
                 + (n.getReceiver().isPresent() ? n.getReceiver().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1867,9 +1539,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final KeyMarkerStatement n, final Void arg) {
         return n.getKind() * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
@@ -1883,9 +1553,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getKind().hashCode()) * 31
                 + (n.getNewObjects().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0) * 31
-                + (n.getAssociatedSpecificationComments().isPresent()
-                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
-                                : 0)
+                + 0
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }

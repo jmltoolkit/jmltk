@@ -42,12 +42,8 @@ public class JmlLabeledClause extends JmlClause implements NodeWithExpression<Jm
 
     private Expression expression;
 
-    public JmlLabeledClause() {
-        this(JmlClauseKind.NONE, null, new BooleanLiteralExpr(true));
-    }
-
-    public JmlLabeledClause(SimpleName label, Expression expression) {
-        this(JmlClauseKind.NONE, label, expression);
+    public JmlLabeledClause(JmlClauseKind kind) {
+        this(kind, null, new BooleanLiteralExpr(true));
     }
 
     @AllFieldsConstructor
@@ -68,7 +64,7 @@ public class JmlLabeledClause extends JmlClause implements NodeWithExpression<Jm
     }
 
     public JmlLabeledClause(TokenRange range, JavaToken kind, SimpleName label, Expression expression) {
-        this(range, JmlClauseKind.getKindByToken(kind), label, expression);
+        this(range, new JmlClauseKind(kind), label, expression);
     }
 
     @Override
@@ -178,16 +174,6 @@ public class JmlLabeledClause extends JmlClause implements NodeWithExpression<Jm
         return kind;
     }
 
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlLabeledClause setKind(final @NonNull() JmlClauseKind kind) {
-        assertNotNull(kind);
-        if (kind == this.kind) {
-            return this;
-        }
-        notifyPropertyChange(ObservableProperty.KIND, this.kind, kind);
-        this.kind = kind;
-        return this;
-    }
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")

@@ -11,7 +11,6 @@ import com.github.javaparser.ast.jml.NodeWithJmlTags;
 import com.github.javaparser.ast.nodeTypes.NodeWithModifiers;
 import com.github.javaparser.ast.nodeTypes.modifiers.NodeWithAccessModifiers;
 import com.github.javaparser.ast.observer.ObservableProperty;
-import com.github.javaparser.ast.stmt.Behavior;
 import com.github.javaparser.ast.visitor.CloneVisitor;
 import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
@@ -43,7 +42,8 @@ public class JmlContract extends Node
     @OptionalProperty
     private SimpleName name;
 
-    private Behavior behavior;
+    @OptionalProperty
+    private JmlContractBehavior behavior;
 
     private NodeList<Modifier> modifiers;
 
@@ -56,7 +56,7 @@ public class JmlContract extends Node
                 (TokenRange) null,
                 new NodeList<>(),
                 ContractType.METHOD,
-                Behavior.NONE,
+                new JmlContractBehavior(JmlBehaviorKind.NONE),
                 null,
                 new NodeList<>(),
                 new NodeList<>(),
@@ -67,7 +67,7 @@ public class JmlContract extends Node
     public JmlContract(
             NodeList<SimpleName> jmlTags,
             ContractType type,
-            Behavior behavior,
+            JmlContractBehavior behavior,
             SimpleName name,
             NodeList<Modifier> modifiers,
             NodeList<JmlClause> clauses,
@@ -77,7 +77,7 @@ public class JmlContract extends Node
 
     public JmlContract(
             ContractType type,
-            Behavior behavior,
+            JmlContractBehavior behavior,
             SimpleName name,
             NodeList<Modifier> modifiers,
             NodeList<JmlClause> clauses,
@@ -87,7 +87,7 @@ public class JmlContract extends Node
 
     public JmlContract(
             TokenRange range,
-            Behavior behavior,
+            JmlContractBehavior behavior,
             NodeList<Modifier> modifiers,
             NodeList<JmlClause> clauses,
             NodeList<JmlContract> subContracts) {
@@ -107,12 +107,12 @@ public class JmlContract extends Node
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Behavior getBehavior() {
+    public JmlContractBehavior getBehavior() {
         return behavior;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlContract setBehavior(final @NonNull() Behavior behavior) {
+    public JmlContract setBehavior(final @NonNull() JmlContractBehavior behavior) {
         assertNotNull(behavior);
         if (behavior == this.behavior) {
             return this;
@@ -267,7 +267,7 @@ public class JmlContract extends Node
     public JmlContract(
             TokenRange tokenRange,
             boolean isLoopContract,
-            Behavior behavior,
+            JmlContractBehavior behavior,
             NodeList<Modifier> modifiers,
             NodeList<JmlClause> clauses,
             NodeList<JmlContract> subContracts) {
@@ -360,7 +360,7 @@ public class JmlContract extends Node
             TokenRange tokenRange,
             ContractType type,
             boolean isLoopContract,
-            Behavior behavior,
+            JmlContractBehavior behavior,
             SimpleName name,
             NodeList<Modifier> modifiers,
             NodeList<JmlClause> clauses,
@@ -384,7 +384,7 @@ public class JmlContract extends Node
             TokenRange tokenRange,
             NodeList<SimpleName> jmlTags,
             ContractType type,
-            Behavior behavior,
+            JmlContractBehavior behavior,
             SimpleName name,
             NodeList<Modifier> modifiers,
             NodeList<JmlClause> clauses,
@@ -402,7 +402,7 @@ public class JmlContract extends Node
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @NonNull() Behavior behavior() {
+    public @NonNull() JmlContractBehavior behavior() {
         return Objects.requireNonNull(behavior);
     }
 

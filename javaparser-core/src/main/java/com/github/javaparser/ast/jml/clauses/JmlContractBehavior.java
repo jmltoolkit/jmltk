@@ -6,22 +6,30 @@ package com.github.javaparser.ast.jml.clauses;
 
 import com.github.javaparser.JavaToken;
 import com.github.javaparser.TokenRange;
+import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.jml.JmlKeywordNode;
 import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 
-public class JmlClauseKind extends JmlKeywordNode<JmlClauseKind0> {
-    public JmlClauseKind(JmlClauseKind0 kind) {
+/**
+ * @author Alexander Weigl
+ * @version 1 (3/14/21)
+ */
+public class JmlContractBehavior extends JmlKeywordNode<JmlBehaviorKind> {
+
+    @AllFieldsConstructor
+    public JmlContractBehavior(JmlBehaviorKind kind) {
         this(null, kind);
     }
 
-    public JmlClauseKind(TokenRange tokenRange, JmlClauseKind0 kind) {
-        super(tokenRange, kind);
+    public JmlContractBehavior(TokenRange range, JmlBehaviorKind kind) {
+        super(range, kind);
     }
 
-    public JmlClauseKind(JavaToken kind) {
-        this(new TokenRange(kind, kind), JmlClauseKind0.getKindByToken(kind));
+    public JmlContractBehavior(JavaToken token) {
+        super(new TokenRange(token, token), JmlBehaviorKind.getByToken(token));
     }
+
 
     @Override
     public <R, A> R accept(GenericVisitor<R, A> v, A arg) {
@@ -32,3 +40,5 @@ public class JmlClauseKind extends JmlKeywordNode<JmlClauseKind0> {
     public <A> void accept(VoidVisitor<A> v, A arg) {
     }
 }
+
+

@@ -33,17 +33,10 @@ public class JmlCallableClause extends JmlClause {
     private NodeList<JmlMethodSignature> methodSignatures = new NodeList<JmlMethodSignature>();
 
     @AllFieldsConstructor
-    public JmlCallableClause(SimpleName name, NodeList<JmlMethodSignature> methodSignatures) {
-        super(name);
-    }
-
-    /**
-     * This constructor is used by the parser and is considered private.
-     */
-    @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlCallableClause(TokenRange tokenRange) {
-        super(tokenRange);
-        customInitialization();
+    public JmlCallableClause(
+        JmlClauseKind kind,
+        SimpleName name, NodeList<JmlMethodSignature> methodSignatures) {
+        super(kind, name);
     }
 
     @Override
@@ -68,11 +61,6 @@ public class JmlCallableClause extends JmlClause {
     @Generated("com.github.javaparser.generator.core.node.GetMetaModelGenerator")
     public JmlCallableClauseMetaModel getMetaModel() {
         return JavaParserMetaModel.jmlCallableClauseMetaModel;
-    }
-
-    @Override
-    public JmlClauseKind getKind() {
-        return JmlClauseKind.CALLABLE;
     }
 
     @Override
@@ -121,8 +109,9 @@ public class JmlCallableClause extends JmlClause {
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlCallableClause(TokenRange tokenRange, SimpleName name, NodeList<JmlMethodSignature> methodSignatures) {
-        super(tokenRange, name);
+    public JmlCallableClause(TokenRange tokenRange, JmlClauseKind kind, SimpleName name,
+                             NodeList<JmlMethodSignature> methodSignatures) {
+        super(tokenRange, kind, name);
         setMethodSignatures(methodSignatures);
         customInitialization();
     }

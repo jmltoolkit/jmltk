@@ -82,7 +82,7 @@ class JmlStatisticsReporter : VoidVisitorAdapter<Statistics>() {
             ContractType.STATEMENT -> s.inc(StatisticKey.CONTRACT_STATEMENT)
             ContractType.LAMBDA -> s.inc(StatisticKey.CONTRACT_LAMBDA)
         }
-        s.inc(n.behavior)
+        s.inc(n.behavior())
 
         super.visit(n, s)
     }

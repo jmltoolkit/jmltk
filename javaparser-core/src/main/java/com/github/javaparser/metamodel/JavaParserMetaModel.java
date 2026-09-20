@@ -5,6 +5,7 @@
 package com.github.javaparser.metamodel;
 
 import com.github.javaparser.ast.Generated;
+import com.github.javaparser.ast.jml.clauses.JmlContractBehavior;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -4190,7 +4191,7 @@ public final class JavaParserMetaModel {
         jmlContractMetaModel.behaviorPropertyMetaModel = new PropertyMetaModel(
                 jmlContractMetaModel,
                 "behavior",
-                com.github.javaparser.ast.stmt.Behavior.class,
+                JmlContractBehavior.class,
                 Optional.empty(),
                 false,
                 false,

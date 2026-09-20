@@ -4,52 +4,36 @@
  */
 package com.github.javaparser.ast.jml.body;
 
-import com.github.javaparser.GeneratedJavaParserConstants;
 import com.github.javaparser.JavaToken;
-import com.github.javaparser.ast.jml.JmlKeyword;
+import com.github.javaparser.TokenRange;
+import com.github.javaparser.ast.jml.JmlKeywordNode;
+import com.github.javaparser.ast.visitor.GenericVisitor;
+import com.github.javaparser.ast.visitor.VoidVisitor;
 
 /**
  * @author Alexander Weigl
  * @version 1 (15.08.26)
  */
-public enum JmlBodyClauseKind implements JmlKeyword {
-    CONSTRAINT(GeneratedJavaParserConstants.CONSTRAINT),
-    CONSTRAINT_REDUNDANTLY(GeneratedJavaParserConstants.CONSTRAINT_REDUNDANTLY),
-    AXIOM(GeneratedJavaParserConstants.AXIOM),
-    INITIALLY(GeneratedJavaParserConstants.INITIALLY),
-    INVARIANT_FREE(GeneratedJavaParserConstants.INVARIANT_FREE),
-    INVARIANT(GeneratedJavaParserConstants.INVARIANT),
-    INVARIANT_REDUNDANTLY(GeneratedJavaParserConstants.INVARIANT_REDUNDANTLY);
-
-    public final String jmlSymbol;
-
-    private final int tokenType;
-
-    JmlBodyClauseKind(int tokenType) {
-        this.tokenType = tokenType;
-        jmlSymbol = name().toLowerCase();
+public class JmlBodyClauseKind extends JmlKeywordNode<JmlBodyClauseKind0> {
+    public JmlBodyClauseKind(JmlBodyClauseKind0 kind) {
+        super(kind);
     }
 
-    JmlBodyClauseKind(String jmlSymbol, int tokenType) {
-        this.jmlSymbol = jmlSymbol;
-        this.tokenType = tokenType;
+    public JmlBodyClauseKind(TokenRange tokenRange, JmlBodyClauseKind0 kind) {
+        super(tokenRange, kind);
+    }
+
+    public JmlBodyClauseKind(JavaToken begin) {
+        super(new TokenRange(begin, begin), JmlBodyClauseKind0.getKindByToken(begin));
     }
 
     @Override
-    public String jmlSymbol() {
-        return jmlSymbol;
+    public <R, A> R accept(GenericVisitor<R, A> v, A arg) {
+        return null;
     }
 
-    public int getTokenType() {
-        return tokenType;
-    }
+    @Override
+    public <A> void accept(VoidVisitor<A> v, A arg) {
 
-    public static JmlBodyClauseKind getKindByToken(JavaToken token) {
-        for (JmlBodyClauseKind it : JmlBodyClauseKind.values()) {
-            if (it.jmlSymbol.equals(token.getText())) {
-                return it;
-            }
-        }
-        throw new IllegalArgumentException("Could not find clause kind for: " + token.getText());
     }
 }

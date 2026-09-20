@@ -5,6 +5,7 @@
 package com.github.jmlparser.lint.rules
 
 import com.github.javaparser.ast.jml.clauses.JmlClauseKind
+import com.github.javaparser.ast.jml.clauses.JmlClauseKind0
 import com.github.javaparser.ast.jml.clauses.JmlContract
 import io.github.jmltoolkit.lint.LintProblemReporter
 import io.github.jmltoolkit.lint.LintRuleVisitor
@@ -23,7 +24,7 @@ class ContextSensitiveForbiddenFunctionsValidator : LintRuleVisitor() {
 
     private fun reportMultipleSignalsOnlyClauses(n: JmlContract, arg: LintProblemReporter) {
         for (clause in n.clauses) {
-            if (clause.kind === JmlClauseKind.SIGNALS_ONLY) signalsOnlyCounter++
+            if (clause.kind.kind === JmlClauseKind0.SIGNALS_ONLY) signalsOnlyCounter++
 
             if (signalsOnlyCounter > 1) {
                 arg.warn(clause, "", "", MULTIPLE_SIGNALS_ONLY)

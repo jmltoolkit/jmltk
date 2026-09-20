@@ -30,7 +30,9 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
  * @version 1 (2/21/21)
  */
 public class JmlSignalsClause extends JmlClause {
+
     private Parameter parameter;
+
     private Expression expression;
 
     @AllFieldsConstructor
@@ -42,7 +44,8 @@ public class JmlSignalsClause extends JmlClause {
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlSignalsClause(TokenRange tokenRange, JmlClauseKind kind, SimpleName name, Parameter parameter, Expression expression) {
+    public JmlSignalsClause(
+            TokenRange tokenRange, JmlClauseKind kind, SimpleName name, Parameter parameter, Expression expression) {
         super(tokenRange, kind, name);
         setParameter(parameter);
         setExpression(expression);

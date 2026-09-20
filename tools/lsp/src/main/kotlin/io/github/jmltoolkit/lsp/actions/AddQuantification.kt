@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.lsp.actions
 
 import com.github.javaparser.ast.Node
@@ -14,10 +18,9 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either
 import java.util.concurrent.CompletableFuture
 import kotlin.jvm.optionals.getOrNull
 
-
 /**
- * 
- * @author Alexander Weigl 
+ *
+ * @author Alexander Weigl
  * @version 1 (20.09.26)
  */
 class AddQuantification : LspAction {
@@ -27,8 +30,7 @@ class AddQuantification : LspAction {
         TODO("Not yet implemented")
     }
 
-    override fun createCodeAction(uri: String, node: Node)
-        : Either<Command, CodeAction>? {
+    override fun createCodeAction(uri: String, node: Node): Either<Command, CodeAction>? {
         if (node is NameExpr && node.isInJML()) {
             return CodeAction(title)
                 .also {
@@ -58,4 +60,3 @@ class AddQuantification : LspAction {
         return WorkspaceEdit(listOf(x.asLeft()))
     }
 }
-

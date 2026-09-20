@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.lsp.actions
 
 import com.github.javaparser.ast.Node
@@ -14,10 +18,9 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either
 import java.util.concurrent.CompletableFuture
 import kotlin.jvm.optionals.getOrNull
 
-
 /**
- * 
- * @author Alexander Weigl 
+ *
+ * @author Alexander Weigl
  * @version 1 (20.09.26)
  */
 class AddNameToClauseOrContract : LspAction {
@@ -38,9 +41,7 @@ class AddNameToClauseOrContract : LspAction {
             else -> false
         }
 
-
-    override fun createCodeAction(uri: String, node: Node)
-        : Either<Command, CodeAction>? {
+    override fun createCodeAction(uri: String, node: Node): Either<Command, CodeAction>? {
         if (isCallableForNode(node) && !hasName(node)) {
             return CodeAction(title)
                 .also {
@@ -62,17 +63,22 @@ class AddNameToClauseOrContract : LspAction {
                 listOfNotNull(
                     node.begin.getOrNull(),
                     node.modifiers().lastOrNull()?.end?.getOrNull(),
-                    node.behavior().end.getOrNull()
+                    node.behavior()?.end?.getOrNull()
                 ).lastOrNull()
 
             is JmlClause -> node.kind.end.getOrNull()
+
             is JmlClassExprDeclaration -> node.kind.end.getOrNull()
+
             else -> error("Unexpected node: $node")
         }?.asPosition
 
-        return SnippetTextEdit(Range(afterNode, afterNode), StringValue(
+        return SnippetTextEdit(
+            Range(afterNode, afterNode),
+            StringValue(
             StringValueKind.SNIPPET,
             " \${1:name}: "
-        ))
+        )
+        )
     }
 }

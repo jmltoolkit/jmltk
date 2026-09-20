@@ -17,6 +17,7 @@ import io.github.jmltoolkit.lsp.asRange
 import org.eclipse.lsp4j.DocumentSymbol
 import org.eclipse.lsp4j.SymbolKind
 import java.util.*
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * Runs through an AST and gathers symbols within JML annotations.
@@ -139,7 +140,7 @@ class JmlCatchSymbols : GenericVisitorAdapter<MutableList<DocumentSymbol>?, Unit
         val children = acceptAll(n.subContracts) + acceptAll(n.clauses)
         return arrayListOf(
             DocumentSymbol(
-                "Contract: ${n.name()?.toString() ?: n.behavior.kind.asString()}",
+                "Contract: ${n.name()?.toString() ?: n.behavior?.getOrNull()?.value?.asString()}",
                 SymbolKind.Key,
                 n.asRange, n.asRange, "${n.jmlTags}", children
             )
@@ -180,7 +181,6 @@ class JmlCatchSymbols : GenericVisitorAdapter<MutableList<DocumentSymbol>?, Unit
             n.asRange, n.asRange, "Jml class invariant", listOf()
         )
     )
-
 
     override fun visit(n: JmlSimpleExprClause, arg: Unit?): MutableList<DocumentSymbol> = arrayListOf(
         DocumentSymbol(

@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.lsp.actions
 
 import com.github.javaparser.ast.Node
@@ -23,23 +27,22 @@ import org.eclipse.lsp4j.jsonrpc.json.adapters.TupleTypeAdapters.TwoTypeAdapterF
 import java.nio.charset.CharsetDecoder
 import java.util.concurrent.CompletableFuture
 
-
 /**
- * 
- * @author Alexander Weigl 
+ *
+ * @author Alexander Weigl
  * @version 1 (17.09.26)
  */
 class AddStubs : LspAction {
     override val title: String = "Add stub contracts to type if missing"
 
-    fun command(uri: String, target: NodeWithName<*>): Command {
-        return super.command(listOf(uri, target.name.range.asRange()))
-    }
+    fun command(uri: String, target: NodeWithName<*>): Command = super.command(listOf(uri, target.name.range.asRange()))
 
     override fun createCodeLens(uri: String, node: Node) =
-        if (node is TypeDeclaration<*>)
+        if (node is TypeDeclaration<*>) {
             CodeLens(node.name().asRange, command(uri, node as NodeWithName<*>), null)
-        else null
+        } else {
+            null
+        }
 
     override fun execute(
         server: JmlLanguageServer,
@@ -56,23 +59,19 @@ class AddStubs : LspAction {
             .firstOrNull()
             ?: error("This node could not be found.")
 
-        when(node) {
+        when (node) {
             is TypeDeclaration<*> -> {
-
             }
 
             is CallableDeclaration<*> -> {
-
             }
 
             is LambdaExpr -> {
-
             }
         }
         return TODO("Provide the return value")
     }
 }
-
 
 object GsonHelper {
     private val gson by lazy { getDefaultGsonBuilder().create() }
@@ -83,7 +82,7 @@ object GsonHelper {
             .registerTypeAdapterFactory(EitherTypeAdapter.Factory())
             .registerTypeAdapterFactory(TwoTypeAdapterFactory())
             .registerTypeAdapterFactory(EnumTypeAdapter.Factory())
-        //.registerTypeAdapterFactory(MessageTypeAdapter.Factory(this))
+        // .registerTypeAdapterFactory(MessageTypeAdapter.Factory(this))
     }
 
     inline fun <reified T> unwrap(x: Any): T = unwrap(x, T::class.java)

@@ -26,6 +26,9 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * The {@code signals} (or {@code signals_redundantly}) clause: states a postcondition on the
+ * exception that is thrown when the method exits abruptly.
+ *
  * @author Alexander Weigl
  * @version 1 (2/21/21)
  */

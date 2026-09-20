@@ -9,6 +9,10 @@ import com.github.javaparser.ast.Jmlish;
 import com.github.javaparser.ast.jml.JmlKeyword;
 
 /**
+ * The behaviour keyword that introduces a method specification case, such as
+ * {@code behavior}, {@code normal_behavior}, {@code exceptional_behavior} or
+ * {@code model_behavior}.
+ *
  * @author Alexander Weigl
  * @version 1 (20.09.26)
  */

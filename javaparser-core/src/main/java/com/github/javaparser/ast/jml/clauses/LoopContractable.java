@@ -5,6 +5,9 @@
 package com.github.javaparser.ast.jml.clauses;
 
 /**
+ * Marker interface for AST nodes that can carry a JML loop contract, i.e. clauses and behaviour
+ * specifications for loops.
+ *
  * @author Alexander Weigl
  * @version 1 (3/16/21)
  */

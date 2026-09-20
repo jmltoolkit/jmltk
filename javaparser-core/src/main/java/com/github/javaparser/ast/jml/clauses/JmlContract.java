@@ -25,10 +25,18 @@ import java.util.Optional;
 
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
-/**
- * @author Alexander Weigl
- * @version 1 (3/14/21)
- */
+/// A complete JML contract for a method, constructor, loop or model program: a behaviour keyword, an
+/// optional name, a sequence of clauses and optionally nested sub-contracts.
+///
+/// For example:
+/// ```
+/// normal_behavior
+///   requires x > 0;
+///   ensures \result > 0;
+/// ```
+///
+/// @author Alexander Weigl
+/// @version 1 (3/14/21)
 public class JmlContract extends Node
         implements Jmlish,
                 NodeWithModifiers<JmlContract>,

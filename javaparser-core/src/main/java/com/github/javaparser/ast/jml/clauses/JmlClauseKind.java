@@ -21,6 +21,10 @@ import java.util.Objects;
 
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
+/**
+ * AST node representing the keyword kind of a JML clause (e.g. {@code requires}, {@code ensures},
+ * {@code signals}), wrapping a {@link JmlClauseKind0} value.
+ */
 public class JmlClauseKind extends JmlKeywordNode<JmlClauseKind0, JmlClauseKind> {
 
     private JmlClauseKind0 value;

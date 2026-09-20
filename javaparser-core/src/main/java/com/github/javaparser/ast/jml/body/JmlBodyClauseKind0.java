@@ -9,6 +9,10 @@ import com.github.javaparser.JavaToken;
 import com.github.javaparser.ast.jml.JmlKeyword;
 
 /**
+ * Enumeration of the JML body clauses that may appear at the class/type level: {@code invariant},
+ * {@code constraint}, {@code axiom} and {@code initially} (together with their {@code _redundantly}
+ * or {@code _free} variants).
+ *
  * @author Alexander Weigl
  * @version 1 (20.09.26)
  */

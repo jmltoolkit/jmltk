@@ -22,6 +22,9 @@ import java.util.Objects;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * AST node representing the keyword kind of a JML body clause (e.g. {@code invariant},
+ * {@code constraint}, {@code axiom} or {@code initially}), wrapping a {@link JmlBodyClauseKind0}.
+ *
  * @author Alexander Weigl
  * @version 1 (15.08.26)
  */

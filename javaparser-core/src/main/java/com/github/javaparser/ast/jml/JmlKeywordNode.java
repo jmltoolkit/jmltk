@@ -14,10 +14,13 @@ import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlKeywordNodeMetaModel;
 
 /**
+ * Base class for AST nodes that represent a single JML keyword, where the keyword itself is
+ * modelled by a {@link JmlKeyword} value (type parameter {@code T}).
+ *
  * @author Alexander Weigl
  * @version 1 (20.09.26)
  */
-public abstract class JmlKeywordNode<T extends JmlKeyword, S extends Node> extends Node implements Jmlish {
+public abstract class JmlKeywordNode<S extends Node> extends Node implements Jmlish {
 
     @AllFieldsConstructor
     public JmlKeywordNode() {
@@ -33,22 +36,10 @@ public abstract class JmlKeywordNode<T extends JmlKeyword, S extends Node> exten
         customInitialization();
     }
 
-    public abstract T getValue();
-
-    public abstract S setValue(T value);
-
-    public T getKind() {
-        return getValue();
-    }
-
-    public S setKind(T kind) {
-        return setValue(kind);
-    }
-
     @Override
     @Generated("com.github.javaparser.generator.core.node.CloneGenerator")
-    public JmlKeywordNode<?,?> clone() {
-        return (JmlKeywordNode<?,?>) accept(new CloneVisitor(), null);
+    public JmlKeywordNode<?> clone() {
+        return (JmlKeywordNode<?>) accept(new CloneVisitor(), null);
     }
 
     @Override

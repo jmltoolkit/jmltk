@@ -24,10 +24,16 @@ import java.util.function.Consumer;
 
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
-/**
- * @author Alexander Weigl
- * @version 1 (2/22/21)
- */
+/// Class-level predicate clause, typically a `forall` clause that binds variables over which a
+/// universally-quantified predicate is stated.
+///
+/// For example:
+/// ```
+/// FORALL int i;
+/// ```
+///
+/// @author Alexander Weigl
+/// @version 1 (2/22/21)
 public class JmlForallClause extends JmlClause {
 
     private NodeList<Parameter> boundedVariables;

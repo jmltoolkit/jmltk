@@ -12,6 +12,9 @@ import com.github.javaparser.jml.JmlUtility;
 import java.util.List;
 
 /**
+ * Mixin interface for AST nodes that carry a list of JML method contracts ({@link JmlContract}),
+ * providing convenience methods to add contracts and to fix their source ranges.
+ *
  * @author Alexander Weigl
  * @version 1 (12/9/21)
  */

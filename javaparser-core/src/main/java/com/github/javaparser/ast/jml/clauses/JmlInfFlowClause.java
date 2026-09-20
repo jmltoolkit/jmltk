@@ -80,7 +80,7 @@ public class JmlInfFlowClause extends JmlClause {
             NodeList<Expression> erases,
             NodeList<Expression> expressions,
             NodeList<Expression> newObjects) {
-        super(tokenRange, name);
+        super(tokenRange, kind, name);
         setKind(kind);
         setBy(by);
         setDeclassifies(declassifies);
@@ -99,7 +99,7 @@ public class JmlInfFlowClause extends JmlClause {
             NodeList<Expression> declassifies,
             NodeList<Expression> erases,
             NodeList<Expression> newObjects) {
-        this(range, JmlClauseKind.getKindByToken(begin), name, determined, by, declassifies, erases, newObjects);
+        this(range, new JmlClauseKind(begin), name, determined, by, declassifies, erases, newObjects);
     }
 
     @Override
@@ -222,16 +222,6 @@ public class JmlInfFlowClause extends JmlClause {
         return Objects.requireNonNull(kind);
     }
 
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlInfFlowClause setKind(final @NonNull() JmlClauseKind kind) {
-        assertNotNull(kind);
-        if (kind == this.kind) {
-            return this;
-        }
-        notifyPropertyChange(ObservableProperty.KIND, this.kind, kind);
-        this.kind = kind;
-        return this;
-    }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
     public NodeList<Expression> getNewObjects() {

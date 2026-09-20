@@ -1,17 +1,15 @@
-/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
- * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
- * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
- */
-package com.github.javaparser.ast.stmt;
+package com.github.javaparser.ast.jml.clauses;
 
+import com.github.javaparser.JavaToken;
 import com.github.javaparser.ast.Jmlish;
 import com.github.javaparser.ast.jml.JmlKeyword;
 
 /**
+ *
  * @author Alexander Weigl
- * @version 1 (3/14/21)
+ * @version 1 (20.09.26)
  */
-public enum Behavior implements Jmlish, JmlKeyword {
+public enum JmlBehaviorKind implements Jmlish, JmlKeyword {
     NONE(""),
     BEHAVIOR("behavior"),
     NORMAL("normal_behavior"),
@@ -24,8 +22,12 @@ public enum Behavior implements Jmlish, JmlKeyword {
 
     private final String symbol;
 
-    Behavior(String symbol) {
+    JmlBehaviorKind(String symbol) {
         this.symbol = symbol;
+    }
+
+    public static JmlBehaviorKind getByToken(JavaToken token) {
+        return null;
     }
 
     @Override

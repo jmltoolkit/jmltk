@@ -5,9 +5,13 @@
 package io.github.jmltoolkit.stat
 
 import com.github.javaparser.JavaParser
+import com.github.javaparser.JavaToken
+import com.github.javaparser.JavaToken.Kind.SIGNALS_ONLY
 import com.github.javaparser.ParserConfiguration
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.jml.clauses.JmlClauseKind
+import com.github.javaparser.ast.jml.clauses.JmlClauseKind0
+import com.github.javaparser.ast.jml.clauses.JmlClauseKind0.ASSIGNABLE
 import com.google.common.truth.Truth.assertThat
 import org.junit.jupiter.api.Test
 
@@ -142,7 +146,7 @@ internal class JmlStatisticsReporterTest {
         val cu = parse(code)
         val stats = computeStatistics(cu)
 
-        assertThat(stats[StatisticKeys.jmlClause(JmlClauseKind.REQUIRES)]).isEqualTo(2)
+        assertThat(stats[StatisticKeys.jmlClause(JmlClauseKind0.REQUIRES)]).isEqualTo(2)
     }
 
     @Test
@@ -159,7 +163,7 @@ internal class JmlStatisticsReporterTest {
         val cu = parse(code)
         val stats = computeStatistics(cu)
         println(stats)
-        assertThat(stats[JmlClauseKind.ENSURES]).isEqualTo(2)
+        assertThat(stats[JmlClauseKind0.ENSURES]).isEqualTo(2)
     }
 
     @Test
@@ -176,7 +180,7 @@ internal class JmlStatisticsReporterTest {
         val cu = parse(code)
         val stats = computeStatistics(cu)
 
-        assertThat(stats[JmlClauseKind.ASSIGNABLE]).isEqualTo(1)
+        assertThat(stats[ASSIGNABLE]).isEqualTo(1)
     }
 
     @Test
@@ -207,7 +211,7 @@ internal class JmlStatisticsReporterTest {
         val stats = computeStatistics(cu)
 
         assertThat(stats[StatisticKey.SPECIFIED_METHODS]).isEqualTo(1)
-        assertThat(stats[JmlClauseKind.SIGNALS_ONLY]).isEqualTo(1)
+        assertThat(stats[JmlClauseKind0.SIGNALS_ONLY]).isEqualTo(1)
     }
 
     @Test

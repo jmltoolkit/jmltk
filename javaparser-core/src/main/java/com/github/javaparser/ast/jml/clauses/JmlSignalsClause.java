@@ -30,25 +30,27 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
  * @version 1 (2/21/21)
  */
 public class JmlSignalsClause extends JmlClause {
-
     private Parameter parameter;
-
     private Expression expression;
 
     @AllFieldsConstructor
-    public JmlSignalsClause(SimpleName name, Parameter parameter, Expression expression) {
-        this(null, name, parameter, expression);
+    public JmlSignalsClause(JmlClauseKind kind, SimpleName name, Parameter parameter, Expression expression) {
+        this(null, kind, name, parameter, expression);
     }
 
     /**
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlSignalsClause(TokenRange tokenRange, SimpleName name, Parameter parameter, Expression expression) {
-        super(tokenRange, name);
+    public JmlSignalsClause(TokenRange tokenRange, JmlClauseKind kind, SimpleName name, Parameter parameter, Expression expression) {
+        super(tokenRange, kind, name);
         setParameter(parameter);
         setExpression(expression);
         customInitialization();
+    }
+
+    public JmlSignalsClause(Parameter parameter, Expression expression) {
+        this(null, new JmlClauseKind(JmlClauseKind0.SIGNALS), null, parameter, expression);
     }
 
     @Override
@@ -94,11 +96,6 @@ public class JmlSignalsClause extends JmlClause {
     @Generated("com.github.javaparser.generator.core.node.GetMetaModelGenerator")
     public JmlSignalsClauseMetaModel getMetaModel() {
         return JavaParserMetaModel.jmlSignalsClauseMetaModel;
-    }
-
-    @Override
-    public JmlClauseKind getKind() {
-        return JmlClauseKind.SIGNALS;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")

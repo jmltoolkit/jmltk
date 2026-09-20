@@ -35,22 +35,34 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     @Nullable
     private SimpleName name;
 
-    public JmlClause() {
-        this((SimpleName) null);
+    private JmlClauseKind kind;
+
+    public JmlClause(JmlClauseKind kind) {
+        this(kind, (SimpleName) null);
     }
 
     @AllFieldsConstructor
-    public JmlClause(@Nullable final SimpleName name) {
-        this(null, name);
+    public JmlClause(JmlClauseKind kind, @Nullable final SimpleName name) {
+        this(null, kind, name);
+    }
+
+    public void setKind(JmlClauseKind kind) {
+        this.kind = kind;
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
+    public JmlClause(TokenRange tokenRange, JmlClauseKind kind) {
+        this(tokenRange, kind, (SimpleName) null);
     }
 
     /**
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlClause(TokenRange tokenRange, SimpleName name) {
+    public JmlClause(TokenRange tokenRange, JmlClauseKind kind, SimpleName name) {
         super(tokenRange);
         setName(name);
+        setKind(kind);
         customInitialization();
     }
 
@@ -75,7 +87,9 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
         return JavaParserMetaModel.jmlClauseMetaModel;
     }
 
-    public abstract JmlClauseKind getKind();
+    public JmlClauseKind getKind() {
+        return kind;
+    }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
     public Optional<SimpleName> getName() {
@@ -137,7 +151,7 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public JmlCallableClause asJmlCallableClause() {
         throw new IllegalStateException(
-                f("%s is not JmlCallableClause, it is %s", this, this.getClass().getSimpleName()));
+            f("%s is not JmlCallableClause, it is %s", this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
@@ -146,7 +160,8 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifJmlCallableClause(Consumer<JmlCallableClause> action) {}
+    public void ifJmlCallableClause(Consumer<JmlCallableClause> action) {
+    }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public boolean isJmlClauseLabel() {
@@ -156,7 +171,7 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public JmlLabeledClause asJmlClauseLabel() {
         throw new IllegalStateException(
-                f("%s is not JmlClauseLabel, it is %s", this, this.getClass().getSimpleName()));
+            f("%s is not JmlClauseLabel, it is %s", this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
@@ -165,7 +180,8 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifJmlClauseLabel(Consumer<JmlLabeledClause> action) {}
+    public void ifJmlClauseLabel(Consumer<JmlLabeledClause> action) {
+    }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public boolean isJmlForallClause() {
@@ -175,7 +191,7 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public JmlForallClause asJmlForallClause() {
         throw new IllegalStateException(
-                f("%s is not JmlForallClause, it is %s", this, this.getClass().getSimpleName()));
+            f("%s is not JmlForallClause, it is %s", this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
@@ -184,7 +200,8 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifJmlForallClause(Consumer<JmlForallClause> action) {}
+    public void ifJmlForallClause(Consumer<JmlForallClause> action) {
+    }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public boolean isJmlMultiExprClause() {
@@ -194,7 +211,7 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public JmlMultiExprClause asJmlMultiExprClause() {
         throw new IllegalStateException(f(
-                "%s is not JmlMultiExprClause, it is %s", this, this.getClass().getSimpleName()));
+            "%s is not JmlMultiExprClause, it is %s", this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
@@ -203,7 +220,8 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifJmlMultiExprClause(Consumer<JmlMultiExprClause> action) {}
+    public void ifJmlMultiExprClause(Consumer<JmlMultiExprClause> action) {
+    }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public boolean isJmlOldClause() {
@@ -213,7 +231,7 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public JmlOldClause asJmlOldClause() {
         throw new IllegalStateException(
-                f("%s is not JmlOldClause, it is %s", this, this.getClass().getSimpleName()));
+            f("%s is not JmlOldClause, it is %s", this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
@@ -222,7 +240,8 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifJmlOldClause(Consumer<JmlOldClause> action) {}
+    public void ifJmlOldClause(Consumer<JmlOldClause> action) {
+    }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public boolean isJmlSignalsClause() {
@@ -232,7 +251,7 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public JmlSignalsClause asJmlSignalsClause() {
         throw new IllegalStateException(
-                f("%s is not JmlSignalsClause, it is %s", this, this.getClass().getSimpleName()));
+            f("%s is not JmlSignalsClause, it is %s", this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
@@ -241,7 +260,8 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifJmlSignalsClause(Consumer<JmlSignalsClause> action) {}
+    public void ifJmlSignalsClause(Consumer<JmlSignalsClause> action) {
+    }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public boolean isJmlSignalsOnlyClause() {
@@ -251,8 +271,8 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public JmlSignalsOnlyClause asJmlSignalsOnlyClause() {
         throw new IllegalStateException(f(
-                "%s is not JmlSignalsOnlyClause, it is %s",
-                this, this.getClass().getSimpleName()));
+            "%s is not JmlSignalsOnlyClause, it is %s",
+            this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
@@ -261,7 +281,8 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifJmlSignalsOnlyClause(Consumer<JmlSignalsOnlyClause> action) {}
+    public void ifJmlSignalsOnlyClause(Consumer<JmlSignalsOnlyClause> action) {
+    }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public boolean isJmlSimpleExprClause() {
@@ -271,7 +292,7 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public JmlSimpleExprClause asJmlSimpleExprClause() {
         throw new IllegalStateException(f(
-                "%s is not JmlSimpleExprClause, it is %s", this, this.getClass().getSimpleName()));
+            "%s is not JmlSimpleExprClause, it is %s", this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
@@ -280,7 +301,8 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifJmlSimpleExprClause(Consumer<JmlSimpleExprClause> action) {}
+    public void ifJmlSimpleExprClause(Consumer<JmlSimpleExprClause> action) {
+    }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public boolean isJmlClauseIf() {
@@ -290,7 +312,7 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public JmlConditionalClause asJmlClauseIf() {
         throw new IllegalStateException(
-                f("%s is not JmlClauseIf, it is %s", this, this.getClass().getSimpleName()));
+            f("%s is not JmlClauseIf, it is %s", this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
@@ -299,7 +321,8 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifJmlClauseIf(Consumer<JmlConditionalClause> action) {}
+    public void ifJmlClauseIf(Consumer<JmlConditionalClause> action) {
+    }
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")

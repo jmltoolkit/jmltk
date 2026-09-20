@@ -60,7 +60,7 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
     }
 
     public JmlClassExprDeclaration(TokenRange range, JavaToken begin, NodeList<Modifier> modifiers, Expression expr) {
-        this(range, modifiers, JmlBodyClauseKind.getKindByToken(begin), expr);
+        this(range, modifiers, new JmlBodyClauseKind(begin), expr);
     }
 
     @Override

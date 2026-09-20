@@ -33,21 +33,19 @@ public class JmlSignalsOnlyClause extends JmlClause {
     private NodeList<Type> types;
 
     @AllFieldsConstructor
-    public JmlSignalsOnlyClause(NodeList<Type> types) {
-        this(null, types);
+    public JmlSignalsOnlyClause(JmlClauseKind kind, NodeList<Type> types) {
+        this(null, kind, types);
     }
 
     /**
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlSignalsOnlyClause(TokenRange tokenRange, NodeList<Type> types) {
+    public JmlSignalsOnlyClause(TokenRange tokenRange, JmlClauseKind kind, NodeList<Type> types) {
         super(tokenRange);
         setTypes(types);
         customInitialization();
     }
-
-    public JmlSignalsOnlyClause() {}
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.AcceptGenerator")
@@ -135,10 +133,6 @@ public class JmlSignalsOnlyClause extends JmlClause {
         return JavaParserMetaModel.jmlSignalsOnlyClauseMetaModel;
     }
 
-    @Override
-    public JmlClauseKind getKind() {
-        return JmlClauseKind.SIGNALS_ONLY;
-    }
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")

@@ -4,16 +4,25 @@
  */
 package io.github.jmltoolkit.utils
 
+import com.github.javaparser.Range
+import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Jmlish
 import com.github.javaparser.ast.Node
 import java.util.*
 import java.util.function.Function
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * @author Alexander Weigl
  * @version 1 (11.02.23)
  */
 object Helper {
+    inline fun <reified T : Node> CompilationUnit.findAll(noinline pred: (T) -> Boolean): List<T> {
+        return this.findAll<T>(T::class.java, pred)
+    }
+
+    fun Range.contains(n: Node): Boolean = n.range.getOrNull()?.let { contains(it) } ?: false
+
     fun <T : Node?> findAndApply(clazz: Class<T>, node: Node, fn: Function<T, Node>): Node {
         if (clazz.isAssignableFrom(node.javaClass)) {
             return fn.apply(node as T)

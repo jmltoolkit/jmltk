@@ -23,4 +23,29 @@ internal class LinterTest : TestWithJavaParser() {
             println(lintProblem)
         }
     }
+
+    @Test
+    fun nullityDefaults() {
+        val result = parser.parse(javaClass.getResourceAsStream("NullityDefaults.java"))
+        result.problems.forEach { System.err.println(it) }
+        Assumptions.assumeTrue(result.isSuccessful)
+        val actual = JmlLintingFacade(JmlLintingConfig()).lint(listOf(result.result.get()))
+        val messages = actual.map { it.message }
+
+        // error: both default nullity declarations at once
+        org.junit.jupiter.api.Assertions.assertTrue(
+            messages.any { it.contains("both non_null_by_default and nullable_by_default") },
+            "Expected conflict error, got: $messages"
+        )
+        // error: default nullity modifiers only on classes
+        org.junit.jupiter.api.Assertions.assertTrue(
+            messages.any { it.contains("only allowed on class declarations") },
+            "Expected misplaced modifier error, got: $messages"
+        )
+        // hint: not inherited by derived classes
+        org.junit.jupiter.api.Assertions.assertTrue(
+            messages.any { it.contains("not inherited by derived classes") },
+            "Expected non-inheritance hint, got: $messages"
+        )
+    }
 }

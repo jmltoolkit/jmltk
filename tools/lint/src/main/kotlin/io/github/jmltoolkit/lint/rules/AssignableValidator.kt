@@ -52,3 +52,24 @@ class AssignableValidator : LintRuleVisitor() {
         }
     }
 }
+
+// ---------- 1. Abstract domain ----------
+
+// information order: MAYBE < DEF_EMPTY ,  DEF_NONEMPTY
+enum class Emptiness {
+    NOTHING,
+    MAYBE,
+    EVERYTHING
+}
+
+/** Control-flow join: a fact survives only if it holds on all paths. */
+infix fun Emptiness.intersect(that: Emptiness): Emptiness =
+    if (this == Emptiness.MAYBE || that == Emptiness.MAYBE) {
+        return Emptiness.MAYBE
+    } else if (this == Emptiness.NOTHING && that == Emptiness.NOTHING) {
+        return Emptiness.NOTHING
+    } else if (this == Emptiness.EVERYTHING && that == Emptiness.EVERYTHING) {
+        return Emptiness.EVERYTHING
+    } else {
+        error("unreachable: invalid Emptiness combination")
+    }

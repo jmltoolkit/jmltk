@@ -11,7 +11,8 @@ import java.io.PrintWriter
  * @author Alexander Weigl
  * @version 1 (07.08.22)
  */
-class SList(stype: SmtType?, javaType: ResolvedType?, private val value: List<SExpr>) : SExpr(javaType, stype) {
+class SList(stype: SmtType?, javaType: ResolvedType?, private val value: List<SExpr>) : SExpr(javaType, stype),
+    List<SExpr> by value {
     override fun appendTo(writer: PrintWriter) {
         writer.write('('.code)
         for (i in value.indices) {
@@ -20,6 +21,4 @@ class SList(stype: SmtType?, javaType: ResolvedType?, private val value: List<SE
         }
         writer.write(')'.code)
     }
-
-    fun get(i: Int): SExpr = value[i]
 }

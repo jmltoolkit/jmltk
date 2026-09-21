@@ -10,9 +10,8 @@ import com.github.javaparser.ast.expr.Expression
 import io.github.jmltoolkit.smt.ArithmeticTranslator
 import io.github.jmltoolkit.smt.BitVectorArithmeticTranslator
 import io.github.jmltoolkit.smt.SmtQuery
-import io.github.jmltoolkit.smt.SmtTermFactory
+import io.github.jmltoolkit.smt.SmtTermFactory.not
 import io.github.jmltoolkit.smt.model.SExpr
-import io.github.jmltoolkit.smt.solver.JavaSmtSolver
 import io.github.jmltoolkit.smt.solver.SolverAnswer
 
 /**
@@ -31,10 +30,7 @@ object WdFacade {
 
     fun isWelldefined(parser: JavaParser, expr: String): Boolean {
         val e = parser.parseJmlExpression<Expression>(expr)
-        if (e.isSuccessful && e.result.isPresent) {
-            return isWelldefined(e.result.get())
-        }
-        return false
+        return e.isSuccessful && e.result.isPresent && isWelldefined(e.result.get())
     }
 
     private fun isWelldefined(e: Expression): Boolean {
@@ -43,7 +39,7 @@ object WdFacade {
         if (res == null || "true" == res.toString()) {
             return true
         }
-        query.addAssert(SmtTermFactory.not(res))
+        query.addAssert(!res)
         query.checkSat()
         val ans: SolverAnswer = solve(query)
         println(query.toString())
@@ -56,12 +52,8 @@ object WdFacade {
      * Solves the query with the java-smt backend, if available, and falls
      * back to the external z3 process otherwise.
      */
-    private fun solve(query: SmtQuery): SolverAnswer = try {
-        JavaSmtSolver().use { solver -> solver.run(query) }
-    } catch (t: Throwable) {
-        println("java-smt backend failed, falling back to external z3: $t")
+    private fun solve(query: SmtQuery): SolverAnswer =
         io.github.jmltoolkit.smt.solver.Solver().run(query)
-    }
 
     /**
      * Creates a fresh SMT query with the object formalization declared,
@@ -69,7 +61,7 @@ object WdFacade {
      */
     fun createQuery(): SmtQuery {
         val query = SmtQuery()
-        query.defineObjectModel()
+        //query.defineObjectModel()
         return query
     }
 

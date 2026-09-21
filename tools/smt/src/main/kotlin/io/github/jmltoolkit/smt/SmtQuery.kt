@@ -4,36 +4,78 @@
  */
 package io.github.jmltoolkit.smt
 
+import io.github.jmltoolkit.smt.SmtTermFactory.command
+import io.github.jmltoolkit.smt.SmtTermFactory.nonNull
+import io.github.jmltoolkit.smt.SmtTermFactory.variable
 import io.github.jmltoolkit.smt.model.SExpr
 import io.github.jmltoolkit.smt.model.SmtType
 import io.github.jmltoolkit.smt.solver.AppendableTo
 import java.io.PrintWriter
 import java.io.StringWriter
-import java.util.function.Consumer
+
+open class SmtTheory() {
+    protected val theories = mutableSetOf<SmtTheory>()
+    internal val commands: MutableList<SExpr> = ArrayList(1024)
+
+    fun addPreamble(theory: SmtTheory) = theories.add(theory)
+
+    fun declareSort(name: String): SmtType {
+        addCommand("declare-sort", SmtTermFactory.symbol(name))
+        return SmtType.userDefined(name)
+    }
+
+
+    open fun declareConst(name: String, type: SmtType) {
+        val a = SmtTermFactory.list(
+            null, SmtType.COMMAND,
+            "declare-const", name, SmtTermFactory.type(type)
+        )
+        commands.add(a)
+    }
+
+    open fun declareFun(name: String, vararg type: SmtType) : SmtFunction {
+        val f = SmtFunction(name, type.asList())
+        commands.add(f.declare())
+        return f
+    }
+
+    open fun defineFun(name: String, vararg type: Pair<String, SmtType>, expr: SExpr): SmtFunction {
+        val types = type.map { it.second }.toList()
+        val f = SmtFunction(name, types)
+        commands.add(f.define(type.map { it.first }.toList(), expr))
+        return f
+    }
+
+
+    fun defineThis() {
+        declareConst("this", SmtType.JAVA_OBJECT)
+        addAssert(nonNull(variable(SmtType.JAVA_OBJECT, null, "this")))
+    }
+
+    fun addAssert(nonNull: SExpr) {
+        commands.add(command("assert", nonNull))
+    }
+
+    /**
+     * Adds an arbitrary SMT-LIB command to the query.
+     */
+    fun addCommand(symbol: String, vararg args: SExpr) {
+        commands.add(command(symbol, *args))
+    }
+
+    val allTheories: Set<SmtTheory> =
+        setOf(this) + theories.flatMap { it.allTheories }.toSet()
+}
 
 /**
  * @author Alexander Weigl
  * @version 1 (07.08.22)
  */
-class SmtQuery : AppendableTo {
-    private val commands: MutableList<SExpr> = ArrayList(1024)
+class SmtQuery : SmtTheory(), AppendableTo {
     private val variableStack: MutableList<MutableMap<String, SmtType>> = ArrayList()
 
     init {
         variableStack.add(HashMap())
-    }
-
-    fun declareConst(name: String, type: SmtType): Boolean {
-        if (!declared(name)) {
-            val a = term.list(
-                null, SmtType.COMMAND,
-                "declare-const", name, term.type(type)
-            )
-            commands.add(a)
-            currentFrame[name] = type
-            return true
-        }
-        return false
     }
 
     fun push() {
@@ -44,6 +86,17 @@ class SmtQuery : AppendableTo {
     fun pop() {
         variableStack.remove(currentFrame)
         commands.add(term.command("pop"))
+    }
+
+    override fun declareConst(name: String, type: SmtType) {
+        if (!declared(name)) {
+            val a = term.list(
+                null, SmtType.COMMAND,
+                "declare-const", name, term.type(type)
+            )
+            commands.add(a)
+            currentFrame[name] = type
+        }
     }
 
     private fun declared(name: String): Boolean = currentFrame.containsKey(name)
@@ -58,34 +111,6 @@ class SmtQuery : AppendableTo {
         }
     }
 
-    fun defineThis() {
-        declareConst("this", SmtType.JAVA_OBJECT)
-        addAssert(term.nonNull(term.variable(SmtType.JAVA_OBJECT, null, "this")))
-    }
-
-    fun addAssert(nonNull: SExpr) {
-        commands.add(term.command("assert", nonNull))
-    }
-
-    /**
-     * The accumulated SMT-LIB commands of this query, in order.
-     */
-    fun commands(): List<SExpr> = java.util.Collections.unmodifiableList(commands)
-
-    /**
-     * Adds an arbitrary SMT-LIB command to the query.
-     */
-    fun addCommand(symbol: String, vararg args: SExpr) {
-        commands.add(term.command(symbol, *args))
-    }
-
-    /**
-     * Declares the formalization of Java objects, see [SmtObjectModel].
-     */
-    fun defineObjectModel() {
-        SmtObjectModel.declare(this)
-    }
-
     fun checkSat() {
         commands.add(term.command("check-sat"))
     }
@@ -93,12 +118,22 @@ class SmtQuery : AppendableTo {
     override fun toString(): String {
         val sw = StringWriter()
         val pw = PrintWriter(sw)
-        commands.forEach(
-            Consumer { a: SExpr ->
+
+        allTheories.asSequence().filter { it != this }
+            .forEach {
+                pw.format(";; THEORY %s%n", it.javaClass.simpleName)
+                for (e in it.commands) {
+                    e.appendTo(pw)
+                    pw.println()
+                }
+            }
+
+
+        commands.forEach { a: SExpr ->
             a.appendTo(pw)
             pw.println()
         }
-        )
+
         return sw.toString()
     }
 

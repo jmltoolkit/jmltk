@@ -13,15 +13,12 @@ import java.io.StringWriter
  * @author Alexander Weigl
  * @version 1 (07.08.22)
  */
-abstract class SExpr(
+sealed class SExpr(
     var javaType: ResolvedType? = null,
     var smtType: SmtType? = null
 ) : AppendableTo {
-
     fun asList(): SList = this as SList
-
     fun asSymbolValue(): String = (this as SAtom).value
-
     override fun toString(): String {
         val sw = StringWriter()
         appendTo(PrintWriter(sw))

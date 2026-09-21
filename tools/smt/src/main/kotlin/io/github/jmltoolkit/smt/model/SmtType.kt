@@ -32,5 +32,6 @@ open class SmtType private constructor(private val name: String) {
         val JAVA_OBJECT: SmtType = SmtType("_TYPE_")
 
         fun getBitVec(width: Int): BitVec = bvCache.computeIfAbsent(width) { width: Int -> BitVec(width) }
+        fun userDefined(name: String) = SmtType(name)
     }
 }

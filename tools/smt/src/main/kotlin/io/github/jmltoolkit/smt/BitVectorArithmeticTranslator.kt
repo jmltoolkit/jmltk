@@ -12,6 +12,7 @@ import com.github.javaparser.resolution.types.ResolvedArrayType
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType.*
 import com.github.javaparser.resolution.types.ResolvedType
+import io.github.jmltoolkit.smt.SmtTermFactory.not
 import io.github.jmltoolkit.smt.model.SExpr
 import io.github.jmltoolkit.smt.model.SmtType
 import java.math.BigInteger
@@ -32,14 +33,14 @@ open class BitVectorArithmeticTranslator(val smtLog: SmtQuery) : ArithmeticTrans
             SUB_LOCKE -> error("")
             RIMPLICATION -> term.impl(right, left)
             EQUIVALENCE -> term.equiv(left, right)
-            ANTIVALENCE -> term.not(term.equiv(left, right))
+            ANTIVALENCE -> !(term.equiv(left, right))
             OR -> term.or(left, right)
             AND -> term.and(left, right)
             BINARY_OR -> term.bor(left, right)
             BINARY_AND -> term.band(left, right)
             XOR -> term.xor(left, right)
             EQUALS -> term.equality(left, right)
-            NOT_EQUALS -> term.not(term.equality(left, right))
+            NOT_EQUALS -> !(term.equality(left, right))
             LESS -> term.lessThan(left, right)
             GREATER -> term.greaterThan(left, right)
             LESS_EQUALS -> term.lessOrEquals(left, right, true)
@@ -62,8 +63,8 @@ open class BitVectorArithmeticTranslator(val smtLog: SmtQuery) : ArithmeticTrans
             UnaryExpr.Operator.MINUS -> term.negate(accept)
             PREFIX_INCREMENT -> term.add(accept, term.makeBitvector(32, 1))
             PREFIX_DECREMENT -> term.subtract(accept, term.makeBitvector(32, 1))
-            LOGICAL_COMPLEMENT -> term.not(accept)
-            BITWISE_COMPLEMENT -> term.not(accept)
+            LOGICAL_COMPLEMENT -> !(accept)
+            BITWISE_COMPLEMENT -> !(accept)
         }
 
     override fun makeLong(n: LongLiteralExpr) = term.makeBitvector(64, n.value.toBigInteger())

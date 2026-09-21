@@ -16,6 +16,42 @@ import io.github.jmltoolkit.smt.model.SmtType
 import io.github.jmltoolkit.smt.model.SmtType.BitVec
 import java.math.BigInteger
 
+
+data class SmtFunction(val name: String, val types: List<SmtType>) {
+    fun declare(): SExpr {
+        return SmtTermFactory.list(
+            null, SmtType.COMMAND,
+            "declare-fun", name, SmtTermFactory.type(types.last())
+        )
+    }
+
+    operator fun invoke(vararg args: SExpr): SExpr {
+        return SmtTermFactory.fnApply(null, types.last(), name, args.toList())
+    }
+
+    operator fun invoke(args: List<SExpr>): SExpr {
+        return SmtTermFactory.fnApply(null, types.last(), name, args)
+    }
+
+    fun define(names: List<String>, expr: SExpr): SExpr {
+        return SmtTermFactory.list(
+            null, SmtType.COMMAND,
+            "define-fun", name,
+            SmtTermFactory.list(
+                types.zip(names).map { (t, n) ->
+                    SmtTermFactory.list(
+                        SmtTermFactory.symbol(n),
+                        SmtTermFactory.type(t)
+                    )
+                }
+
+            ), SmtTermFactory.type(types.last()),
+            expr)
+
+    }
+}
+
+
 /**
  * @author Alexander Weigl
  * @version 1 (07.08.22)
@@ -24,17 +60,20 @@ object SmtTermFactory {
     private val symbolAndValueCache: Cache<String, SAtom> = CacheBuilder.newBuilder().softValues().build()
 
     //region boolean operators
+    infix fun SExpr.and(other: SExpr): SExpr = and(this, other)
     fun and(vararg terms: SExpr): SExpr = and(terms.toList())
     fun and(seq: List<SExpr>): SExpr =
         if (seq.isEmpty()) makeTrue() else fnApply(BOOLEAN, SmtType.BOOL, "and", seq)
 
+    infix fun SExpr.or(other: SExpr): SExpr = or(this, other)
     fun or(vararg terms: SExpr): SExpr = or(terms.toList())
     fun or(terms: List<SExpr>) =
         if (terms.isEmpty()) makeFalse() else fnApply(BOOLEAN, SmtType.BOOL, "or", terms)
 
     fun impl(premise: SExpr, concl: SExpr): SExpr = fnApply(BOOLEAN, SmtType.BOOL, "=>", premise, concl)
-
+    infix fun SExpr.implies(concl: SExpr): SExpr = impl(this, concl)
     //endregion
+
     fun ite(cond: SExpr, then: SExpr, otherwise: SExpr): SExpr =
         fnApply(then.javaType!!, then.smtType!!, "ite", cond, then, otherwise)
 
@@ -53,7 +92,7 @@ object SmtTermFactory {
         arg3: SExpr
     ): SExpr = SList(smtType, javaType, listOf(symbol(fn), arg1, arg2, arg3))
 
-    private fun fnApply(javaType: ResolvedType?, smtType: SmtType, fn: String, args: List<SExpr>): SExpr {
+    fun fnApply(javaType: ResolvedType?, smtType: SmtType, fn: String, args: List<SExpr>): SExpr {
         val nargs = mutableListOf<SExpr>(symbol(fn))
         nargs.addAll(args)
         return SList(smtType, javaType, nargs)
@@ -130,11 +169,14 @@ object SmtTermFactory {
         return typeException("Could not handle types '%s <%s'", left.smtType!!, right.smtType!!)
     }
 
+    infix fun SExpr.eq(bool: Boolean): SExpr = this eq makeBoolean(bool)
+    infix fun SExpr.eq(other: SExpr): SExpr = fnApply(BOOLEAN, SmtType.BOOL, "=", this, other)
+
     fun equiv(left: SExpr, right: SExpr): SExpr = fnApply(BOOLEAN, SmtType.BOOL, "=", left, right)
 
-    fun not(expr: SExpr): SExpr {
-        if (isBv(expr)) return bvnot(expr)
-        if (isBool(expr)) return fnApply(BOOLEAN, SmtType.BOOL, "not", expr)
+    operator fun SExpr.not(): SExpr {
+        if (isBv(this)) return bvnot(this)
+        if (isBool(this)) return fnApply(BOOLEAN, SmtType.BOOL, "not", this)
         return typeException()
     }
 
@@ -160,7 +202,7 @@ object SmtTermFactory {
     }
 
     fun negate(sexpr: SExpr): SExpr {
-        if (isBool(sexpr)) return not(sexpr)
+        if (isBool(sexpr)) return !sexpr
         if (isBv(sexpr)) return bvnegate(sexpr)
         return typeException()
     }
@@ -297,6 +339,10 @@ object SmtTermFactory {
         return SList(stype, javaType, nargs)
     }
 
+    fun list(vararg args: SExpr): SExpr {
+        return list(args.toList())
+    }
+
     fun makeTrue(): SExpr = makeBoolean(true)
 
     fun makeFalse(): SExpr = makeBoolean(false)
@@ -328,9 +374,9 @@ object SmtTermFactory {
         if (type === SmtType.STRING) return symbol("String")
         if (type is SmtType.Array) {
             return arrayType(
-            type(type.from),
-            type(type.to)
-        )
+                type(type.from),
+                type(type.to)
+            )
         }
         if (type is BitVec) return bvType(type.width)
 
@@ -359,7 +405,7 @@ object SmtTermFactory {
 
     fun let(vars: List<SExpr>, body: SExpr): SExpr = list(body.javaType, body.smtType!!, "let", list(vars), body)
 
-    fun nonNull(expr: SExpr): SExpr = not(equality(expr, makeNull()))
+    fun nonNull(expr: SExpr): SExpr = !(equality(expr, makeNull()))
 
     fun isNull(expr: SExpr): SExpr = equality(expr, makeNull())
 

@@ -6,7 +6,6 @@ package io.github.jmltoolkit.wd
 
 import com.github.javaparser.JavaParser
 import io.github.jmltoolkit.smt.Z3
-import io.github.jmltoolkit.smt.solver.JavaSmtSolver
 import io.github.jmltoolkit.wd.WdFacade.isWelldefined
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assumptions
@@ -36,10 +35,12 @@ internal class WDVisitorExprTest {
             "new Object().equals(null)",
             "++(new Integer(0))",
             "i++",
-            "\"a\" + \"c\""]
+            "\"a\" + \"c\"",
+            "(new int[]{1,2,3})[1]"
+        ]
     )
     fun wdExpression(expr: String) {
-        Assumptions.assumeTrue(Z3.z3Installed() || JavaSmtSolver.isAvailable)
+        Assumptions.assumeTrue(Z3.z3Installed())
         Assertions.assertTrue(isWelldefined(parser, expr))
     }
 
@@ -50,7 +51,7 @@ internal class WDVisitorExprTest {
         ]
     )
     fun wdExpressionError(expr: String) {
-        Assumptions.assumeTrue(Z3.z3Installed() || JavaSmtSolver.isAvailable)
+        Assumptions.assumeTrue(Z3.z3Installed())
         Assertions.assertFalse(isWelldefined(parser, expr))
     }
 }

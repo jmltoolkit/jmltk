@@ -12,6 +12,7 @@ import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.AssignExpr.Operator;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.nodeTypes.NodeWithJavadoc;
+import com.github.javaparser.ast.nodeTypes.NodeWithModifiers;
 import com.github.javaparser.ast.nodeTypes.NodeWithVariables;
 import com.github.javaparser.ast.nodeTypes.modifiers.NodeWithAccessModifiers;
 import com.github.javaparser.ast.nodeTypes.modifiers.NodeWithFinalModifier;
@@ -54,6 +55,7 @@ public class FieldDeclaration extends BodyDeclaration<FieldDeclaration>
                 NodeWithAccessModifiers<FieldDeclaration>,
                 NodeWithStaticModifier<FieldDeclaration>,
                 NodeWithFinalModifier<FieldDeclaration>,
+                NodeWithModifiers<FieldDeclaration>,
                 Resolvable<ResolvedFieldDeclaration> {
 
     private NodeList<Modifier> modifiers;

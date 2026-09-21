@@ -4,6 +4,9 @@
  */
 package io.github.jmltoolkit.wd
 
+import com.github.javaparser.ast.Modifier
+import com.github.javaparser.ast.body.FieldDeclaration
+import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.jml.body.JmlClassExprDeclaration
 import com.github.javaparser.ast.jml.clauses.JmlMultiExprClause
@@ -12,16 +15,19 @@ import com.github.javaparser.ast.jml.expr.JmlLetExpr
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr
 import com.github.javaparser.ast.jml.expr.JmlTypeExpr
 import com.github.javaparser.ast.jml.stmt.JmlExpressionStmt
+import com.github.javaparser.ast.nodeTypes.NodeWithAnnotations
+import com.github.javaparser.ast.nodeTypes.NodeWithModifiers
 import com.github.javaparser.ast.visitor.GenericVisitorAdapter
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
-import io.github.jmltoolkit.smt.ArithmeticTranslator
-import io.github.jmltoolkit.smt.JmlExpr2Smt
-import io.github.jmltoolkit.smt.SmtQuery
-import io.github.jmltoolkit.smt.SmtTermFactory
-import io.github.jmltoolkit.smt.Boxing
+import io.github.jmltoolkit.smt.*
+import io.github.jmltoolkit.smt.SmtTermFactory.and
+import io.github.jmltoolkit.smt.SmtTermFactory.makeTrue
+import io.github.jmltoolkit.smt.SmtTermFactory.not
+import io.github.jmltoolkit.smt.SmtTermFactory.symbol
 import io.github.jmltoolkit.smt.model.SExpr
 import io.github.jmltoolkit.smt.model.SmtType
 import java.math.BigInteger
+import kotlin.jvm.optionals.getOrNull
 
 /**
  *
@@ -34,14 +40,122 @@ class WDVisitor : VoidVisitorAdapter<Any?>() {
     }
 }
 
-class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslator) : GenericVisitorAdapter<SExpr, Any?>() {
+
+object NullnessTheory : SmtTheory() {
+    val exprType: SmtType = declareSort("JAVA_EXPR")
+    val isNonNull = declareFun("nonNull", exprType, SmtType.BOOL)
+
+    fun isExprNonNull(e: Expression): SExpr {
+        return isNonNull(symbol("expr_${e.hashCode()}"))
+    }
+}
+
+class NullnessEncoder(val smtLog: SmtQuery, private val translator: ArithmeticTranslator) {
+    init {
+        smtLog.addPreamble(NullnessTheory)
+    }
+
+    fun nullable(e: Expression) {
+        smtLog.addAssert(!NullnessTheory.isExprNonNull(e))
+    }
+
+    fun nonnull(e: Expression) {
+        smtLog.addAssert(NullnessTheory.isExprNonNull(e))
+    }
+
+    fun isAlwaysNonNull(expr: Expression) {
+        when (expr) {
+            is NameExpr -> {
+                val node = expr.resolve().toAst().get()
+                val a = node as? NodeWithAnnotations<*>
+                val m = node as? NodeWithModifiers<*>
+
+                var nullable = false
+
+                if (a != null) {
+                    if (a.isAnnotationPresent("Nullable"))
+                        nullable = true
+                }
+
+                if (m != null) {
+                    if (m.hasModifier(Modifier.DefaultKeyword.JML_NULLABLE))
+                        nullable = true
+                }
+
+                //TODO LOOKUP PARENTS in declaration place.
+
+                if (nullable) {
+                    nullable(expr)
+                } else {
+                    nonnull(expr)
+                }
+            }
+
+            is MethodCallExpr -> {
+                val node = expr.resolve().asMethod().toAst().getOrNull() as? MethodDeclaration
+                var nullable = false
+
+                if (node != null) {
+                    if (node.isAnnotationPresent("Nullable"))
+                        nullable = true
+
+                    if (node.type().asClassOrInterfaceType().isAnnotationPresent("Nullable"))
+                        nullable = true
+
+                    if (node.hasModifier(Modifier.DefaultKeyword.JML_NULLABLE))
+                        nullable = true
+                }
+
+                //TODO LOOKUP PARENTS in declaration place.
+                if (nullable) {
+                    nullable(expr)
+                } else {
+                    nonnull(expr)
+                }
+            }
+
+            is FieldAccessExpr -> {
+                val node = expr.resolve().asMethod().toAst().getOrNull() as? FieldDeclaration
+                var nullable = false
+
+                if (node != null) {
+                    if (node.isAnnotationPresent("Nullable"))
+                        nullable = true
+
+                    if (node.hasModifier(Modifier.DefaultKeyword.JML_NULLABLE))
+                        nullable = true
+                }
+
+                //TODO LOOKUP PARENTS in declaration place.
+                if (nullable) {
+                    nullable(expr)
+                } else {
+                    nonnull(expr)
+                }
+            }
+
+            is NullLiteralExpr -> nullable(expr)
+            is ArrayAccessExpr -> {
+                // resolve array
+                // if array is variable, fid
+            }
+
+            is CastExpr -> return isAlwaysNonNull(expr.expression())
+            else -> SmtTermFactory.makeFalse()
+        }
+    }
+}
+
+
+class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslator) :
+    GenericVisitorAdapter<SExpr, Any?>() {
     private val smtFormula: JmlExpr2Smt = JmlExpr2Smt(smtLog, translator)
 
     override fun visit(n: NameExpr, arg: Any?): SExpr {
         val name = n.nameAsString
         return when (name) {
-            "\\result", "\\exception" -> term.makeTrue()
-            else -> term.makeTrue()
+            "\\result", "\\exception" -> makeTrue()
+            else -> makeTrue()
         }
     }
 
@@ -51,25 +165,26 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
      * ArrayIndexOutOfBoundsException).
      */
     override fun visit(n: ArrayAccessExpr, arg: Any?): SExpr {
-        val base = term.and(
-            wd(n.name),
-            wd(n.index)
-        )
+        val base = wd(n.name) and wd(n.index) and isAlwaysNonNull(n.name)
         val array = smtTerm(n.name) ?: return base
         val index = smtTerm(n.index) ?: return base
         return try {
             val length = translator.arrayLength(array)
             val zero = translator.makeInt(BigInteger.ZERO)
-            term.and(
+            and(
                 base,
                 term.lessOrEquals(zero, index, true),
                 term.lessThan(index, length)
             )
-        } catch (e: Throwable) {
+        } catch (_: Throwable) {
             // fall back to the well-definedness of the sub-expressions,
             // e.g. if types could not be resolved
             base
         }
+    }
+
+    private fun isAlwaysNonNull(e: Expression): SExpr {
+        return NullnessTheory.isExprNonNull(e)
     }
 
     override fun visit(n: ArrayCreationExpr, arg: Any?): SExpr {
@@ -100,13 +215,11 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
                 val npe = term.and(listOfNotNull(npeUnboxing(n.left), npeUnboxing(n.right)))
                 val divisorNotZero = try {
                     val fml = n.right.accept(smtFormula, arg)
-                    term.not(
-                        translator.binary(
-                            BinaryExpr.Operator.EQUALS,
-                            fml, smtFormula.translator.makeInt(BigInteger.ZERO)
-                        )
+                    !translator.binary(
+                        BinaryExpr.Operator.EQUALS,
+                        fml, smtFormula.translator.makeInt(BigInteger.ZERO)
                     )
-                } catch (t: Throwable) {
+                } catch (_: Throwable) {
                     // types could not be resolved, e.g. an unresolvable
                     // operand; fall back to the sub-expressions' well-definedness
                     term.makeTrue()
@@ -139,14 +252,14 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
     private fun npeUnboxing(e: Expression): SExpr? {
         val primitive = try {
             Boxing.primitiveOf(e.calculateResolvedType())
-        } catch (t: Throwable) {
+        } catch (_: Throwable) {
             null
         } ?: return null
         val obj = smtTerm(e) ?: return null
         return try {
             translator.unbox(obj, primitive)
             term.nonNull(obj)
-        } catch (t: Throwable) {
+        } catch (_: Throwable) {
             null
         }
     }
@@ -215,7 +328,7 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
         val r: Expression = n.expressions[0]
         val v: Expression = n.expressions[0]
 
-        val args: List<SExpr> = ArrayList<SExpr>()
+        val args: List<SExpr> = ArrayList()
 
         if (JmlQuantifiedExpr.JmlDefaultBinder.CHOOSE == n.binder) {
             return term.and(
@@ -223,7 +336,7 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
                 term.forall(args, term.impl(valueOf(r), wd(v))),
                 term.exists(
                     args,
-                        term.and(
+                    term.and(
                         valueOf(r),
                         valueOf(v)
                     )
@@ -254,7 +367,7 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
     private fun smtTerm(e: Expression): SExpr? = try {
         val t = e.accept(smtFormula, null)
         if (t != null && t.smtType == SmtType.JAVA_OBJECT) t else null
-    } catch (t: Throwable) {
+    } catch (_: Throwable) {
         null
     }
 
@@ -262,7 +375,7 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
 
     override fun visit(n: JmlLabelExpr, arg: Any?): SExpr = wd(n.expression)
 
-    override fun visit(n: JmlLetExpr, arg: Any?): SExpr = term.and(wd(n.body),  /* TODO  arguments */term.makeTrue())
+    override fun visit(n: JmlLetExpr, arg: Any?): SExpr = term.and(wd(n.body), term.makeTrue())
 
     override fun visit(n: JmlClassExprDeclaration, arg: Any?): SExpr = term.makeTrue()
 
@@ -279,12 +392,14 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
     override fun visit(n: MethodCallExpr, arg: Any?): SExpr {
         val name = n.nameAsString
         when (name) {
-            "\\old", "\\pre", "\\past" ->                 /* Well-definedness: The expression is well-defined if the first argument is well-defined
+            "\\old", "\\pre", "\\past" ->
+                /* Well-definedness: The expression is well-defined if the first argument is well-defined
                    and any label argument names either a built-in label (§11.611.6) or an in-scope Java or
                    JML ghost label (S11.511.5).*/
                 return n.arguments[0].accept(this, arg)
 
-            "\\fresh" ->                 /* Well-definedness: The argument must be well-defined and non-null. The second argument,
+            "\\fresh" ->
+                /* Well-definedness: The argument must be well-defined and non-null. The second argument,
                    if present, must be the identifier corresponding to an in-scope label or a built-in label. */
                 return n.arguments[0].accept(this, arg)
         }

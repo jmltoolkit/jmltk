@@ -12,7 +12,5 @@ import java.io.PrintWriter
  * @version 1 (07.08.22)
  */
 class SAtom(stype: SmtType?, javaType: ResolvedType?, val value: String) : SExpr(javaType, stype) {
-    override fun appendTo(writer: PrintWriter) {
-        writer.write(value)
-    }
+    override fun appendTo(writer: PrintWriter) = writer.write(value)
 }

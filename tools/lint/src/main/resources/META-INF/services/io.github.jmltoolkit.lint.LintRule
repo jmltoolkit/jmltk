@@ -9,3 +9,4 @@ io.github.jmltoolkit.lint.rules.DefaultNullityValidator
 io.github.jmltoolkit.lint.rules.SpecVisibilityValidator
 io.github.jmltoolkit.lint.rules.JmlDuplicateNamesValidator
 io.github.jmltoolkit.lint.rules.AssignableLocsetValidator
+io.github.jmltoolkit.lint.rules.TrivialFormulaValidator

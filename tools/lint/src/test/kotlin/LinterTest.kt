@@ -2,18 +2,25 @@
  * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
  * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
  */
+import com.github.javaparser.StaticJavaParser
+import com.github.javaparser.ast.expr.Expression
 import com.github.javaparser.ast.expr.NameExpr
 import io.github.jmltoolkit.lint.JmlLintingConfig
 import io.github.jmltoolkit.lint.JmlLintingFacade
+import io.github.jmltoolkit.lint.rules.BoolAbsValue
+import io.github.jmltoolkit.lint.rules.FormulaEvaluator
 import io.github.jmltoolkit.lint.rules.locset.AbsLoc
 import io.github.jmltoolkit.lint.rules.locset.Emptiness
 import io.github.jmltoolkit.lint.rules.locset.LocsetEvaluator
 import io.github.jmltoolkit.lint.rules.locset.Universality
 import io.github.jmltoolkit.utils.TestWithJavaParser
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 
 /**
  * Tests for the locset abstract domain and interpreter.
@@ -145,6 +152,58 @@ internal class LinterTest : TestWithJavaParser() {
         org.junit.jupiter.api.Assertions.assertTrue(
             !messages.any { it.contains("'other'") || it.contains("'r'") },
             "Non-clashing names must not be reported, got: $messages"
+        )
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "true", "false", "true && true", "true && false", "true || false",
+            "1 == 2", "1 <= 2 && true", "1 < 2",
+            "5 == 5 || false", "true", "a || !a", "a && !a", "(1 == 1) && (2 == 2)",
+            "null instanceof String",
+            "true ? 1 == 1 : 1 == 2",
+            "false ? true : false",
+            "1==1", "1==2",
+        ]
+    )
+    fun trivialFormulas(expr: String) {
+        val fe = FormulaEvaluator()
+        val e = StaticJavaParser.parseExpression<Expression>(expr)
+        Assertions.assertNotEquals(BoolAbsValue.UNKNOWN, fe.eval(e))
+    }
+
+    @Test
+    fun trivialFormulasInFile() {
+        val result = parser.parse(javaClass.getResourceAsStream("TrivialFormulas.java"))
+        result.problems.forEach { System.err.println(it) }
+        Assumptions.assumeTrue(result.isSuccessful)
+        val actual = JmlLintingFacade(JmlLintingConfig()).lint(listOf(result.result.get()))
+        val messages = actual.filter { it.ruleId == "trivial-formula" }.map { it.message }
+        messages.forEach { println("TRIVIAL: $it") }
+
+        // trivially true: requires true, requires 1<=2&&true, ensures 1<2,
+        // ensures 5==5||false, assert true, assert a||!a, assert (1==1)&&(2==2),
+        // assert true?1==1:1==2, assert a>0?true:true
+        assertEquals(
+            9,
+            messages.count { it.contains("trivially true") },
+            "Expected all trivially-true formulas to be reported, got: $messages"
+        )
+        // trivially false: requires false, requires 1==2, signals false,
+        // assert a&&!a, assert null instanceof String, assert false?true:false
+        assertEquals(
+            6,
+            messages.count { it.contains("trivially false") },
+            "Expected all trivially-false formulas to be reported, got: $messages"
+        )
+        // no false positives for the unknown formulas (x > 3, a > 3, mixed ternary)
+        assertTrue(
+            !messages.any {
+                it.contains("'x > 3'") || it.contains("'a > 3'") ||
+                    it.contains("a > 0 ? true : 1 == 2")
+            },
+            "Unknown formulas must not be reported, got: $messages"
         )
     }
 

@@ -164,6 +164,7 @@ internal class LinterTest : TestWithJavaParser() {
             "null instanceof String",
             "true ? 1 == 1 : 1 == 2",
             "false ? true : false",
+            "a ? true : true",
             "1==1", "1==2",
         ]
     )

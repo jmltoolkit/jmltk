@@ -25,6 +25,7 @@ import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParse
 import io.github.jmltoolkit.lint.LintProblemReporter
 import io.github.jmltoolkit.lint.LintRule
 import io.github.jmltoolkit.lint.LintRuleVisitor
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * Validates the visibility of names referenced in JML specifications
@@ -90,9 +91,9 @@ class SpecVisibilityValidator : LintRuleVisitor() {
 
     private fun isScopeOfBiggerReference(expr: Expression): Boolean {
         val parent = expr.parentNode.orElse(null) ?: return false
-        val scope: Expression = when (parent) {
+        val scope = when (parent) {
             is FieldAccessExpr -> parent.scope as Expression
-            is MethodCallExpr -> parent.scope as Expression
+            is MethodCallExpr -> parent.scope.getOrNull() as? Expression
             else -> return false
         }
         return scope == expr

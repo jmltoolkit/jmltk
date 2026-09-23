@@ -32,6 +32,7 @@ eclipse-lsp4j = "1.0.0"
 key-project = "3.0.0"
 google-java-format = "1.35.0"
 
+ksp = "2.3.12"
 palantirJavaFormat = "2.94.0"
 checkstyleVersion = "13.1.0"
 
@@ -94,6 +95,8 @@ ktor-html = { module = "io.ktor:ktor-html-builder", version = "1.6.8" }
 ktor-statuspages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
 ktor-severhtml = { module = "io.ktor:ktor-server-html-builder", version.ref = "ktor" }
 
+ksp-symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
+
 jacoco-cobertura = { module = "name.remal.jacoco-to-cobertura:name.remal.jacoco-to-cobertura.gradle.plugin", version = "2.0.4" }
 
 [bundles]
@@ -110,3 +113,4 @@ dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 graalvm-native = { id = "org.graalvm.buildtools.native", version = "1.1.13" }
 shadow = { id = "com.gradleup.shadow", version = "9.6.1" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

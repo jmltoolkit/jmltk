@@ -68,6 +68,11 @@ class FormulaEvaluator {
             else -> BoolAbsValue.UNKNOWN
         }
 
+    /**
+     * Ternary expression: if the condition is decided, follow that branch;
+     * otherwise the value is the join of both branches, i.e. only VALID/INVALID
+     * if both branches agree.
+     */
     private fun evalConditional(expr: ConditionalExpr): BoolAbsValue {
         val c = eval(expr.condition)
         val t = eval(expr.thenExpr)
@@ -75,7 +80,9 @@ class FormulaEvaluator {
 
         return when (c) {
             BoolAbsValue.VALID -> t
+
             BoolAbsValue.INVALID -> e
+
             BoolAbsValue.UNKNOWN -> {
                 if (t == e) t else BoolAbsValue.UNKNOWN
             }

@@ -1,0 +1,13 @@
+com.github.jmlparser.lint.rules.AllowedJmlClauses
+com.github.jmlparser.lint.rules.ContextSensitiveForbiddenFunctionsValidator
+com.github.jmlparser.lint.rules.PurityValidator
+io.github.jmltoolkit.lint.rules.SignalsExceptionTypeCheck
+io.github.jmltoolkit.lint.rules.AssignableValidator
+io.github.jmltoolkit.lint.rules.OverridingLocalNamesInGhost
+io.github.jmltoolkit.lint.rules.ResultVarCheck
+io.github.jmltoolkit.lint.rules.DefaultNullityValidator
+io.github.jmltoolkit.lint.rules.SpecVisibilityValidator
+io.github.jmltoolkit.lint.rules.JmlDuplicateNamesValidator
+io.github.jmltoolkit.lint.rules.AssignableLocsetValidator
+io.github.jmltoolkit.lint.rules.TrivialFormulaValidator
+io.github.jmltoolkit.lint.rules.ExceptionVarCheck

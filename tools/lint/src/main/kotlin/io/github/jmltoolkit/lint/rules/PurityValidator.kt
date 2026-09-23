@@ -19,33 +19,102 @@ import io.github.jmltoolkit.lint.LintRuleVisitor
 import kotlin.jvm.optionals.getOrNull
 
 /**
+ * ## Rule: JML expressions must be pure
+ *
+ * Specification expressions in JML (JML Reference Manual, chapter on purity)
+ * are mathematical predicates: they are evaluated by tools in arbitrary
+ * contexts, at arbitrary program points, and possibly multiple times. They
+ * must therefore be free of side effects. An expression with a side effect
+ * makes the specification unexecutable and its meaning undefined; every JML
+ * tool rejects it.
+ *
+ * ### Checked cases
+ *
+ * The rule walks the expression of every simple expression clause (e.g.
+ * `requires`, `ensures`, `loop_invariant`), every class invariant, and every
+ * JML expression statement (e.g. `assert`, `assume`, `set`), and reports:
+ *
+ *  - **Assignments** &mdash; an assignment (`=`, `+=`, ...) always modifies
+ *    state and is never pure.
+ *
+ *  - **Increment/decrement operators** &mdash; `++` and `--` (prefix and
+ *    postfix) modify the operand; they are never pure.
+ *
+ *  - **Method calls** &mdash; a call is only permitted if the callee is
+ *    declared with the JML modifiers `pure` or `strictly_pure`. A call to any
+ *    other method *might* modify state, so it is reported even if the called
+ *    method happens to be side-effect free in its implementation &mdash; only
+ *    the `pure` declaration is a guarantee for clients of the specification.
+ *
+ * ### Known limitations
+ *
+ *  - Only the **first** violation within an expression is reported; the
+ *    traversal stops at the offending subexpression.
+ *  - Assignments are reported without a specific hint; only the general
+ *    message is given.
+ *  - A method call that cannot be resolved aborts the check of the enclosing
+ *    expression with an internal error.
+ *  - Purity is not checked for other constructs, e.g. object creation, field
+ *    accesses on the left-hand side of store-ref expressions, or
+ *    constructor calls.
+ *
+ * ### Examples
+ *
+ * Good &mdash; pure expression, call of a `pure` method:
+ * ```java
+ * //@ requires n >= 0;
+ * //@ ensures \result == Math.abs(n);
+ * /*@ pure */
+ * public int abs(int n) { ... }
+ * ```
+ *
+ * Bad &mdash; assignment inside a clause:
+ * ```java
+ * //@ ensures (count = count + 1) > 0;  // error: assignments are not pure
+ * public int next() { ... }
+ * ```
+ *
+ * Bad &mdash; increment inside an assertion:
+ * ```java
+ * //@ assert i++ < n;  // error: increment operators are not pure
+ * ```
+ *
+ * Bad &mdash; call of a method without a `pure` declaration:
+ * ```java
+ * //@ ensures list.size() > 0;  // error: 'size' might not be pure
+ * public int first(List list) { ... }
+ * ```
+ *
  * @author Alexander Weigl
  * @version 1 (12/29/21)
  */
 class PurityValidator : LintRuleVisitor() {
-    override fun visit(n: JmlSimpleExprClause, arg: LintProblemReporter) {
-        val r = PurityVisitor()
-        n.expression.accept(r, null)
-        if (r.reason != null) {
-            arg.error(r.reason!!, "", "", "Expression in JML clause must be pure." + r.text)
-        }
-    }
+    override val visitor: VoidVisitorAdapter<LintProblemReporter>
+        get() = object : VoidVisitorAdapter<LintProblemReporter>() {
+            override fun visit(n: JmlSimpleExprClause, arg: LintProblemReporter) {
+                val r = PurityVisitor()
+                n.expression.accept(r, null)
+                if (r.reason != null) {
+                    arg.error(r.reason!!, "", "", "Expression in JML clause must be pure." + r.text)
+                }
+            }
 
-    override fun visit(n: JmlClassExprDeclaration, arg: LintProblemReporter) {
-        val r = PurityVisitor()
-        n.invariant.accept(r, null)
-        if (r.reason != null) {
-            arg.error(r.reason!!, "", "", "Expression in JML invariant clause must be pure." + r.text)
-        }
-    }
+            override fun visit(n: JmlClassExprDeclaration, arg: LintProblemReporter) {
+                val r = PurityVisitor()
+                n.invariant.accept(r, null)
+                if (r.reason != null) {
+                    arg.error(r.reason!!, "", "", "Expression in JML invariant clause must be pure." + r.text)
+                }
+            }
 
-    override fun visit(n: JmlExpressionStmt, arg: LintProblemReporter) {
-        val r = PurityVisitor()
-        n.expression.accept(r, null)
-        if (r.reason != null) {
-            arg.error(r.reason!!, "", "", "Expression in JML statements must be pure." + r.text)
+            override fun visit(n: JmlExpressionStmt, arg: LintProblemReporter) {
+                val r = PurityVisitor()
+                n.expression.accept(r, null)
+                if (r.reason != null) {
+                    arg.error(r.reason!!, "", "", "Expression in JML statements must be pure." + r.text)
+                }
+            }
         }
-    }
 
     private class PurityVisitor : VoidVisitorAdapter<Void?>() {
         var reason: Node? = null

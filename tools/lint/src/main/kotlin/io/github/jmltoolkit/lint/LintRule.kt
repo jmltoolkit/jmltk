@@ -10,8 +10,19 @@ import com.github.javaparser.ast.Node
  * @author Alexander Weigl
  * @version 1 (12/29/21)
  */
-interface LintRule {
-    fun accept(node: Node, problemReporter: LintProblemReporter, config: JmlLintingConfig)
+abstract class LintRule {
+    protected lateinit var problemReporter: LintProblemReporter
+    protected lateinit var config: JmlLintingConfig
+
+    fun init(problemReporter: LintProblemReporter, config: JmlLintingConfig) {
+        this.problemReporter = problemReporter
+        this.config = config
+        customInitialization()
+    }
+
+    open fun customInitialization() {}
+
+    abstract fun accept(node: Node)
 
     companion object {
         const val HINT: String = "HINT"

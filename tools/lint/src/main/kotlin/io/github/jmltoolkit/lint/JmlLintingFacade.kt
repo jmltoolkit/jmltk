@@ -30,7 +30,7 @@ class JmlLintingFacade(private val config: JmlLintingConfig) {
         for (it in nodes) {
             for (linter in linters) {
                 try {
-                    linter.accept(it, reporter, config)
+                    linter.accept(it)
                 } catch (e: Exception) {
                     LOGGER.error("Error in linter: {}", linter.javaClass.getName(), e)
                 }

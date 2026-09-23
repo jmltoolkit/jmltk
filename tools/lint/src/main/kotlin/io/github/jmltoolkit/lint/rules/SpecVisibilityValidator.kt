@@ -15,13 +15,13 @@ import com.github.javaparser.ast.expr.MethodCallExpr
 import com.github.javaparser.ast.expr.NameExpr
 import com.github.javaparser.ast.jml.clauses.JmlContract
 import com.github.javaparser.ast.nodeTypes.NodeWithTokenRange
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import com.github.javaparser.resolution.declarations.HasAccessSpecifier
 import com.github.javaparser.resolution.declarations.ResolvedDeclaration
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration
 import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserFieldDeclaration
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserMethodDeclaration
-import io.github.jmltoolkit.lint.JmlLintingConfig
 import io.github.jmltoolkit.lint.LintProblemReporter
 import io.github.jmltoolkit.lint.LintRule
 import io.github.jmltoolkit.lint.LintRuleVisitor
@@ -48,6 +48,7 @@ import io.github.jmltoolkit.lint.LintRuleVisitor
  * Limitation: type references (e.g. casts to a private nested class) are not inspected,
  * only value and method references.
  *
+ *
  * @author Alexander Weigl
  * @version 1 (21.09.26)
  */
@@ -58,17 +59,14 @@ class SpecVisibilityValidator : LintRuleVisitor() {
         arg.report(meta.create(node))
     }
 
-    override fun accept(node: Node, problemReporter: LintProblemReporter, config: JmlLintingConfig) {
-        if (config.checkSpecVisibility) {
-            super.accept(node, problemReporter, config)
+    override val visitor: VoidVisitorAdapter<LintProblemReporter>
+        get() = object : VoidVisitorAdapter<LintProblemReporter>() {
+            override fun visit(n: JmlContract, arg: LintProblemReporter) {
+                val level = contractPrivacyLevel(n)
+                checkClauses(n, level, arg)
+                super.visit(n, arg)
+            }
         }
-    }
-
-    override fun visit(n: JmlContract, arg: LintProblemReporter) {
-        val level = contractPrivacyLevel(n)
-        checkClauses(n, level, arg)
-        super.visit(n, arg)
-    }
 
     /**
      * Checks all clauses of the given contract: every name referenced in a clause
@@ -113,23 +111,23 @@ class SpecVisibilityValidator : LintRuleVisitor() {
             arg.error(
                 expr, CATEGORY, SPEC_LESS_VISIBLE.id,
                 "The name '$name' (${levelName(visibility)}) is less visible than the " +
-                        "${levelName(level)} specification it is used in. An expression in a context " +
-                        "of a given privacy level may only refer to names at that level or more visible.",
+                    "${levelName(level)} specification it is used in. An expression in a context " +
+                    "of a given privacy level may only refer to names at that level or more visible.",
             )
         }
     }
 
     private fun resolve(expr: Expression): ResolvedDeclaration? = try {
-            when (expr) {
-                is MethodCallExpr ->
-                    expr.symbolResolver.resolveDeclaration(expr, ResolvedMethodDeclaration::class.java)
+        when (expr) {
+            is MethodCallExpr ->
+                expr.symbolResolver.resolveDeclaration(expr, ResolvedMethodDeclaration::class.java)
 
-                else ->
-                    expr.symbolResolver.resolveDeclaration(expr, ResolvedValueDeclaration::class.java)
-            }
-        } catch (e: Exception) {
-            null
+            else ->
+                expr.symbolResolver.resolveDeclaration(expr, ResolvedValueDeclaration::class.java)
         }
+    } catch (_: Exception) {
+        null
+    }
 
     /**
      * The privacy level of the given contract: the explicit privacy modifier of the

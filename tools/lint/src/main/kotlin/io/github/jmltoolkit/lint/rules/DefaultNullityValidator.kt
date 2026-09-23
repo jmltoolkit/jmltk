@@ -7,16 +7,11 @@ package io.github.jmltoolkit.lint.rules
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Modifier
 import com.github.javaparser.ast.Node
-import com.github.javaparser.ast.body.AnnotationDeclaration
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
-import com.github.javaparser.ast.body.EnumDeclaration
-import com.github.javaparser.ast.body.FieldDeclaration
-import com.github.javaparser.ast.body.MethodDeclaration
-import com.github.javaparser.ast.body.RecordDeclaration
-import com.github.javaparser.ast.body.TypeDeclaration
+import com.github.javaparser.ast.body.*
 import com.github.javaparser.ast.expr.AnnotationExpr
 import com.github.javaparser.ast.nodeTypes.NodeWithTokenRange
 import com.github.javaparser.ast.type.ClassOrInterfaceType
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserClassDeclaration
 import io.github.jmltoolkit.lint.JmlLintingConfig
 import io.github.jmltoolkit.lint.LintProblemReporter
@@ -32,9 +27,9 @@ import io.github.jmltoolkit.lint.LintRuleVisitor
  * declaration within the class. The default applies recursively to nested and inner classes
  * that do not have default nullity declarations of their own. These modifiers are *not*
  * inherited by derived classes. The default for a top-level class is
- * `non_null_by_default` (alterable by tools via [JmlLintingConfig]).
+ * `non_null_by_default` (alterable by tools via the linting configuration).
  *
- * [UNMARKED] models the JSpecify `@NullUnmarked` semantics: nullness is unspecified,
+ * `UNMARKED` models the JSpecify `@NullUnmarked` semantics: nullness is unspecified,
  * i.e. an own declaration that terminates the inheritance of an enclosing default
  * without making types non-null or nullable.
  */
@@ -74,7 +69,7 @@ enum class DefaultNullity(val keyword: String, val jmlAnnotationName: String) {
  *  - these modifiers are only allowed on type declarations,
  *  - default nullity modifiers are not inherited by derived classes (hint).
  *
- * When [JmlLintingConfig.checkJspecifyNullness] is enabled, the JSpecify nullness
+ * When the `checkJspecifyNullness` option is enabled, the JSpecify nullness
  * annotations are considered with their semantics:
  *  - `@NullMarked`, `@NonNullApi` and `@NonNullFields` act as a `non_null_by_default`
  *    declaration for the annotated type (and recursively for its nested types),
@@ -90,6 +85,59 @@ enum class DefaultNullity(val keyword: String, val jmlAnnotationName: String) {
  * @version 1 (21.09.26)
  */
 class DefaultNullityValidator : LintRuleVisitor() {
+    override val visitor: VoidVisitorAdapter<LintProblemReporter>
+        get() = object : VoidVisitorAdapter<LintProblemReporter>() {
+            override fun visit(n: ClassOrInterfaceDeclaration, arg: LintProblemReporter) {
+                val own = explicitDefault(n, n.modifiers, n.annotations, arg)
+
+                // Default nullity modifiers are not inherited by derived classes. Hint when a
+                // superclass declares an explicit default nullity but the subclass does not,
+                // because the subclass silently uses its enclosing (or top-level) default instead.
+                if (own == null && n.extendedTypes.isNotEmpty()) {
+                    val superClass = resolveSuperclass(n.extendedTypes[0])
+                    if (superClass != null) {
+                        val parentDefault =
+                            explicitDefault(superClass, superClass.modifiers, superClass.annotations, arg)
+                        if (parentDefault != null) {
+                            val effective = effectiveDefault(n, arg)
+                            arg.hint(
+                                n, CATEGORY, NOT_INHERITED.id,
+                                "Default nullity modifiers are not inherited by derived classes. " +
+                                    "Class ${n.nameAsString} does not inherit the ${parentDefault.keyword} " +
+                                    "of ${superClass.nameAsString}; the effective default is ${effective.keyword}.",
+                            )
+                        }
+                    }
+                }
+                super.visit(n, arg)
+            }
+
+            override fun visit(n: EnumDeclaration, arg: LintProblemReporter) {
+                checkTypeDeclaration(n, arg, config!!)
+                super.visit(n, arg)
+            }
+
+            override fun visit(n: RecordDeclaration, arg: LintProblemReporter) {
+                checkTypeDeclaration(n, arg, config!!)
+                super.visit(n, arg)
+            }
+
+            override fun visit(n: AnnotationDeclaration, arg: LintProblemReporter) {
+                checkTypeDeclaration(n, arg, config!!)
+                super.visit(n, arg)
+            }
+
+            override fun visit(n: MethodDeclaration, arg: LintProblemReporter) {
+                checkNoNullityDefaultOnMember(n, n.modifiers, n.annotations, arg)
+                super.visit(n, arg)
+            }
+
+            override fun visit(n: FieldDeclaration, arg: LintProblemReporter) {
+                checkNoNullityDefaultOnMember(n, n.modifiers, n.annotations, arg)
+                super.visit(n, arg)
+            }
+        }
+
     private fun reportProblem(n: Node, meta: LintProblemMeta, arg: LintProblemReporter) {
         @Suppress("UNCHECKED_CAST")
         val node = n as NodeWithTokenRange<Node?>
@@ -137,7 +185,7 @@ class DefaultNullityValidator : LintRuleVisitor() {
     /**
      * Maps an annotation name to the default nullity it declares, or null. Recognizes
      * the JML annotation forms `@NonNullByDefault`/`@NullableByDefault` and, if
-     * [JmlLintingConfig.checkJspecifyNullness] is enabled, the JSpecify default nullness
+     * the `checkJspecifyNullness` option is enabled, the JSpecify default nullness
      * annotations (`@NullMarked`, `@NonNullApi`, `@NonNullFields`, `@NullUnmarked`).
      * Both simple and qualified names (e.g. `org.jspecify.annotations.NullMarked`) match.
      */
@@ -162,55 +210,6 @@ class DefaultNullityValidator : LintRuleVisitor() {
         explicitDefault(n, n.modifiers, n.annotations, arg)
     }
 
-    override fun visit(n: ClassOrInterfaceDeclaration, arg: LintProblemReporter) {
-        val own = explicitDefault(n, n.modifiers, n.annotations, arg)
-
-        // Default nullity modifiers are not inherited by derived classes. Hint when a
-        // superclass declares an explicit default nullity but the subclass does not,
-        // because the subclass silently uses its enclosing (or top-level) default instead.
-        if (own == null && n.extendedTypes.isNotEmpty()) {
-            val superClass = resolveSuperclass(n.extendedTypes[0])
-            if (superClass != null) {
-                val parentDefault =
-                    explicitDefault(superClass, superClass.modifiers, superClass.annotations, arg)
-                if (parentDefault != null) {
-                    val effective = effectiveDefault(n, arg)
-                    arg.hint(
-                        n, CATEGORY, NOT_INHERITED.id,
-                        "Default nullity modifiers are not inherited by derived classes. " +
-                                "Class ${n.nameAsString} does not inherit the ${parentDefault.keyword} " +
-                                "of ${superClass.nameAsString}; the effective default is ${effective.keyword}.",
-                    )
-                }
-            }
-        }
-        super.visit(n, arg)
-    }
-
-    override fun visit(n: EnumDeclaration, arg: LintProblemReporter) {
-        checkTypeDeclaration(n, arg, config!!)
-        super.visit(n, arg)
-    }
-
-    override fun visit(n: RecordDeclaration, arg: LintProblemReporter) {
-        checkTypeDeclaration(n, arg, config!!)
-        super.visit(n, arg)
-    }
-
-    override fun visit(n: AnnotationDeclaration, arg: LintProblemReporter) {
-        checkTypeDeclaration(n, arg, config!!)
-        super.visit(n, arg)
-    }
-
-    override fun visit(n: MethodDeclaration, arg: LintProblemReporter) {
-        checkNoNullityDefaultOnMember(n, n.modifiers, n.annotations, arg)
-        super.visit(n, arg)
-    }
-
-    override fun visit(n: FieldDeclaration, arg: LintProblemReporter) {
-        checkNoNullityDefaultOnMember(n, n.modifiers, n.annotations, arg)
-        super.visit(n, arg)
-    }
 
     /**
      * Default nullity modifiers only make sense on classes; using them on members
@@ -258,24 +257,10 @@ class DefaultNullityValidator : LintRuleVisitor() {
     }
 
     /** Top-level default, may be altered by tools. */
-    private var topLevelDefault: DefaultNullity = DefaultNullity.NON_NULL
+    private var topLevelDefault: DefaultNullity = config.topLevelNullity ?: DefaultNullity.NON_NULL
 
     /** Whether the JSpecify nullness annotations should be considered. */
-    private var checkJspecify: Boolean = false
-
-    protected var config: JmlLintingConfig? = null
-
-    override fun reset() {
-        // reset() is invoked at the beginning of the traversal; re-derive the
-        // configuration-dependent state from the current configuration.
-        topLevelDefault = config?.topLevelNullity ?: DefaultNullity.NON_NULL
-        checkJspecify = config?.checkJspecifyNullness ?: false
-    }
-
-    override fun accept(node: Node, problemReporter: LintProblemReporter, config: JmlLintingConfig) {
-        this.config = config
-        super.accept(node, problemReporter, config)
-    }
+    private var checkJspecify: Boolean = config.checkJspecifyNullness ?: false
 
     private fun resolveSuperclass(type: ClassOrInterfaceType): ClassOrInterfaceDeclaration? {
         // Look up the superclass in the same compilation unit first; this is cheap and
@@ -289,7 +274,7 @@ class DefaultNullityValidator : LintRuleVisitor() {
         }
         return try {
             (type.resolve() as? JavaParserClassDeclaration)?.wrappedNode
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
@@ -305,7 +290,7 @@ class DefaultNullityValidator : LintRuleVisitor() {
         val BOTH_DEFAULT_NULLITY: LintProblemMeta = LintProblemMeta(
             "JML-NULLITY-1",
             "A class cannot have conflicting default nullity declarations " +
-                    "(both non_null_by_default and nullable_by_default at once).",
+                "(both non_null_by_default and nullable_by_default at once).",
             LintRule.ERROR,
         )
 

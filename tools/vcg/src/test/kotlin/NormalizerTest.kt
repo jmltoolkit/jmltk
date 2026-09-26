@@ -109,7 +109,7 @@ class NormalizerTest {
     private fun List<NfStmt>.dumpList(): String = joinToString("; ") { it.dump() }
 
     private fun NfLocation.dump(): String = when (this) {
-        is NfLocal -> "local:$key${if (declaredType != null) ":${declaredType}" else ""}"
+        is NfLocal -> "local:$key${if (declaredType != null) ":$declaredType" else ""}"
         is NfField -> "field($receiver, $key)"
         is NfArray -> "array($key, $index)"
     }
@@ -226,12 +226,16 @@ class NormalizerTest {
             Arguments.of("if then only", "if (c) x = 1;", "if(c, [assign(local:x, 1)], [])"),
             Arguments.of("if else", "if (c) x = 1; else y = 2;", "if(c, [assign(local:x, 1)], [assign(local:y, 2)])"),
             Arguments.of("if block", "if (c) { x = 1; y = 2; }", "if(c, [assign(local:x, 1); assign(local:y, 2)], [])"),
-            Arguments.of("if else-if", "if (c) { x = 1; } else if (d) { y = 2; }",
-                "if(c, [assign(local:x, 1)], [if(d, [assign(local:y, 2)], [])])"),
+            Arguments.of(
+                "if else-if", "if (c) { x = 1; } else if (d) { y = 2; }",
+                "if(c, [assign(local:x, 1)], [if(d, [assign(local:y, 2)], [])])"
+            ),
             Arguments.of("empty if body", "if (c) { }", "if(c, [], [])"),
             Arguments.of("empty then non-empty else", "if (c) ; else x = 1;", "if(c, [], [assign(local:x, 1)])"),
-            Arguments.of("if else block", "if (c) x = 1; else { y = 2; z = 3; }",
-                "if(c, [assign(local:x, 1)], [assign(local:y, 2); assign(local:z, 3)])"),
+            Arguments.of(
+                "if else block", "if (c) x = 1; else { y = 2; z = 3; }",
+                "if(c, [assign(local:x, 1)], [assign(local:y, 2); assign(local:z, 3)])"
+            ),
             Arguments.of("if complex condition", "if (a && b || !c) x = 1;", "if(a && b || !c, [assign(local:x, 1)], [])"),
             Arguments.of("nested if", "if (a) if (b) x = 1;", "if(a, [if(b, [assign(local:x, 1)], [])], [])"),
 
@@ -244,51 +248,85 @@ class NormalizerTest {
             Arguments.of("while numeric condition", "while (i < n) { i = i + 1; }", "loop(i < n, [assign(local:i, i + 1)])"),
 
             // ---------------------------------------------------------------- for loops (desugared)
-            Arguments.of("for all parts", "for (int i = 0; i < n; i++) x = x + i;",
-                "assign(local:i:int, 0);\nloop(i < n, [assign(local:x, x + i); assign(local:i, i + 1)])"),
+            Arguments.of(
+                "for all parts", "for (int i = 0; i < n; i++) x = x + i;",
+                "assign(local:i:int, 0);\nloop(i < n, [assign(local:x, x + i); assign(local:i, i + 1)])"
+            ),
             Arguments.of("for without init", "for (; c;) x = 1;", "loop(c, [assign(local:x, 1)])"),
-            Arguments.of("for without condition", "for (int i = 0; ; i++) x = 1;",
-                "assign(local:i:int, 0);\nloop(true, [assign(local:x, 1); assign(local:i, i + 1)])"),
+            Arguments.of(
+                "for without condition", "for (int i = 0; ; i++) x = 1;",
+                "assign(local:i:int, 0);\nloop(true, [assign(local:x, 1); assign(local:i, i + 1)])"
+            ),
             Arguments.of("for empty header", "for (;;) x = 1;", "loop(true, [assign(local:x, 1)])"),
-            Arguments.of("for multi declarators", "for (int i = 0, j = 1; i < j; i++, j--) { }",
-                "assign(local:i:int, 0);\nassign(local:j:int, 1);\nloop(i < j, [assign(local:i, i + 1); assign(local:j, j - 1)])"),
-            Arguments.of("for empty body", "for (int i = 0; i < n; i++);",
-                "assign(local:i:int, 0);\nloop(i < n, [assign(local:i, i + 1)])"),
-            Arguments.of("for with call body", "for (int i = 0; i < 10; i++) { use(i); }",
-                "assign(local:i:int, 0);\nloop(i < 10, [call(use(i)); assign(local:i, i + 1)])"),
-            Arguments.of("for compound init assign", "for (i = 0; i < n; i += 1) x = 1;",
-                "assign(local:i, 0);\nloop(i < n, [assign(local:x, 1); assign(local:i, i + 1)])"),
-            Arguments.of("for called in condition", "for (int i = 0; i < size(); i++) ;",
-                "assign(local:i:int, 0);\nloop(i < size(), [assign(local:i, i + 1)])"),
+            Arguments.of(
+                "for multi declarators", "for (int i = 0, j = 1; i < j; i++, j--) { }",
+                "assign(local:i:int, 0);\nassign(local:j:int, 1);\nloop(i < j, [assign(local:i, i + 1); assign(local:j, j - 1)])"
+            ),
+            Arguments.of(
+                "for empty body", "for (int i = 0; i < n; i++);",
+                "assign(local:i:int, 0);\nloop(i < n, [assign(local:i, i + 1)])"
+            ),
+            Arguments.of(
+                "for with call body", "for (int i = 0; i < 10; i++) { use(i); }",
+                "assign(local:i:int, 0);\nloop(i < 10, [call(use(i)); assign(local:i, i + 1)])"
+            ),
+            Arguments.of(
+                "for compound init assign", "for (i = 0; i < n; i += 1) x = 1;",
+                "assign(local:i, 0);\nloop(i < n, [assign(local:x, 1); assign(local:i, i + 1)])"
+            ),
+            Arguments.of(
+                "for called in condition", "for (int i = 0; i < size(); i++) ;",
+                "assign(local:i:int, 0);\nloop(i < size(), [assign(local:i, i + 1)])"
+            ),
 
             // ---------------------------------------------------------------- do-while loops (unrolled)
-            Arguments.of("do while single", "do x = 1; while (c);",
-                "assign(local:x, 1);\nloop(c, [assign(local:x, 1)])"),
-            Arguments.of("do while block", "do { x = 1; } while (c);",
-                "assign(local:x, 1);\nloop(c, [assign(local:x, 1)])"),
+            Arguments.of(
+                "do while single", "do x = 1; while (c);",
+                "assign(local:x, 1);\nloop(c, [assign(local:x, 1)])"
+            ),
+            Arguments.of(
+                "do while block", "do { x = 1; } while (c);",
+                "assign(local:x, 1);\nloop(c, [assign(local:x, 1)])"
+            ),
             Arguments.of("do while empty body", "do ; while (c);", "loop(c, [])"),
-            Arguments.of("do while compound", "do { x += 1; } while (x < 10);",
-                "assign(local:x, x + 1);\nloop(x < 10, [assign(local:x, x + 1)])"),
+            Arguments.of(
+                "do while compound", "do { x += 1; } while (x < 10);",
+                "assign(local:x, x + 1);\nloop(x < 10, [assign(local:x, x + 1)])"
+            ),
             Arguments.of("do while call", "do foo(); while (c);", "call(foo());\nloop(c, [call(foo())])"),
 
             // ---------------------------------------------------------------- foreach loops (desugared)
-            Arguments.of("foreach basic", "for (int x : a) use(x);",
-                "assign(local:\$idx0, 0);\nloop(\$idx0 < a.length, [assign(local:x:int, a[\$idx0]); call(use(x)); assign(local:\$idx0, \$idx0 + 1)])"),
-            Arguments.of("foreach this field", "for (int x : this.a) use(x);",
-                "assign(local:\$idx0, 0);\nloop(\$idx0 < this.a.length, [assign(local:x:int, this.a[\$idx0]); call(use(x)); assign(local:\$idx0, \$idx0 + 1)])"),
-            Arguments.of("foreach receiver field", "for (int x : b.a) use(x);",
-                "assign(local:\$idx0, 0);\nloop(\$idx0 < b.a.length, [assign(local:x:int, b.a[\$idx0]); call(use(x)); assign(local:\$idx0, \$idx0 + 1)])"),
-            Arguments.of("foreach empty body", "for (int x : a);",
-                "assign(local:\$idx0, 0);\nloop(\$idx0 < a.length, [assign(local:x:int, a[\$idx0]); assign(local:\$idx0, \$idx0 + 1)])"),
-            Arguments.of("foreach two sequential", "for (int x : a) use(x); for (int y : b) use(y);",
+            Arguments.of(
+                "foreach basic", "for (int x : a) use(x);",
+                "assign(local:\$idx0, 0);\nloop(\$idx0 < a.length, [assign(local:x:int, a[\$idx0]); call(use(x)); assign(local:\$idx0, \$idx0 + 1)])"
+            ),
+            Arguments.of(
+                "foreach this field", "for (int x : this.a) use(x);",
+                "assign(local:\$idx0, 0);\nloop(\$idx0 < this.a.length, [assign(local:x:int, this.a[\$idx0]); call(use(x)); assign(local:\$idx0, \$idx0 + 1)])"
+            ),
+            Arguments.of(
+                "foreach receiver field", "for (int x : b.a) use(x);",
+                "assign(local:\$idx0, 0);\nloop(\$idx0 < b.a.length, [assign(local:x:int, b.a[\$idx0]); call(use(x)); assign(local:\$idx0, \$idx0 + 1)])"
+            ),
+            Arguments.of(
+                "foreach empty body", "for (int x : a);",
+                "assign(local:\$idx0, 0);\nloop(\$idx0 < a.length, [assign(local:x:int, a[\$idx0]); assign(local:\$idx0, \$idx0 + 1)])"
+            ),
+            Arguments.of(
+                "foreach two sequential", "for (int x : a) use(x); for (int y : b) use(y);",
                 "assign(local:\$idx0, 0);\nloop(\$idx0 < a.length, [assign(local:x:int, a[\$idx0]); call(use(x)); assign(local:\$idx0, \$idx0 + 1)]);\n" +
-                    "assign(local:\$idx1, 0);\nloop(\$idx1 < b.length, [assign(local:y:int, b[\$idx1]); call(use(y)); assign(local:\$idx1, \$idx1 + 1)])"),
-            Arguments.of("foreach nested", "for (int x : a) for (int y : b) use(x, y);",
+                    "assign(local:\$idx1, 0);\nloop(\$idx1 < b.length, [assign(local:y:int, b[\$idx1]); call(use(y)); assign(local:\$idx1, \$idx1 + 1)])"
+            ),
+            Arguments.of(
+                "foreach nested", "for (int x : a) for (int y : b) use(x, y);",
                 "assign(local:\$idx0, 0);\nloop(\$idx0 < a.length, [assign(local:x:int, a[\$idx0]); " +
                     "assign(local:\$idx1, 0); loop(\$idx1 < b.length, [assign(local:y:int, b[\$idx1]); call(use(x, y)); assign(local:\$idx1, \$idx1 + 1)]); " +
-                    "assign(local:\$idx0, \$idx0 + 1)])"),
-            Arguments.of("foreach over new array", "for (int x : new int[3]) use(x);",
-                "assign(local:\$idx0, 0);\nloop(\$idx0 < new int[3].length, [assign(local:x:int, new int[3][\$idx0]); call(use(x)); assign(local:\$idx0, \$idx0 + 1)])"),
+                    "assign(local:\$idx0, \$idx0 + 1)])"
+            ),
+            Arguments.of(
+                "foreach over new array", "for (int x : new int[3]) use(x);",
+                "assign(local:\$idx0, 0);\nloop(\$idx0 < new int[3].length, [assign(local:x:int, new int[3][\$idx0]); call(use(x)); assign(local:\$idx0, \$idx0 + 1)])"
+            ),
 
             // ---------------------------------------------------------------- return / throw
             Arguments.of("return value", "return x;", "return(x)"),
@@ -307,57 +345,101 @@ class NormalizerTest {
             Arguments.of("continue in while", "while (c) { continue; }", "loop(c, [continue()])"),
             Arguments.of("break in for", "for (;;) { break; }", "loop(true, [break()])"),
             Arguments.of("continue in for", "for (;;) { continue; }", "loop(true, [continue()])"),
-            Arguments.of("break in foreach", "for (int x : a) { break; }",
-                "assign(local:\$idx0, 0);\nloop(\$idx0 < a.length, [assign(local:x:int, a[\$idx0]); break(); assign(local:\$idx0, \$idx0 + 1)])"),
-            Arguments.of("break in do while", "do { if (c) break; } while (d);",
-                "if(c, [break()], []);\nloop(d, [if(c, [break()], [])])"),
-            Arguments.of("break in nested loop", "while (a) { while (b) { break; } }",
-                "loop(a, [loop(b, [break()])])"),
-            Arguments.of("continue in nested loop", "while (a) { while (b) { continue; } }",
-                "loop(a, [loop(b, [continue()])])"),
+            Arguments.of(
+                "break in foreach", "for (int x : a) { break; }",
+                "assign(local:\$idx0, 0);\nloop(\$idx0 < a.length, [assign(local:x:int, a[\$idx0]); break(); assign(local:\$idx0, \$idx0 + 1)])"
+            ),
+            Arguments.of(
+                "break in do while", "do { if (c) break; } while (d);",
+                "if(c, [break()], []);\nloop(d, [if(c, [break()], [])])"
+            ),
+            Arguments.of(
+                "break in nested loop", "while (a) { while (b) { break; } }",
+                "loop(a, [loop(b, [break()])])"
+            ),
+            Arguments.of(
+                "continue in nested loop", "while (a) { while (b) { continue; } }",
+                "loop(a, [loop(b, [continue()])])"
+            ),
             Arguments.of("break then continue", "while (c) { break; continue; }", "loop(c, [break(); continue()])"),
-            Arguments.of("continue in for inside while", "while (a) { for (int i = 0; i < n; i++) continue; }",
-                "loop(a, [assign(local:i:int, 0); loop(i < n, [continue(); assign(local:i, i + 1)])])"),
+            Arguments.of(
+                "continue in for inside while", "while (a) { for (int i = 0; i < n; i++) continue; }",
+                "loop(a, [assign(local:i:int, 0); loop(i < n, [continue(); assign(local:i, i + 1)])])"
+            ),
 
             // ---------------------------------------------------------------- switch (desugared)
-            Arguments.of("switch single case", "switch (x) { case 1: y = 1; }",
-                "switch(x, [case(1, [assign(local:y, 1)])])"),
-            Arguments.of("switch default only", "switch (x) { default: y = 2; }",
-                "switch(x, [case(, [assign(local:y, 2)])])"),
-            Arguments.of("switch case and default", "switch (x) { case 1: y = 1; default: y = 2; }",
-                "switch(x, [case(1, [assign(local:y, 1)]); case(, [assign(local:y, 2)])])"),
-            Arguments.of("switch multiple labels", "switch (x) { case 1: case 2: y = 3; }",
-                "switch(x, [case(1, []); case(2, [assign(local:y, 3)])])"),
-            Arguments.of("switch fall-through", "switch (x) { case 1: y = 1; case 2: y = 2; default: y = 3; }",
-                "switch(x, [case(1, [assign(local:y, 1)]); case(2, [assign(local:y, 2)]); case(, [assign(local:y, 3)])])"),
-            Arguments.of("switch with break", "switch (x) { case 1: y = 1; break; }",
-                "switch(x, [case(1, [assign(local:y, 1); break()])])"),
+            Arguments.of(
+                "switch single case", "switch (x) { case 1: y = 1; }",
+                "switch(x, [case(1, [assign(local:y, 1)])])"
+            ),
+            Arguments.of(
+                "switch default only", "switch (x) { default: y = 2; }",
+                "switch(x, [case(, [assign(local:y, 2)])])"
+            ),
+            Arguments.of(
+                "switch case and default", "switch (x) { case 1: y = 1; default: y = 2; }",
+                "switch(x, [case(1, [assign(local:y, 1)]); case(, [assign(local:y, 2)])])"
+            ),
+            Arguments.of(
+                "switch multiple labels", "switch (x) { case 1: case 2: y = 3; }",
+                "switch(x, [case(1, []); case(2, [assign(local:y, 3)])])"
+            ),
+            Arguments.of(
+                "switch fall-through", "switch (x) { case 1: y = 1; case 2: y = 2; default: y = 3; }",
+                "switch(x, [case(1, [assign(local:y, 1)]); case(2, [assign(local:y, 2)]); case(, [assign(local:y, 3)])])"
+            ),
+            Arguments.of(
+                "switch with break", "switch (x) { case 1: y = 1; break; }",
+                "switch(x, [case(1, [assign(local:y, 1); break()])])"
+            ),
             Arguments.of("switch empty case", "switch (x) { case 1: }", "switch(x, [case(1, [])])"),
-            Arguments.of("switch string labels", "switch (s) { case \"a\": y = 1; }",
-                "switch(s, [case(\"a\", [assign(local:y, 1)])])"),
-            Arguments.of("switch multiple statements", "switch (x) { case 1: y = 1; z = 2; }",
-                "switch(x, [case(1, [assign(local:y, 1); assign(local:z, 2)])])"),
-            Arguments.of("switch in while", "while (c) { switch (x) { case 1: y = 1; } }",
-                "loop(c, [switch(x, [case(1, [assign(local:y, 1)])])])"),
+            Arguments.of(
+                "switch string labels", "switch (s) { case \"a\": y = 1; }",
+                "switch(s, [case(\"a\", [assign(local:y, 1)])])"
+            ),
+            Arguments.of(
+                "switch multiple statements", "switch (x) { case 1: y = 1; z = 2; }",
+                "switch(x, [case(1, [assign(local:y, 1); assign(local:z, 2)])])"
+            ),
+            Arguments.of(
+                "switch in while", "while (c) { switch (x) { case 1: y = 1; } }",
+                "loop(c, [switch(x, [case(1, [assign(local:y, 1)])])])"
+            ),
 
             // ---------------------------------------------------------------- try / catch / finally
-            Arguments.of("try catch", "try { x = 1; } catch (E e) { y = 2; }",
-                "try([assign(local:x, 1)], [catch(E, e, [assign(local:y, 2)])], [])"),
-            Arguments.of("try finally", "try { x = 1; } finally { y = 2; }",
-                "try([assign(local:x, 1)], [], [assign(local:y, 2)])"),
-            Arguments.of("try catch finally", "try { x = 1; } catch (E e) { y = 2; } finally { z = 3; }",
-                "try([assign(local:x, 1)], [catch(E, e, [assign(local:y, 2)])], [assign(local:z, 3)])"),
-            Arguments.of("try multiple catches", "try { x = 1; } catch (E1 e) { } catch (E2 e) { }",
-                "try([assign(local:x, 1)], [catch(E1, e, []); catch(E2, e, [])], [])"),
-            Arguments.of("try union catch", "try { x = 1; } catch (A | B e) { y = 2; }",
-                "try([assign(local:x, 1)], [catch(A | B, e, [assign(local:y, 2)])], [])"),
+            Arguments.of(
+                "try catch", "try { x = 1; } catch (E e) { y = 2; }",
+                "try([assign(local:x, 1)], [catch(E, e, [assign(local:y, 2)])], [])"
+            ),
+            Arguments.of(
+                "try finally", "try { x = 1; } finally { y = 2; }",
+                "try([assign(local:x, 1)], [], [assign(local:y, 2)])"
+            ),
+            Arguments.of(
+                "try catch finally", "try { x = 1; } catch (E e) { y = 2; } finally { z = 3; }",
+                "try([assign(local:x, 1)], [catch(E, e, [assign(local:y, 2)])], [assign(local:z, 3)])"
+            ),
+            Arguments.of(
+                "try multiple catches", "try { x = 1; } catch (E1 e) { } catch (E2 e) { }",
+                "try([assign(local:x, 1)], [catch(E1, e, []); catch(E2, e, [])], [])"
+            ),
+            Arguments.of(
+                "try union catch", "try { x = 1; } catch (A | B e) { y = 2; }",
+                "try([assign(local:x, 1)], [catch(A | B, e, [assign(local:y, 2)])], [])"
+            ),
             Arguments.of("try empty both", "try { } finally { }", "try([], [], [])"),
-            Arguments.of("try nested", "try { try { x = 1; } finally { y = 2; } } catch (E e) { z = 3; }",
-                "try([try([assign(local:x, 1)], [], [assign(local:y, 2)])], [catch(E, e, [assign(local:z, 3)])], [])"),
-            Arguments.of("try catch throws", "try { throw e; } catch (E e) { x = 1; }",
-                "try([throw(e)], [catch(E, e, [assign(local:x, 1)])], [])"),
-            Arguments.of("try with multiple statements", "try { x = 1; y = 2; } finally { x = 0; }",
-                "try([assign(local:x, 1); assign(local:y, 2)], [], [assign(local:x, 0)])"),
+            Arguments.of(
+                "try nested", "try { try { x = 1; } finally { y = 2; } } catch (E e) { z = 3; }",
+                "try([try([assign(local:x, 1)], [], [assign(local:y, 2)])], [catch(E, e, [assign(local:z, 3)])], [])"
+            ),
+            Arguments.of(
+                "try catch throws", "try { throw e; } catch (E e) { x = 1; }",
+                "try([throw(e)], [catch(E, e, [assign(local:x, 1)])], [])"
+            ),
+            Arguments.of(
+                "try with multiple statements", "try { x = 1; y = 2; } finally { x = 0; }",
+                "try([assign(local:x, 1); assign(local:y, 2)], [], [assign(local:x, 0)])"
+            ),
 
             // ---------------------------------------------------------------- JML statements
             Arguments.of("jml assert", "//@ assert x > 0;", "assert(x > 0)"),
@@ -366,8 +448,10 @@ class NormalizerTest {
             Arguments.of("jml assert conj", "//@ assert x >= 0 && x < 10;", "assert(x >= 0 && x < 10)"),
             Arguments.of("jml assert complex", "//@ assert a == b || b == c;", "assert(a == b || b == c)"),
             Arguments.of("jml set skipped", "//@ set x = 1;", ""),
-            Arguments.of("jml assert between statements", "x = 1;\n//@ assert x == 1;\ny = 2;",
-                "assign(local:x, 1);\nassert(x == 1);\nassign(local:y, 2)"),
+            Arguments.of(
+                "jml assert between statements", "x = 1;\n//@ assert x == 1;\ny = 2;",
+                "assign(local:x, 1);\nassert(x == 1);\nassign(local:y, 2)"
+            ),
         )
 
         @JvmStatic

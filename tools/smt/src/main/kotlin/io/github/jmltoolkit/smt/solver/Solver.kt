@@ -103,9 +103,11 @@ open class Solver(private val defaultTimeoutMillis: Long = 60_000L) {
         private val done = AtomicBoolean(false)
 
         private val thread = Thread {
-            val deadline = if (timeoutMillis > 0)
+            val deadline = if (timeoutMillis > 0) {
                 System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMillis)
-            else Long.MAX_VALUE
+            } else {
+                Long.MAX_VALUE
+            }
             while (!done.get() && process.isAlive) {
                 if (isCancelled() || System.nanoTime() >= deadline) {
                     triggered.set(true)

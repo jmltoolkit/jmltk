@@ -204,7 +204,6 @@ class ExprTranslatorTest {
             Arguments.of("true && b", "(and true b)"),
             Arguments.of("b || false", "(or b false)"),
         )
-
     }
 
     //region parameterized: boolean / logical operators

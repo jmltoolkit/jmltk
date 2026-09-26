@@ -1083,7 +1083,7 @@ public class VcgExamples {
         return s;
     }
 
-    // bounded subtraction with overflow checks -> bvssubo
+    // bounded subtraction with overflow checks -> widened sign-extended bvsub
     //@ requires x >= -100 && x <= 100 && y >= -100 && y <= 100;
     //@ ensures \result == x - y;
     public int boundedSub(int x, int y) {

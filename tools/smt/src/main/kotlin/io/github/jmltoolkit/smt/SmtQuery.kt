@@ -67,6 +67,11 @@ class SmtQuery : AppendableTo {
         commands.add(term.command("assert", nonNull))
     }
 
+    /** Adds a raw SMT-LIB command, e.g. `set-logic` or `declare-sort`. */
+    fun addCommand(cmd: SExpr) {
+        commands.add(cmd)
+    }
+
     fun checkSat() {
         commands.add(term.command("check-sat"))
     }

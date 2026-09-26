@@ -37,7 +37,6 @@ import io.github.jmltoolkit.vcg.ir.NfArray
 import io.github.jmltoolkit.vcg.ir.NfAssign
 import io.github.jmltoolkit.vcg.ir.NfAssert
 import io.github.jmltoolkit.vcg.ir.NfAssume
-import io.github.jmltoolkit.vcg.ir.NfBlock
 import io.github.jmltoolkit.vcg.ir.NfBreak
 import io.github.jmltoolkit.vcg.ir.NfCall
 import io.github.jmltoolkit.vcg.ir.NfContinue

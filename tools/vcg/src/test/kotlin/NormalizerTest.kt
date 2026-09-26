@@ -27,7 +27,6 @@ import io.github.jmltoolkit.vcg.ir.NfArray
 import io.github.jmltoolkit.vcg.ir.NfAssert
 import io.github.jmltoolkit.vcg.ir.NfAssign
 import io.github.jmltoolkit.vcg.ir.NfAssume
-import io.github.jmltoolkit.vcg.ir.NfBlock
 import io.github.jmltoolkit.vcg.ir.NfBreak
 import io.github.jmltoolkit.vcg.ir.NfCall
 import io.github.jmltoolkit.vcg.ir.NfContinue
@@ -103,7 +102,6 @@ class NormalizerTest {
         is NfAssume -> "assume($expr)"
         is NfAssert -> "assert($expr)"
         is NfHavoc -> "havoc(${location.dump()})"
-        is NfBlock -> "block([${stmts.dumpList()}])"
         is NfTryCatch -> "try([${tryBody.dumpList()}], [${catches.joinToString("; ") { "catch(${it.type}, ${it.parameter}, [${it.body.dumpList()}])" }}], [${finallyBody.dumpList()}])"
         is NfSwitch -> "switch($selector, [${cases.joinToString("; ") { "case(${it.labels.joinToString("|")}, [${it.body.dumpList()}])" }}])"
     }
@@ -127,7 +125,6 @@ class NormalizerTest {
     private fun children(s: NfStmt): List<NfStmt> = when (s) {
         is NfIf -> s.thenStmts + s.elseStmts
         is NfLoop -> s.body
-        is NfBlock -> s.stmts
         is NfTryCatch -> s.tryBody + s.catches.flatMap { it.body } + s.finallyBody
         is NfSwitch -> s.cases.flatMap { it.body }
         else -> emptyList()

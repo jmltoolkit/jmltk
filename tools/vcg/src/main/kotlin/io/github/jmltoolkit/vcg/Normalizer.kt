@@ -273,17 +273,17 @@ class Normalizer {
             NfAssign(
                 NfLocal(varName, v.type),
                 ArrayAccessExpr(NameExpr(iterKey), NameExpr(i))
-            )
+            ).apply { origin = s }
         ) + body + listOf(
             NfAssign(
                 NfLocal(i, null),
                 BinaryExpr(NameExpr(i), IntegerLiteralExpr("1"), BinaryExpr.Operator.PLUS)
-            )
+            ).apply { origin = s }
         )
         val res = mutableListOf<NfStmt>()
-        res.add(NfAssign(NfLocal(i, null), IntegerLiteralExpr("0")))
-        res.add(NfLoop(s, cond, loopBody))
-        return res.withOrigin(s)
+        res.add(NfAssign(NfLocal(i, null), IntegerLiteralExpr("0")).apply { origin = s })
+        res.add(NfLoop(s, cond, loopBody).apply { origin = s })
+        return res
     }
 
     private fun normalizeSwitch(s: SwitchStmt): List<NfStmt> {

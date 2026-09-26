@@ -262,8 +262,10 @@ class ExprTranslator(
     }
 
     override fun visit(n: MethodCallExpr, arg: Any?): SExpr {
-        // \old(x) or old(x): refer to the pre-state environment
-        if (n.nameAsString == "old" && n.arguments.size == 1) {
+        // \old(x) (JML keyword spelling) or old(x): refer to the pre-state environment.
+        // The JML keyword `\old` is lexed as the method name `\old`, whereas a literal
+        // `old(...)` source call keeps the bare name; both must be recognized.
+        if ((n.nameAsString == "old" || n.nameAsString == "\\old") && n.arguments.size == 1) {
             val inner = ExprTranslator(smtLog, translator, oldEnv, oldEnv, callHandler, unknownHandler)
             return n.arguments[0].accept(inner, arg)!!
         }

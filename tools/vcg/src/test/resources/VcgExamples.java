@@ -724,4 +724,301 @@ public class VcgExamples {
         }
         return s;
     }
+
+    // ---- corner cases (open user questions) ----
+
+    //@ requires x == -2147483647 - 1;
+    //@ ensures \result == -2147483646 - 1;
+    public int minUnderflow(int x) {
+        return x - 1;
+    }
+
+    // bounded arithmetic wraps MIN_VALUE - 1 around to MAX_VALUE
+    //@ requires x == -2147483647 - 1;
+    //@ ensures \result == 2147483647;
+    public int minUnderflowWrap(int x) {
+        return x - 1;
+    }
+
+    //@ requires x == 2147483646;
+    //@ ensures \result == 2147483646 + 1;
+    public int maxOverflow(int x) {
+        return x + 1;
+    }
+
+    //@ requires true;
+    //@ ensures \result == -2147483647 - 1;
+    public int intMinLiteral() {
+        return -2147483647 - 1;
+    }
+
+    //@ requires true;
+    //@ ensures \result >= 2147483647 - 1;
+    public int intMaxLiteral() {
+        return 2147483647;
+    }
+
+    //@ requires true;
+    //@ ensures \result == 2147483646;
+    public int nearMax(int x) {
+        return 2147483647 - 1;
+    }
+
+    //@ requires x >= -2147483647 && x <= 2147483646;
+    //@ ensures \result == x + 1;
+    public int boundedIncrement(int x) {
+        return x + 1;
+    }
+
+    //@ requires o != null;
+    //@ ensures \result == 0 || \result == 1;
+    public int stmtInstanceof(Object o) {
+        boolean isStr = o instanceof String;
+        if (isStr) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    //@ requires o != null;
+    //@ ensures \result >= 0;
+    public int stmtInstanceofCount(Object o) {
+        boolean a = o instanceof String;
+        boolean b = o instanceof Object;
+        int n = 0;
+        if (a) {
+            n = n + 1;
+        }
+        if (b) {
+            n = n + 1;
+        }
+        return n;
+    }
+
+    //@ requires x <= 2147483646;
+    //@ ensures \result == x + 1;
+    public int unboxedIncrement(Integer x) {
+        return x.intValue() + 1;
+    }
+
+    //@ requires x >= 0 && x <= 100;
+    //@ ensures \result == x;
+    public Integer boxedIdentity(int x) {
+        return x;
+    }
+
+    //@ requires n >= 1 && n <= 10;
+    //@ ensures \result == 1;
+    public int tryBreakContinue(int n) {
+        int i = 0;
+        int acc = 0;
+        while (i < n) {
+            i = i + 1;
+            if (i == 2) {
+                continue;
+            }
+            try {
+                if (i == 3) {
+                    break;
+                }
+                acc = acc + 1;
+            } catch (RuntimeException e) {
+                acc = 0;
+            }
+        }
+        return acc;
+    }
+
+    //@ requires n >= 1 && n <= 10;
+    //@ ensures \result == 1;
+    public int loopContinueNoTry(int n) {
+        int i = 0;
+        int acc = 0;
+        while (i < n) {
+            i = i + 1;
+            if (i == 2) {
+                continue;
+            }
+            if (i == 3) {
+                continue;
+            }
+            acc = acc + 1;
+        }
+        return acc;
+    }
+
+    //@ requires n >= 1 && n <= 10;
+    //@ ensures \result == 1;
+    public int loopBreakNoTry(int n) {
+        int i = 0;
+        int acc = 0;
+        while (i < n) {
+            i = i + 1;
+            if (i == 3) {
+                break;
+            }
+            acc = acc + 1;
+        }
+        return acc;
+    }
+
+    //@ requires x != 0;
+    //@ ensures \result == 2;
+    public int nestedTry(int x) {
+        int r = 0;
+        try {
+            try {
+                r = x / x;
+            } finally {
+                r = r + 1;
+            }
+        } catch (ArithmeticException e) {
+            r = 0;
+        }
+        return r;
+    }
+
+    //@ requires n >= 4 && n <= 10;
+    //@ ensures \result == 2;
+    public int returnInsideLoop(int n) {
+        int i = 0;
+        int s = 0;
+        while (i < n) {
+            i = i + 1;
+            if (i == 2) {
+                continue;
+            }
+            if (i == 4) {
+                return s;
+            }
+            s = s + 1;
+        }
+        return s;
+    }
+
+    //@ requires n >= 4 && n <= 10;
+    //@ ensures \result == 2;
+    public int returnEarlyNoContinue(int n) {
+        int i = 0;
+        int s = 0;
+        while (i < n) {
+            i = i + 1;
+            if (i == 4) {
+                return s;
+            }
+            s = s + 1;
+        }
+        return s;
+    }
+
+    //@ requires n >= 4 && n <= 10;
+    //@ ensures \result == 3;
+    public int plainReturnInLoop(int n) {
+        int i = 0;
+        while (i < n) {
+            if (i == 3) {
+                return i;
+            }
+            i = i + 1;
+        }
+        return -1;
+    }
+
+    // isolation: break inside try, no continue
+    //@ requires n >= 1 && n <= 10;
+    //@ ensures \result == 1;
+    public int tryBreakOnly(int n) {
+        int i = 0;
+        int acc = 0;
+        while (i < n) {
+            i = i + 1;
+            try {
+                if (i == 3) {
+                    break;
+                }
+                acc = acc + 1;
+            } catch (RuntimeException e) {
+                acc = 0;
+            }
+        }
+        return acc;
+    }
+
+    // isolation: continue then return on a later click, no try
+    //@ requires n >= 1 && n <= 10;
+    //@ ensures \result == 1;
+    public int continueThenReturn(int n) {
+        int i = 0;
+        while (i < n) {
+            i = i + 1;
+            if (i == 2) {
+                continue;
+            }
+            if (i == 4) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    // isolation: accumulate then continue, return loop counter only
+    //@ requires n >= 1 && n <= 10;
+    //@ ensures \result == n;
+    public int continueCountOnly(int n) {
+        int i = 0;
+        int s = 0;
+        while (i < n) {
+            i = i + 1;
+            if (i == 2) {
+                continue;
+            }
+            s = s + i;
+        }
+        return i;
+    }
+
+    //@ requires n >= 3 && n <= 10;
+    //@ ensures \result == 3;
+    public int nonNormalLoopExit(int n) {
+        int i = 0;
+        int s = 0;
+        while (i < n) {
+            i = i + 1;
+            if (i == 3) {
+                break;
+            }
+            s = s + i;
+        }
+        return s;
+    }
+
+    //@ requires n >= 0 && n <= 10;
+    //@ ensures \result == 0 || \result == 1;
+    public int tryReturnFinally(int n) {
+        int r = 0;
+        try {
+            return n == 0 ? 1 : 0;
+        } finally {
+            r = 1;
+        }
+    }
+
+    //@ requires x >= 0;
+    //@ ensures \result == 0;
+    public int nestedCatchFinally(int x) {
+        int r = 0;
+        try {
+            try {
+                r = 10 / (x + 1);
+            } catch (ArithmeticException e) {
+                r = -1;
+            } finally {
+                r = r + 1;
+            }
+        } finally {
+            r = r + 1;
+        }
+        return r - 2;
+    }
 }

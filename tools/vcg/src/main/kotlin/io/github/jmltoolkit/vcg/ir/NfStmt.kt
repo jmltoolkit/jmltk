@@ -68,12 +68,6 @@ data class NfAssert(val expr: Expression) : NfStmt()
 /** Havoc a location (fresh unconstrained constant). */
 data class NfHavoc(val location: NfLocation) : NfStmt()
 
-/**
- * Nested block used to desugar `try/catch/finally` into a guarded if-chain; see
- * [io.github.jmltoolkit.vcg.Normalizer].
- */
-data class NfBlock(val stmts: List<NfStmt>) : NfStmt()
-
 /** Catch clause of a [NfTryCatch]. */
 data class NfCatchClause(
     /** the caught type as a string (may be absent for `catch (…)` without a declared type) */
@@ -119,5 +113,3 @@ fun List<NfStmt>.withOrigin(node: Node): List<NfStmt> {
     this.forEach { it.origin = node }
     return this
 }
-
-fun Statement.asNfOrigin(): Node = this

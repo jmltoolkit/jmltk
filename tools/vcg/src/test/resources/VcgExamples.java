@@ -507,6 +507,7 @@ public class VcgExamples {
         return 1;
     }
 
+    //@ ensures \result == 0;
     public int loopWithoutInvariant(int n) {
         int i = 0;
         while (i < n) {
@@ -1020,5 +1021,367 @@ public class VcgExamples {
             r = r + 1;
         }
         return r - 2;
+    }
+
+    // ---- coverage-batch: targeted engine branches (Vcg.kt) ----
+
+    static class MyErr extends RuntimeException {
+    }
+
+    // catch of a custom (unqualified) exception type -> qualifyType fallback
+    //@ requires x != 0;
+    //@ ensures \result == 1;
+    public int customExceptionCatch(int x) {
+        int r = 0;
+        try {
+            r = 10 / x;
+        } catch (MyErr e) {
+            r = 0;
+        }
+        return 1;
+    }
+
+    // catch type given in fully qualified form -> qualifyType dot-preserving branch
+    //@ requires x != 0;
+    //@ ensures \result >= 1;
+    public int qualifiedCatch(int x) {
+        try {
+            int q = 10 / x;
+            return 2;
+        } catch (java.lang.ArithmeticException e) {
+            return 1;
+        }
+    }
+
+    // array store inside an unrolled loop -> locationKey(NfArray) in modifiedLocations
+    //@ requires a != null && a.length >= 2 && n >= 0 && n <= 3;
+    //@ ensures a[0] == 1 && a[1] == 2;
+    public void arrayStoreInLoop(int[] a, int n, int v) {
+        int i = 0;
+        //@ assert i >= 0;
+        while (i < n) {
+            a[i] = v;
+            i = i + 1;
+        }
+        a[0] = 1;
+        a[1] = 2;
+    }
+
+    // array/null comparisons with the array on the right and the null on the left
+    //@ requires a != null;
+    //@ ensures \result == 0;
+    public int arrayNullInStmt2(int[] a) {
+        boolean l = null == a;
+        boolean r = a == null;
+        int s = 0;
+        if (l) {
+            s = s + 1;
+        }
+        if (r) {
+            s = s + 10;
+        }
+        return s;
+    }
+
+    // bounded subtraction with overflow checks -> bvssubo
+    //@ requires x >= -100 && x <= 100 && y >= -100 && y <= 100;
+    //@ ensures \result == x - y;
+    public int boundedSub(int x, int y) {
+        return x - y;
+    }
+
+    // remainder with division-by-zero checks -> checkDivision REMAINDER branch
+    //@ requires y != 0;
+    //@ ensures \result == x % y;
+    public int boundedRem(int x, int y) {
+        return x % y;
+    }
+
+    // loop contract with a continues-only contract: LOOP_CONTRACT, empty breaks list
+    //@ requires n >= 0;
+    //@ ensures \result == 0;
+    public int loopContractContinueOnly(int n) {
+        int i = 0;
+        //@ maintaining 0 <= i && i <= n;
+        //@ decreasing n - i;
+        //@ continues () true;
+        while (i < n) {
+            i = i + 1;
+            if (i == 3) {
+                continue;
+            }
+        }
+        return 0;
+    }
+
+    // continue statement in a loop whose contract declares only a breaks clause:
+    // the continues-clause obligation must be skipped, the invariant one emitted
+    //@ requires n >= 2 && n <= 10;
+    //@ ensures \result == 0;
+    public int loopContractContinueNoClause(int n) {
+        int i = 0;
+        int s = 0;
+        //@ maintaining 0 <= i && i <= n && s == 0;
+        //@ decreasing n - i;
+        //@ breaks () s == 0;
+        while (i < n) {
+            i = i + 1;
+            if (i == 2) {
+                continue;
+            }
+            if (i == 3) {
+                break;
+            }
+        }
+        return s;
+    }
+
+    // break statement in a loop whose contract declares only a continues clause:
+    // the breaks-clause obligation must be skipped
+    //@ requires n >= 2 && n <= 10;
+    //@ ensures \result == 0;
+    public int loopContractBreakNoClause(int n) {
+        int i = 0;
+        int s = 0;
+        //@ maintaining 0 <= i && i <= n && s == 0;
+        //@ decreasing n - i;
+        //@ continues () s == 0;
+        while (i < n) {
+            i = i + 1;
+            if (i == 2) {
+                break;
+            }
+        }
+        return s;
+    }
+
+    // assignable clause naming a field by bare name -> NameExpr location key
+    //@ requires true;
+    //@ ensures fieldV == 13;
+    public void callAssignableName() {
+        bumpViaNameClause();
+    }
+
+    //@ assignable fieldV;
+    //@ ensures fieldV == 13;
+    public void bumpViaNameClause() {
+        fieldV = 13;
+    }
+
+    // assignable clause naming something that is neither a field nor a parameter
+    //@ requires true;
+    //@ ensures true;
+    public void callAssignableLocal() {
+        bumpLocalClause();
+    }
+
+    //@ assignable mysteryScalar;
+    //@ ensures true;
+    public void bumpLocalClause() {
+    }
+
+    int[] dataField;
+
+    // \everything havoc over fields incl. an array-typed field -> array branch
+    //@ requires true;
+    //@ ensures fieldV == 7;
+    public void callBumpEverythingArr() {
+        bumpEverything();
+    }
+
+    // static callee invoked through its class name under CONTRACT strategy
+    //@ requires x >= 0 && x <= 100;
+    //@ ensures \result == x + 1;
+    public int callStaticContract(int x) {
+        return VcgExamples.statInc(x);
+    }
+
+    //@ requires x >= 0;
+    //@ ensures \result == x + 1;
+    public static int statInc(int x) {
+        return x + 1;
+    }
+
+    // non-static callee invoked through an explicit `this.` scope under CONTRACT
+    //@ requires true;
+    //@ ensures fieldV == 42;
+    public void callThisShorthand() {
+        this.bumpFieldTo42();
+    }
+
+    // static callee invoked through its class name under INLINE strategy
+    //@ requires x >= 0;
+    //@ ensures \result >= 0;
+    public int callStaticInline(int x) {
+        return VcgExamples.doubleIt(x);
+    }
+
+    public static int doubleIt(int x) {
+        return x + x;
+    }
+
+    // callee with an object (non-array) reference parameter under CONTRACT
+    //@ requires b != null;
+    //@ ensures \result == 0;
+    public int callObjParam(Box b) {
+        return boxInfo(b);
+    }
+
+    //@ requires b != null;
+    //@ ensures \result == 0 && b.value >= 0;
+    public int boxInfo(Box b) {
+        return 0;
+    }
+
+    // inlined callee with if/loop/try bodies and callee-local declarations
+    //@ requires x >= 0;
+    //@ ensures \result >= 0;
+    public int inlineNested(int x) {
+        return helperInline(x);
+    }
+
+    public int helperInline(int x) {
+        int acc = x;
+        if (x > 100) {
+            acc = acc - 100;
+        } else {
+            acc = acc + 1;
+        }
+        int i = 0;
+        while (i < 2) {
+            int t = acc + 1;
+            acc = t;
+            i = i + 1;
+        }
+        try {
+            acc = acc / 1;
+        } catch (ArithmeticException e) {
+            acc = 0;
+        } finally {
+            acc = acc + 1;
+        }
+        return acc;
+    }
+
+    // inlined callee whose array parameter aliases a caller location
+    //@ requires a != null && a.length >= 1 && a[0] == 5;
+    //@ ensures a[0] == 6;
+    public int inlineArrayParam(int[] a) {
+        bumpFirst(a);
+        return a[0];
+    }
+
+    public void bumpFirst(int[] p) {
+        p[0] = p[0] + 1;
+    }
+
+    // inlined call on a fresh receiver whose field is untracked by the caller
+    //@ requires true;
+    //@ ensures \result == 0;
+    public int callNewBox() {
+        new Box().bumpBoxValue();
+        return 0;
+    }
+
+    static class Holder {
+        int[] vals;
+        Box box;
+    }
+
+    // write into an array field of an arbitrary receiver (untyped slot -> fallback)
+    //@ requires h != null && h.vals != null && h.vals.length >= 1;
+    //@ ensures h.vals[0] == 5;
+    public void writeHolderArray(Holder h) {
+        h.vals[0] = 5;
+    }
+
+    // read of an array-typed receiver field -> array field-selector
+    //@ requires h != null && h.vals != null && h.vals.length >= 1;
+    //@ ensures h.vals[0] == h.vals[0];
+    public void readHolderArray(Holder h) {
+        int v = h.vals[0];
+    }
+
+    // read of an object-typed receiver field -> JAVA_OBJECT field-selector
+    //@ requires h != null && h.box != null;
+    //@ ensures h.box != null;
+    public void readBoxField(Holder h) {
+        Box fresh = h.box;
+    }
+
+    // read of a field that does not exist on a resolved receiver type ->
+    // scalar fallback sort in fieldSelectorType
+    //@ requires b != null;
+    //@ ensures \result == 0;
+    public int readUnknownField(Box b) {
+        int v = b.someField;
+        return 0;
+    }
+
+    // self-recursive call under INLINE: findDeclarationInCu skips the callable itself
+    //@ requires true;
+    //@ ensures true;
+    public int selfRecInline(int n) {
+        return selfRecInline(n - 1);
+    }
+
+    // overloaded callees: arity mismatch in findDeclarationInCu
+    //@ requires x >= 0;
+    //@ ensures \result >= 0;
+    public int overloadCaller(int x) {
+        return overloaded(x);
+    }
+
+    //@ requires x >= 0;
+    //@ ensures \result >= 0;
+    public int overloaded(int x) {
+        return x + 1;
+    }
+
+    public int overloaded(int x, int y) {
+        return x + y + 1;
+    }
+
+    // create an array with a symbolic length -> ArrayCreationExpr visit (anon name).
+    // The expression in a `return` stays attached to the AST (declarator
+    // initializers are cloned by the normalizer, which would detach it).
+    //@ requires n >= 0 && n <= 5;
+    //@ ensures \result.length == n;
+    public int[] makeArray(int n) {
+        return new int[n];
+    }
+
+    // a method whose return type cannot be resolved -> returnTypeOf fallback
+    //@ requires true;
+    //@ ensures true;
+    public NoSuchType returnsUnknown(int x) {
+        return null;
+    }
+
+    // local declarator whose declared type cannot be resolved -> tryResolve
+    // fallback (assignment target sort defaults to int)
+    //@ requires true;
+    //@ ensures true;
+    public void catchUnknownType(int x) {
+        NoSuchType t = 42;
+    }
+
+    // inlining a callee that contains a switch: rejected by the engine, but the
+    // declared-local collection still walks the switch (reached before the check)
+    //@ requires true;
+    //@ ensures true;
+    public int callInlineSwitch(int x) {
+        helperSwitch(x);
+        return 0;
+    }
+
+    public void helperSwitch(int x) {
+        switch (x) {
+            case 1:
+                x = 2;
+                break;
+            default:
+                x = 3;
+        }
     }
 }

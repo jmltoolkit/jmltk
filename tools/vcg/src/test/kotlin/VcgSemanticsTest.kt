@@ -191,6 +191,40 @@ class VcgSemanticsTest {
             Arguments.of("loopContractBreak", u),
             Arguments.of("callBumpBoxValue", uContract),
             Arguments.of("callBumpBoxValueInline", uInline),
+            // corner cases: MIN/MAX literals and boundary arithmetic
+            Arguments.of("intMinLiteral", u),
+            Arguments.of("intMinLiteral", b),
+            Arguments.of("intMaxLiteral", u),
+            Arguments.of("intMaxLiteral", b),
+            Arguments.of("nearMax", u),
+            Arguments.of("nearMax", b),
+            Arguments.of("boundedIncrement", u),
+            Arguments.of("boundedIncrement", b),
+            Arguments.of("maxOverflow", u),
+            Arguments.of("maxOverflow", b),
+            // bounded arithmetic wraps MIN_VALUE - 1 to MAX_VALUE (falsifiable in
+            // unbounded mode, where subtraction does not wrap)
+            Arguments.of("minUnderflowWrap", b),
+            // instanceof as a statement (stored in a local and read in a branch)
+            Arguments.of("stmtInstanceof", u),
+            Arguments.of("stmtInstanceof", b),
+            Arguments.of("stmtInstanceofCount", u),
+            Arguments.of("stmtInstanceofCount", b),
+            // returns/continues/breaks combined with loops and try-catch-finally
+            Arguments.of("returnInsideLoop", u),
+            Arguments.of("returnInsideLoop", b),
+            Arguments.of("plainReturnInLoop", u),
+            Arguments.of("plainReturnInLoop", b),
+            Arguments.of("tryBreakContinue", u),
+            Arguments.of("tryBreakContinue", b),
+            Arguments.of("continueCountOnly", u),
+            Arguments.of("continueCountOnly", b),
+            Arguments.of("nonNormalLoopExit", u),
+            Arguments.of("nonNormalLoopExit", b),
+            Arguments.of("nestedTry", u),
+            Arguments.of("nestedTry", b),
+            Arguments.of("tryReturnFinally", u),
+            Arguments.of("tryReturnFinally", b),
         )
 
         @JvmStatic
@@ -198,6 +232,28 @@ class VcgSemanticsTest {
             Arguments.of("overflowDetected", b.copy(checkOverflow = true)),
             Arguments.of("boundedOverflow", b.copy(checkOverflow = true)),
             Arguments.of("boundedOob", b.copy(checkIndex = true)),
+            // falsifiable-by-design: the specification is wrong (the engine is right):
+            // returning early from a loop leaves a lower accumulator than the spec claims
+            Arguments.of("returnEarlyNoContinue", u),
+            Arguments.of("returnEarlyNoContinue", b),
+            // break inside try: for n >= 2 the accumulator reaches 2, not 1
+            Arguments.of("tryBreakOnly", u),
+            Arguments.of("tryBreakOnly", b),
+            // continue + return: for n < 4 the loop never returns and yields 0
+            Arguments.of("continueThenReturn", u),
+            Arguments.of("continueThenReturn", b),
+            // two continues: for n >= 4 the accumulator reaches 2, not 1
+            Arguments.of("loopContinueNoTry", u),
+            Arguments.of("loopContinueNoTry", b),
+            // break without try: for n = 2 the accumulator reaches 2, not 1
+            Arguments.of("loopBreakNoTry", u),
+            Arguments.of("loopBreakNoTry", b),
+            // nested catch/finally around an expression: final value is 10/(x+1)+2, not 0
+            Arguments.of("nestedCatchFinally", u),
+            Arguments.of("nestedCatchFinally", b),
+            // unbounded MIN_VALUE - 1 does not wrap: result is -2147483649, not -2147483647
+            Arguments.of("minUnderflow", u),
+            Arguments.of("minUnderflow", b),
         )
     }
 
@@ -226,6 +282,23 @@ class VcgSemanticsTest {
     fun testSwitchIsRejectedByGeneration() {
         val ex = assertThrows(UnsupportedOperationException::class.java) { vcgFor("switchNotSupported", u) }
         assertTrue(ex.message!!.contains("not yet supported"), ex.message)
+    }
+
+    @Test
+    fun testAutoboxingRejectedByGeneration() {
+        // auto- (un-)boxing of a boxed parameter is not modeled; the engine must
+        // fail with an explicit "Could not handle types" error instead of producing
+        // a silently wrong condition
+        val ex = assertThrows(RuntimeException::class.java) { vcgFor("unboxedIncrement", u) }
+        assertTrue(ex.message!!.contains("Could not handle types"), ex.message)
+    }
+
+    @Test
+    fun testBoxedReturnTypeRejectedByGeneration() {
+        // a boxed (reference) return type such as Integer is not modeled soundly;
+        // generation must reject it up front instead of emitting an ill-sorted query
+        val ex = assertThrows(RuntimeException::class.java) { vcgFor("boxedIdentity", u) }
+        assertTrue(ex.message!!.contains("boxed return type"), ex.message)
     }
 
     @Test

@@ -171,6 +171,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         allTypes.addAll(
             setOf(
                 "java.lang.Object",
+                "java.lang.String",
                 "java.lang.Exception",
                 "java.lang.RuntimeException",
                 "java.lang.ArithmeticException",
@@ -273,12 +274,29 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         envTypes[ExprTranslator.EXCVAL] = SmtType.JAVA_OBJECT
         val returnType = returnTypeOf(callable)
         if (returnType != null) {
+            if (isBoxedType(returnType)) {
+                throw RuntimeException(
+                    "Cannot model boxed return type '${describeType(returnType)}' (auto-boxing is not supported)"
+                )
+            }
             val sType = safeType(returnType)
             query.declareConst(ExprTranslator.RESULT, sType)
             env[ExprTranslator.RESULT] = term.variable(sType, returnType, ExprTranslator.RESULT)
             envTypes[ExprTranslator.RESULT] = sType
         }
         oldEnv.putAll(env)
+    }
+
+    private fun isBoxedType(t: ResolvedType): Boolean {
+        val id = try {
+            (t as? com.github.javaparser.resolution.types.ResolvedReferenceType)?.qualifiedName
+        } catch (e: Exception) {
+            null
+        }
+        return id in setOf(
+            "java.lang.Integer", "java.lang.Long", "java.lang.Boolean", "java.lang.Character",
+            "java.lang.Short", "java.lang.Byte", "java.lang.Float", "java.lang.Double"
+        )
     }
 
     private fun returnTypeOf(callable: CallableDeclaration<*>): ResolvedType? {
@@ -290,6 +308,12 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             }
         }
         return null // constructors have no result
+    }
+
+    private fun describeType(t: ResolvedType): String = try {
+        t.describe()
+    } catch (e: Exception) {
+        t.toString()
     }
 
     private fun resolveType(t: com.github.javaparser.ast.type.Type): ResolvedType? = try {
@@ -779,11 +803,14 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     private fun execThrow(s: NfThrow, guard: SExpr, mode: Mode) {
         val g = effectiveGuard(guard, s)
         val v = atom(s.exception, g, mode)
-        // exception value (fresh) and thrown flag
+        // exception value (fresh) and thrown flag, bound phi-style so a throw under a
+        // dead guard keeps previous values instead of leaving fresh constants unconstrained
+        val prevEv = env[ExprTranslator.EXCVAL] ?: term.makeNull()
         val ev = freshVersion(ExprTranslator.EXCVAL, SmtType.JAVA_OBJECT)
-        emit(mode, g, equality(ev, v))
+        emitPhi(mode, equality(ev, iteTerm(g, v, prevEv)))
+        val prevExc = env[ExprTranslator.EXC] ?: term.makeFalse()
         val exc = freshVersion(ExprTranslator.EXC, SmtType.BOOL)
-        emit(mode, g, equality(exc, term.makeTrue()))
+        emitPhi(mode, equality(exc, iteTerm(g, term.makeTrue(), prevExc)))
     }
 
     /**
@@ -796,6 +823,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
      */
     private fun execTryCatch(s: NfTryCatch, guard: SExpr, mode: Mode): SExpr {
         val g = effectiveGuard(guard, s)
+        val preTry = LinkedHashMap(env)
 
         // (1) execute the try body
         exec(s.tryBody, g, mode)
@@ -851,7 +879,12 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 if (normalV != handledV && normalV != null && handledV != null) {
                     val type = envTypes[key] ?: continue
                     val phi = freshVersion(key, type)
-                    emit(mode, resumeGuard, equality(phi, iteTerm(handled, handledV, normalV)))
+                    // phi-style merge: `phi = ite(resumeGuard, ite(handled, handledV, normalV), preTry)`
+                    // so a dead/unresumed path (unhandled exception, or a try that is
+                    // itself under a false guard) keeps the pre-try value instead of
+                    // leaving `phi` as an unconstrained constant.
+                    val pre = preTry[key] ?: normalV
+                    emitPhi(mode, equality(phi, iteTerm(resumeGuard, iteTerm(handled, handledV, normalV), pre)))
                     env[key] = phi
                 }
             }
@@ -862,8 +895,9 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             exec(s.finallyBody, resumeGuard, mode)
         }
         // reset the exception flag on all paths that continue past the try
+        val prevExc = env[ExprTranslator.EXC] ?: term.makeFalse()
         val excFresh = freshVersion(ExprTranslator.EXC, SmtType.BOOL)
-        emit(mode, resumeGuard, equality(excFresh, term.makeFalse()))
+        emitPhi(mode, equality(excFresh, iteTerm(resumeGuard, term.makeFalse(), prevExc)))
         // an unhandled exception keeps the path unreachable for the caller level
         return resumeGuard
     }
@@ -997,8 +1031,21 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             val ev = env[key]
             if (tv != ev && tv != null && ev != null) {
                 val type = envTypes[key] ?: SmtType.INT
+                // read the pre-if value *before* freshVersion: when the else-branch is
+                // empty, `env` aliases `snapshot` (env = snapshot above), so freshVersion
+                // would otherwise write the new phi into snapshot and make the fallback
+                // self-referential (`phi = ite(g, ..., phi)`), leaving `phi` unconstrained
+                // on paths where the if-guard is false.
+                val pre = snapshot[key] ?: ev
                 val phi = freshVersion(key, type)
-                emit(mode, g, equality(phi, iteTerm(c, tv, ev)))
+                // phi-style merge: `phi = ite(g, ite(c, tv, ev), pre)`. The if-guard
+                // `g` is folded into the binding so a dead branch (guard false — e.g.
+                // a `continue`/`break`/`return` earlier in an unrolled loop body)
+                // keeps the pre-if value instead of leaving `phi` unconstrained;
+                // an unconstrained phi referenced by loop-exit conditions and the
+                // post-loop merge lets the solver invent values for it (spurious
+                // counterexamples for loops combining continue/break/return).
+                emitPhi(mode, equality(phi, iteTerm(g, iteTerm(c, tv, ev), pre)))
                 env[key] = phi
             } else if (tv != null && ev == null) {
                 env[key] = tv
@@ -1069,13 +1116,23 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 if (bv != sv && bv != null && sv != null) {
                     val type = envTypes[key] ?: SmtType.INT
                     val phi = freshVersion(key, type)
-                    emit(mode, prefix, equality(phi, iteTerm(c, bv, sv)))
+                    // phi-style merge: `phi = ite(prefix, ite(c, bv, sv), sv)`. The
+                    // iteration-entry guard is folded in so that a dead iteration
+                    // (loop already exited via break/return earlier) keeps the
+                    // pre-iteration value instead of leaving `phi` as an unconstrained
+                    // constant that the exit-merge chain could later select.
+                    emitPhi(mode, equality(phi, iteTerm(prefix, iteTerm(c, bv, sv), sv)))
                     env[key] = phi
                 }
             }
             // reset continue flag of this loop for the next iteration
+            val prevCont = env[ExprTranslator.CONTINUE + loopId] ?: term.makeFalse()
             val cont = freshVersion(ExprTranslator.CONTINUE + loopId, SmtType.BOOL)
-            emit(mode, term.and(prefix, c), equality(cont, term.makeFalse()))
+            // phi-style reset: `cont = ite(and(prefix, c), false, prevCont)`. Without
+            // folding the guard in, `cont` is an unconstrained fresh constant on paths
+            // where the iteration is not entered (loop already exited), and the enclosed
+            // statements of later iterations would be spuriously gated by `not cont`.
+            emitPhi(mode, equality(cont, iteTerm(term.and(prefix, c), term.makeFalse(), prevCont)))
             // enter the next iteration only if this one was completed normally
             prefix = term.and(
                 prefix, c,

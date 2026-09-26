@@ -1013,7 +1013,6 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     public void visit(JmlSignalsClause n, Void arg) {
         printOrphanCommentsBeforeThisChildNode(n);
         n.getKind().accept(this, null);
-        printer.print(" ");
         printer.print(" (");
         n.getParameter().accept(this, arg);
         printer.print(") ");
@@ -1025,7 +1024,6 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     public void visit(JmlSignalsOnlyClause n, Void arg) {
         printOrphanCommentsBeforeThisChildNode(n);
         n.getKind().accept(this, null);
-        printer.print(" ");
         printer.print(" ");
         printList(n.getTypes(), ", ");
         printer.print(";");
@@ -1076,7 +1074,6 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     public void visit(JmlCallableClause n, Void arg) {
         printOrphanCommentsBeforeThisChildNode(n);
         n.getKind().accept(this, null);
-        printer.print(" ");
         printer.print(" TODO");
         printer.println(";");
     }
@@ -1085,7 +1082,6 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     public void visit(JmlForallClause n, Void arg) {
         printOrphanCommentsBeforeThisChildNode(n);
         n.getKind().accept(this, null);
-        printer.print(" ");
         printer.print(" ");
         printList(n.getBoundedVariables(), ", ");
         printer.println(";");
@@ -1265,7 +1261,6 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     public void visit(JmlOldClause n, Void arg) {
         printOrphanCommentsBeforeThisChildNode(n);
         n.getKind().accept(this, null);
-        printer.print(" ");
         printer.print(" ");
         printList(n.getDeclarations().getVariables(), ", ");
         printer.print(";");

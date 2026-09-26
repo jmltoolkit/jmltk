@@ -125,14 +125,14 @@ class ExprTranslator(
     private fun sortName(t: String): String =
         "sort_" + qualify(t).replace('.', '_').lowercase()
 
-    /** Resolves unqualified `java.lang.*` exception names to their qualified form. */
+    /** Resolves unqualified `java.lang.*` names to their qualified form. */
     private fun qualify(t: String): String =
         if (t.contains('.')) {
             t
         } else {
             when (t) {
             "Exception", "RuntimeException", "ArithmeticException", "NullPointerException",
-            "ArrayIndexOutOfBoundsException", "Object", "Throwable",
+            "ArrayIndexOutOfBoundsException", "Object", "Throwable", "String",
             -> "java.lang.$t"
 
             else -> t

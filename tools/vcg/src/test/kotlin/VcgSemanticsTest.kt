@@ -6,8 +6,11 @@ package io.github.jmltoolkit.vcg
 
 import com.github.javaparser.JavaParser
 import com.github.javaparser.ParserConfiguration
+import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
+import com.github.javaparser.ast.expr.MethodCallExpr
+import com.github.javaparser.ast.stmt.WhileStmt
 import com.github.javaparser.symbolsolver.JavaSymbolSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver
@@ -15,6 +18,7 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeS
 import io.github.jmltoolkit.smt.Z3
 import io.github.jmltoolkit.smt.solver.Solver
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assumptions
@@ -225,6 +229,45 @@ class VcgSemanticsTest {
             Arguments.of("nestedTry", b),
             Arguments.of("tryReturnFinally", u),
             Arguments.of("tryReturnFinally", b),
+            // coverage batch: targeted engine branches
+            Arguments.of("customExceptionCatch", u),
+            Arguments.of("customExceptionCatch", b),
+            Arguments.of("qualifiedCatch", u),
+            Arguments.of("arrayStoreInLoop", u.copy(defaultUnrollDepth = 4)),
+            Arguments.of("arrayNullInStmt2", u),
+            Arguments.of("arrayNullInStmt2", b),
+            // runtime-checks parity: subtraction overflow, remainder division
+            Arguments.of("boundedSub", b.copy(checkOverflow = true)),
+            Arguments.of("boundedRem", b.copy(checkDivision = true)),
+            Arguments.of("boundedDiv", b.copy(checkOverflow = true, checkDivision = true)),
+            // loop contracts with only one abrupt-clause family present
+            Arguments.of("loopContractContinueOnly", u),
+            Arguments.of("loopContractContinueNoClause", u),
+            Arguments.of("loopContractBreakNoClause", u),
+            // contract calls: name/local assignable clauses, \everything arrays, receivers
+            Arguments.of("callAssignableName", uContract),
+            Arguments.of("callAssignableLocal", uContract),
+            Arguments.of("callBumpEverythingArr", uContract),
+            Arguments.of("callStaticContract", uContract),
+            Arguments.of("callThisShorthand", uContract),
+            Arguments.of("callObjParam", uContract),
+            // inlined calls: nested bodies, aliased array params, fresh receivers, static
+            Arguments.of("callStaticInline", uInline),
+            Arguments.of("inlineNested", uInline),
+            Arguments.of("inlineArrayParam", uInline),
+            Arguments.of("callNewBox", uInline),
+            Arguments.of("selfRecInline", uInline.copy(maxInlineDepth = 1)),
+            // heap field selection on arbitrary receivers and unresolved types
+            Arguments.of("writeHolderArray", u),
+            Arguments.of("readHolderArray", u),
+            Arguments.of("readBoxField", u),
+            Arguments.of("readUnknownField", u),
+            // array creation with symbolic length, unresolved return/catch types
+            Arguments.of("makeArray", u),
+            Arguments.of("returnsUnknown", u),
+            Arguments.of("catchUnknownType", u),
+            // overload resolution in contract calls
+            Arguments.of("overloadCaller", u),
         )
 
         @JvmStatic
@@ -281,6 +324,14 @@ class VcgSemanticsTest {
     @Test
     fun testSwitchIsRejectedByGeneration() {
         val ex = assertThrows(UnsupportedOperationException::class.java) { vcgFor("switchNotSupported", u) }
+        assertTrue(ex.message!!.contains("not yet supported"), ex.message)
+    }
+
+    @Test
+    fun testSwitchInsideInlinedCalleeIsRejected() {
+        // inlining walks the callee's declared locals before execution, so the
+        // switch inside an inlined callee is still collected and then rejected
+        val ex = assertThrows(UnsupportedOperationException::class.java) { vcgFor("callInlineSwitch", uInline) }
         assertTrue(ex.message!!.contains("not yet supported"), ex.message)
     }
 
@@ -372,6 +423,93 @@ class VcgSemanticsTest {
     fun testPreconditionObligationCarriesCalleeName() {
         val res = vcgFor("useInc", uContract)
         assertTrue(res.conditions.any { it.description.contains("precondition of inc") })
+    }
+
+    //endregion
+
+    //region options and context helper coverage
+
+    @Test
+    fun testExplicitLoopStrategyOverride() {
+        // an annotated loop with an explicit loopStrategies entry must use the override
+        // instead of the annotation-driven default (LOOP_CONTRACT is never chosen here)
+        val loop = method("sumInvariant").findAll(WhileStmt::class.java).first()
+        val opts = VcgOptions(
+            mode = VerificationMode.UNBOUNDED,
+            defaultLoopStrategy = LoopStrategy.UNROLL,
+            loopStrategies = mapOf<Node, LoopStrategy>(loop to LoopStrategy.UNROLL),
+            loopUnrollDepth = mapOf<Node, Int>(loop to 5),
+        )
+        expectAllProven(vcgFor("sumInvariant", opts))
+    }
+
+    @Test
+    fun testExplicitUnannotatedLoopStrategyOverride() {
+        // a *plain* (unannotated) loop forced to UNROLL through the options map
+        val loop = method("loopWithoutInvariant").findAll(WhileStmt::class.java).first()
+        val opts = VcgOptions(
+            mode = VerificationMode.UNBOUNDED,
+            loopStrategies = mapOf<Node, LoopStrategy>(loop to LoopStrategy.UNROLL),
+            loopUnrollDepth = mapOf<Node, Int>(loop to 3),
+        )
+        val res = vcgFor("loopWithoutInvariant", opts)
+        assertEquals(1, res.conditions.size, "only the postcondition obligation")
+        expectAllProven(res)
+    }
+
+    @Test
+    fun testExplicitCallStrategyOverride() {
+        // a call whose callStrategies entry forces INLINE despite the default CONTRACT
+        val call = method("useInc").findAll(MethodCallExpr::class.java).first { it.nameAsString == "inc" }
+        val opts = VcgOptions(
+            mode = VerificationMode.UNBOUNDED,
+            defaultCallStrategy = CallStrategy.CONTRACT,
+            callStrategies = mapOf(call to CallStrategy.INLINE),
+        )
+        expectAllProven(vcgFor("useInc", opts))
+    }
+
+    @Test
+    fun testOptionsLookupBranches() {
+        val loop = method("loopWithoutInvariant").findAll(WhileStmt::class.java).first()
+        val otherLoop = method("sumBounded").findAll(WhileStmt::class.java).first()
+        val call = method("useInc").findAll(MethodCallExpr::class.java).first { it.nameAsString == "inc" }
+        val otherCall = method("callIncCounter").findAll(MethodCallExpr::class.java).first()
+        val opts = VcgOptions(
+            mode = VerificationMode.UNBOUNDED,
+            loopStrategies = mapOf<Node, LoopStrategy>(loop to LoopStrategy.INVARIANT),
+            loopUnrollDepth = mapOf<Node, Int>(loop to 7),
+            callStrategies = mapOf(call to CallStrategy.INLINE),
+        )
+        assertEquals(LoopStrategy.INVARIANT, opts.loopStrategy(loop))
+        assertEquals(LoopStrategy.UNROLL, opts.loopStrategy(otherLoop))
+        assertEquals(7, opts.unrollDepth(loop))
+        assertEquals(VcgOptions().defaultUnrollDepth, opts.unrollDepth(otherLoop))
+        assertEquals(CallStrategy.INLINE, opts.callStrategy(call))
+        assertEquals(CallStrategy.CONTRACT, opts.callStrategy(otherCall))
+    }
+
+    @Test
+    fun testOptionsValueSemantics() {
+        val a = VcgOptions()
+        val b = VcgOptions()
+        assertEquals(a, b)
+        assertEquals(a.hashCode(), b.hashCode())
+        val c = a.copy(mode = VerificationMode.UNBOUNDED)
+        assertNotEquals(a, c)
+        assertTrue(a.toString().contains("VcgOptions"), a.toString())
+    }
+
+    @Test
+    fun testVcgContextEnclosingTypeRejectedForOrphanCallable() {
+        // a callable that is not enclosed by any type declaration must be rejected
+        // when its enclosing type is requested
+        val r = parser.parseBodyDeclaration<MethodDeclaration>("public void m(int x) { }")
+        assertTrue(r.isSuccessful, r.problems.toString())
+        val md = r.result.get() as MethodDeclaration
+        val ctx = VcgContext(md, com.github.javaparser.ast.jml.clauses.JmlContract())
+        val ex = assertThrows(IllegalArgumentException::class.java) { ctx.enclosingType }
+        assertTrue(ex.message!!.contains("enclosed"), ex.message)
     }
     //endregion
 }

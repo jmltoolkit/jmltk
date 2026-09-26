@@ -44,7 +44,6 @@ import io.github.jmltoolkit.vcg.ir.NfArray
 import io.github.jmltoolkit.vcg.ir.NfAssert
 import io.github.jmltoolkit.vcg.ir.NfAssign
 import io.github.jmltoolkit.vcg.ir.NfAssume
-import io.github.jmltoolkit.vcg.ir.NfBlock
 import io.github.jmltoolkit.vcg.ir.NfBreak
 import io.github.jmltoolkit.vcg.ir.NfCall
 import io.github.jmltoolkit.vcg.ir.NfContinue
@@ -743,8 +742,6 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             )
 
             is NfHavoc -> freshVersion(locationKey(s.location), locType(s.location))
-
-            is NfBlock -> return exec(s.stmts, guard, mode)
         }
         return guard
     }
@@ -1305,8 +1302,6 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
 
                     is NfLoop -> go(s.body)
 
-                    is NfBlock -> go(s.stmts)
-
                     else -> {}
                 }
             }
@@ -1768,7 +1763,6 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                     collectCalleeDeclaredKeys(s.elseStmts, out)
                 }
                 is NfLoop -> collectCalleeDeclaredKeys(s.body, out)
-                is NfBlock -> collectCalleeDeclaredKeys(s.stmts, out)
                 is NfTryCatch -> {
                     collectCalleeDeclaredKeys(s.tryBody, out)
                     s.catches.forEach { collectCalleeDeclaredKeys(it.body, out) }

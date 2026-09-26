@@ -43,6 +43,7 @@ class IntArithmeticTranslator(smtLog: SmtQuery) : BitVectorArithmeticTranslator(
     }
 
     override fun getPrimitiveType(rType: ResolvedPrimitiveType) = when (rType) {
+        ResolvedPrimitiveType.BOOLEAN -> SmtType.BOOL
         ResolvedPrimitiveType.FLOAT, ResolvedPrimitiveType.DOUBLE -> SmtType.REAL
         else -> SmtType.INT
     }

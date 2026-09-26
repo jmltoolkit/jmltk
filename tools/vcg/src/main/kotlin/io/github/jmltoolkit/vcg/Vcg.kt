@@ -328,9 +328,21 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 term.type(ret)
             )
         )
-        // Array length is *framed* explicitly at each store (see execAssign) instead
-        // of axiomatised globally: a quantified store-preservation axiom over array
-        // sorts makes the solver answer `unknown` on otherwise simple queries.
+        // Java array lengths are always non-negative; without this the bit-vector
+        // length may take a huge negative value that passes `len <= 4` under signed
+        // comparison, turning e.g. a binary search bound into nonsense. This is a
+        // guarded-free quantifier that E-matching instantiates only on `length`
+        // terms, so it stays cheap (unlike a quantified store-preservation axiom,
+        // which made the solver answer `unknown` on simple queries).
+        val lenVar = term.binder(arg, "a")
+        val lenTerm = translator.arrayLength(term.variable(arg, null, "a"))
+        val zero = if (unbounded) translator.makeInt(java.math.BigInteger.ZERO) else translator.makeInt(0)
+        query.addCommand(
+            term.command(
+                "assert",
+                term.forall(listOf(lenVar), term.greaterOrEquals(lenTerm, zero, true))
+            )
+        )
     }
 
     private var lengthFnDeclared = false
@@ -485,10 +497,37 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         }
         val versioned = activeEnv["$scopeText.$field"]
         if (versioned != null) return versioned
-        val jType = envJavaTypes["this.$field"]
-        val sType = envTypes["this.$field"] ?: SmtType.INT
+        // The field's SMT sort must come from the *receiver's* type (not the
+        // enclosing class): an `int` field of a referenced object is a bit-vector
+        // in BOUNDED mode, so a selector typed as `Int` would be ill-sorted.
+        val (jType, sType) = fieldSelectorType(receiver, scopeText, field)
         val fn = fieldSelector(field, sType, jType)
         return term.list(jType, sType, term.symbol(fn), receiver)
+    }
+
+    /** Resolves the Java/SMT type of `scope.field` from the resolved receiver type. */
+    private fun fieldSelectorType(
+        receiver: SExpr, scopeText: String, field: String
+    ): Pair<ResolvedType?, SmtType> {
+        val thisJ = envJavaTypes["this.$field"]
+        if (thisJ != null) return thisJ to (envTypes["this.$field"] ?: safeType(thisJ))
+        val resolved = receiver.javaType
+        val fieldJType = (resolved as? com.github.javaparser.resolution.types.ResolvedReferenceType)
+            ?.getFieldType(field)?.orElse(null)
+        if (fieldJType != null) return fieldJType to safeType(fieldJType)
+        // last resort: mode-appropriate scalar default
+        val default = if (options.mode == VerificationMode.BOUNDED) SmtType.BV32 else SmtType.INT
+        return null to (envTypes["this.$field"] ?: default)
+    }
+
+    /** SMT sort for writing `scope.field`, mirroring [fieldSelectorType]. */
+    private fun fieldWriteType(t: NfField, key: String): SmtType {
+        envTypes[key]?.let { return it }
+        if (t.receiver == "this") return locType(t)
+        val receiverExpr = env[t.receiver]
+        val fieldName = t.key.substringAfterLast('.')
+        if (receiverExpr != null) return fieldSelectorType(receiverExpr, t.receiver, fieldName).second
+        return locType(t)
     }
 
     /** Declares an unknown field of `this` on first use (flat constant model). */
@@ -578,6 +617,17 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         when (mode) {
             is Mode.Real -> query.addAssert(f)
             is Mode.Record -> mode.rec.conjuncts.add(f)
+        }
+    }
+
+    /** Emits [formula] without wrapping it in the guard: used for phi-style bindings
+     *  (`v' = ite(cond, new, old)`) whose guards re-appear inside the formula, so that
+     *  dead paths (e.g. a `return` after an unrolled loop that never exits) still keep
+     *  the previous value instead of leaving the new constant unconstrained. */
+    private fun emitPhi(mode: Mode, formula: SExpr) {
+        when (mode) {
+            is Mode.Real -> query.addAssert(formula)
+            is Mode.Record -> mode.rec.conjuncts.add(formula)
         }
     }
 
@@ -715,8 +765,13 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         loopContext.lastOrNull()?.first
 
     private fun setFlag(key: String, guard: SExpr, mode: Mode) {
+        val prev = env[key] ?: term.makeFalse()
         val f = freshVersion(key, SmtType.BOOL)
-        emit(mode, guard, equality(f, term.makeTrue()))
+        // phi-style binding: `f = ite(guard, true, prev)`. Without it, `f` stays an
+        // unconstrained fresh constant on paths where the guard is false, which lets
+        // the solver spuriously take the abrupt-completion branch (`$break`/`$continue`)
+        // later (e.g. in an unrolled loop's exit conditions) with unbound post values.
+        emitPhi(mode, equality(f, iteTerm(guard, term.makeTrue(), prev)))
     }
 
     /** Executes a `throw`; sets the exceptional completion flags, disabling normal
@@ -844,14 +899,16 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             val v = atom(s.value, g, mode)
             val res = freshVersion(ExprTranslator.RESULT, envTypes[ExprTranslator.RESULT]!!)
             // `return` may be dead on some paths (an earlier return/abrupt exit already
-            // happened). Bind the new version phi-style so those paths keep the previous
-            // value instead of leaving the constant unconstrained (which would produce
-            // spurious counterexamples for the postcondition).
-            emit(mode, guard, equality(res, iteTerm(g, v, prev ?: res)))
+            // happened, or an enclosing unrolled loop could not exit). Bind the new
+            // version phi-style so those paths keep the previous value instead of
+            // leaving the constant unconstrained (which would produce spurious
+            // counterexamples for the postcondition); the phi is emitted as a hard
+            // equality because `g` reappears inside the ite.
+            emitPhi(mode, equality(res, iteTerm(g, v, prev ?: res)))
         }
         val prevRet = env[ExprTranslator.RET]
         val ret = freshVersion(ExprTranslator.RET, SmtType.BOOL)
-        emit(mode, guard, equality(ret, iteTerm(g, term.makeTrue(), prevRet ?: ret)))
+        emitPhi(mode, equality(ret, iteTerm(g, term.makeTrue(), prevRet ?: ret)))
     }
 
     private fun locationKey(l: NfLocation): String = when (l) {
@@ -886,7 +943,10 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 }
                 val v = atom(s.rhs, g, mode)
                 val next = freshVersion(key, arrType)
-                emit(mode, g, equality(next, term.store(arr, idx, v)))
+                // phi-style store: on paths where the store does not execute (dead
+                // guard, e.g. statements after a `break`), the array keeps its old
+                // value instead of becoming a fresh unconstrained constant.
+                emitPhi(mode, equality(next, iteTerm(g, term.store(arr, idx, v), arr)))
                 // frame the array length across the store: len(a[i := v]) == len(a).
                 // Without this, a fresh version introduced by the store has an
                 // unconstrained length and bounds checks on a read *afterwards*
@@ -896,10 +956,23 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
 
             else -> {
                 val key = locationKey(t)
-                val type = (t as? NfLocal)?.declaredType?.let { dt -> safeType(tryResolve(dt)) } ?: locType(t)
+                val type = when (t) {
+                    is NfLocal -> t.declaredType?.let { dt -> safeType(tryResolve(dt)) } ?: locType(t)
+                    is NfField -> fieldWriteType(t, key)
+                    else -> locType(t)
+                }
                 val v = atom(s.rhs, g, mode)
+                val prev = env[key]
                 val next = freshVersion(key, type)
-                emit(mode, g, equality(next, v))
+                // phi-style assignment: when the guard is false (dead path — e.g.
+                // statements after a `break`/`continue`/`return`) the variable keeps
+                // its previous value. Without this, `next` is an unconstrained fresh
+                // constant that leaks into loop merges and postconditions.
+                if (prev != null) {
+                    emitPhi(mode, equality(next, iteTerm(g, v, prev)))
+                } else {
+                    emit(mode, g, equality(next, v))
+                }
             }
         }
     }
@@ -1024,9 +1097,18 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         for (key in modified) {
             val type = envTypes[key] ?: continue
             var acc: SExpr? = null
+            // locations declared inside the loop body (e.g. `int mid = ...`) are absent
+            // from pre-entry and early-exit snapshots; on those paths the value is
+            // undefined, so fall back to an unconstrained constant of the right sort
+            // (a boolean literal would be a sort mismatch for non-BOOL locations).
+            var undef: SExpr? = null
             for (j in exits.indices.reversed()) {
                 val e = exits[j]
-                val v = e.values[key] ?: preLoop[key] ?: term.makeFalse()
+                val v = e.values[key] ?: preLoop[key] ?: undef ?: run {
+                    val name = "\$undef_${++uid}"
+                    query.declareConst(name, type)
+                    term.variable(type, envJavaTypes[key], name).also { undef = it }
+                }
                 acc = if (acc == null) v else iteTerm(e.cond, v, acc)
             }
             if (acc != null) {
@@ -1234,13 +1316,19 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
 
         is MethodCallExpr -> handleCall(e, guard, mode)
 
-        is ObjectCreationExpr -> translatorOf().tr(e)
+        is ObjectCreationExpr -> {
+            // `new T(...)`: a fresh, unconstrained object of the (reference) sort.
+            // Constructor arguments are still evaluated for their side effects.
+            for (a in e.arguments) atom(a, guard, mode)
+            freshTemp(SmtType.JAVA_OBJECT, tryExprType(e))
+        }
 
         is ArrayAccessExpr -> {
             val arrayS: SExpr = atom((e as ArrayAccessExpr).name, guard, mode)
             val indexS: SExpr = atom(e.index, guard, mode)
             checkIndex(e, arrayS, indexS, guard, mode)
-            term.select(SmtType.INT, null, arrayS, indexS)
+            val elementType = (arrayS.smtType as? SmtType.Array)?.to ?: SmtType.INT
+            term.select(elementType, null, arrayS, indexS)
         }
 
         is NameExpr, is ThisExpr, is FieldAccessExpr, is LiteralExpr, is JmlExpression ->
@@ -1289,9 +1377,12 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     private fun fnApplyOverflow(fn: String, e: BinaryExpr): SExpr {
         val a = e.left.accept(translatorOf(), null)!!
         val b = e.right.accept(translatorOf(), null)!!
+        // z3's bvsaddo/bvssubo/bvsmulo take exactly two bit-vector arguments; the
+        // width is fixed by the sort of the arguments themselves, so a width
+        // literal would be ill-sorted.
         return SList(
             SmtType.BOOL, null,
-            listOf(term.symbol(fn), term.symbol("32"), a, b)
+            listOf(term.symbol(fn), a, b)
         )
     }
 
@@ -1429,7 +1520,18 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         fun calleeView(): HashMap<String, SExpr> {
             val m = HashMap(env)
             decl.parameters.forEachIndexed { i, p ->
-                if (i < args.size) m[p.nameAsString] = args[i]
+                if (i < args.size) {
+                    // Reference-typed parameters (arrays/objects) are passed by
+                    // reference and may alias an `assignable` location that was
+                    // havoced in (b): bind them to the *post-havoc* env value so the
+                    // callee's `ensures` is assumed against the state the caller will
+                    // observe after the call. Scalar parameters stay by value.
+                    val pj = try { p.type.resolve() } catch (e: Exception) { null }
+                    val byRef = pj?.isArray == true ||
+                        (pj?.isReferenceType == true && envTypes[p.nameAsString] !== SmtType.INT)
+                    val post = if (byRef) env[p.nameAsString] else null
+                    m[p.nameAsString] = post ?: args[i]
+                }
             }
             m[ExprTranslator.RESULT] = result
             bindReceiver(m)

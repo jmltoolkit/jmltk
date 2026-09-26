@@ -66,6 +66,7 @@ class ExprTranslatorTest {
     private fun bVar(name: String) = term.variable(SmtType.BOOL, ResolvedPrimitiveType.BOOLEAN, name)
     private fun aVar(name: String) = term.variable(SmtType.Array(SmtType.INT, SmtType.INT), null, name)
     private fun bvVar(name: String) = term.variable(SmtType.BV32, null, name)
+    private fun oVar(name: String) = term.variable(SmtType.JAVA_OBJECT, null, name)
 
     private fun tr(
         src: String,
@@ -275,6 +276,18 @@ class ExprTranslatorTest {
     @Test
     fun testInstanceOfQualifiesObject() {
         assertEquals("(instanceof x sort_java_lang_object)", tr("x instanceof Object", mapOf("x" to iVar("x"))).toString())
+    }
+
+    @Test
+    fun testPrimitiveCastIsElided() {
+        // numeric casts are width-agnostic in the SMT encoding and must be dropped
+        assertEquals("a", tr("(int) a", mapOf("a" to iVar("a"))).toString())
+    }
+
+    @Test
+    fun testReferenceCastEmitsCastTerm() {
+        // a reference cast must be kept: `(cast value sort_C)`
+        assertEquals("(cast x sort_box)", tr("(Box) x", mapOf("x" to oVar("x"))).toString())
     }
     //endregion
 

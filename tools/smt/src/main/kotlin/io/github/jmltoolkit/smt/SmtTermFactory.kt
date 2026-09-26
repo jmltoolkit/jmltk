@@ -254,6 +254,31 @@ object SmtTermFactory {
     fun bvType(width: Int): SExpr =
         SList(SmtType.TYPE, null, listOf(symbol("_"), symbol("BitVec"), intValue(width.toLong())))
 
+    /**
+     * Sign-extends [expr] to [toWidth] bits using SMT-LIB's `(_ sign_extend k)`.
+     *
+     * The overflow predicates `bvsaddo`/`bvssubo`/`bvsmulo` only exist in newer
+     * Z3 releases (Ubuntu noble ships Z3 4.8.12, which rejects them with
+     * `unknown constant`). Overflow checks therefore compare the widened exact
+     * operation against the sign-extended wrap-around result instead, which only
+     * needs portable bit-vector operations.
+     */
+    fun signExtend(expr: SExpr, toWidth: Int): SExpr {
+        val fromWidth = (expr.smtType as? BitVec)?.width
+            ?: throw RuntimeException("signExtend requires a bit-vector operand, got ${expr.smtType}")
+        val bits = toWidth - fromWidth
+        require(bits >= 0) { "signExtend: target width $toWidth must be at least the operand width $fromWidth" }
+        if (bits == 0) return expr
+        val type = SmtType.getBitVec(toWidth)
+        return SList(
+            type, null,
+            listOf(
+                SList(null, null, listOf(symbol("_"), symbol("sign_extend"), intValue(bits.toLong()))),
+                expr
+            )
+        )
+    }
+
     //endregion
     private fun isBool(sexpr: SExpr): Boolean = sexpr.smtType == SmtType.BOOL
 

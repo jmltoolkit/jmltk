@@ -246,7 +246,11 @@ class ExprTranslator(
     override fun visit(n: ArrayAccessExpr, arg: Any?): SExpr {
         val array = n.name.accept(this, arg)!!
         val index = n.index.accept(this, arg)!!
-        return term.select(SmtType.INT, null, array, index)
+        // The element sort must come from the array's declared sort: bit-vector
+        // element in BOUNDED mode, `Int` in UNBOUNDED. Hardcoding `Int` would make
+        // bounded-mode array reads ill-sorted against BV32 literals and arrays.
+        val elementType = (array.smtType as? SmtType.Array)?.to ?: SmtType.INT
+        return term.select(elementType, null, array, index)
     }
 
     override fun visit(n: ArrayCreationExpr, arg: Any?): SExpr {

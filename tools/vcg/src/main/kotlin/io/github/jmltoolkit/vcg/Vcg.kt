@@ -1414,28 +1414,45 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         ) {
             return
         }
-        val fn = when (e.operator) {
-            BinaryExpr.Operator.PLUS -> "bvsaddo"
-            BinaryExpr.Operator.MINUS -> "bvssubo"
-            else -> "bvsmulo"
-        }
         addObligation(
             "arithmetic overflow ${describe(e)}",
-            term.impl(guard, term.not(fnApplyOverflow(fn, e))),
+            term.impl(guard, term.not(fnApplyOverflow(e))),
             mode
         )
     }
 
-    private fun fnApplyOverflow(fn: String, e: BinaryExpr): SExpr {
-        val a = e.left.accept(translatorOf(), null)!!
-        val b = e.right.accept(translatorOf(), null)!!
-        // z3's bvsaddo/bvssubo/bvsmulo take exactly two bit-vector arguments; the
-        // width is fixed by the sort of the arguments themselves, so a width
-        // literal would be ill-sorted.
-        return SList(
-            SmtType.BOOL, null,
-            listOf(term.symbol(fn), a, b)
+    /**
+     * Encodes "the operation [e] overflows its signed bit-vector type" using only
+     * portable SMT-LIB bit-vector operators. The previous encoding used Z3's
+     * overflow predicates `bvsaddo`/`bvssubo`/`bvsmulo`, which do not exist in
+     * older Z3 releases (Ubuntu noble ships 4.8.12, where the query fails with
+     * `unknown constant`). Instead, both operands are sign-extended to a width in
+     * which the exact result cannot wrap (w+1 bits for +/- and 2w bits for *),
+     * the operation is applied on the widened operands (the exact result, no
+     * wrap-around) and natively at the original width (the Java wrap-around
+     * result), and overflow is exactly the case where the sign-extension of the
+     * wrapped result differs from the exact one.
+     */
+    private fun fnApplyOverflow(e: BinaryExpr): SExpr {
+        val tr = translatorOf()
+        val a = e.left.accept(tr, null)!!
+        val b = e.right.accept(tr, null)!!
+        val width = (a.smtType as? SmtType.BitVec)?.width
+            ?: (b.smtType as? SmtType.BitVec)?.width
+            ?: throw RuntimeException(
+                "overflow check requires bit-vector operands, got ${a.smtType}, ${b.smtType}"
+            )
+        // a wider width in which the exact signed operation cannot wrap: w+1 bits
+        // for +/- and 2w bits for * (the signed product of two w-bit values always
+        // fits in 2w bits).
+        val exactWidth = if (e.operator == BinaryExpr.Operator.MULTIPLY) 2 * width else width + 1
+        val wrapped = tr.translator.binary(e.operator, a, b)
+        val exact = tr.translator.binary(
+            e.operator,
+            term.signExtend(a, exactWidth),
+            term.signExtend(b, exactWidth),
         )
+        return term.not(term.equality(exact, term.signExtend(wrapped, exactWidth)))
     }
 
     private fun checkIndex(e: ArrayAccessExpr, array: SExpr, index: SExpr, guard: SExpr, mode: Mode) {

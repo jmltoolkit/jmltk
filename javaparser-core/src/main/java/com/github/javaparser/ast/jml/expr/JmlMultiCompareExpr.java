@@ -26,6 +26,9 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * A chained (multi-operand) comparison expression, e.g. {@code a < b < c}, holding the operands
+ * and the comparison operators between them.
+ *
  * @author Alexander Weigl
  * @version 1 (2/21/21)
  */

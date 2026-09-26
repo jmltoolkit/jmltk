@@ -24,7 +24,6 @@ import com.google.common.hash.Hashing.crc32
 import io.github.jmltoolkit.lint.JmlLintingConfig
 import io.github.jmltoolkit.lint.JmlLintingFacade
 import io.github.jmltoolkit.lsp.actions.CreateKeyProjectFile
-import io.github.jmltoolkit.lsp.actions.StartKey
 import io.github.jmltoolkit.lsp.highlighting.JmlDocumentHighlighter
 import io.github.jmltoolkit.lsp.highlighting.KeyDocumentHighlighter
 import io.github.jmltoolkit.lsp.hover.JmlDocumentationIndex
@@ -41,6 +40,7 @@ import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import kotlin.io.path.readText
+import kotlin.jvm.optionals.getOrNull
 import com.github.javaparser.Position as JPosition
 
 private val Node?.parentalSelectionRange: SelectionRange?
@@ -401,19 +401,18 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
         return b.toMutableList()
     }
 
-    override fun codeAction(params: CodeActionParams): CompletableFuture<MutableList<Either<Command, CodeAction>>> {
-        Logger.info("codeAction: {}", params)
-        val codeActions = repo[Uri(params.textDocument.uri)]
-            .applyOn(CodeActionCollector(params.context, params.range.asRange), arrayListOf())
-        return codeActions.thenApply {
-            it.addAll(universalCommands())
-            it
-        }
-    }
+    override fun codeAction(params: CodeActionParams): CompletableFuture<MutableList<Either<Command, CodeAction>>> =
+        repo[Uri(params.textDocument.uri)]
+            .thenApplyAsync {
+                val node = it.narrowDownTo(params.range)
+                CodeActionCollector.collect(params.textDocument.uri, node)
+                    .toMutableList().also {
+                        it.addAll(universalCommands())
+                    }
+            }
 
     internal fun universalCommands(): List<Either<Command, CodeAction>> = listOf(
-        Either.forLeft(CreateKeyProjectFile().command()),
-        Either.forLeft(StartKey().command())
+        Either.forLeft(CreateKeyProjectFile().command())
     )
 
     override fun codeLens(params: CodeLensParams): CompletableFuture<MutableList<out CodeLens>> {
@@ -515,6 +514,21 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
                 )
                 listOf()
             }
+}
+
+/* Returns the "smallest" parent node covering the range completely. */
+fun Node.narrowDownTo(range: Range): Node? = narrowDownTo(range.asRange)
+/* Returns the "smallest" parent node covering the range completely. */
+tailrec fun Node.narrowDownTo(range: com.github.javaparser.Range): Node? {
+    if (this.range.getOrNull()?.contains(range) ?: false) {
+        for (child in childNodes) {
+            if (child.range.getOrNull()?.contains(range) ?: false) {
+                return child.narrowDownTo(range)
+            }
+        }
+        return this
+    }
+    return null
 }
 
 fun Position.toJavaParser() = JPosition(line + 1, character)

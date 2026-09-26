@@ -4,65 +4,45 @@
  */
 package io.github.jmltoolkit.lsp
 
-import com.github.javaparser.Range
 import com.github.javaparser.ast.Node
-import com.github.javaparser.ast.expr.Expression
-import com.github.javaparser.ast.jml.body.JmlClassExprDeclaration
-import com.github.javaparser.ast.jml.clauses.JmlSignalsClause
-import com.github.javaparser.ast.jml.clauses.JmlSimpleExprClause
-import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr
-import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr.JmlDefaultBinder
-import com.github.javaparser.ast.jml.stmt.JmlExpressionStmt
+import io.github.jmltoolkit.lsp.actions.LspAction
 import org.eclipse.lsp4j.CodeAction
-import org.eclipse.lsp4j.CodeActionContext
 import org.eclipse.lsp4j.Command
 import org.eclipse.lsp4j.jsonrpc.messages.Either
-import kotlin.jvm.optionals.getOrNull
+import java.util.*
 
 /**
  * This visitor gathers actions, that can be executed on nodes within the given range.
  */
-class CodeActionCollector(val context: CodeActionContext?, private val range: Range) : ResultingVisitor<MutableList<Either<Command, CodeAction>>>() {
-    override val result = arrayListOf<Either<Command, CodeAction>>()
-    fun add(x: Command) = result.add(Either.forLeft(x))
-    fun add(x: CodeAction) = result.add(Either.forRight(x))
+object CodeActionCollector {
+    internal val actions by lazy {
+        ServiceLoader.load(LspAction::class.java).toList()
+    }
 
-    override fun visit(n: JmlExpressionStmt, arg: Unit?) {
-        if (n.kind != JmlExpressionStmt.JmlStmtKind.SET && n.kind != JmlExpressionStmt.JmlStmtKind.HENCE_BY) {
-            addWelldefinednessCheck(n.expression)
+    val actionTable by lazy {
+        HashMap<Class<out Node>, List<LspAction>>(128)
+    }
+
+    fun collect(uri: String, node: Node): List<Either<Command, CodeAction>> {
+        val result: MutableList<Either<Command, CodeAction>> = arrayListOf()
+        node.walk {
+            result += createCodeAction(uri, node)
         }
-        super.visit(n, arg)
+        return result
     }
 
-    override fun visit(n: JmlSimpleExprClause, arg: Unit?) {
-        addWelldefinednessCheck(n.expression)
-    }
-
-    override fun visit(n: JmlSignalsClause, arg: Unit?) {
-        addWelldefinednessCheck(n.expression)
-        super.visit(n, arg)
-    }
-
-    override fun visit(n: JmlClassExprDeclaration, arg: Unit?) {
-        addWelldefinednessCheck(n.invariant)
-        super.visit(n, arg)
-    }
-
-    private fun addWelldefinednessCheck(n: Expression): Boolean {
-        if (inRange(n)) {
-            val action = CodeAction("Well-definedness Check")
-            add(action)
-            return true
+    fun createCodeAction(uri: String, node: Node): List<Either<Command, CodeAction>> {
+        val actions = actionTable.computeIfAbsent(node.javaClass) {
+            actions.filter { it.isCallableForNode(node) }.toList()
         }
-        return false
+        return actions.mapNotNull { it.createCodeAction(uri, node) }
     }
 
-    private fun inRange(n: Node): Boolean = n.range.getOrNull()?.contains(range) ?: false
-
-    override fun visit(n: JmlQuantifiedExpr, arg: Unit?) {
-        if (n.binder == JmlDefaultBinder.FORALL || n.binder == JmlDefaultBinder.EXISTS) {
-            val ca = CodeAction("Add boundary")
-            add(ca)
+    @JvmName("collectN")
+    fun collect(uri: String, node: Node?): List<Either<Command, CodeAction>> {
+        if (node != null) {
+            return collect(uri, node)
         }
+        return emptyList()
     }
 }

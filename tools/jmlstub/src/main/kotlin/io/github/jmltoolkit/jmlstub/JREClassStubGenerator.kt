@@ -12,7 +12,7 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.jml.clauses.*
-import com.github.javaparser.ast.stmt.Behavior
+import com.github.javaparser.ast.jml.clauses.JmlClauseKeyword.*
 import com.github.javaparser.ast.type.ClassOrInterfaceType
 import com.github.javaparser.ast.type.ReferenceType
 import java.lang.reflect.Constructor
@@ -115,7 +115,15 @@ class JREClassStubGenerator(private val clazz: Class<*>) {
     private fun getParameters(constructor: Constructor<*>) = getParameters(constructor.parameters)
     private fun getParameters(behavior: Method) = getParameters(behavior.parameters)
     private fun getParameters(parameters: Array<Parameter>) =
-        parameters.map { com.github.javaparser.ast.body.Parameter(ClassOrInterfaceType(null, it.parameterizedType.typeName), it.name) }
+        parameters.map {
+            com.github.javaparser.ast.body.Parameter(
+                ClassOrInterfaceType(
+                    null,
+                    it.parameterizedType.typeName
+                ),
+                    it.name
+            )
+        }
 
     private fun isClinitOrInit(name: String): Boolean = name == "<clinit>" || name == "<init>"
 }
@@ -129,7 +137,7 @@ private fun MethodDeclaration.addStubExceptionalBehaviorContract() {
     if (this.thrownExceptions.isEmpty()) return
 
     val c = JmlContract()
-    c.behavior = Behavior.EXCEPTIONAL
+    c.setBehavior(JmlContractBehavior(JmlBehaviorKeyword.EXCEPTIONAL))
     c.addModifier(Modifier.DefaultKeyword.PUBLIC)
     c.setName(SimpleName("with_exception"))
 
@@ -147,7 +155,7 @@ private fun MethodDeclaration.addStubExceptionalBehaviorContract() {
 
 private fun MethodDeclaration.addStubNormalBehaviorContract() {
     val c = JmlContract()
-    c.behavior = Behavior.NORMAL
+    c.setBehavior(JmlContractBehavior(JmlBehaviorKeyword.NORMAL))
     c.addModifier(Modifier.DefaultKeyword.PUBLIC)
     c.setName(SimpleName("normal"))
 
@@ -162,19 +170,18 @@ internal fun clauseSignals(
     it: ReferenceType,
     expr: String
 ) = JmlSignalsClause(
-    null,
     com.github.javaparser.ast.body.Parameter(it.clone(), "e"),
     StaticJavaParser.parseJmlExpression(expr)
 )
 
 internal fun clauseRequires(expr: String): JmlClause =
-    JmlSimpleExprClause(JmlClauseKind.REQUIRES, null, NodeList(), StaticJavaParser.parseJmlExpression(expr))
+    JmlSimpleExprClause(JmlClauseKind(REQUIRES), null, NodeList(), StaticJavaParser.parseJmlExpression(expr))
 
 internal fun clauseEnsures(expr: String): JmlClause =
-    JmlSimpleExprClause(JmlClauseKind.ENSURES, null, NodeList(), StaticJavaParser.parseJmlExpression(expr))
+    JmlSimpleExprClause(JmlClauseKind(ENSURES), null, NodeList(), StaticJavaParser.parseJmlExpression(expr))
 
 internal fun clauseAssignable(expr: String): JmlClause = JmlMultiExprClause(
-    JmlClauseKind.ACCESSIBLE, null, NodeList(),
+    JmlClauseKind(ACCESSIBLE), null, NodeList(),
     NodeList(StaticJavaParser.parseJmlExpression<Expression>(expr))
 )
 
@@ -216,40 +223,40 @@ internal fun Annotation.toJavaParser(): AnnotationExpr {
 }
 
 internal fun Any?.toExpression(): Expression = when (val v = this) {
-        is String -> StringLiteralExpr(v)
+    is String -> StringLiteralExpr(v)
 
-        is Boolean -> if (v) NameExpr("true") else NameExpr("false")
+    is Boolean -> if (v) NameExpr("true") else NameExpr("false")
 
-        is Char -> StringLiteralExpr(v.toString())
+    is Char -> StringLiteralExpr(v.toString())
 
-        is Number -> {
-            when (v) {
-                is Int -> IntegerLiteralExpr(v.toString())
-                is Long -> IntegerLiteralExpr("${v}L")
-                is Float -> DoubleLiteralExpr("${v}f")
-                is Double -> DoubleLiteralExpr(v.toString())
-                is Short -> IntegerLiteralExpr(v.toString())
-                is Byte -> IntegerLiteralExpr(v.toString())
-                else -> StringLiteralExpr(v.toString())
-            }
+    is Number -> {
+        when (v) {
+            is Int -> IntegerLiteralExpr(v.toString())
+            is Long -> IntegerLiteralExpr("${v}L")
+            is Float -> DoubleLiteralExpr("${v}f")
+            is Double -> DoubleLiteralExpr(v.toString())
+            is Short -> IntegerLiteralExpr(v.toString())
+            is Byte -> IntegerLiteralExpr(v.toString())
+            else -> StringLiteralExpr(v.toString())
         }
-
-        is Class<*> -> {
-            NameExpr("${v.name}.class")
-        }
-
-        is Enum<*> -> {
-            NameExpr("${v.javaClass.declaringClass.simpleName}.${v.name}")
-        }
-
-        is Array<*> -> {
-            val elements = v.mapNotNull { elem -> elem?.toExpression() }
-            ArrayInitializerExpr(NodeList(elements))
-        }
-
-        is Annotation -> {
-            v.toJavaParser()
-        }
-
-        else -> StringLiteralExpr(v?.toString() ?: "")
     }
+
+    is Class<*> -> {
+        NameExpr("${v.name}.class")
+    }
+
+    is Enum<*> -> {
+        NameExpr("${v.javaClass.declaringClass.simpleName}.${v.name}")
+    }
+
+    is Array<*> -> {
+        val elements = v.mapNotNull { elem -> elem?.toExpression() }
+        ArrayInitializerExpr(NodeList(elements))
+    }
+
+    is Annotation -> {
+        v.toJavaParser()
+    }
+
+    else -> StringLiteralExpr(v?.toString() ?: "")
+}

@@ -4,98 +4,93 @@
  */
 package com.github.javaparser.ast.jml.clauses;
 
-import com.github.javaparser.GeneratedJavaParserConstants;
 import com.github.javaparser.JavaToken;
-import com.github.javaparser.ast.jml.JmlKeyword;
+import com.github.javaparser.TokenRange;
+import com.github.javaparser.ast.AllFieldsConstructor;
+import com.github.javaparser.ast.Generated;
+import com.github.javaparser.ast.jml.JmlKeywordNode;
+import com.github.javaparser.ast.observer.ObservableProperty;
+import com.github.javaparser.ast.visitor.CloneVisitor;
+import com.github.javaparser.ast.visitor.GenericVisitor;
+import com.github.javaparser.ast.visitor.VoidVisitor;
+import com.github.javaparser.metamodel.JavaParserMetaModel;
+import com.github.javaparser.metamodel.JmlClauseKindMetaModel;
+import org.jspecify.annotations.NonNull;
 
-public enum JmlClauseKind implements JmlKeyword {
-    ENSURES(GeneratedJavaParserConstants.ENSURES),
-    ENSURES_FREE(GeneratedJavaParserConstants.ENSURES_FREE),
-    ENSURES_REDUNDANTLY(GeneratedJavaParserConstants.ENSURES_REDUNDANTLY),
-    REQUIRES(GeneratedJavaParserConstants.REQUIRES),
-    REQUIRES_FREE(GeneratedJavaParserConstants.REQUIRES_FREE),
-    REQUIRES_REDUNDANTLY(GeneratedJavaParserConstants.REQUIRES_REDUNDANTLY),
-    DECREASES(GeneratedJavaParserConstants.DECREASES),
-    MODIFIES(GeneratedJavaParserConstants.MODIFIES),
-    MODIFIABLE(GeneratedJavaParserConstants.MODIFIABLE),
-    ASSIGNABLE(GeneratedJavaParserConstants.ASSIGNABLE),
-    ACCESSIBLE(GeneratedJavaParserConstants.ACCESSIBLE),
-    PRE(GeneratedJavaParserConstants.PRE),
-    POST(GeneratedJavaParserConstants.POST),
-    PRE_REDUNDANTLY(GeneratedJavaParserConstants.PRE_REDUNDANTLY),
-    POST_REDUNDANTLY(GeneratedJavaParserConstants.POST_REDUNDANTLY),
-    MAINTAINING(GeneratedJavaParserConstants.MAINTAINING),
-    MAINTAINING_REDUNDANTLY(GeneratedJavaParserConstants.MAINTAINING_REDUNDANTLY),
-    DECREASING(GeneratedJavaParserConstants.DECREASES),
-    DECREASES_REDUNDANTLY(GeneratedJavaParserConstants.DECREASES_REDUNDANTLY),
-    LOOP_INVARIANT(GeneratedJavaParserConstants.LOOP_INVARIANT),
-    LOOP_INVARIANT_FREE(GeneratedJavaParserConstants.LOOP_INVARIANT_FREE),
-    LOOP_INVARIANT_REDUNDANTLY(GeneratedJavaParserConstants.LOOP_INVARIANT_REDUNDANTLY),
-    MEASURED_BY(GeneratedJavaParserConstants.MEASURED_BY),
-    RETURNS(GeneratedJavaParserConstants.RETURNS),
-    RETURNS_REDUNDANTLY(GeneratedJavaParserConstants.RETURNS_REDUNDANTLY),
-    BREAKS(GeneratedJavaParserConstants.BREAKS),
-    BREAKS_REDUNDANTLY(GeneratedJavaParserConstants.BREAKS_REDUNDANTLY),
-    CONTINUES(GeneratedJavaParserConstants.CONTINUES),
-    CONTINUES_REDUNDANTLY(GeneratedJavaParserConstants.CONTINUES_REDUNDANTLY),
-    OLD(GeneratedJavaParserConstants.OLD),
-    FORALL(GeneratedJavaParserConstants.FORALL),
-    SIGNALS(GeneratedJavaParserConstants.SIGNALS),
-    SIGNALS_REDUNDANTLY(GeneratedJavaParserConstants.SIGNALS_REDUNDANTLY),
-    SIGNALS_ONLY(GeneratedJavaParserConstants.SIGNALS_ONLY),
-    WHEN(GeneratedJavaParserConstants.WHEN),
-    WORKING_SPACE(GeneratedJavaParserConstants.WORKING_SPACE),
-    WORKING_SPACE_REDUNDANTLY(GeneratedJavaParserConstants.WORKING_SPACE_REDUNDANTLY),
-    CAPTURES(GeneratedJavaParserConstants.CAPTURES),
-    CAPTURES_REDUNDANTLY(GeneratedJavaParserConstants.CAPTURES_REDUNDANTLY),
-    INITIALLY(GeneratedJavaParserConstants.INITIALLY),
-    INVARIANT_REDUNDANTLY(GeneratedJavaParserConstants.INVARIANT_REDUNDANTLY),
-    INVARIANT(GeneratedJavaParserConstants.INVARIANT),
-    ASSIGNABLE_REDUNDANTLY(GeneratedJavaParserConstants.ASSIGNABLE_REDUNDANTLY),
-    MODIFIABLE_REDUNDANTLY(GeneratedJavaParserConstants.MODIFIABLE_REDUNDANTLY),
-    MODIFIES_REDUNDANTLY(GeneratedJavaParserConstants.MODIFIES_REDUNDANTLY),
-    CALLABLE(GeneratedJavaParserConstants.CALLABLE),
-    CALLABLE_REDUNDANTLY(GeneratedJavaParserConstants.CALLABLE_REDUNDANTLY),
-    DIVERGES(GeneratedJavaParserConstants.DIVERGES),
-    DIVERGES_REDUNDANTLY(GeneratedJavaParserConstants.DIVERGES_REDUNDANTLY),
-    DURATION(GeneratedJavaParserConstants.DURATION),
-    DURATION_REDUNDANTLY(GeneratedJavaParserConstants.DURATION_REDUNDANTLY),
-    // Information Flow
-    DETERMINES(GeneratedJavaParserConstants.DURATION_REDUNDANTLY),
-    LOOP_DETERMINES(GeneratedJavaParserConstants.DURATION_REDUNDANTLY),
-    SEPARATES(GeneratedJavaParserConstants.DURATION_REDUNDANTLY),
-    LOOP_SEPARATES(GeneratedJavaParserConstants.DURATION_REDUNDANTLY),
-    NONE(-1);
+import java.util.Objects;
 
-    public final String jmlSymbol;
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
-    private final int tokenType;
+/**
+ * AST node representing the keyword kind of a JML clause (e.g. {@code requires}, {@code ensures},
+ * {@code signals}), wrapping a {@link JmlClauseKeyword} value.
+ */
+public class JmlClauseKind extends JmlKeywordNode<JmlClauseKind> {
 
-    JmlClauseKind(int tokenType) {
-        this.tokenType = tokenType;
-        jmlSymbol = name().toLowerCase();
+    private JmlClauseKeyword value;
+
+    @AllFieldsConstructor
+    public JmlClauseKind(JmlClauseKeyword value) {
+        this(null, value);
     }
 
-    JmlClauseKind(String jmlSymbol, int tokenType) {
-        this.jmlSymbol = jmlSymbol;
-        this.tokenType = tokenType;
+    /**
+     * This constructor is used by the parser and is considered private.
+     */
+    @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
+    public JmlClauseKind(TokenRange tokenRange, JmlClauseKeyword value) {
+        super(tokenRange);
+        setValue(value);
+        customInitialization();
+    }
+
+    public JmlClauseKind(JavaToken kind) {
+        this(new TokenRange(kind, kind), JmlClauseKeyword.getKindByToken(kind));
     }
 
     @Override
-    public String jmlSymbol() {
-        return jmlSymbol;
+    @Generated("com.github.javaparser.generator.core.node.AcceptGenerator")
+    public <R, A> R accept(final GenericVisitor<R, A> v, final A arg) {
+        return v.visit(this, arg);
     }
 
-    public int getTokenType() {
-        return tokenType;
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.AcceptGenerator")
+    public <A> void accept(final VoidVisitor<A> v, final A arg) {
+        v.visit(this, arg);
     }
 
-    public static JmlClauseKind getKindByToken(JavaToken token) {
-        for (JmlClauseKind it : JmlClauseKind.values()) {
-            if (it.jmlSymbol.equals(token.getText())) {
-                return it;
-            }
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public JmlClauseKeyword getValue() {
+        return value;
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public JmlClauseKind setValue(final @NonNull() JmlClauseKeyword value) {
+        assertNotNull(value);
+        if (value == this.value) {
+            return this;
         }
-        throw new IllegalArgumentException("Could not find clause kind for: " + token.getText());
+        notifyPropertyChange(ObservableProperty.VALUE, this.value, value);
+        this.value = value;
+        return this;
+    }
+
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public @NonNull() JmlClauseKeyword value() {
+        return Objects.requireNonNull(value);
+    }
+
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.CloneGenerator")
+    public JmlClauseKind clone() {
+        return (JmlClauseKind) accept(new CloneVisitor(), null);
+    }
+
+    @Override
+    @Generated("com.github.javaparser.generator.core.node.GetMetaModelGenerator")
+    public JmlClauseKindMetaModel getMetaModel() {
+        return JavaParserMetaModel.jmlClauseKindMetaModel;
     }
 }

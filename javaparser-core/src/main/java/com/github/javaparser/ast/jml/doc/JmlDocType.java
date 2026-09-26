@@ -26,6 +26,8 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * A type declaration that carries a list of JML doc comments.
+ *
  * @author Alexander Weigl
  * @version 1 (11/23/21)
  */

@@ -8,16 +8,16 @@ import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.jml.body.JmlClassAccessibleDeclaration
 import com.github.javaparser.ast.jml.body.JmlClassExprDeclaration
 import com.github.javaparser.ast.jml.clauses.JmlClause
-import com.github.javaparser.ast.jml.clauses.JmlClauseKind
+import com.github.javaparser.ast.jml.clauses.JmlClauseKeyword
+import com.github.javaparser.ast.jml.clauses.JmlContractBehavior
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr
-import com.github.javaparser.ast.stmt.Behavior
 import java.util.*
 
 data class Statistics(
     private val data: MutableMap<StatisticKey<*>, Any> = IdentityHashMap(),
     val children: MutableList<Statistics> = mutableListOf()
 ) {
-    operator fun get(key: JmlClauseKind) = StatisticKeys.jmlClause(key).let { this[it] }
+    operator fun get(key: JmlClauseKeyword) = StatisticKeys.jmlClause(key).let { this[it] }
     operator fun get(key: String) = StatisticKeys.keys[key]?.let { this[it] }
     operator fun <T : Any> get(key: StatisticKey<T>) = (data[key] ?: key.defValue) as T
     operator fun set(key: StatisticKey<*>, value: Any) {
@@ -46,7 +46,7 @@ data class Statistics(
     }
 
     fun inc(key: JmlClause) {
-        inc(StatisticKeys.jmlClause(key.kind))
+        inc(StatisticKeys.jmlClause(key.kind.value))
         inc(StatisticKey.JML_CLAUSE)
     }
 
@@ -64,7 +64,7 @@ data class Statistics(
 
     fun inc(n: JmlClassExprDeclaration) {
         inc(StatisticKey.JML_BODY_DECLARATION)
-        inc(StatisticKeys.classExpr(n.kind.jmlSymbol))
+        inc(StatisticKeys.classExpr(n.kind.value.jmlSymbol))
     }
 
     fun inc(n: JmlClassAccessibleDeclaration) {
@@ -77,7 +77,7 @@ data class Statistics(
         inc(StatisticKeys.binder(binder.jmlSymbol()))
     }
 
-    fun inc(behavior: Behavior) {
-        inc(StatisticKeys.behavior(behavior.jmlSymbol()))
+    fun inc(behavior: JmlContractBehavior) {
+        inc(StatisticKeys.behavior(behavior.value.jmlSymbol()))
     }
 }

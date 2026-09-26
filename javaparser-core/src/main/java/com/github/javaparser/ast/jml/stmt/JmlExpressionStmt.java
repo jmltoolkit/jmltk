@@ -30,6 +30,9 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * A JML specification statement based on an expression, such as {@code assert}, {@code assume},
+ * {@code hence_by} or {@code set}, identified by a {@link JmlStmtKind}.
+ *
  * @author Alexander Weigl
  * @version 1 (2/21/21)
  */

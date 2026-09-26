@@ -28,6 +28,9 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * A class-level JML declaration of a predicate relative to a body clause kind, e.g. an
+ * {@code invariant}, {@code constraint}, {@code initially} or {@code axiom} clause.
+ *
  * @author Alexander Weigl
  * @version 1 (2/21/21)
  */
@@ -60,7 +63,7 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
     }
 
     public JmlClassExprDeclaration(TokenRange range, JavaToken begin, NodeList<Modifier> modifiers, Expression expr) {
-        this(range, modifiers, JmlBodyClauseKind.getKindByToken(begin), expr);
+        this(range, modifiers, new JmlBodyClauseKind(begin), expr);
     }
 
     @Override
@@ -136,6 +139,10 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
                 return true;
             }
         }
+        if (node == kind) {
+            setKind((JmlBodyClauseKind) replacementNode);
+            return true;
+        }
         for (int i = 0; i < modifiers.size(); i++) {
             if (modifiers.get(i) == node) {
                 modifiers.set(i, (Modifier) replacementNode);
@@ -200,7 +207,9 @@ public class JmlClassExprDeclaration extends JmlClassLevelDeclaration<JmlClassEx
             return this;
         }
         notifyPropertyChange(ObservableProperty.KIND, this.kind, kind);
+        if (this.kind != null) this.kind.setParentNode(null);
         this.kind = kind;
+        setAsParentNodeOf(kind);
         return this;
     }
 

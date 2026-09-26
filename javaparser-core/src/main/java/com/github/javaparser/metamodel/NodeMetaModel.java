@@ -37,7 +37,5 @@ public class NodeMetaModel extends BaseNodeMetaModel {
         super(superNodeMetaModel, type, name, packageName, isAbstract, hasWildcard);
     }
 
-    public PropertyMetaModel associatedSpecificationCommentsPropertyMetaModel;
-
     public PropertyMetaModel commentPropertyMetaModel;
 }

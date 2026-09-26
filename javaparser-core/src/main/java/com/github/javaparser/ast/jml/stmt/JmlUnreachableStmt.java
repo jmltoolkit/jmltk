@@ -26,6 +26,9 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * The JML {@code unreachable} statement: declares that the current program point cannot be
+ * reached during any legal execution.
+ *
  * @author Alexander Weigl
  * @version 1 (2/21/21)
  */

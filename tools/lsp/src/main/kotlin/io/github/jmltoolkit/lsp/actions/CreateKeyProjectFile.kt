@@ -6,11 +6,15 @@ package io.github.jmltoolkit.lsp.actions
 
 import com.github.javaparser.ast.Node
 import io.github.jmltoolkit.lsp.JmlLanguageServer
+import io.github.jmltoolkit.lsp.asLeft
+import io.github.jmltoolkit.lsp.asRight
+import org.eclipse.lsp4j.*
+import org.eclipse.lsp4j.jsonrpc.messages.Either
 import java.util.concurrent.CompletableFuture
 import kotlin.io.path.exists
 import kotlin.io.path.writeText
 
-class CreateKeyProjectFile : LspAction<Node> {
+class CreateKeyProjectFile : LspAction {
     override val title: String = "Create KeY project file"
     override fun execute(server: JmlLanguageServer, value: List<Any>?): CompletableFuture<Any> {
         val root = server.rootFolder
@@ -27,5 +31,27 @@ class CreateKeyProjectFile : LspAction<Node> {
         )
 
         return CompletableFuture.completedFuture("")
+    }
+
+    override fun createCodeAction(uri: String, node: Node) = null
+
+    private fun command(rootUri: String): WorkspaceEdit {
+        val uri = "$rootUri/project.key"
+        val p = Position(0, 0)
+        val range = Range(p, p)
+        val text = """
+            \javaSrc "./src";
+            \chooseContract
+        """.trimIndent()
+
+        return WorkspaceEdit(
+            listOf(
+                CreateFile(uri, CreateFileOptions(false, true)).asRight(),
+                TextDocumentEdit(
+                    VersionedTextDocumentIdentifier(uri, 0),
+                    listOf(TextEdit(range, text).asLeft())
+                ).asLeft()
+            )
+        )
     }
 }

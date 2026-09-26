@@ -7126,7 +7126,7 @@ JmlClause JmlLoopInvClause():
 
 JmlContract JmlLoopContract():
 {
-  Behavior b = Behavior.NONE;
+  JmlContractBehavior b = null;
   SimpleName name = null;
   JavaToken begin;
   JmlClause clause;
@@ -7185,7 +7185,7 @@ JmlContract JmlInvContract():
   (
       clause=JmlLoopInvClauses() { clauses.add(clause); }
   )*
-  { return new JmlContract(range(clause, token()), ContractType.LOOP_INV, false, Behavior.NONE,
+  { return new JmlContract(range(clause, token()), ContractType.LOOP_INV, false, null,
                                     name, new NodeList<>(), clauses, new NodeList<>()); }
 }
 
@@ -7266,7 +7266,7 @@ JmlContract JmlContractM(NodeList<Modifier> modifiers):
     NodeList<JmlClause> clauses = new NodeList<>();
     NodeList<JmlContract> subContracts = new NodeList<>();
 
-    Behavior b = Behavior.NONE;
+    JmlContractBehavior b = null;
     JmlClause clause;
     SimpleName name = null;
 }
@@ -7353,21 +7353,21 @@ JmlClause JmlDecreasesClause():
   {return new JmlSimpleExprClause(range(begin,token()), begin, label, expr);}
 }
 
-Behavior JmlBehavior():
-{ Behavior ret;}
+JmlContractBehavior JmlBehavior():
+{ JmlContractBehavior ret;}
 {
   (
-    (<BEHAVIOUR>|<BEHAVIOR>) {ret =  Behavior.BEHAVIOR;}
-  | (<FEASIBLE_BEHAVIOR>|<FEASIBLE_BEHAVIOUR>) {ret =  Behavior.BEHAVIOR;}
-  | (<NORMAL_BEHAVIOR>|<NORMAL_BEHAVIOUR>) {ret =  Behavior.NORMAL;}
-  | (<EXCEPTIONAL_BEHAVIOR>|<EXCEPTIONAL_BEHAVIOUR>) {ret =  Behavior.EXCEPTIONAL;}
-  | (<ABRUPT_BEHAVIOR>|<ABRUPT_BEHAVIOUR>) {ret =  Behavior.BREAK;}
-  | (<BREAK_BEHAVIOR>|<BREAK_BEHAVIOUR>) {ret =  Behavior.BREAK;}
-  | (<CONTINUE_BEHAVIOR>|<CONTINUE_BEHAVIOUR>){ret =  Behavior.CONTINUE;}
-  | (<RETURN_BEHAVIOR>|<RETURN_BEHAVIOUR>) {ret =  Behavior.RETURN;}
-  | (<MODEL_BEHAVIOR> | <MODEL_BEHAVIOUR>) {ret =  Behavior.MODEL; }
+    (<BEHAVIOUR>|<BEHAVIOR>)
+  | (<FEASIBLE_BEHAVIOR>|<FEASIBLE_BEHAVIOUR>)
+  | (<NORMAL_BEHAVIOR>|<NORMAL_BEHAVIOUR>)
+  | (<EXCEPTIONAL_BEHAVIOR>|<EXCEPTIONAL_BEHAVIOUR>)
+  | (<ABRUPT_BEHAVIOR>|<ABRUPT_BEHAVIOUR>)
+  | (<BREAK_BEHAVIOR>|<BREAK_BEHAVIOUR>)
+  | (<CONTINUE_BEHAVIOR>|<CONTINUE_BEHAVIOUR>)
+  | (<RETURN_BEHAVIOR>|<RETURN_BEHAVIOUR>)
+  | (<MODEL_BEHAVIOR> | <MODEL_BEHAVIOUR>)
   )
-  {return ret;}
+  {return new JmlContractBehavior(token());}
 }
 
 JmlClause ForallClause():
@@ -7378,7 +7378,7 @@ JmlClause ForallClause():
 {
   <FORALL> {begin=token();}
   vars=ParameterList()
-  {return new JmlForallClause(range(begin, token()), vars);}
+  {return new JmlForallClause(range(begin, token()), new JmlClauseKind(begin), vars);}
 }
 
 JmlClause JmlBreaksClause():
@@ -7530,7 +7530,7 @@ JmlClause JmlSignalsClause():
   }
   [ LOOKAHEAD(3) id=SimpleName() ":" ]
   e=Expression()
-  { return new JmlSignalsClause(range(begin, token()), id, parameter, e); }
+  { return new JmlSignalsClause(range(begin, token()), new JmlClauseKind(begin), id, parameter, e); }
 }
 
 
@@ -7548,7 +7548,7 @@ JmlClause JmlSignalsOnlyClause():
 {
   <SIGNALS_ONLY> {begin=token();} type=Type(emptyNodeList()) {types.add(type);}
   (<COMMA> type=Type(emptyNodeList()) {types.add(type);})*
-  { return new JmlSignalsOnlyClause(range(begin, token()), types); }
+  { return new JmlSignalsOnlyClause(range(begin, token()), new JmlClauseKind(begin), types); }
 }
 
 
@@ -7787,7 +7787,7 @@ JmlClassLevelDeclaration JmlMethodDeclaration(ModifierHolder modifier):
       (clause=JmlContractClause() { clauses.add(clause);  begin=orIfInvalid(begin==null?INVALID:begin, clause); })+
       (<NESTED_CONTRACT_START> subContracts=JmlContracts() <NESTED_CONTRACT_END>)?
       {
-       c = new JmlContract(range(begin,token()), Behavior.MODEL, new NodeList<>(), clauses, subContracts);
+       c = new JmlContract(range(begin,token()), new JmlContractBehavior(begin), new NodeList<>(), clauses, subContracts);
       }
     )?
     modifier=Modifiers() {begin = modifier.begin;}

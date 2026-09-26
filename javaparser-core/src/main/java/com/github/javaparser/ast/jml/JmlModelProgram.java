@@ -19,6 +19,9 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.OptionalProperty;
 
 /**
+ * A JML model program: an annotated sequence of statements and contracts that is used to specify
+ * behaviour and is not part of the compiled Java implementation.
+ *
  * @author Alexander Weigl
  * @version 1 (12/14/21)
  */

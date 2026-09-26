@@ -27,18 +27,18 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * A clause consisting of a single expression over an optional set of heap locations, used for
+ * preconditions ({@code requires}), postconditions ({@code ensures}), {@code diverges} and similar
+ * simple clauses.
+ *
  * @author Alexander Weigl
  * @version 1 (2/21/21)
  */
 public class JmlSimpleExprClause extends JmlClause {
 
-    private JmlClauseKind kind;
-
     private NodeList<SimpleName> heaps;
 
     private Expression expression;
-
-    public JmlSimpleExprClause() {}
 
     @AllFieldsConstructor
     public JmlSimpleExprClause(JmlClauseKind kind, SimpleName name, NodeList<SimpleName> heaps, Expression expression) {
@@ -46,7 +46,7 @@ public class JmlSimpleExprClause extends JmlClause {
     }
 
     public JmlSimpleExprClause(TokenRange range, JavaToken kind, NodeList<SimpleName> heaps, Expression expression) {
-        this(range, JmlClauseKind.getKindByToken(kind), null, heaps, expression);
+        this(range, new JmlClauseKind(kind), null, heaps, expression);
     }
 
     public JmlSimpleExprClause(TokenRange range, JavaToken kind, Expression expr) {
@@ -54,12 +54,12 @@ public class JmlSimpleExprClause extends JmlClause {
     }
 
     public JmlSimpleExprClause(TokenRange range, JavaToken kind, SimpleName name, Expression expr) {
-        this(range, JmlClauseKind.getKindByToken(kind), name, new NodeList<>(), expr);
+        this(range, new JmlClauseKind(kind), name, new NodeList<>(), expr);
     }
 
     public JmlSimpleExprClause(
             TokenRange range, JavaToken kind, SimpleName name, NodeList<SimpleName> heaps, Expression expr) {
-        this(range, JmlClauseKind.getKindByToken(kind), name, heaps, expr);
+        this(range, new JmlClauseKind(kind), name, heaps, expr);
     }
 
     @Override
@@ -155,12 +155,6 @@ public class JmlSimpleExprClause extends JmlClause {
         return this;
     }
 
-    @Override
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlClauseKind getKind() {
-        return kind;
-    }
-
     /**
      * This constructor is used by the parser and is considered private.
      */
@@ -171,22 +165,10 @@ public class JmlSimpleExprClause extends JmlClause {
             SimpleName name,
             NodeList<SimpleName> heaps,
             Expression expression) {
-        super(tokenRange, name);
-        setKind(kind);
+        super(tokenRange, kind, name);
         setHeaps(heaps);
         setExpression(expression);
         customInitialization();
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlSimpleExprClause setKind(final @NonNull() JmlClauseKind kind) {
-        assertNotNull(kind);
-        if (kind == this.kind) {
-            return this;
-        }
-        notifyPropertyChange(ObservableProperty.KIND, this.kind, kind);
-        this.kind = kind;
-        return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
@@ -242,11 +224,5 @@ public class JmlSimpleExprClause extends JmlClause {
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
     public @NonNull() NodeList<SimpleName> heaps() {
         return Objects.requireNonNull(heaps);
-    }
-
-    @com.github.javaparser.ast.key.IgnoreLexPrinting()
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @NonNull() JmlClauseKind kind() {
-        return Objects.requireNonNull(kind);
     }
 }

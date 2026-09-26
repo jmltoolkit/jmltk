@@ -367,4 +367,10 @@ public interface GenericVisitor<R, A> {
     R visit(KeyMarkerStatement n, A arg);
 
     R visit(JmlInfFlowClause n, A arg);
+
+    R visit(JmlBodyClauseKind n, A arg);
+
+    R visit(JmlClauseKind n, A arg);
+
+    R visit(JmlContractBehavior n, A arg);
 }

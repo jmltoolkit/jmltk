@@ -342,7 +342,7 @@ class VcgResultTest {
         val status = res.check(solver)
         assertEquals(VcgResult.Status.PROVEN, status[res.conditions[0].id])
         for (i in 1 until n) {
-            assertEquals(VcgResult.Status.UNKNOWN, status[res.conditions[i].id], "condition ${i} beyond answers")
+            assertEquals(VcgResult.Status.UNKNOWN, status[res.conditions[i].id], "condition $i beyond answers")
         }
     }
 

@@ -1533,7 +1533,9 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         val scope = call.scope.orElse(null)
         val receiver = if (scope != null && scope !is ThisExpr && !decl.isStatic) {
             atom(scope, guard, mode)
-        } else null
+        } else {
+            null
+        }
         val receiverPrefix = if (receiver != null) "$scope." else null
 
         /** Rebinds the callee's `this` (and tracked `this.*` entries) to the receiver. */
@@ -1659,7 +1661,9 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         val scope = call.scope.orElse(null)
         val receiver = if (scope != null && scope !is ThisExpr && !decl.isStatic) {
             atom(scope, guard, mode)
-        } else null
+        } else {
+            null
+        }
         val receiverPrefix = if (receiver != null) "$scope." else null
         if (receiver != null) {
             calleeEnv["this"] = receiver
@@ -1758,17 +1762,22 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                     val t = s.target
                     if (t is NfLocal && t.declaredType != null) out.add(localKey(t.key))
                 }
+
                 is NfIf -> {
                     collectCalleeDeclaredKeys(s.thenStmts, out)
                     collectCalleeDeclaredKeys(s.elseStmts, out)
                 }
+
                 is NfLoop -> collectCalleeDeclaredKeys(s.body, out)
+
                 is NfTryCatch -> {
                     collectCalleeDeclaredKeys(s.tryBody, out)
                     s.catches.forEach { collectCalleeDeclaredKeys(it.body, out) }
                     collectCalleeDeclaredKeys(s.finallyBody, out)
                 }
+
                 is NfSwitch -> s.cases.forEach { collectCalleeDeclaredKeys(it.body, out) }
+
                 else -> {}
             }
         }

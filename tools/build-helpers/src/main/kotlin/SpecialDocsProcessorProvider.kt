@@ -1,3 +1,7 @@
+/* This file is part of jmltoolkit project - https://github.com/jmltoolkit
+ * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
+ * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
+ */
 package io.github.jmltoolkit.buildhelpers.kdoc
 
 import com.google.devtools.ksp.getAllSuperTypes
@@ -28,11 +32,14 @@ class SpecialDocsProcessor(
                     val fileName = classDecl.qualifiedName?.asString()
                     logger.info("Found documentation $fileName")
                     val str = classDecl.docString?.trim()
-                    if (fileName == null || str == null) null
-                    else fileName to (str to classDecl.containingFile)
+                    if (fileName == null || str == null) {
+                        null
+                    } else {
+                        fileName to (str to classDecl.containingFile)
+                    }
                 }
         }.toMap()
-            .forEach { n, (s,f) -> store(n, s, f) }
+            .forEach { n, (s, f) -> store(n, s, f) }
 
         return emptyList()
     }
@@ -51,9 +58,7 @@ class SpecialDocsProcessor(
         }
     }
 
-    private fun implementsTarget(classDecl: KSClassDeclaration): Boolean {
-        return classDecl.getAllSuperTypes().any { superType ->
+    private fun implementsTarget(classDecl: KSClassDeclaration): Boolean = classDecl.getAllSuperTypes().any { superType ->
             superType.declaration.qualifiedName?.asString() == targetInterface
         }
-    }
 }

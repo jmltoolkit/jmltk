@@ -69,8 +69,8 @@ import kotlin.jvm.optionals.getOrNull
  */
 class ContextSensitiveForbiddenFunctionsValidator : LintRuleVisitor() {
 
-    override val visitor: VoidVisitorAdapter<LintProblemReporter>
-        = object : VoidVisitorAdapter<LintProblemReporter>() {
+    override val visitor: VoidVisitorAdapter<LintProblemReporter> =
+        object : VoidVisitorAdapter<LintProblemReporter>() {
         private var signalsOnlyCounter = 0
 
         override fun visit(n: JmlSignalsOnlyClause, arg: LintProblemReporter) {
@@ -81,13 +81,12 @@ class ContextSensitiveForbiddenFunctionsValidator : LintRuleVisitor() {
         }
 
         override fun visit(n: JmlContract, arg: LintProblemReporter) {
-            if(n.parentNode.getOrNull() !is JmlContract) { // do not reset on nested contract
+            if (n.parentNode.getOrNull() !is JmlContract) { // do not reset on nested contract
                 signalsOnlyCounter = 0
             }
             super.visit(n, arg)
         }
     }
-
 
     companion object {
         const val MULTIPLE_SIGNALS_ONLY: String = "Use a single signals_only clause to avoid confusion"

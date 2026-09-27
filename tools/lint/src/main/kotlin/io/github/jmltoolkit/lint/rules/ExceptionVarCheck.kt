@@ -88,7 +88,6 @@ class ExceptionVarCheck : LintRuleVisitor() {
             }
         }
 
-
     companion object {
         const val CATEGORY = "signals"
 

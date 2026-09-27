@@ -27,10 +27,11 @@ class JmlLintingFacade(private val config: JmlLintingConfig) {
         )
 
     fun lint(reporter: LintProblemReporter, nodes: Collection<Node>) {
-        for (it in nodes) {
-            for (linter in linters) {
+        for (linter in linters) {
+            linter.init(reporter, config)
+            for (it in nodes) {
                 try {
-                    linter.accept(it, reporter, config)
+                    linter.accept(it)
                 } catch (e: Exception) {
                     LOGGER.error("Error in linter: {}", linter.javaClass.getName(), e)
                 }

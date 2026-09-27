@@ -23,6 +23,9 @@ hs_err_pid*
 *.iws
 build-*
 !build-logic
+# Keep the KSP processor resources of the build-helpers module in git
+!build-helpers
+!build-helpers/**
 *.asc
 build
 out

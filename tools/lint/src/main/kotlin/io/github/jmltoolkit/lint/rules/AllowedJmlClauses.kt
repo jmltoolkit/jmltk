@@ -247,7 +247,6 @@ class AllowedJmlClauses : LintRuleVisitor() {
             }
         }
 
-
     private fun checkClauses(
         arg: LintProblemReporter, clauses: NodeList<JmlClause>,
         allowed: EnumSet<JmlClauseKind>, type: String

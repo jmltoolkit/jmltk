@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-
 dependencies {
     api(project(":jmlparser-symbol-solver-core"))
     api(libs.gson)
@@ -12,7 +11,6 @@ dependencies {
     testImplementation(project(":tools:utils"))
 
     ksp(project(":tools:build-helpers"))
-
 }
 
 ksp {

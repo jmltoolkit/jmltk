@@ -210,7 +210,6 @@ class DefaultNullityValidator : LintRuleVisitor() {
         explicitDefault(n, n.modifiers, n.annotations, arg)
     }
 
-
     /**
      * Default nullity modifiers only make sense on classes; using them on members
      * is an error.
@@ -257,10 +256,15 @@ class DefaultNullityValidator : LintRuleVisitor() {
     }
 
     /** Top-level default, may be altered by tools. */
-    private var topLevelDefault: DefaultNullity = config.topLevelNullity ?: DefaultNullity.NON_NULL
+    private var topLevelDefault: DefaultNullity = DefaultNullity.NON_NULL
 
     /** Whether the JSpecify nullness annotations should be considered. */
-    private var checkJspecify: Boolean = config.checkJspecifyNullness ?: false
+    private var checkJspecify: Boolean = false
+
+    override fun customInitialization() {
+        topLevelDefault = config.topLevelNullity ?: DefaultNullity.NON_NULL
+        checkJspecify = config.checkJspecifyNullness ?: false
+    }
 
     private fun resolveSuperclass(type: ClassOrInterfaceType): ClassOrInterfaceDeclaration? {
         // Look up the superclass in the same compilation unit first; this is cheap and

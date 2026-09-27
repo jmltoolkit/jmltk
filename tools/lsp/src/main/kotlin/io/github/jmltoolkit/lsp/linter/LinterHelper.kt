@@ -39,6 +39,7 @@ object LinterHelper {
         val result = arrayListOf<LintProblem>()
         val reporter = LintProblemReporter(result::add)
         for (rule in linters) {
+            rule.init(reporter, config)
             n.forEach { rule.accept(it) }
         }
         return result

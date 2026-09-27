@@ -39,7 +39,9 @@ class AddStubs : LspAction {
 
     override fun createCodeLens(uri: String, node: Node) =
         if (node is TypeDeclaration<*>) {
-            CodeLens(node.name().asRange, command(uri, node as NodeWithName<*>), null)
+            // TypeDeclaration is a NodeWithSimpleName, not a NodeWithName, so use the
+            // declaration's own name to compute the range for the command arguments.
+            CodeLens(node.name.asRange, super.command(listOf(uri, node.name.range.asRange())), null)
         } else {
             null
         }

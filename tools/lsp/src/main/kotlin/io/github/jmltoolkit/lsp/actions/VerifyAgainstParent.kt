@@ -35,8 +35,15 @@ class VerifyAgainstParent : LspAction {
         return CompletableFuture.completedFuture("")
     }
 
+    override fun isCallableForNode(node: Node): Boolean = node is JmlContract
+
     override fun createCodeAction(
         uri: String,
         node: Node
-    ): Either<Command, CodeAction> = command(listOf(node.hashCode())).asLeft()
+    ): Either<Command, CodeAction>? =
+        if (node is JmlContract) {
+            command(listOf(node.hashCode())).asLeft()
+        } else {
+            null
+        }
 }

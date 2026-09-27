@@ -25,8 +25,8 @@ object CodeActionCollector {
 
     fun collect(uri: String, node: Node): List<Either<Command, CodeAction>> {
         val result: MutableList<Either<Command, CodeAction>> = arrayListOf()
-        node.walk {
-            result += createCodeAction(uri, node)
+        node.walk { candidate ->
+            result += createCodeAction(uri, candidate)
         }
         return result
     }

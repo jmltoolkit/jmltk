@@ -26,10 +26,10 @@ class WellDefinednessCheck : LspAction {
         get() = "Check expression for well-definedness"
 
     override fun isCallableForNode(node: Node) = when (node) {
-        JmlSignalsClause::class.java -> true
-        JmlClassExprDeclaration::class.java -> true
-        JmlSimpleExprClause::class.java -> true
-        JmlExpressionStmt::class.java -> true
+        is JmlSignalsClause -> true
+        is JmlClassExprDeclaration -> true
+        is JmlSimpleExprClause -> true
+        is JmlExpressionStmt -> true
         else -> false
     }
 

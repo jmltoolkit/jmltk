@@ -94,7 +94,7 @@ class JmlCatchSymbols : GenericVisitorAdapter<MutableList<DocumentSymbol>?, Unit
     )
 
     override fun visit(n: EnumDeclaration, arg: Unit?): MutableList<DocumentSymbol> {
-        val children = acceptAll(n.members)
+        val children = (acceptAll(n.entries) + acceptAll(n.members)).toMutableList()
         return arrayListOf(
             DocumentSymbol(
                 n.nameAsString,

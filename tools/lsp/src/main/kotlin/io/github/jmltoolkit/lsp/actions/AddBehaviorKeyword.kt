@@ -31,7 +31,12 @@ class AddBehaviorKeyword : LspAction {
     override fun isCallableForNode(node: Node): Boolean = (node is JmlContract)
 
     override fun createCodeAction(uri: String, node: Node): Either<Command, CodeAction>? {
-        if (isCallableForNode(node) && (node as? JmlContract)?.behavior() != null) {
+        val contract = node as? JmlContract ?: return null
+        val keyword = contract.behavior()?.value()
+        // The action adds a behavior keyword, so it only makes sense while the
+        // contract does not yet carry a concrete behavior keyword (an absent
+        // behavior or JmlBehaviorKeyword.NONE means no keyword is present).
+        if (keyword == null || keyword == JmlBehaviorKeyword.NONE) {
             return CodeAction(title)
                 .also {
                     it.kind = kind
@@ -39,7 +44,7 @@ class AddBehaviorKeyword : LspAction {
                         listOf(
                             TextDocumentEdit(
                                 VersionedTextDocumentIdentifier(uri, -1),
-                                listOf(createEdit(node).asRight())
+                                listOf(createEdit(contract).asRight())
                             ).asLeft()
                         )
                     )

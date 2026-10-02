@@ -5343,7 +5343,11 @@ Statement BlockStatement():
             LOOKAHEAD( JmlDocStatements() )
             ret = JmlDocStatements()
          |
-            LOOKAHEAD( VariableDeclarationExpression() ";" )
+            // A syntactic lookahead that doesn't perform a full parse of the
+            // variable declaration expression keeps precise error positions:
+            // the full VariableDeclarationExpression() below then reports the
+            // offending token (e.g. the misplaced "=") instead of the statement start.
+            LOOKAHEAD( Modifiers() Type() Identifier() ( ArrayBracketPair() )* ( "," | "=" | ";" ) )
             expr = VariableDeclarationExpression()
             ";"
             { ret = new ExpressionStmt(range(expr, token()), expr); }

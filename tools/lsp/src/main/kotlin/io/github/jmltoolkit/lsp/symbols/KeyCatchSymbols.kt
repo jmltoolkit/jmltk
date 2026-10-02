@@ -84,10 +84,28 @@ class KeyCatchSymbols(private val uri: Uri) {
             acceptAll(ctx.func_decl())
         )
 
+        override fun visitFunc_decl(ctx: JavaKeYParser.Func_declContext): List<DocumentSymbol> =
+            symbol(ctx.func_name.text, SymbolKind.Function, ctx.start.asRange, ctx.asRange, ctx.retSort.text)
+
+        override fun visitPred_decls(ctx: JavaKeYParser.Pred_declsContext) = symbol(
+            "Predicates", SymbolKind.Namespace,
+            ctx.start.asRange, Range(), null,
+            acceptAll(ctx.pred_decl())
+        )
+
+        override fun visitPred_decl(ctx: JavaKeYParser.Pred_declContext): List<DocumentSymbol> =
+            symbol(ctx.pred_name.text, SymbolKind.Function, ctx.start.asRange, ctx.asRange)
+
+        override fun visitSchema_var_decls(ctx: JavaKeYParser.Schema_var_declsContext): List<DocumentSymbol> =
+            emptyList()
+
         override fun visitRulesOrAxioms(ctx: JavaKeYParser.RulesOrAxiomsContext) = symbol(
             (if (ctx.RULES() != null) "Rules" else "Axioms") + " ${ctx.choices.text}",
             SymbolKind.Namespace, ctx.start.asRange, ctx.asRange, ctx.doc?.text,
             acceptAll(ctx.taclet())
         )
+
+        override fun visitTaclet(ctx: JavaKeYParser.TacletContext): List<DocumentSymbol> =
+            symbol(ctx.name.text, SymbolKind.Method, ctx.start.asRange, ctx.asRange)
     }
 }

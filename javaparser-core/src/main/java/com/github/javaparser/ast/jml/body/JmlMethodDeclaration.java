@@ -29,6 +29,9 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * A JML method declaration: wraps a Java {@link com.github.javaparser.ast.body.MethodDeclaration}
+ * together with its JML tags and an optional {@link com.github.javaparser.ast.jml.clauses.JmlContract}.
+ *
  * @author Alexander Weigl
  * @version 1 (4/5/21)
  */

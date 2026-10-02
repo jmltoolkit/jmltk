@@ -25,6 +25,9 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * The {@code signals_only} clause: restricts the set of exception types that may be thrown by the
+ * specified method, or {@code \nothing} if no exception may escape.
+ *
  * @author Alexander Weigl
  * @version 1 (2/21/21)
  */
@@ -33,21 +36,19 @@ public class JmlSignalsOnlyClause extends JmlClause {
     private NodeList<Type> types;
 
     @AllFieldsConstructor
-    public JmlSignalsOnlyClause(NodeList<Type> types) {
-        this(null, types);
+    public JmlSignalsOnlyClause(JmlClauseKind kind, NodeList<Type> types) {
+        this(null, kind, types);
     }
 
     /**
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlSignalsOnlyClause(TokenRange tokenRange, NodeList<Type> types) {
-        super(tokenRange);
+    public JmlSignalsOnlyClause(TokenRange tokenRange, JmlClauseKind kind, NodeList<Type> types) {
+        super(tokenRange, kind);
         setTypes(types);
         customInitialization();
     }
-
-    public JmlSignalsOnlyClause() {}
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.AcceptGenerator")
@@ -133,11 +134,6 @@ public class JmlSignalsOnlyClause extends JmlClause {
     @Generated("com.github.javaparser.generator.core.node.GetMetaModelGenerator")
     public JmlSignalsOnlyClauseMetaModel getMetaModel() {
         return JavaParserMetaModel.jmlSignalsOnlyClauseMetaModel;
-    }
-
-    @Override
-    public JmlClauseKind getKind() {
-        return JmlClauseKind.SIGNALS_ONLY;
     }
 
     @Override

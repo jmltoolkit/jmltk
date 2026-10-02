@@ -26,6 +26,8 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * A JML ghost statement label, used as a target for {@code \old} and {@code \fresh} expressions.
+ *
  * @author Alexander Weigl
  * @version 1 (06.03.22)
  */

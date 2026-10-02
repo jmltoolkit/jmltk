@@ -4,6 +4,8 @@
  */
 package io.github.jmltoolkit.utils
 
+import com.github.javaparser.ast.Jmlish
+import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.NodeList
 import com.github.javaparser.ast.expr.BinaryExpr
 import com.github.javaparser.ast.expr.BooleanLiteralExpr
@@ -18,6 +20,7 @@ import com.github.javaparser.ast.type.Type
 import com.github.javaparser.resolution.types.ResolvedArrayType
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType.*
 import com.github.javaparser.resolution.types.ResolvedType
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * @author Alexander Weigl
@@ -25,6 +28,20 @@ import com.github.javaparser.resolution.types.ResolvedType
  */
 object JMLUtils {
     const val GENERATED_COMBINED: String = "_generated_combined_"
+
+    // Returns true iff the node is in side a JML context
+    tailrec fun Node?.isInJML(): Boolean = when (this) {
+            null -> false
+            is Jmlish -> true
+            else -> parentNode.getOrNull()?.isInJML() ?: false
+        }
+
+    /* */
+    inline fun <reified T> Node.findTopMostAncestorConsecutive(): T? = treeIterator(Node.TreeTraversal.PARENTS).asSequence()
+            .takeWhile { it is T }
+            .lastOrNull() as T?
+
+    inline fun <reified T> Node.findTopMostAncestor(): T? = treeIterator(Node.TreeTraversal.PARENTS).asSequence().lastOrNull { it is T } as T?
 
     @Suppress("unused")
     fun unroll(n: JmlMultiCompareExpr): Expression {

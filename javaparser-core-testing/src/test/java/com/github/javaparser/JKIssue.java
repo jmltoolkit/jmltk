@@ -44,7 +44,7 @@ public class JKIssue {
                 .getClauses()
                 .get(0)
                 .asJmlSimpleExprClause();
-        Assertions.assertEquals(1, clause.getChildNodes().size());
+        Assertions.assertEquals(2, clause.getChildNodes().size());
     }
 
     @Test

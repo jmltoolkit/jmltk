@@ -43,8 +43,6 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
 @NullMarked
 public class JmlInfFlowClause extends JmlClause {
 
-    private JmlClauseKind kind;
-
     private NodeList<Expression> expressions;
 
     private NodeList<Expression> by;
@@ -80,8 +78,7 @@ public class JmlInfFlowClause extends JmlClause {
             NodeList<Expression> erases,
             NodeList<Expression> expressions,
             NodeList<Expression> newObjects) {
-        super(tokenRange, name);
-        setKind(kind);
+        super(tokenRange, kind, name);
         setBy(by);
         setDeclassifies(declassifies);
         setErases(erases);
@@ -99,13 +96,7 @@ public class JmlInfFlowClause extends JmlClause {
             NodeList<Expression> declassifies,
             NodeList<Expression> erases,
             NodeList<Expression> newObjects) {
-        this(range, JmlClauseKind.getKindByToken(begin), name, determined, by, declassifies, erases, newObjects);
-    }
-
-    @Override
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlClauseKind getKind() {
-        return kind;
+        this(range, new JmlClauseKind(begin), name, determined, by, declassifies, erases, newObjects);
     }
 
     @Override
@@ -213,23 +204,6 @@ public class JmlInfFlowClause extends JmlClause {
         if (this.expressions != null) this.expressions.setParentNode(null);
         this.expressions = expressions;
         setAsParentNodeOf(expressions);
-        return this;
-    }
-
-    @com.github.javaparser.ast.key.IgnoreLexPrinting()
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @NonNull() JmlClauseKind kind() {
-        return Objects.requireNonNull(kind);
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlInfFlowClause setKind(final @NonNull() JmlClauseKind kind) {
-        assertNotNull(kind);
-        if (kind == this.kind) {
-            return this;
-        }
-        notifyPropertyChange(ObservableProperty.KIND, this.kind, kind);
-        this.kind = kind;
         return this;
     }
 

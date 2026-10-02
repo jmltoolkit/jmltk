@@ -4,6 +4,8 @@
  */
 package io.github.jmltoolkit.redux
 
+import com.github.javaparser.JavaToken
+import com.github.javaparser.JavaToken.Kind.INVARIANT_FREE
 import com.github.javaparser.StaticJavaParser.parseStatement
 import com.github.javaparser.StaticJavaParser.parseType
 import com.github.javaparser.ast.Modifier
@@ -20,6 +22,7 @@ import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.expr.BinaryExpr.Operator.AND
 import com.github.javaparser.ast.expr.BinaryExpr.Operator.EQUALS
 import com.github.javaparser.ast.jml.body.JmlBodyClauseKind
+import com.github.javaparser.ast.jml.body.JmlBodyClauseKeyword
 import com.github.javaparser.ast.jml.body.JmlClassExprDeclaration
 import com.github.javaparser.ast.jml.doc.JmlDocModifier
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr
@@ -95,7 +98,7 @@ class RecordClassBuilder(
             val typeName = parseType(recordDeclaration.nameAsString)
             attachTypeSpecExpr(clazz) {
                 addModifier(PUBLIC, STATIC)
-                kind = JmlBodyClauseKind.INVARIANT_FREE
+                kind = JmlBodyClauseKind(JmlBodyClauseKeyword.INVARIANT_FREE)
                 setName(SimpleName("eq_reflexivity"))
 
                 val q = JmlQuantifiedExpr()
@@ -111,7 +114,7 @@ class RecordClassBuilder(
 
             attachTypeSpecExpr(clazz) {
                 addModifier(PUBLIC, STATIC)
-                kind = JmlBodyClauseKind.INVARIANT_FREE
+                kind = JmlBodyClauseKind(JmlBodyClauseKeyword.INVARIANT_FREE)
                 setName(SimpleName("eq_symm"))
 
                 val q = JmlQuantifiedExpr()
@@ -132,7 +135,7 @@ class RecordClassBuilder(
 
             attachTypeSpecExpr(clazz) {
                 addModifier(PUBLIC, STATIC)
-                kind = JmlBodyClauseKind.INVARIANT_FREE
+                kind = JmlBodyClauseKind(JmlBodyClauseKeyword.INVARIANT_FREE)
                 setName(SimpleName("eq_trans"))
 
                 val q = JmlQuantifiedExpr()
@@ -153,7 +156,7 @@ class RecordClassBuilder(
 
             attachTypeSpecExpr(clazz) {
                 addModifier(PUBLIC, STATIC)
-                kind = JmlBodyClauseKind.INVARIANT_FREE
+                kind = JmlBodyClauseKind(JmlBodyClauseKeyword.INVARIANT_FREE)
                 setName(SimpleName("eq_to_hash"))
 
                 val q = JmlQuantifiedExpr()
@@ -385,7 +388,7 @@ class RecordClassBuilder(
         }
 
         invariant.addModifier(PUBLIC)
-        invariant.kind = JmlBodyClauseKind.INVARIANT_FREE
+        invariant.setKind(JmlBodyClauseKind(JmlBodyClauseKeyword.INVARIANT_FREE))
         invariant.setName(SimpleName("id_means_equals"))
         invariant.invariant =
             recordDeclaration.parameters()

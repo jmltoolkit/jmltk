@@ -72,8 +72,8 @@ class JmlLanguageServer :
             capabilities.semanticTokensProvider = SemanticTokensWithRegistrationOptions(
                 LEGEND, SemanticTokensServerFull(false), false,
                 listOf(
-                    DocumentFilter("java", "file", Either.forLeft("*.java")),
-                    DocumentFilter("key", "file", Either.forLeft("*.key")),
+                    DocumentFilter("java", "file", Either.forLeft("**/*.{jml,java}")),
+                    DocumentFilter("key", "file", Either.forLeft("**/*.key")),
                 )
             )
 

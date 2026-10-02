@@ -18,6 +18,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
+ * Abstract base class for all JML declarations that appear at the class or type level,
+ * carrying JML tags and acting as a {@link com.github.javaparser.ast.body.BodyDeclaration}.
+ *
  * @author Alexander Weigl
  * @version 1 (3/17/21)
  */

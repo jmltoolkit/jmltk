@@ -27,6 +27,9 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * A class-level JML declaration that relates a visible field or variable to a list of further
+ * expressions, with an optional {@code measured_by} term.
+ *
  * @author Alexander Weigl
  * @version 1 (3/11/21)
  */

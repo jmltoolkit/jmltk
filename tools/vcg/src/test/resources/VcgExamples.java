@@ -320,6 +320,31 @@ public class VcgExamples {
         this.val = this.val + 9;
     }
 
+    // aliasing through the enclosing instance: a local that provably denotes `this`
+    // (`VcgExamples alias = this`) carries its field writes into `this.val`
+    //@ requires this.val == 0;
+    //@ ensures this.val == 9;
+    public void aliasThisViaLocal() {
+        VcgExamples alias = this;
+        alias.val = 9;
+    }
+
+    // the same via a parameter whose aliasing of `this` is assumed by contract
+    //@ requires alias == this && this.val == 0;
+    //@ ensures this.val == 7;
+    public void aliasThisViaParam(VcgExamples alias) {
+        alias.val = 7;
+    }
+
+    // bare-name counterpart: the write through the alias of `this` mutates `val`,
+    // observable under its bare name in the postcondition
+    //@ requires this.val == 0;
+    //@ ensures val == 9;
+    public void setValViaAlias() {
+        VcgExamples alias = this;
+        alias.val = 9;
+    }
+
     //@ requires true;
     //@ ensures \result == x;
     public int probeGhostField(int x) {

@@ -626,14 +626,31 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         if (thisRepr != null && (receiver === thisRepr || scopeText == "this")) {
             return activeEnv["this.$field"] ?: declareUnknownField(field)
         }
-        val versioned = activeEnv["$scopeText.$field"]
-        if (versioned != null) return versioned
         // The field's SMT sort must come from the *receiver's* type (not the
         // enclosing class): an `int` field of a referenced object is a bit-vector
         // in BOUNDED mode, so a selector typed as `Int` would be ill-sorted.
         val (jType, sType) = fieldSelectorType(receiver, scopeText, field)
-        val fn = fieldSelector(field, sType, jType)
-        return term.list(jType, sType, term.symbol(fn), receiver)
+        if (sType is SmtType.Array) {
+            // array-typed fields keep the per-path/selector model (whole-array SSA)
+            val versioned = activeEnv["$scopeText.$field"]
+            if (versioned != null) return versioned
+            val fn = fieldSelector(field, sType, jType)
+            return term.list(jType, sType, term.symbol(fn), receiver)
+        }
+        // scalar/object fields of arbitrary receivers: read through the versioned
+        // identity-keyed field map (alias-correct). A per-receiver slot (created by
+        // contract-call assumptions or, historically, per-path writes) is preferred
+        // only when the map is not live in the active view — e.g. `\old(o.f)` over
+        // a flat-written field.
+        val mapKey = fieldMapKey(field, sType)
+        val legacy = activeEnv["$scopeText.$field"]
+        val activeMap = activeEnv[mapKey]
+        if (activeMap != null && legacy == null) {
+            return term.select(sType, jType, activeMap, receiver)
+        }
+        if (legacy != null) return legacy
+        if (env[mapKey] == null) declareFieldMap(mapKey, sType)
+        return term.select(sType, jType, env[mapKey]!!, receiver)
     }
 
     /** Field-read term for `scope.name` given an already-translated [scopeTerm]; mirrors
@@ -647,7 +664,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     private fun fieldSelectorType(
         receiver: SExpr, scopeText: String, field: String
     ): Pair<ResolvedType?, SmtType> {
-        val thisJ = envJavaTypes["this.$field"]
+        val thisJ = if (scopeText == "this") envJavaTypes["this.$field"] else null
         if (thisJ != null) return thisJ to (envTypes["this.$field"] ?: safeType(thisJ))
         val resolved = receiver.javaType
         val fieldJType = (resolved as? com.github.javaparser.resolution.types.ResolvedReferenceType)
@@ -655,7 +672,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         if (fieldJType != null) return fieldJType to safeType(fieldJType)
         // last resort: mode-appropriate scalar default
         val default = if (options.mode == VerificationMode.BOUNDED) SmtType.BV32 else SmtType.INT
-        return null to (envTypes["this.$field"] ?: default)
+        return null to (if (scopeText == "this") envTypes["this.$field"] ?: default else default)
     }
 
     /** SMT sort for writing `scope.field`, mirroring [fieldSelectorType]. */
@@ -695,18 +712,24 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
 
     //region reference identity (must-alias support)
 
-    /** Length- and identity-marked keys of the ref frames; map-typed locations whose
-     *  keys start with `fld$` are field maps, never Java array values. */
+    /**
+     * Versioned map-typed locations whose SSA values are `(Array U <elem>)` heap
+     * maps (instance fields of arbitrary receivers). Keys start with `fld$` so the
+     * array-store frame loop ([execAssign]) never mistakes a field map for a Java
+     * array value.
+     */
     private fun isFieldMapKey(key: String): Boolean = key.startsWith("fld$")
 
     private val arrayRefFns = HashMap<String, String>()
 
     /**
      * Declares (once per element sort) and returns the `$arrayref_…` function whose
-     * application yields the *reference identity* of an array value (a `U` constant).
-     * Java `==` on arrays compares identities — never contents — and every element
-     * store to an array value `v1` is visible through any other array value `v2`
-     * whose identity is provably equal.
+     * application to an array *value* yields the *reference identity* of that array
+     * (a `U` constant). Java `==` on arrays compares identities — never contents —
+     * and every element store to an array value `v1` is visible through any other
+     * array value `v2` whose identity is provably equal. Identity is a plain
+     * equality-theory sort, so the alias frames below are decided by the solver
+     * without extensional (content) reasoning.
      */
     private fun arrayRefFn(contentType: SmtType.Array): String {
         val tag = contentType.toString().filter { ch: Char -> ch.isLetterOrDigit() }
@@ -729,6 +752,95 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         if (v.toString().startsWith("fld$")) return null
         return term.list(null, SmtType.JAVA_OBJECT, term.symbol(arrayRefFn(arr)), v)
     }
+
+    //region versioned identity-keyed field maps
+
+    /**
+     * Identity-keyed (versioned) field maps make writes to a scalar/object field of
+     * an *arbitrary* receiver visible through every other reference that provably
+     * denotes the same object (`b2 = b; b2.value = 5` ⇒ `b.value == 5`). For a field
+     * `name` of SMT sort `elem`, the map value is a `(Array U <elem>)` heap map,
+     * SSA-versioned under the key `fld$<tag>.<name>` exactly like a local variable:
+     * a write is `map' = ite(g, store(map, receiver, v), map)`, a read is
+     * `(select map receiver)`. Distinct objects (distinct `U` constants) never
+     * observe each other's stores; the alias decision is left to the solver on `U`.
+     *
+     * `this`-receiver fields, array-typed fields and static fields keep the flat
+     * per-path model — this model complements it for receivers that resolve to an
+     * environment term (`params`, locals, `this.<field>` objects).
+     */
+    private fun fieldMapKey(field: String, elem: SmtType): String {
+        val tag = when {
+            elem === SmtType.JAVA_OBJECT -> "obj"
+            elem === SmtType.INT -> "int"
+            elem === SmtType.BOOL -> "bool"
+            elem === SmtType.BV32 -> "bv32"
+            else -> "t_" + elem.toString().filter { it.isLetterOrDigit() }
+        }
+        return "fld$$tag.$field"
+    }
+
+    /** The declared SMT sort `(Array U <elem>)` of a field map. */
+    private fun fieldMapSort(elem: SmtType): SExpr = SList(
+        null, null,
+        listOf(
+            term.symbol("Array"), term.symbol("U"),
+            if (elem === SmtType.JAVA_OBJECT) term.symbol("U") else term.type(elem)
+        )
+    )
+
+    private fun fieldMapType(elem: SmtType): SmtType = SmtType.Array(SmtType.JAVA_OBJECT, elem)
+
+    /** Declares the base (unconstrained) version of a field map into the current env. */
+    private fun declareFieldMap(mapKey: String, elem: SmtType) {
+        query.addCommand(term.command("declare-const", term.symbol(mapKey), fieldMapSort(elem)))
+        val t = fieldMapType(elem)
+        env[mapKey] = term.variable(t, null, mapKey)
+        envTypes[mapKey] = t
+    }
+
+    /** Next SSA version of a field map, declared with the printable `(Array U …)` sort. */
+    private fun freshFieldMapVersion(mapKey: String, elem: SmtType): SExpr {
+        if (env[mapKey] == null) declareFieldMap(mapKey, elem)
+        val name = nextName(mapKey)
+        query.addCommand(term.command("declare-const", term.symbol(name), fieldMapSort(elem)))
+        val t = fieldMapType(elem)
+        val v = term.variable(t, null, name)
+        env[mapKey] = v
+        envTypes[mapKey] = t
+        return v
+    }
+
+    /** [freshVersion] that knows the field-map keys (their sort cannot be printed by
+     *  the generic `SmtType.Array` printer, which would emit the `Object` placeholder
+     *  for the reference index). */
+    private fun freshVersionFor(key: String, type: SmtType): SExpr =
+        if (isFieldMapKey(key) && type is SmtType.Array) freshFieldMapVersion(key, type.to) else freshVersion(key, type)
+
+    /** Declares a fresh havoc constant of [type] for [key] using the printable sort. */
+    private fun declareHavocConst(key: String, type: SmtType): SExpr {
+        val name = "\$havoc_${++uid}"
+        if (isFieldMapKey(key) && type is SmtType.Array) {
+            query.addCommand(term.command("declare-const", term.symbol(name), fieldMapSort(type.to)))
+        } else if (type === SmtType.JAVA_OBJECT) {
+            query.addCommand(term.command("declare-const", term.symbol(name), term.symbol("U")))
+        } else {
+            query.declareConst(name, type)
+        }
+        val v = term.variable(type, envJavaTypes[key], name)
+        env[key] = v
+        return v
+    }
+
+    /** Strong update `map[receiver] := v` with phi-style framing by [g]. */
+    private fun fieldMapStore(field: String, elem: SmtType, recvTerm: SExpr, v: SExpr, g: SExpr, mode: Mode) {
+        val mapKey = fieldMapKey(field, elem)
+        if (env[mapKey] == null) declareFieldMap(mapKey, elem)
+        val prevMap = env[mapKey]!!
+        val nextMap = freshFieldMapVersion(mapKey, elem)
+        emitPhi(mode, equality(nextMap, iteTerm(g, term.store(prevMap, recvTerm, v), prevMap)))
+    }
+    //endregion
 
     /** Declares a constant of [type] using the encoding's `U` sort for references
      *  (a bare `SmtType.JAVA_OBJECT` would print the placeholder sort `Object`). */
@@ -1172,6 +1284,10 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
 
     private fun execAssign(s: NfAssign, guard: SExpr, mode: Mode) {
         val g = effectiveGuard(guard, s)
+        // the stored value is shared by every target kind below (a scalar/object
+        // field store and the flat per-path write must observe one translation of
+        // the right-hand side — no duplicated side effects/obligations)
+        val v = atom(s.rhs, g, mode)
         when (val t = s.target) {
             is NfArray -> {
                 val key = localKey(t.key)
@@ -1193,7 +1309,6 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                         s.origin
                     )
                 }
-                val v = atom(s.rhs, g, mode)
                 val next = freshVersion(key, arrType)
                 // phi-style store: on paths where the store does not execute (dead
                 // guard, e.g. statements after a `break`), the array keeps its old
@@ -1236,32 +1351,62 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 }
             }
 
-            else -> {
-                val key = locationKey(t)
-                val type = when (t) {
-                    is NfLocal -> t.declaredType?.let { dt -> safeType(tryResolve(dt)) } ?: locType(t)
-                    is NfField -> fieldWriteType(t, key)
-                    else -> locType(t)
-                }
-                val v = atom(s.rhs, g, mode)
-                val prev = env[key]
-                val next = freshVersion(key, type)
-                // phi-style assignment: when the guard is false (dead path — e.g.
-                // statements after a `break`/`continue`/`return`) the variable keeps
-                // its previous value. Without this, `next` is an unconstrained fresh
-                // constant that leaks into loop merges and postconditions.
-                if (prev != null) {
-                    emitPhi(mode, equality(next, iteTerm(g, v, prev)))
+            is NfField -> {
+                val fieldName = t.key.substringAfterLast('.')
+                val recvTerm = if (t.receiver != "this") {
+                    env[t.receiver] ?: env["this.${t.receiver}"]
                 } else {
-                    emit(mode, g, equality(next, v))
+                    env["this"]
                 }
-                // copying an array reference (`y = x`) copies the identity too:
-                // reads and writes through `y` afterwards alias `x`.
-                val rn = arrayRef(next)
-                val rv = arrayRef(v)
-                if (rn != null && rv != null) emit(mode, g, equality(rn, rv))
+                // identity-keyed map store for scalar/object fields of receivers
+                // that resolve to an environment term (parameters, locals, or
+                // `this.<field>` objects). `this`-receiver writes update the map as
+                // well so object aliases of the enclosing instance (and inlined /
+                // contracted callee receivers) observe the write; array-typed fields
+                // and unresolvable receivers keep the flat per-path model below.
+                if (recvTerm != null && recvTerm.smtType === SmtType.JAVA_OBJECT) {
+                    val sType = fieldSelectorType(recvTerm, if (t.receiver == "this") "this" else t.receiver, fieldName).second
+                    if (sType !is SmtType.Array) {
+                        fieldMapStore(fieldName, sType, recvTerm, v, g, mode)
+                    }
+                }
+                if (t.receiver != "this") {
+                    // only the map keeps the write; the flat slot would go stale
+                    return
+                }
+                // `this`-receiver writes also keep the historical flat per-path slot
+                flatWrite(s, t, g, mode, v)
+                return
             }
+
+            else -> flatWrite(s, t, g, mode, v)
         }
+    }
+
+    /** The historical flat per-path SSA write for locals and `this`-receiver fields. */
+    private fun flatWrite(s: NfAssign, t: NfLocation, g: SExpr, mode: Mode, v: SExpr) {
+        val key = locationKey(t)
+        val type = when (t) {
+            is NfLocal -> t.declaredType?.let { dt -> safeType(tryResolve(dt)) } ?: locType(t)
+            is NfField -> fieldWriteType(t, key)
+            else -> locType(t)
+        }
+        val prev = env[key]
+        val next = freshVersion(key, type)
+        // phi-style assignment: when the guard is false (dead path — e.g.
+        // statements after a `break`/`continue`/`return`) the variable keeps
+        // its previous value. Without this, `next` is an unconstrained fresh
+        // constant that leaks into loop merges and postconditions.
+        if (prev != null) {
+            emitPhi(mode, equality(next, iteTerm(g, v, prev)))
+        } else {
+            emit(mode, g, equality(next, v))
+        }
+        // copying an array reference (`y = x`) copies the identity too:
+        // reads and writes through `y` afterwards alias `x`.
+        val rn = arrayRef(next)
+        val rv = arrayRef(v)
+        if (rn != null && rv != null) emit(mode, g, equality(rn, rv))
     }
 
     private fun tryResolve(t: com.github.javaparser.ast.type.Type): ResolvedType? = try {
@@ -1290,7 +1435,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 // self-referential (`phi = ite(g, ..., phi)`), leaving `phi` unconstrained
                 // on paths where the if-guard is false.
                 val pre = snapshot[key] ?: ev
-                val phi = freshVersion(key, type)
+                val phi = freshVersionFor(key, type)
                 // phi-style merge: `phi = ite(g, ite(c, tv, ev), pre)`. The if-guard
                 // `g` is folded into the binding so a dead branch (guard false — e.g.
                 // a `continue`/`break`/`return` earlier in an unrolled loop body)
@@ -1377,7 +1522,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 val sv = snapshot[key]
                 if (bv != sv && bv != null && sv != null) {
                     val type = envTypes[key] ?: SmtType.INT
-                    val phi = freshVersion(key, type)
+                    val phi = freshVersionFor(key, type)
                     // phi-style merge: `phi = ite(prefix, ite(c, bv, sv), sv)`. The
                     // iteration-entry guard is folded in so that a dead iteration
                     // (loop already exited via break/return earlier) keeps the
@@ -1425,13 +1570,19 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 val e = exits[j]
                 val v = e.values[key] ?: preLoop[key] ?: undef ?: run {
                     val name = "\$undef_${++uid}"
-                    query.declareConst(name, type)
+                    if (isFieldMapKey(key) && type is SmtType.Array) {
+                        query.addCommand(term.command("declare-const", term.symbol(name), fieldMapSort(type.to)))
+                    } else if (type === SmtType.JAVA_OBJECT) {
+                        query.addCommand(term.command("declare-const", term.symbol(name), term.symbol("U")))
+                    } else {
+                        query.declareConst(name, type)
+                    }
                     term.variable(type, envJavaTypes[key], name).also { undef = it }
                 }
                 acc = if (acc == null) v else iteTerm(e.cond, v, acc)
             }
             if (acc != null) {
-                val fin = freshVersion(key, type)
+                val fin = freshVersionFor(key, type)
                 emit(mode, entryGuard, equality(fin, acc))
             }
         }
@@ -1475,9 +1626,16 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             (ExprTranslator.BREAK + loopId) + (ExprTranslator.CONTINUE + loopId)
         for (key in modified) {
             if (envTypes.containsKey(key)) {
+                val type = envTypes[key]!!
                 val name = "\$havoc_${++uid}"
-                query.declareConst(name, envTypes[key]!!)
-                havocEnv[key] = term.variable(envTypes[key]!!, envJavaTypes[key], name)
+                if (isFieldMapKey(key) && type is SmtType.Array) {
+                    query.addCommand(term.command("declare-const", term.symbol(name), fieldMapSort(type.to)))
+                } else if (type === SmtType.JAVA_OBJECT) {
+                    query.addCommand(term.command("declare-const", term.symbol(name), term.symbol("U")))
+                } else {
+                    query.declareConst(name, type)
+                }
+                havocEnv[key] = term.variable(type, envJavaTypes[key], name)
             }
         }
         // snapshot of the havoced state; needed because executing the body mutates havocEnv
@@ -1562,12 +1720,26 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     /** Statically collected locations assigned in a statement list. */
     private fun modifiedLocations(stmts: List<NfStmt>): Set<String> {
         val res = HashSet<String>()
+        fun fieldLocationKey(l: NfLocation) {
+            res.add(locationKey(l))
+            // field-map key for scalar/object fields of receivers that resolve to
+            // an object term — those writes update the identity-keyed map, and the
+            // loop merges must version it like any other modified location
+            if (l is NfField && l.receiver != "this") {
+                val recvTerm = env[l.receiver] ?: env["this.${l.receiver}"]
+                if (recvTerm != null && recvTerm.smtType === SmtType.JAVA_OBJECT) {
+                    val sType = fieldSelectorType(recvTerm, l.receiver, l.key.substringAfterLast('.')).second
+                    if (sType !is SmtType.Array) res.add(fieldMapKey(l.key.substringAfterLast('.'), sType))
+                }
+            }
+        }
+
         fun go(l: List<NfStmt>) {
             for (s in l) {
                 when (s) {
-                    is NfAssign -> res.add(locationKey(s.target))
+                    is NfAssign -> fieldLocationKey(s.target)
 
-                    is NfHavoc -> res.add(locationKey(s.location))
+                    is NfHavoc -> fieldLocationKey(s.location)
 
                     is NfIf -> {
                         go(s.thenStmts); go(s.elseStmts)
@@ -2059,6 +2231,33 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                     map["this." + k.removePrefix(prefix)] = v
                 }
             }
+            // Identity-keyed field maps are shared with the callee; each scalar/object
+            // field of the receiver that lives only in such a map is exposed to the
+            // callee as `select(map, receiver)`, so `requires`/`ensures` clauses act
+            // on the caller-visible map entry.
+            val rt = try {
+                recv.javaType as? com.github.javaparser.resolution.types.ResolvedReferenceType
+            } catch (e: Exception) {
+                null
+            }
+            if (rt != null) {
+                val declared = try { rt.typeDeclaration.orElse(null)?.declaredFields ?: emptyList() } catch (e: Exception) {
+                    emptyList()
+                }
+                for (fd in declared) {
+                    val fname = fd.name
+                    if (map.containsKey("this.$fname")) continue
+                    if (fd.isStatic) continue
+                    val sType = try { fieldSelectorType(recv, prefix.removeSuffix("."), fname).second } catch (e: Exception) {
+                        continue
+                    }
+                    if (sType is SmtType.Array) continue
+                    val mkey = fieldMapKey(fname, sType)
+                    val mv = env[mkey] ?: continue
+                    map[mkey] = mv
+                    map["this.$fname"] = term.select(sType, null, mv, recv)
+                }
+            }
         }
 
         /** Maps a callee location key to the caller's key for receiver-bound calls. */
@@ -2071,14 +2270,21 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
 
         fun havocKey(locKey: String) {
             val target = callerKey(locKey)
-            val type = envTypes[target] ?: return
-            val name = "\$havoc_${++uid}"
-            if (type === SmtType.JAVA_OBJECT) {
-                query.addCommand(term.command("declare-const", term.symbol(name), term.symbol("U")))
-            } else {
-                query.declareConst(name, type)
+            // receiver-bound `assignable this.f`: refresh the identity-keyed map
+            // entry at the receiver (the callee's assignable clause acts on the
+            // receiver object, whose field lives in the shared field map)
+            if (locKey.startsWith("this.") && receiver != null) {
+                val fieldName = target.substringAfterLast('.')
+                val recv = receiver!!
+                val sType = fieldSelectorType(recv, "this", fieldName).second
+                if (sType !is SmtType.Array && env.containsKey(fieldMapKey(fieldName, sType))) {
+                    val fresh = freshTemp(sType, null)
+                    fieldMapStore(fieldName, sType, recv, fresh, term.makeTrue(), mode)
+                    return
+                }
             }
-            env[target] = term.variable(type, envJavaTypes[target], name)
+            val type = envTypes[target] ?: return
+            declareHavocConst(target, type)
         }
 
         /** The callee view of the environment: current state + params + result + receiver. */
@@ -2113,7 +2319,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         if (assignable.isEmpty() || assignable.any { it.toString().contains("everything") }) {
             // \everything or no assignable clause: havoc all fields and arrays
             for (key in env.keys.toList()) {
-                if (key.startsWith("this.") || envTypes[key] is SmtType.Array) {
+                if (key.startsWith("this.") || envTypes[key] is SmtType.Array || isFieldMapKey(key)) {
                     havocKey(key)
                 }
             }

@@ -388,6 +388,104 @@ public class VcgExamples {
         }
     }
 
+    //@ requires x >= 0;
+    //@ ensures \result == (x == 1 ? 10 : 20);
+    public int switchBasic(int x) {
+        int r;
+        switch (x) {
+            case 1:
+                r = 10;
+                break;
+            default:
+                r = 20;
+        }
+        return r;
+    }
+
+    //@ requires x >= 0;
+    //@ ensures \result == 10;
+    public int switchWrong(int x) {
+        int r;
+        switch (x) {
+            case 1:
+                r = 10;
+                break;
+            default:
+                r = 20;
+        }
+        return r;
+    }
+
+    //@ requires x >= 0;
+    //@ ensures \result == (x == 1 || x == 2 ? 42 : 0);
+    public int switchFallThrough(int x) {
+        int r = 0;
+        switch (x) {
+            case 1:
+            case 2:
+                r = 42;
+                break;
+            default:
+                r = 0;
+        }
+        return r;
+    }
+
+    //@ requires x >= 0;
+    //@ ensures \result == (x == 1 ? 1 : (x == 2 ? 2 : 3));
+    public int switchBreakStops(int x) {
+        int r = 0;
+        switch (x) {
+            case 1:
+                r = 1;
+                break;
+            case 2:
+                r = 2;
+                break;
+            default:
+                r = 3;
+        }
+        return r;
+    }
+
+    // switch inside a loop: a `continue` inside a case must target the loop (not the
+    // switch), a `break` inside a case must exit only the switch.
+    //@ requires n >= 0;
+    //@ ensures \result == (n == 0 ? 0 : 2 * n - 1);
+    public int switchBreakStaysInLoop(int n) {
+        int i = 0;
+        int s = 0;
+        while (i < n) {
+            switch (i) {
+                case 0:
+                    s = s + 1;
+                    break;
+                default:
+                    s = s + 2;
+            }
+            i = i + 1;
+        }
+        return s;
+    }
+
+    //@ requires n >= 0;
+    //@ ensures \result == n / 2;
+    public int switchContinueInLoop(int n) {
+        int i = 0;
+        int s = 0;
+        while (i < n) {
+            switch (i % 2) {
+                case 0:
+                    i = i + 1;
+                    continue;
+                default:
+                    i = i + 1;
+            }
+            s = s + 1;
+        }
+        return s;
+    }
+
     //@ requires n > 1;
     //@ ensures \result == 0;
     public int breakAndContinue(int n) {
@@ -1383,5 +1481,71 @@ public class VcgExamples {
             default:
                 x = 3;
         }
+    }
+
+    // ---- implicit runtime-exception checks (opt-in via checkNull / checkCast /
+    // ---- checkNegativeArraySize / checkStringIndex)
+
+    //@ requires s != null;
+    //@ ensures true;
+    public int derefOk(String s) {
+        return s.length();
+    }
+
+    //@ ensures true;
+    public int derefUnchecked(String s) {
+        return s.length();
+    }
+
+    //@ requires b != null;
+    //@ ensures true;
+    public int fieldDerefOk(Box b) {
+        return b.value;
+    }
+
+    //@ ensures true;
+    public int fieldDerefUnchecked(Box b) {
+        return b.value;
+    }
+
+    //@ requires o instanceof String;
+    //@ ensures true;
+    public int castOk(Object o) {
+        Object v = (String) o;
+        return 0;
+    }
+
+    //@ ensures true;
+    public int castWrongM(Object o) {
+        Object v = (String) o;
+        return 0;
+    }
+
+    //@ requires n >= 0;
+    //@ ensures \result.length == n;
+    public int[] newArrayOk(int n) {
+        return new int[n];
+    }
+
+    //@ ensures true;
+    public int[] newArrayNeg(int n) {
+        return new int[n];
+    }
+
+    //@ requires i >= 0 && i < 2;
+    //@ ensures true;
+    public char charAtOk(int i) {
+        return "ab".charAt(i);
+    }
+
+    //@ ensures true;
+    public char charAtUnchecked(int i) {
+        return "ab".charAt(i);
+    }
+
+    //@ requires i >= 0 && i <= j && j <= 2;
+    //@ ensures true;
+    public String subOk(int i, int j) {
+        return "ab".substring(i, j);
     }
 }

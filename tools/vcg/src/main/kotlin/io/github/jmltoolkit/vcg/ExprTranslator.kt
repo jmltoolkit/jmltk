@@ -28,6 +28,7 @@ import com.github.javaparser.ast.jml.expr.JmlMultiCompareExpr
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr.JmlDefaultBinder
 import com.github.javaparser.ast.visitor.GenericVisitorAdapter
+import com.github.javaparser.resolution.types.ResolvedType
 import io.github.jmltoolkit.utils.JMLUtils
 import io.github.jmltoolkit.smt.ArithmeticTranslator
 import io.github.jmltoolkit.smt.SmtQuery
@@ -254,14 +255,21 @@ class ExprTranslator(
     }
 
     override fun visit(n: ArrayCreationExpr, arg: Any?): SExpr {
-        val name = "anon_array_${anonCnt++}"
         val type = translator.getType(n.calculateResolvedType())
-        smtLog.declareConst(name, type)
-        val v = term.variable(type, n.calculateResolvedType(), name)
-        if (n.levels.isNotEmpty() && n.levels[0].dimension.isPresent) {
-            val len = n.levels[0].dimension.get().accept(this, arg)!!
-            smtLog.addAssert(equality(translator.arrayLength(v), len))
+        val len = if (n.levels.isNotEmpty() && n.levels[0].dimension.isPresent) {
+            n.levels[0].dimension.get().accept(this, arg)!!
+        } else {
+            null
         }
+        return createArray(n.calculateResolvedType(), type, len)
+    }
+
+    /** Declares a fresh anonymous array constant of [type]; optionally binds its length. */
+    fun createArray(javaType: ResolvedType?, type: SmtType, length: SExpr?): SExpr {
+        val name = "anon_array_${anonCnt.getAndIncrement()}"
+        smtLog.declareConst(name, type)
+        val v = term.variable(type, javaType, name)
+        if (length != null) smtLog.addAssert(equality(translator.arrayLength(v), length))
         return v
     }
 
@@ -285,6 +293,7 @@ class ExprTranslator(
         const val EXC = "\$exc"
         /** the thrown exception object */
         const val EXCVAL = "\$excval"
-        private var anonCnt = 0
+        /** unique suffix for anonymous array constants; shared across concurrent verifications */
+        private val anonCnt = java.util.concurrent.atomic.AtomicInteger()
     }
 }

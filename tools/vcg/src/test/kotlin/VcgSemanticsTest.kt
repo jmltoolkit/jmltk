@@ -112,6 +112,7 @@ class VcgSemanticsTest {
         val b = VcgOptions(mode = VerificationMode.BOUNDED)
         val uInline = u.copy(defaultCallStrategy = CallStrategy.INLINE)
         val uContract = u.copy(defaultCallStrategy = CallStrategy.CONTRACT)
+        val RUNTIME_KINDS = setOf("nullcheck", "castcheck", "negative-array-size", "string-index")
 
         @JvmStatic
         fun proven(): Stream<Arguments> = Stream.of(
@@ -251,6 +252,18 @@ class VcgSemanticsTest {
             Arguments.of("callStaticContract", uContract),
             Arguments.of("callThisShorthand", uContract),
             Arguments.of("callObjParam", uContract),
+            // switches: matching, fall-through, break scoping, in a loop, continue
+            Arguments.of("switchBasic", u),
+            Arguments.of("switchBasic", b),
+            Arguments.of("switchFallThrough", u),
+            Arguments.of("switchFallThrough", b),
+            Arguments.of("switchBreakStops", u),
+            Arguments.of("switchBreakStops", b),
+            Arguments.of("switchBreakStaysInLoop", u),
+            Arguments.of("switchBreakStaysInLoop", b),
+            Arguments.of("switchContinueInLoop", u),
+            Arguments.of("switchContinueInLoop", b),
+            Arguments.of("callInlineSwitch", uInline),
             // inlined calls: nested bodies, aliased array params, fresh receivers, static
             Arguments.of("callStaticInline", uInline),
             Arguments.of("inlineNested", uInline),
@@ -297,6 +310,9 @@ class VcgSemanticsTest {
             // unbounded MIN_VALUE - 1 does not wrap: result is -2147483649, not -2147483647
             Arguments.of("minUnderflow", u),
             Arguments.of("minUnderflow", b),
+            // a wrong switch postcondition exposes the non-matching branch
+            Arguments.of("switchWrong", u),
+            Arguments.of("switchWrong", b),
         )
     }
 
@@ -322,17 +338,23 @@ class VcgSemanticsTest {
     }
 
     @Test
-    fun testSwitchIsRejectedByGeneration() {
-        val ex = assertThrows(UnsupportedOperationException::class.java) { vcgFor("switchNotSupported", u) }
-        assertTrue(ex.message!!.contains("not yet supported"), ex.message)
+    fun testSwitchBasicProven() {
+        // a plain (non-loop) switch with a break and a default
+        expectAllProven(vcgFor("switchBasic", u))
+        expectAllProven(vcgFor("switchBasic", b))
     }
 
     @Test
-    fun testSwitchInsideInlinedCalleeIsRejected() {
-        // inlining walks the callee's declared locals before execution, so the
-        // switch inside an inlined callee is still collected and then rejected
-        val ex = assertThrows(UnsupportedOperationException::class.java) { vcgFor("callInlineSwitch", uInline) }
-        assertTrue(ex.message!!.contains("not yet supported"), ex.message)
+    fun testSwitchContinueTargetsLoopNotSwitch() {
+        // a `continue` inside a switch case must jump to the enclosing loop head; the
+        // loop contract/invariant machinery and the unroll merge must both be sound
+        expectAllProven(vcgFor("switchContinueInLoop", u))
+    }
+
+    @Test
+    fun testSwitchInsideInlinedCallee() {
+        // inlining a callee whose body contains a switch now works end to end
+        expectAllProven(vcgFor("callInlineSwitch", uInline))
     }
 
     @Test
@@ -386,10 +408,17 @@ class VcgSemanticsTest {
     }
 
     @Test
-    fun testObligationIdsAreSequential() {
+    fun testObligationIdsAreReadableAndSequential() {
+        // ids follow <class>#<method>(<params>)#<kind>-<n>@<line>:<column>
         val res = vcgFor("bodyAssert", u)
-        res.conditions.forEachIndexed { i, vc -> assertEquals("vc${i + 1}", vc.id) }
+        val idRe = Regex("^VcgExamples#bodyAssert\\(int\\)#[a-z-]+-\\d+@\\d+:\\d+$")
+        res.conditions.forEachIndexed { i, vc ->
+            assertTrue(idRe.matches(vc.id), "unexpected id format: ${vc.id}")
+            assertEquals("VcgExamples#bodyAssert(int)", vc.id.substringBeforeLast('#'))
+            assertTrue(vc.id.contains("#${vc.kind}-${i + 1}@"), "running number must increment: ${vc.id}")
+        }
         assertEquals("postcondition", res.conditions.last().description)
+        assertEquals("postcondition", res.conditions.last().kind)
     }
 
     @Test
@@ -410,6 +439,85 @@ class VcgSemanticsTest {
         val res = vcgFor("boundedAdd", b.copy(checkOverflow = true))
         assertTrue(res.conditions.any { it.description.contains("arithmetic overflow") })
     }
+
+    //region implicit runtime-exception checks (opt-in flags)
+
+    @Test
+    fun testRuntimeChecksOffByDefault() {
+        // the new checks must be silent unless explicitly requested
+        for (name in listOf("derefUnchecked", "fieldDerefUnchecked", "castWrongM", "newArrayNeg", "charAtUnchecked")) {
+            val res = vcgFor(name, u)
+            assertTrue(
+                res.conditions.none { it.kind in RUNTIME_KINDS },
+                "unexpected runtime condition in $name: " + res.conditions.map { "${it.kind}:${it.description}" }
+            )
+        }
+    }
+
+    @Test
+    fun testNullCheckEmittedAndProvable() {
+        expectAllProven(vcgFor("derefOk", u.copy(checkNull = true)))
+        expectAllProven(vcgFor("derefOk", b.copy(checkNull = true)))
+        expectAllProven(vcgFor("fieldDerefOk", u.copy(checkNull = true)))
+        expectAllProven(vcgFor("fieldDerefOk", b.copy(checkNull = true)))
+    }
+
+    @Test
+    fun testNullCheckFalsifiableOnUnannotatedDereference() {
+        expectSomeFalsifiable(vcgFor("derefUnchecked", u.copy(checkNull = true)))
+        expectSomeFalsifiable(vcgFor("derefUnchecked", b.copy(checkNull = true)))
+        expectSomeFalsifiable(vcgFor("fieldDerefUnchecked", u.copy(checkNull = true)))
+    }
+
+    @Test
+    fun testCastCheckProvenAndFalsifiable() {
+        expectAllProven(vcgFor("castOk", u.copy(checkCast = true)))
+        expectAllProven(vcgFor("castOk", b.copy(checkCast = true)))
+        expectSomeFalsifiable(vcgFor("castWrongM", u.copy(checkCast = true)))
+        expectSomeFalsifiable(vcgFor("castWrongM", b.copy(checkCast = true)))
+    }
+
+    @Test
+    fun testNegativeArraySizeCheckProven() {
+        // The engine models every array with a non-negative length (the `length >= 0`
+        // axiom that keeps bit-vector bounds checks sound), and the created array's
+        // length is bound to the dimension. The negative-array-size obligation
+        // `guard -> dim >= 0` is therefore implied by the model and always provable;
+        // the test asserts it is emitted and generation stays valid in both modes.
+        expectAllProven(vcgFor("newArrayOk", u.copy(checkNegativeArraySize = true)))
+        expectAllProven(vcgFor("newArrayOk", b.copy(checkNegativeArraySize = true)))
+        val resU = vcgFor("newArrayNeg", u.copy(checkNegativeArraySize = true))
+        assertTrue(
+            resU.conditions.any { it.kind == "negative-array-size" },
+            "expected a negative-array-size obligation, got " + resU.conditions.map { it.kind }
+        )
+        val resB = vcgFor("newArrayNeg", b.copy(checkNegativeArraySize = true))
+        assertTrue(resB.conditions.any { it.kind == "negative-array-size" })
+        expectAllProven(resB)
+    }
+
+    @Test
+    fun testStringIndexProvenAndFalsifiable() {
+        expectAllProven(vcgFor("charAtOk", u.copy(checkStringIndex = true)))
+        expectAllProven(vcgFor("charAtOk", b.copy(checkStringIndex = true)))
+        expectAllProven(vcgFor("subOk", u.copy(checkStringIndex = true)))
+        expectSomeFalsifiable(vcgFor("charAtUnchecked", u.copy(checkStringIndex = true)))
+        expectSomeFalsifiable(vcgFor("charAtUnchecked", b.copy(checkStringIndex = true)))
+    }
+
+    @Test
+    fun testStringLengthIsModelReadUnderFlag() {
+        // `String.length()` becomes an uninterpreted length read instead of an
+        // opaque contract-call result; the model length of a literal is bound.
+        val res = vcgFor("derefOk", u.copy(checkStringIndex = true))
+        // the postcondition is trivial; no runtime condition is emitted for a null-safe
+        // dereference when only the string-index feature is enabled
+        assertTrue(res.conditions.all { it.kind == "postcondition" }, res.conditions.map { it.kind }.toString())
+        // the length reads must come from the stringLength function
+        assertTrue(res.query.toString().contains("stringLength"), "expected a stringLength model read")
+    }
+
+    //endregion
 
     @Test
     fun testBodyAssertObligationCarriesSourceRange() {

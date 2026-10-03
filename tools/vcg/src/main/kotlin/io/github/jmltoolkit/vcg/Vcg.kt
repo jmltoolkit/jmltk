@@ -5,8 +5,10 @@
 package io.github.jmltoolkit.vcg
 
 import com.github.javaparser.ast.body.CallableDeclaration
+import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.expr.ArrayAccessExpr
+import com.github.javaparser.ast.expr.ArrayCreationExpr
 import com.github.javaparser.ast.expr.AssignExpr
 import com.github.javaparser.ast.expr.BinaryExpr
 import com.github.javaparser.ast.expr.CastExpr
@@ -18,6 +20,7 @@ import com.github.javaparser.ast.expr.LiteralExpr
 import com.github.javaparser.ast.expr.MethodCallExpr
 import com.github.javaparser.ast.expr.NameExpr
 import com.github.javaparser.ast.expr.ObjectCreationExpr
+import com.github.javaparser.ast.expr.StringLiteralExpr
 import com.github.javaparser.ast.expr.ThisExpr
 import com.github.javaparser.ast.expr.UnaryExpr
 import com.github.javaparser.ast.jml.NodeWithContracts
@@ -28,6 +31,7 @@ import com.github.javaparser.ast.jml.clauses.JmlMultiExprClause
 import com.github.javaparser.ast.jml.clauses.JmlSimpleExprClause
 import com.github.javaparser.ast.jml.expr.JmlExpression
 import com.github.javaparser.ast.stmt.BlockStmt
+import com.github.javaparser.resolution.types.ResolvedReferenceType
 import com.github.javaparser.resolution.types.ResolvedType
 import io.github.jmltoolkit.smt.ArithmeticTranslator
 import io.github.jmltoolkit.smt.BitVectorArithmeticTranslator
@@ -90,6 +94,39 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     private val obligations = mutableListOf<VerificationCondition>()
     private var uid = 0
     private var inlineDepth = 0
+
+    /** Qualified type names whose `T`-sort constant has been declared (mirrors the
+     *  hierarchy declared in [setupTypeHierarchy]; extended lazily for library types). */
+    private val declaredTypeSorts = LinkedHashSet<String>()
+    /** Source values of string literals -> the declared reference-constant name
+     *  (keyed by value so equal literals alias within one query). */
+    private val stringLiteralConsts = HashMap<String, String>()
+    private var stringLengthDeclared = false
+
+    /**
+     * Human-readable prefix shared by all verification-condition ids, e.g.
+     * `org.example.Counter#increment(int)` (constructors use `init`). The id of a
+     * single condition is `<prefix>#<kind>-<n>@<line>:<column>`.
+     */
+    private val vcPrefix: String by lazy {
+        val classPart = try {
+            ctx.enclosingType.resolve().qualifiedName
+        } catch (e: Exception) {
+            ctx.enclosingType.fullyQualifiedName.orElse(ctx.enclosingType.nameAsString)
+        }
+        val callablePart = when (val c = ctx.callable) {
+            is ConstructorDeclaration -> "init"
+            else -> c.nameAsString
+        }
+        val params = ctx.callable.parameters.joinToString(",") { p ->
+            try {
+                p.type.resolve().describe()
+            } catch (e: Exception) {
+                p.type.toString()
+            }
+        }
+        "$classPart#$callablePart($params)"
+    }
 
     /** Recording mode: assertions are collected into a local formula, not the query. */
     private class Recording(val premise: SExpr) {
@@ -183,6 +220,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             val sort = typeSortName(t)
             query.addCommand(term.command("declare-const", term.symbol(sort), term.symbol("T")))
         }
+        declaredTypeSorts.addAll(allTypes)
         // object is the root of the (non-null) hierarchy
         val objSort = typeSortName("java.lang.Object")
         for (t in allTypes) {
@@ -197,7 +235,51 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             }
         }
         // exceptions are Object subtypes (transitively handled by z3 via the subtype axiom)
+        if (options.checkStringIndex) ensureStringLengthFn()
     }
+
+    /**
+     * Declares a `T`-sort constant for a type not declared in [setupTypeHierarchy]
+     * (e.g. a library class used only as a cast/creation target) and records its
+     * subtype edge to `java.lang.Object`.
+     */
+    private fun ensureTypeSort(qualified: String) {
+        if (!declaredTypeSorts.add(qualified)) return
+        val sort = typeSortName(qualified)
+        query.addCommand(term.command("declare-const", term.symbol(sort), term.symbol("T")))
+        query.addAssert(
+            term.list(
+                null, SmtType.BOOL, term.symbol("subtype"),
+                term.symbol(sort), term.symbol(typeSortName("java.lang.Object"))
+            )
+        )
+    }
+
+    /** The arithmetic sort used for a Java `int` in the current mode. */
+    private val intSort: SmtType by lazy {
+        if (options.mode == VerificationMode.UNBOUNDED) {
+            SmtType.INT
+        } else {
+            SmtType.BV32
+        }
+    }
+
+    /** Declares `stringLength : U -> int` once; the model read behind `String.length()`. */
+    private fun ensureStringLengthFn() {
+        if (stringLengthDeclared) return
+        stringLengthDeclared = true
+        query.addCommand(
+            term.command(
+                "declare-fun", term.symbol("stringLength"),
+                SList(null, null, listOf(term.symbol("U"))),
+                term.type(intSort)
+            )
+        )
+    }
+
+    /** `(stringLength s)`, the runtime length of a `String`-like reference. */
+    private fun stringLengthOf(s: SExpr): SExpr =
+        term.list(null, intSort, term.symbol("stringLength"), s)
 
     private fun fun2(name: String, a: String, b: String, ret: String) =
         query.addCommand(
@@ -279,7 +361,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 )
             }
             val sType = safeType(returnType)
-            query.declareConst(ExprTranslator.RESULT, sType)
+            declareSmtConst(ExprTranslator.RESULT, sType)
             env[ExprTranslator.RESULT] = term.variable(sType, returnType, ExprTranslator.RESULT)
             envTypes[ExprTranslator.RESULT] = sType
         }
@@ -415,17 +497,21 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             } else {
                 term.impl(term.and(guard, ret), post)
             }
-        addObligation("postcondition", ob, Mode.Real, ctx.callable)
+        addObligation("postcondition", "postcondition", ob, Mode.Real, ctx.callable)
     }
 
     private fun emitVcs() {
-        for (vc in obligations) {
+        for ((i, vc) in obligations.withIndex()) {
             query.push()
             val named = SList(
                 SmtType.COMMAND, null,
                 listOf(
                     term.symbol("!"), term.not(vc.obligation),
-                    term.symbol(":named"), term.symbol(vc.id)
+                    // the `:named` symbol is SMT-safe and positional: the human-readable
+                    // condition id lives on VerificationCondition and must not leak into
+                    // the query (it would both break SMT-LIB symbol syntax and make the
+                    // solver-result cache depend on names instead of content)
+                    term.symbol(":named"), term.symbol("v${i + 1}")
                 )
             )
             query.addAssert(named)
@@ -528,6 +614,13 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         return term.list(jType, sType, term.symbol(fn), receiver)
     }
 
+    /** Field-read term for `scope.name` given an already-translated [scopeTerm]; mirrors
+     *  [io.github.jmltoolkit.vcg.ExprTranslator.visit] for `FieldAccessExpr`. */
+    private fun fieldRead(scope: Expression, e: FieldAccessExpr, scopeTerm: SExpr): SExpr {
+        if (e.nameAsString == "length") return translator.arrayLength(scopeTerm)
+        fieldReadFor(env, scopeTerm, e.nameAsString, scope.toString()).let { return it }
+    }
+
     /** Resolves the Java/SMT type of `scope.field` from the resolved receiver type. */
     private fun fieldSelectorType(
         receiver: SExpr, scopeText: String, field: String
@@ -577,6 +670,16 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     private fun unknownKey(name: String): String =
         if (env.containsKey("this.$name")) "this.$name" else "unk_" + name
     //endregion
+
+    /** Declares a constant of [type] using the encoding's `U` sort for references
+     *  (a bare `SmtType.JAVA_OBJECT` would print the placeholder sort `Object`). */
+    private fun declareSmtConst(name: String, type: SmtType) {
+        if (type === SmtType.JAVA_OBJECT) {
+            query.addCommand(term.command("declare-const", term.symbol(name), term.symbol("U")))
+        } else {
+            query.declareConst(name, type)
+        }
+    }
 
     //region symbol table
     private fun nextName(key: String): String {
@@ -654,7 +757,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         }
     }
 
-    private fun addObligation(description: String, prop: SExpr, mode: Mode, node: com.github.javaparser.ast.Node? = null) {
+    private fun addObligation(kind: String, description: String, prop: SExpr, mode: Mode, node: com.github.javaparser.ast.Node? = null) {
         val ob =
             when (mode) {
                 is Mode.Real -> prop
@@ -665,8 +768,10 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                     term.impl(premise, prop)
                 }
             }
-        val id = "vc${obligations.size + 1}"
-        obligations.add(VerificationCondition(id, description, ob, node?.range?.orElse(null)))
+        val number = obligations.size + 1
+        val loc = node?.range?.orElse(null)
+        val id = "$vcPrefix#$kind-$number@${loc?.begin?.line ?: "-"}:${loc?.begin?.column ?: "-"}"
+        obligations.add(VerificationCondition(id, description, ob, loc, kind))
     }
     //endregion
 
@@ -695,10 +800,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
 
             is NfTryCatch -> return execTryCatch(s, guard, mode)
 
-            is NfSwitch -> throw UnsupportedOperationException(
-                "switch statements are not yet supported by the VCG engine" +
-                    (s.origin?.let { " (${describe(it)})" } ?: "")
-            )
+            is NfSwitch -> execSwitch(s, guard, mode)
 
             is NfReturn -> execReturn(s, guard, mode)
 
@@ -710,7 +812,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 if (f != null && f.strategy != LoopStrategy.UNROLL && f.breaks.isNotEmpty()) {
                     var clause = term.makeTrue()
                     for (b in f.breaks) clause = term.and(clause, translatorOf().tr(b))
-                    addObligation("loop breaks clause ${describe(s.origin!!)}", term.impl(g, clause), mode)
+                    addObligation("break-clause", "loop breaks clause ${describe(s.origin!!)}", term.impl(g, clause), mode)
                 }
             }
 
@@ -722,13 +824,13 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                     var clause = term.makeTrue()
                     for (c in f.continues) clause = term.and(clause, translatorOf().tr(c))
                     if (f.continues.isNotEmpty()) {
-                        addObligation("loop continues clause ${describe(s.origin!!)}", term.impl(g, clause), mode)
+                        addObligation("continue-clause", "loop continues clause ${describe(s.origin!!)}", term.impl(g, clause), mode)
                     }
                     // a continue reaches the loop head, so the invariant must hold here
                     if (f.invariants.isNotEmpty()) {
                         var inv = term.makeTrue()
                         for (e in f.invariants) inv = term.and(inv, translatorOf().tr(e))
-                        addObligation("loop invariant at continue ${describe(s.origin!!)}", term.impl(g, inv), mode)
+                        addObligation("loop-invariant-continue", "loop invariant at continue ${describe(s.origin!!)}", term.impl(g, inv), mode)
                     }
                 }
             }
@@ -736,12 +838,21 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             is NfAssume -> emit(mode, effectiveGuard(guard, s), translatorOf().tr(s.expr))
 
             is NfAssert -> addObligation(
+                "assert",
                 "assert ${s.origin?.let { describe(it) } ?: ""}",
                 term.impl(effectiveGuard(guard, s), translatorOf().tr(s.expr)), mode,
                 s.origin
             )
 
-            is NfHavoc -> freshVersion(locationKey(s.location), locType(s.location))
+            is NfHavoc -> {
+                // A local declared without initializer must get the sort of its
+                // *declared* type (e.g. BV32 in BOUNDED mode), not the Int fallback —
+                // otherwise later assignments mix Int and bit-vector sorts.
+                val key = locationKey(s.location)
+                val declared = (s.location as? NfLocal)?.declaredType?.let { tryResolve(it) }
+                val type = envTypes[key] ?: declared?.let { safeType(it) } ?: locType(s.location)
+                freshVersion(key, type)
+            }
         }
         return guard
     }
@@ -766,7 +877,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         return g
     }
 
-    private val loopContext = ArrayDeque<Pair<Int, Boolean>>() // (loopId, isSwitchLike?)
+    private val loopContext = ArrayDeque<Pair<Int, Boolean>>() // (loopId, isSwitch?)
 
     /** Per-loop contract data used at break/continue points. */
     private class LoopFrame(
@@ -783,7 +894,9 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         loopContext.map { it.first }.toList()
 
     private fun innermostContinueId(@Suppress("UNUSED_PARAMETER") s: NfStmt): Int? =
-        loopContext.lastOrNull()?.first
+        // a `continue` never targets a switch (the normalizer only pushes loop ids on
+        // the continue stack); skip switch-like entries pushed by execSwitch
+        loopContext.lastOrNull { !it.second }?.first
 
     private fun setFlag(key: String, guard: SExpr, mode: Mode) {
         val prev = env[key] ?: term.makeFalse()
@@ -916,10 +1029,57 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         return when (name) {
             "Exception", "RuntimeException", "ArithmeticException", "NullPointerException",
             "ArrayIndexOutOfBoundsException", "IndexOutOfBoundsException", "Throwable", "Object",
+            "String",
             -> "java.lang.$name"
 
             else -> name
         }
+    }
+
+    /**
+     * Lowers a `switch` statement with Java fall-through semantics. The selector is
+     * evaluated exactly once, then each case group is executed under the guard
+     * "the switch was already entered (fall through) OR this group's label matches
+     * the selector" (the `default` group enters iff no label matched anywhere).
+     * A `break` inside a case is encoded as a switch-scoped completion flag that
+     * makes the remaining groups unreachable; a `return`/`throw` behaves as usual.
+     * After the switch the break flag is reset so an *enclosing* unrolled loop can
+     * re-enter the same switch node in its next iteration.
+     */
+    private fun execSwitch(s: NfSwitch, guard: SExpr, mode: Mode) {
+        val g = effectiveGuard(guard, s)
+        val sel = atom(s.selector, g, mode)
+        val selfMatches = s.cases.map { c ->
+            c.labels.fold(term.makeFalse()) { acc, label ->
+                term.or(acc, equality(sel, translatorOf().tr(label)))
+            }
+        }
+        // The selector matched *some* labelled group of this switch. Constant for the
+        // whole chain (the selector is evaluated once and labels are compile-time
+        // constants), so the default group can decide up front whether to fire.
+        val anyMatch = selfMatches.fold(term.makeFalse()) { acc, m -> term.or(acc, m) }
+        loopContext.addLast(s.switchId to true)
+        var entered: SExpr = term.makeFalse()
+        for ((i, c) in s.cases.withIndex()) {
+            // labelled group: enters when the selector equals one of its labels or a
+            // previous group already started (fall through); default: enters when no
+            // label matched anywhere
+            val enterNow = if (c.labels.isEmpty()) term.not(anyMatch) else selfMatches[i]
+            val cond = term.or(entered, enterNow)
+            val condG = term.and(g, cond)
+            exec(c.body, condG, mode)
+            // phi-style: `enteredNext = ite(condG, true, entered)`; folding the guard
+            // in keeps the flag false on paths where the whole switch is dead
+            val enteredNext = freshTemp(SmtType.BOOL)
+            emitPhi(mode, equality(enteredNext, iteTerm(condG, term.makeTrue(), entered)))
+            entered = enteredNext
+        }
+        loopContext.removeLast()
+        // reset the switch-scoped break flag so it does not leak into the next
+        // iteration of an enclosing unrolled loop (this switch node runs unchanged)
+        val prevBrk = env[ExprTranslator.BREAK + s.switchId] ?: term.makeFalse()
+        val brkFresh = freshVersion(ExprTranslator.BREAK + s.switchId, SmtType.BOOL)
+        emitPhi(mode, equality(brkFresh, iteTerm(g, term.makeFalse(), prevBrk)))
     }
 
     private fun execReturn(s: NfReturn, guard: SExpr, mode: Mode) {
@@ -961,6 +1121,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 val idx = atom(t.index, g, mode)
                 if (options.checkIndex) {
                     addObligation(
+                        "array-store",
                         "array store bound ${describe(s.origin!!)}",
                         term.impl(
                             g,
@@ -969,7 +1130,8 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                                 term.lessThan(idx, translator.arrayLength(arr))
                             )
                         ),
-                        mode
+                        mode,
+                        s.origin
                     )
                 }
                 val v = atom(s.rhs, g, mode)
@@ -1083,7 +1245,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     }
 
     private fun unrollLoop(s: NfLoop, guard: SExpr, mode: Mode, depth: Int, loopId: Int) {
-        loopContext.addLast(loopId to true)
+        loopContext.addLast(loopId to false)
         val entryGuard = effectiveGuard(guard, s)
         val preLoop = LinkedHashMap(env)
         // `prefix` is the path condition under which iteration i is entered.
@@ -1196,7 +1358,12 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         // (1) invariant established on entry
         var inv = term.makeTrue()
         for (e in invariants) inv = term.and(inv, translatorOf().tr(e))
-        addObligation("loop invariant initially valid ${describe(s.loopNode)}", term.impl(g, inv), mode)
+        addObligation(
+            "loop-invariant-init",
+            "loop invariant initially valid ${describe(s.loopNode)}",
+            term.impl(g, inv),
+            mode
+        )
 
         // (2) one arbitrary iteration preserves the invariant (and decreases the variant)
         val snapshot = LinkedHashMap(env)
@@ -1221,7 +1388,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         }
         val condHavoc = atom(s.cond, term.makeTrue(), mode)
         val rec = Recording(term.and(invHavoc, condHavoc))
-        loopContext.addLast(loopId to true)
+        loopContext.addLast(loopId to false)
         exec(s.body, term.makeTrue(), Mode.Record(rec))
         loopContext.removeLast()
         val envAfter = env
@@ -1236,14 +1403,17 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             term.not(flagIn(envAfter, ExprTranslator.CONTINUE + loopId))
         )
         addObligation(
+            "loop-invariant-preserved",
             "loop invariant preserved ${describe(s.loopNode)}",
-            term.impl(normal, invAfter), Mode.Record(rec)
+            term.impl(normal, invAfter),
+            Mode.Record(rec)
         )
         for (v in variants) {
             val d0 = translatorOf(envOverride = havocBefore).tr(v)
             val d1 = translatorOf(envOverride = envAfter).tr(v)
             val zero = translator.makeInt(java.math.BigInteger.ZERO)
             addObligation(
+                "variant",
                 "loop variant decreases ${describe(s.loopNode)}",
                 term.impl(
                     normal,
@@ -1301,6 +1471,14 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                     }
 
                     is NfLoop -> go(s.body)
+
+                    is NfTryCatch -> {
+                        go(s.tryBody)
+                        s.catches.forEach { go(it.body) }
+                        go(s.finallyBody)
+                    }
+
+                    is NfSwitch -> s.cases.forEach { go(it.body) }
 
                     else -> {}
                 }
@@ -1364,15 +1542,73 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
 
         is EnclosedExpr -> atom(e.inner, guard, mode)
 
-        is CastExpr -> atom(e.expression, guard, mode)
+        is CastExpr -> {
+            val v = atom(e.expression, guard, mode)
+            if (options.checkCast &&
+                e.expression !is com.github.javaparser.ast.expr.NullLiteralExpr &&
+                e.type.isReferenceType && v.smtType === SmtType.JAVA_OBJECT
+            ) {
+                val name = qualifyType(e.type.toString())
+                ensureTypeSort(name)
+                addObligation(
+                    "castcheck", "cast ${describe(e)}",
+                    term.impl(guard, typeMatch(v, e.type)), mode, e
+                )
+            }
+            v
+        }
 
         is MethodCallExpr -> handleCall(e, guard, mode)
 
         is ObjectCreationExpr -> {
-            // `new T(...)`: a fresh, unconstrained object of the (reference) sort.
-            // Constructor arguments are still evaluated for their side effects.
+            // `new T(...)`: a fresh object of the (reference) sort. Constructor
+            // arguments are still evaluated for their side effects.
             for (a in e.arguments) atom(a, guard, mode)
-            freshTemp(SmtType.JAVA_OBJECT, tryExprType(e))
+            val obj = freshTemp(SmtType.JAVA_OBJECT, tryExprType(e))
+            if (options.checkCast && obj.smtType === SmtType.JAVA_OBJECT) {
+                // Bind typeof/instanceof so that `(T) new T(...)` casts are provable.
+                val jt = try { e.calculateResolvedType() } catch (ex: Exception) { null }
+                val name = (jt as? ResolvedReferenceType)?.qualifiedName
+                    ?: if (e.type.isReferenceType) qualifyType(e.type.toString()) else null
+                if (name != null && name.isNotEmpty()) {
+                    ensureTypeSort(name)
+                    val sort = term.symbol(typeSortName(name))
+                    val typeofExpr = SList(null, null, listOf(term.symbol("typeof"), obj))
+                    emit(
+                        mode, guard,
+                        term.list(null, SmtType.BOOL, term.symbol("="), typeofExpr, sort)
+                    )
+                    emit(
+                        mode, guard,
+                        term.list(null, SmtType.BOOL, term.symbol("instanceof"), obj, sort)
+                    )
+                }
+            }
+            obj
+        }
+
+        is ArrayCreationExpr -> {
+            // A fresh anonymous array constant whose length is bound to the first
+            // (possibly symbolic) dimension; a negative size is a runtime error.
+            val dimension = if (e.levels.isNotEmpty() && e.levels[0].dimension.isPresent) {
+                e.levels[0].dimension.get()
+            } else {
+                null
+            }
+            val dimTerm = dimension?.let { atom(it, guard, mode) }
+            if (options.checkNegativeArraySize && dimTerm != null) {
+                addObligation(
+                    "negative-array-size", "negative array size ${describe(e)}",
+                    term.impl(
+                        guard,
+                        term.greaterOrEquals(dimTerm, translator.makeInt(java.math.BigInteger.ZERO), true)
+                    ),
+                    mode, e
+                )
+            }
+            translatorOf().createArray(
+                e.calculateResolvedType(), translator.getType(e.calculateResolvedType()), dimTerm
+            )
         }
 
         is ArrayAccessExpr -> {
@@ -1383,7 +1619,45 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             term.select(elementType, null, arrayS, indexS)
         }
 
-        is NameExpr, is ThisExpr, is FieldAccessExpr, is LiteralExpr, is JmlExpression ->
+        is FieldAccessExpr -> {
+            // Dereferencing a null receiver is a runtime error (arrays are value
+            // maps and modelled never-null; `this` is already asserted non-null).
+            val scopeExpr = e.scope
+            if (options.checkNull && scopeExpr != null && e.nameAsString != "length") {
+                if (scopeExpr is ThisExpr) {
+                    translatorOf().tr(e)
+                } else {
+                    val scopeTerm = atom(scopeExpr, guard, mode)
+                    if (scopeTerm.smtType === SmtType.JAVA_OBJECT) {
+                        addObligation(
+                            "nullcheck", "dereference ${describe(e)}",
+                            term.impl(guard, term.nonNull(scopeTerm)), mode, e
+                        )
+                    }
+                    fieldRead(scopeExpr, e, scopeTerm)
+                }
+            } else {
+                translatorOf().tr(e)
+            }
+        }
+
+        is StringLiteralExpr -> {
+            // Under the string-index feature every literal is a declared reference
+            // constant (so it can be an argument to `stringLength`) and its runtime
+            // length is bound, making bounds checks on literal receivers concrete.
+            if (options.checkStringIndex) {
+                ensureStringLengthFn()
+                val name = stringLiteralConsts.getOrPut(e.value) { "strlit_${stringLiteralConsts.size}" }
+                query.addCommand(term.command("declare-const", term.symbol(name), term.symbol("U")))
+                val v = term.variable(SmtType.JAVA_OBJECT, null, name)
+                query.addAssert(equality(stringLengthOf(v), translator.makeInt(e.value.length.toLong())))
+                v
+            } else {
+                translatorOf().tr(e)
+            }
+        }
+
+        is NameExpr, is ThisExpr, is LiteralExpr, is JmlExpression ->
             translatorOf().tr(e)
 
         else -> translatorOf().tr(e)
@@ -1400,9 +1674,11 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         if (!options.checkDivision) return
         if (e.operator != BinaryExpr.Operator.DIVIDE && e.operator != BinaryExpr.Operator.REMAINDER) return
         addObligation(
+            "divbyzero",
             "division by zero ${describe(e)}",
             term.impl(guard, term.not(equality(divisor, translator.makeInt(java.math.BigInteger.ZERO)))),
-            mode
+            mode,
+            e
         )
     }
 
@@ -1415,9 +1691,11 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             return
         }
         addObligation(
+            "overflow",
             "arithmetic overflow ${describe(e)}",
             term.impl(guard, term.not(fnApplyOverflow(e))),
-            mode
+            mode,
+            e
         )
     }
 
@@ -1458,6 +1736,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     private fun checkIndex(e: ArrayAccessExpr, array: SExpr, index: SExpr, guard: SExpr, mode: Mode) {
         if (!options.checkIndex) return
         addObligation(
+            "array-bound",
             "array bound ${describe(e)}",
             term.impl(
                 guard,
@@ -1466,7 +1745,8 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                     term.lessThan(index, translator.arrayLength(array))
                 )
             ),
-            mode
+            mode,
+            e
         )
     }
     //endregion
@@ -1480,6 +1760,27 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
 
     //region method calls
     private fun handleCall(call: MethodCallExpr, guard: SExpr, mode: Mode): SExpr {
+        // `String.length()`-style model read under the string-index feature: the
+        // runtime length is the uninterpreted `(stringLength s)` function instead of
+        // an opaque contract-call result.
+        if (options.checkStringIndex && call.arguments.isEmpty() && call.nameAsString == "length") {
+            val scope = call.scope.orElse(null)
+            if (isStringLike(scope)) {
+                ensureStringLengthFn()
+                val recv = if (scope == null || scope is ThisExpr) {
+                    term.makeThis()
+                } else {
+                    atom(scope, guard, mode)
+                }
+                if (options.checkNull && recv.smtType === SmtType.JAVA_OBJECT) {
+                    addObligation(
+                        "nullcheck", "dereference ${describe(call)}",
+                        term.impl(guard, term.nonNull(recv)), mode, call
+                    )
+                }
+                return stringLengthOf(recv)
+            }
+        }
         val strategy = options.callStrategy(call)
         // Prefer the declaration in the same compilation unit: it carries the JML
         // contracts. (The symbol solver may re-parse the file without JML processing.)
@@ -1515,6 +1816,63 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             }
     }
 
+    /** True if the receiver expression denotes a `java.lang.String`-like reference
+     *  (a `String`, `StringBuilder` or `StringBuffer`, or `this` in such a class). */
+    private fun isStringLike(scope: Expression?): Boolean =
+        scope != null && (
+            scope is ThisExpr || try {
+            scope.calculateResolvedType().describe().startsWith("java.lang.String")
+        } catch (e: Exception) {
+            false
+        }
+        )
+
+    /**
+     * Emits the implicit bounds obligation for known `String`/`StringBuilder` index
+     * methods (`charAt`, `codePointAt`, `substring(...)`) against the receiver's
+     * model length `(stringLength recv)`. Bounded-mode comparisons stay on the
+     * mode's `int` sort via [term.lessOrEquals]/[term.lessThan] sort dispatch.
+     */
+    private fun stringIndexChecker(
+        call: MethodCallExpr, args: List<SExpr>, recv: SExpr, guard: SExpr, mode: Mode
+    ) {
+        val name = call.nameAsString
+        val len = stringLengthOf(recv)
+        val zero = translator.makeInt(java.math.BigInteger.ZERO)
+        val bounds: SExpr? = when (name) {
+            "charAt", "codePointAt" -> if (args.size == 1) {
+                term.and(term.lessOrEquals(zero, args[0], true), term.lessThan(args[0], len))
+            } else {
+                null
+            }
+
+            "substring" -> when (args.size) {
+                1 -> term.and(
+                    term.lessOrEquals(zero, args[0], true),
+                    term.lessOrEquals(args[0], len, true)
+                )
+
+                2 -> term.and(
+                    term.and(
+                        term.lessOrEquals(zero, args[0], true),
+                        term.lessOrEquals(args[0], args[1], true)
+                    ),
+                    term.lessOrEquals(args[1], len, true)
+                )
+
+                else -> null
+            }
+
+            else -> null
+        }
+        if (bounds != null) {
+            addObligation(
+                "string-index", "string index bound ${describe(call)}",
+                term.impl(guard, bounds), mode, call
+            )
+        }
+    }
+
     /**
      * Assume the precondition (against the pre-call state), havoc the assignable
      * locations, then assume the postcondition against the *post-havoc* state — the
@@ -1535,6 +1893,32 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         val sRet = safeType(jRet ?: tryExprType(call))
         val result = freshTemp(sRet, jRet)
 
+        // For `o.m(...)` the callee's `this` denotes the receiver `o`. When any
+        // receiver-sensitive check is enabled the receiver is evaluated up front so
+        // the null / string-index checks and the contract-view binding share a
+        // single translation (no duplicated side effects).
+        val scope = call.scope.orElse(null)
+        val needsEarlyReceiver = options.checkNull || options.checkStringIndex
+        var receiver: SExpr? =
+            if (needsEarlyReceiver && scope != null && scope !is ThisExpr && (decl?.isStatic != true)) {
+                atom(scope, guard, mode)
+            } else {
+                null
+            }
+        var receiverPrefix: String? = if (receiver != null) "$scope." else null
+
+        if (options.checkNull && receiver != null && receiver.smtType === SmtType.JAVA_OBJECT) {
+            addObligation(
+                "nullcheck", "dereference ${describe(call)}",
+                term.impl(guard, term.nonNull(receiver)), mode, call
+            )
+        }
+        if (options.checkStringIndex) {
+            val recvForString = receiver
+                ?: if (scope != null && isStringLike(scope)) term.makeThis() else null
+            if (recvForString != null) stringIndexChecker(call, args, recvForString, guard, mode)
+        }
+
         if (decl == null) {
             // unknown callee: unconstrained result, nothing havoced (unsound but best effort)
             return result
@@ -1545,15 +1929,14 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         val joint = JmlContract()
         for (c in contracts) joint.clauses.addAll(c.clauses)
 
-        // For `o.m(...)` the callee's `this` denotes the receiver `o`; contract names
-        // `this.f` then map to the caller's `o.f` keys via [bindReceiver].
-        val scope = call.scope.orElse(null)
-        val receiver = if (scope != null && scope !is ThisExpr && !decl.isStatic) {
-            atom(scope, guard, mode)
-        } else {
-            null
+        if (!needsEarlyReceiver) {
+            receiver = if (scope != null && scope !is ThisExpr && !decl.isStatic) {
+                atom(scope, guard, mode)
+            } else {
+                null
+            }
+            receiverPrefix = if (receiver != null) "$scope." else null
         }
-        val receiverPrefix = if (receiver != null) "$scope." else null
 
         /** Rebinds the callee's `this` (and tracked `this.*` entries) to the receiver. */
         fun bindReceiver(map: HashMap<String, SExpr>) {
@@ -1612,7 +1995,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         // (a) assert the precondition against the pre-call state
         val trPre = translatorOf(envOverride = calleeView())
         for (pre in clauseExprs(joint, REQUIRES)) {
-            addObligation("precondition of ${decl.nameAsString}", term.impl(guard, trPre.tr(pre)), mode)
+            addObligation("precondition", "precondition of ${decl.nameAsString}", term.impl(guard, trPre.tr(pre)), mode)
         }
         // (b) havoc the assignable locations (in the caller's environment)
         val assignable = clauseExprs(joint, ASSIGNABLE)
@@ -1669,7 +2052,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         val jRet = try { decl.type.resolve() } catch (e: Exception) { null }
         val sRet = safeType(jRet)
         val name = "\$res_${++uid}"
-        query.declareConst(name, sRet)
+        declareSmtConst(name, sRet)
         calleeEnv[ExprTranslator.RESULT] = term.variable(sRet, jRet, name)
         calleeEnv[ExprTranslator.RET] = term.makeFalse()
 
@@ -1680,6 +2063,12 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             atom(scope, guard, mode)
         } else {
             null
+        }
+        if (options.checkNull && receiver != null && receiver.smtType === SmtType.JAVA_OBJECT) {
+            addObligation(
+                "nullcheck", "dereference ${describe(call)}",
+                term.impl(guard, term.nonNull(receiver)), mode, call
+            )
         }
         val receiverPrefix = if (receiver != null) "$scope." else null
         if (receiver != null) {

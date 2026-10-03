@@ -61,6 +61,10 @@ class ExprTranslator(
      *  value, the field name, and the receiver's source text; returns null to fall
      *  back to the flat {@code this.field} constant handling. */
     val fieldAccessHandler: (receiver: SExpr, field: String, scopeText: String) -> SExpr? = { _, _, _ -> null },
+    /** maps an array value to its reference identity (a `U` constant); `null` when
+     *  the operand is not an array. Used by `==`/`!=` on arrays, which compare
+     *  identities (Java semantics) rather than extensional contents. */
+    val arrayRefHandler: (SExpr) -> SExpr? = { null },
 ) : GenericVisitorAdapter<SExpr, Any?>() {
     private val term = SmtTermFactory
 
@@ -90,6 +94,14 @@ class ExprTranslator(
                 }
             if (arrSide != null && nullSide != null) {
                 return if (n.operator == BinaryExpr.Operator.EQUALS) term.makeFalse() else term.makeTrue()
+            }
+            // `==`/`!=` on arrays is reference equality: compare identities.
+            if (left.smtType is SmtType.Array && right.smtType is SmtType.Array) {
+                val lr = arrayRefHandler(left)
+                val rr = arrayRefHandler(right)
+                if (lr != null && rr != null) {
+                    return translator.binary(n.operator, lr, rr)
+                }
             }
         }
         return translator.binary(n.operator, left, right)
@@ -183,7 +195,10 @@ class ExprTranslator(
             val sType = binderType(v.type)
             bound[v.nameAsString] = term.variable(sType, null, v.nameAsString)
         }
-        val inner = ExprTranslator(smtLog, translator, bound, oldEnv, callHandler, unknownHandler)
+        val inner = ExprTranslator(
+            smtLog, translator, bound, oldEnv, callHandler, unknownHandler,
+            fieldAccessHandler = fieldAccessHandler, arrayRefHandler = arrayRefHandler
+        )
         val conjuncts = { exprs: List<Expression> ->
             exprs.fold(term.makeTrue() as SExpr) { acc, e -> term.and(acc, e.accept(inner, arg)!!) }
         }
@@ -278,7 +293,10 @@ class ExprTranslator(
         // The JML keyword `\old` is lexed as the method name `\old`, whereas a literal
         // `old(...)` source call keeps the bare name; both must be recognized.
         if ((n.nameAsString == "old" || n.nameAsString == "\\old") && n.arguments.size == 1) {
-            val inner = ExprTranslator(smtLog, translator, oldEnv, oldEnv, callHandler, unknownHandler)
+            val inner = ExprTranslator(
+                smtLog, translator, oldEnv, oldEnv, callHandler, unknownHandler,
+                fieldAccessHandler = fieldAccessHandler, arrayRefHandler = arrayRefHandler
+            )
             return n.arguments[0].accept(inner, arg)!!
         }
         return callHandler(n)

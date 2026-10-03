@@ -604,7 +604,8 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             oldOverride ?: oldEnv,
             callHandler = { call -> handleCall(call, term.makeTrue(), Mode.Real) },
             unknownHandler = { n -> declareUnknown(n.nameAsString) },
-            fieldAccessHandler = { receiver, field, scopeText -> fieldReadFor(e1, receiver, field, scopeText) }
+            fieldAccessHandler = { receiver, field, scopeText -> fieldReadFor(e1, receiver, field, scopeText) },
+            arrayRefHandler = { v -> arrayRef(v) }
         )
     }
 
@@ -691,6 +692,43 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     private fun unknownKey(name: String): String =
         if (env.containsKey("this.$name")) "this.$name" else "unk_" + name
     //endregion
+
+    //region reference identity (must-alias support)
+
+    /** Length- and identity-marked keys of the ref frames; map-typed locations whose
+     *  keys start with `fld$` are field maps, never Java array values. */
+    private fun isFieldMapKey(key: String): Boolean = key.startsWith("fld$")
+
+    private val arrayRefFns = HashMap<String, String>()
+
+    /**
+     * Declares (once per element sort) and returns the `$arrayref_…` function whose
+     * application yields the *reference identity* of an array value (a `U` constant).
+     * Java `==` on arrays compares identities — never contents — and every element
+     * store to an array value `v1` is visible through any other array value `v2`
+     * whose identity is provably equal.
+     */
+    private fun arrayRefFn(contentType: SmtType.Array): String {
+        val tag = contentType.toString().filter { ch: Char -> ch.isLetterOrDigit() }
+        return arrayRefFns.getOrPut(tag) {
+            val fn = "\$arrayref_$tag"
+            query.addCommand(
+                term.command(
+                    "declare-fun", term.symbol(fn),
+                    SList(null, null, listOf(term.type(contentType))),
+                    term.symbol("U")
+                )
+            )
+            fn
+        }
+    }
+
+    /** The reference identity of an array-valued [SExpr], or `null` for non-arrays. */
+    private fun arrayRef(v: SExpr): SExpr? {
+        val arr = v.smtType as? SmtType.Array ?: return null
+        if (v.toString().startsWith("fld$")) return null
+        return term.list(null, SmtType.JAVA_OBJECT, term.symbol(arrayRefFn(arr)), v)
+    }
 
     /** Declares a constant of [type] using the encoding's `U` sort for references
      *  (a bare `SmtType.JAVA_OBJECT` would print the placeholder sort `Object`). */
@@ -1166,6 +1204,36 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 // unconstrained length and bounds checks on a read *afterwards*
                 // can no longer be discharged from the `a.length` constraints.
                 emit(mode, g, equality(translator.arrayLength(next), translator.arrayLength(arr)))
+                // An element store does not change the array's *reference identity*;
+                // preserving it keeps later frames and `==` comparisons sound.
+                arrayRef(arr)?.let { refOld ->
+                    arrayRef(next)?.let { refNew ->
+                        emit(mode, g, equality(refNew, refOld))
+                    }
+                }
+                // The store to `arr` must be visible through every other live array
+                // value that provably denotes the same array (reference identity
+                // equal). Each other array key is bumped to `ite(refEq, store, old)`,
+                // framing by identity so distinct arrays stay untouched and the
+                // alias decision is left to the solver. This is what makes
+                // `b2 = a; a[i] = v; b2[i] == v` and the "last write wins when the
+                // references are equal" pattern provable.
+                val arrayKeys = env.keys.filter {
+                    it != key && !isFieldMapKey(it) && env[it]?.smtType is SmtType.Array
+                }
+                for (k in arrayKeys) {
+                    val kOld = env[k] ?: continue
+                    val kArr = kOld.smtType as? SmtType.Array ?: continue
+                    val refK = arrayRef(kOld) ?: continue
+                    val refA = arrayRef(arr) ?: continue
+                    val kNext = freshVersion(k, kArr)
+                    emitPhi(
+                        mode,
+                        equality(kNext, iteTerm(g, iteTerm(equality(refK, refA), term.store(kOld, idx, v), kOld), kOld))
+                    )
+                    emit(mode, g, equality(translator.arrayLength(kNext), translator.arrayLength(kOld)))
+                    arrayRef(kNext)?.let { newRef -> emit(mode, g, equality(newRef, refK)) }
+                }
             }
 
             else -> {
@@ -1187,6 +1255,11 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 } else {
                     emit(mode, g, equality(next, v))
                 }
+                // copying an array reference (`y = x`) copies the identity too:
+                // reads and writes through `y` afterwards alias `x`.
+                val rn = arrayRef(next)
+                val rv = arrayRef(v)
+                if (rn != null && rv != null) emit(mode, g, equality(rn, rv))
             }
         }
     }
@@ -1227,6 +1300,15 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 // counterexamples for loops combining continue/break/return).
                 emitPhi(mode, equality(phi, iteTerm(g, iteTerm(c, tv, ev), pre)))
                 env[key] = phi
+                // alias frames must survive a phi: the merged array's reference
+                // identity is whichever branch was taken.
+                val rp = arrayRef(phi)
+                val rt = arrayRef(tv)
+                val re = arrayRef(ev)
+                val rpre = arrayRef(pre)
+                if (rp != null && rt != null && re != null && rpre != null) {
+                    emitPhi(mode, equality(rp, iteTerm(g, iteTerm(c, rt, re), rpre)))
+                }
             } else if (tv != null && ev == null) {
                 env[key] = tv
             }
@@ -1542,6 +1624,18 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 }
                 if (arr != null && nul != null) {
                     return if (e.operator == BinaryExpr.Operator.EQUALS) term.makeFalse() else term.makeTrue()
+                }
+                // `==`/`!=` on two arrays is *reference* equality (Java semantics):
+                // comparing identities, never (extensional) contents. An element store
+                // through one alias is exactly a store through the other, so when the
+                // identities match the last write wins.
+                if (l.smtType is SmtType.Array && r.smtType is SmtType.Array) {
+                    val lr = arrayRef(l)
+                    val rr = arrayRef(r)
+                    if (lr != null && rr != null) {
+                        val res = translator.binary(e.operator, lr, rr)
+                        return if (res.smtType == SmtType.BOOL) res else tempAssign(res, guard, mode, e)
+                    }
                 }
             }
             val res = translator.binary(e.operator, l, r)

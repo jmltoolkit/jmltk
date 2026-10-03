@@ -630,7 +630,9 @@ class VcgResultTest {
     fun testConditionsLinkedToIds() {
         val res = vcgFor("bodyAssert", u)
         res.conditions.forEachIndexed { i, c ->
-            assertEquals("vc${i + 1}", c.id)
+            // readable id: <class>#<method>(<params>)#<kind>-<n>@<line>:<col>
+            assertTrue(c.id.startsWith("VcgExamples#bodyAssert(int)#"), c.id)
+            assertTrue(c.id.contains("${i + 1}@"), c.id)
             assertTrue(c.description.isNotEmpty())
         }
     }

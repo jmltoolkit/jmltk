@@ -72,7 +72,16 @@ import io.github.jmltoolkit.vcg.ir.withOrigin
  */
 class Normalizer {
     private var tmpCounter = 0
-    private val loopStack = ArrayDeque<Int>()
+
+    /**
+     * Break targets: enclosing loop ids and the enclosing switch id. `break` inside
+     * a switch case targets the switch, `break` inside a loop targets the loop.
+     */
+    private val breakStack = ArrayDeque<Int>()
+
+    /** Continue targets: enclosing loop ids only (a `continue` inside a switch case
+     * still targets the enclosing loop, not the switch). */
+    private val continueStack = ArrayDeque<Int>()
 
     fun normalize(block: BlockStmt): List<NfStmt> = normalizeStmt(block)
 
@@ -90,9 +99,11 @@ class Normalizer {
         }
 
         is WhileStmt -> {
-            loopStack.addLast(stmt.hashCode())
+            breakStack.addLast(stmt.hashCode())
+            continueStack.addLast(stmt.hashCode())
             val body = normalizeStmt(stmt.body)
-            loopStack.removeLast()
+            continueStack.removeLast()
+            breakStack.removeLast()
             listOf(NfLoop(stmt, stmt.condition, body)).withOrigin(stmt)
         }
 
@@ -108,9 +119,9 @@ class Normalizer {
 
         is TryStmt -> normalizeTry(stmt)
 
-        is BreakStmt -> listOf(NfBreak(loopStack.lastOrNull() ?: -1)).withOrigin(stmt)
+        is BreakStmt -> listOf(NfBreak(breakStack.lastOrNull() ?: -1)).withOrigin(stmt)
 
-        is ContinueStmt -> listOf(NfContinue(loopStack.lastOrNull() ?: -1)).withOrigin(stmt)
+        is ContinueStmt -> listOf(NfContinue(continueStack.lastOrNull() ?: -1)).withOrigin(stmt)
 
         is SwitchStmt -> normalizeSwitch(stmt)
 
@@ -233,23 +244,27 @@ class Normalizer {
             res.addAll(normalizeStmt(StaticJavaParser.parseStatement("$init;")))
         }
         val cond = stmt.compare.orElse(StaticJavaParser.parseExpression("true"))
-        loopStack.addLast(stmt.hashCode())
+        breakStack.addLast(stmt.hashCode())
+        continueStack.addLast(stmt.hashCode())
         val body = mutableListOf<NfStmt>()
         body.addAll(normalizeStmt(stmt.body))
         for (update in stmt.update) {
             body.addAll(normalizeStmt(StaticJavaParser.parseStatement("$update;")))
         }
-        loopStack.removeLast()
+        continueStack.removeLast()
+        breakStack.removeLast()
         res.add(NfLoop(stmt, cond, body))
         return res.withOrigin(stmt)
     }
 
     private fun normalizeDo(stmt: DoStmt): List<NfStmt> {
         // do B while (c);  ~~>  B; while (c) { B }
-        loopStack.addLast(stmt.hashCode())
+        breakStack.addLast(stmt.hashCode())
+        continueStack.addLast(stmt.hashCode())
         val first = normalizeStmt(stmt.body)
         val second = normalizeStmt(stmt.body.clone())
-        loopStack.removeLast()
+        continueStack.removeLast()
+        breakStack.removeLast()
         return (first + NfLoop(stmt, stmt.condition, second)).withOrigin(stmt)
     }
 
@@ -260,9 +275,11 @@ class Normalizer {
         val i = "\$idx${tmpCounter++}"
         val v = s.variable.variables[0]
         val varName = v.nameAsString
-        loopStack.addLast(s.hashCode())
+        breakStack.addLast(s.hashCode())
+        continueStack.addLast(s.hashCode())
         val body = normalizeStmt(s.body)
-        loopStack.removeLast()
+        continueStack.removeLast()
+        breakStack.removeLast()
         val cond = BinaryExpr(
             NameExpr(i),
             FieldAccessExpr(NameExpr(iterKey), "length"),
@@ -289,12 +306,14 @@ class Normalizer {
         // Preserve Java fall-through: the engine lowers the case groups as sequential
         // guarded groups with a `started` flag; a `break` inside a case terminates the
         // whole switch and is encoded as a switch-scoped break (NfBreak(switchId)).
+        // Only the *break* stack receives the switch id: a `continue` inside a case
+        // still targets the enclosing loop.
         val switchId = s.hashCode()
         val cases = mutableListOf<NfSwitchCase>()
         for (entry in s.entries) {
-            loopStack.addLast(switchId) // so case `break` targets the switch
+            breakStack.addLast(switchId) // so case `break` targets the switch
             val body = entry.statements.flatMap { normalizeStmt(it) }
-            loopStack.removeLast()
+            breakStack.removeLast()
             cases.add(NfSwitchCase(entry.labels.toList(), body))
         }
         return listOf(NfSwitch(s.selector.clone(), cases, switchId)).withOrigin(s)

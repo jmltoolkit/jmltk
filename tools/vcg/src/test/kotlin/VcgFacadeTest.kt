@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
  * Tests for the [VcgFacade]: selection of verification targets, parallel
@@ -188,6 +189,29 @@ class VcgFacadeTest {
         assertNull(InMemoryVcgCache().get("nope"))
         val file = FileVcgCache(Files.createTempFile("vcg-facade-test", ".properties"))
         assertNull(file.get("nope"))
+    }
+
+    @Test
+    fun streamingVerifyAndCheckAllDeliversEveryOutcome() {
+        Assumptions.assumeTrue(Z3.z3Installed(), "z3 not installed")
+        val facade = VcgFacade(options = VcgOptions(mode = VerificationMode.UNBOUNDED))
+        val names = setOf("abs", "inc", "setThisField", "readCounter", "breakAndContinue")
+        val callables = facade.targets(cu).filter { it.nameAsString in names }
+        assertEquals(names.size, callables.size, "every fixture must be a verification target")
+
+        val collected = ConcurrentLinkedQueue<VcgFacade.VcgOutcome>()
+        facade.verifyAndCheckAll(callables) { outcome -> collected.add(outcome) }
+        assertEquals(callables.size, collected.size, "exactly one outcome per callable")
+
+        val batch = facade.verifyAndCheckAll(callables)
+        val byKey = batch.associate { VcgFacade.contentKey(it.result) to it }
+        assertEquals(callables.size, byKey.size, "batch outcomes must be pairwise distinct")
+        for (outcome in collected) {
+            val expected = checkNotNull(byKey[VcgFacade.contentKey(outcome.result)]) {
+                "streamed outcome not present in the batch results"
+            }
+            assertEquals(expected.statuses, outcome.statuses, "streamed and batch statuses must agree")
+        }
     }
 
     private fun vcResultOf(named: String, oblig: String = "true"): VcgResult {

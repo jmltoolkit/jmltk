@@ -286,6 +286,12 @@ class VcgSemanticsTest {
             Arguments.of("readHolderArray", u),
             Arguments.of("readBoxField", u),
             Arguments.of("readUnknownField", u),
+            // aliasing object fields through must-alias object references:
+            // `b2 = b; b2.value = 5` is observable as `b.value == 5`
+            Arguments.of("aliasObjectLocal", u),
+            Arguments.of("aliasObjectLocal", b),
+            Arguments.of("aliasObjectTwice", u),
+            Arguments.of("aliasObjectTwice", b),
             // array creation with symbolic length, unresolved return/catch types
             Arguments.of("makeArray", u),
             Arguments.of("returnsUnknown", u),

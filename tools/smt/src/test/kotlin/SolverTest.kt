@@ -44,4 +44,23 @@ class SolverTest {
         assertTrue(elapsedMs < 5000, "cancelled run returned after ${elapsedMs}ms; watchdog did not kill the process")
         assertTrue(answer.toString().isBlank(), "no answer should be read from a cancelled run")
     }
+
+    @Test
+    fun timeoutKillsExactlyAtTheDeadline() {
+        // a "solver" that never finishes on its own: only the deadline can unblock the run
+        val solver = object : Solver() {
+            override fun startSmtSolver(): Process = ProcessBuilder("sleep", "30").start()
+        }
+        val started = System.nanoTime()
+        val answer = solver.run(
+            { writer: java.io.PrintWriter -> writer.println("(check-sat)") },
+            onForm = null,
+            isCancelled = { false },
+            timeoutMillis = 500L,
+        )
+        val elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started)
+        assertTrue(elapsedMs >= 400, "timed out run must not return before the deadline (${elapsedMs}ms)")
+        assertTrue(elapsedMs < 5000, "timed out run returned after ${elapsedMs}ms; watchdog missed the deadline")
+        assertTrue(answer.toString().isBlank(), "no answer should be read from a timed-out run")
+    }
 }

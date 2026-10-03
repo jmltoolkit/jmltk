@@ -13,6 +13,9 @@ import java.util.concurrent.ForkJoinPool
 import java.util.concurrent.ForkJoinTask
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.locks.Condition
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * @author Alexander Weigl
@@ -43,9 +46,12 @@ open class Solver(private val defaultTimeoutMillis: Long = 60_000L) {
      *
      * A watchdog thread terminates the solver process tree as soon as [isCancelled]
      * becomes true, or once the deadline elapses. The deadline is [timeoutMillis]
-     * when positive, otherwise this solver's [defaultTimeoutMillis]. A short-circuited
-     * (cancelled/timed-out) run returns the answers parsed so far; the reader unblocks
-     * because the terminating process closes its streams.
+     * when positive, otherwise this solver's [defaultTimeoutMillis]. The watchdog
+     * waits on a condition (woken on each parsed answer rather than polling), so a
+     * cancellation is picked up at the latest when the next answer arrives and the
+     * deadline is hit exactly. A short-circuited (cancelled/timed-out) run returns
+     * the answers parsed so far; the reader unblocks because the terminating process
+     * closes its streams.
      *
      * @param onForm invoked for every top-level S-expression the solver emits (usually
      *   one `sat`/`unsat`/`unknown` verdict per checked condition).
@@ -79,6 +85,7 @@ open class Solver(private val defaultTimeoutMillis: Long = 60_000L) {
                     if (sexpr == null) break
                     answers.add(sexpr)
                     onForm?.invoke(sexpr)
+                    watchdog.onProgress()
                 }
                 return SolverAnswer(answers)
             }
@@ -92,6 +99,12 @@ open class Solver(private val defaultTimeoutMillis: Long = 60_000L) {
      * A daemon monitoring the solver process. It kills the process when the caller
      * cancels the run or the deadline is reached — crucial because the main thread
      * may be blocked inside a read on the solver's output stream.
+     *
+     * The watchdog does not poll: it waits on a [Condition], signalled whenever the
+     * solver makes progress (so a fresh cancellation is observed at the next answer)
+     * and when [shutdown] is requested; the deadline is handled by the timed await
+     * itself. `awaitNanos` releases the lock while waiting, so the run loop can signal
+     * freely without contention.
      */
     private class Watchdog(
         private val process: Process,
@@ -100,7 +113,10 @@ open class Solver(private val defaultTimeoutMillis: Long = 60_000L) {
     ) {
         /** Set once the watchdog terminated the process (cancellation or timeout). */
         val triggered = AtomicBoolean(false)
-        private val done = AtomicBoolean(false)
+
+        private val lock = ReentrantLock()
+        private val stateChanged: Condition = lock.newCondition()
+        private var stopRequested = false
 
         private val thread = Thread {
             val deadline = if (timeoutMillis > 0) {
@@ -108,18 +124,28 @@ open class Solver(private val defaultTimeoutMillis: Long = 60_000L) {
             } else {
                 Long.MAX_VALUE
             }
-            while (!done.get() && process.isAlive) {
-                if (isCancelled() || System.nanoTime() >= deadline) {
-                    triggered.set(true)
-                    killTree(process)
-                    return@Thread
-                }
-                try {
-                    Thread.sleep(100)
-                } catch (e: InterruptedException) {
-                    return@Thread
+            lock.withLock {
+                while (true) {
+                    // the solver finished on its own, or the run is being torn down
+                    if (!process.isAlive || stopRequested) return@Thread
+                    if (isCancelled() || System.nanoTime() >= deadline) {
+                        triggered.set(true)
+                        killTree(process)
+                        return@Thread
+                    }
+                    // event-driven wait: up to the deadline, or until a signal arrives
+                    try {
+                        stateChanged.awaitNanos(deadline - System.nanoTime())
+                    } catch (e: InterruptedException) {
+                        return@Thread // shutdown() interrupted us
+                    }
                 }
             }
+        }
+
+        /** Wakes the watchdog so it re-checks cancellation after solver progress. */
+        fun onProgress() {
+            lock.withLock { stateChanged.signal() }
         }
 
         fun start() {
@@ -128,7 +154,10 @@ open class Solver(private val defaultTimeoutMillis: Long = 60_000L) {
         }
 
         fun shutdown() {
-            done.set(true)
+            lock.withLock {
+                stopRequested = true
+                stateChanged.signal()
+            }
             thread.interrupt()
         }
     }

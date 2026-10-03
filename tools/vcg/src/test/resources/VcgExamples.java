@@ -1460,6 +1460,24 @@ public class VcgExamples {
         y[1] = 4;
     }
 
+    // object aliasing: `b2 = b` then a write through `b2` mutates `b.value`
+    //@ requires b != null;
+    //@ ensures b.value == 5;
+    public void aliasObjectLocal(Box b) {
+        Box b2 = b;
+        b2.value = 5;
+    }
+
+    // same aliased object reached through two references; the last write wins
+    //@ requires b != null;
+    //@ ensures b.value == 6;
+    public void aliasObjectTwice(Box b) {
+        Box b1 = b;
+        Box b2 = b;
+        b1.value = 5;
+        b2.value = 6;
+    }
+
     // inlined callee invoked with the same array as both arguments; each increment
     // in the callee applies to the single shared array object
     //@ requires a != null && a.length >= 1 && a[0] == 1;

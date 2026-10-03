@@ -281,6 +281,27 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     private fun stringLengthOf(s: SExpr): SExpr =
         term.list(null, intSort, term.symbol("stringLength"), s)
 
+    /**
+     * The declared reference constant for a distinct string literal. A literal is a
+     * *non-null* object (so `--check-null` on literal receivers proves) and, under
+     * `--check-string-index`, its runtime length is bound. The constant is declared
+     * once per literal value — repeated literals alias it instead of re-declaring.
+     */
+    private fun literalConst(value: String): SExpr {
+        val name = stringLiteralConsts.getOrPut(value) {
+            val n = "strlit_${stringLiteralConsts.size}"
+            query.addCommand(term.command("declare-const", term.symbol(n), term.symbol("U")))
+            val v = term.variable(SmtType.JAVA_OBJECT, null, n)
+            query.addAssert(term.nonNull(v))
+            if (options.checkStringIndex) {
+                ensureStringLengthFn()
+                query.addAssert(equality(stringLengthOf(v), translator.makeInt(value.length.toLong())))
+            }
+            n
+        }
+        return term.variable(SmtType.JAVA_OBJECT, null, name)
+    }
+
     private fun fun2(name: String, a: String, b: String, ret: String) =
         query.addCommand(
             term.command(
@@ -1642,16 +1663,12 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         }
 
         is StringLiteralExpr -> {
-            // Under the string-index feature every literal is a declared reference
-            // constant (so it can be an argument to `stringLength`) and its runtime
-            // length is bound, making bounds checks on literal receivers concrete.
-            if (options.checkStringIndex) {
-                ensureStringLengthFn()
-                val name = stringLiteralConsts.getOrPut(e.value) { "strlit_${stringLiteralConsts.size}" }
-                query.addCommand(term.command("declare-const", term.symbol(name), term.symbol("U")))
-                val v = term.variable(SmtType.JAVA_OBJECT, null, name)
-                query.addAssert(equality(stringLengthOf(v), translator.makeInt(e.value.length.toLong())))
-                v
+            // Literal receivers can flow into the receiver-sensitive checks: declare
+            // a non-null reference constant (so `--check-null` on literal receivers
+            // proves) and, under `--check-string-index`, bind its runtime length so
+            // bounds checks on literal receivers are concrete.
+            if (options.checkStringIndex || options.checkNull) {
+                literalConst(e.value)
             } else {
                 translatorOf().tr(e)
             }

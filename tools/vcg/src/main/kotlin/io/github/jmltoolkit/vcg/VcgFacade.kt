@@ -12,6 +12,8 @@ import io.github.jmltoolkit.smt.solver.Solver
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.security.MessageDigest
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ForkJoinPool
 import java.util.concurrent.ForkJoinTask
 
@@ -21,9 +23,10 @@ import java.util.concurrent.ForkJoinTask
  * Given [CompilationUnit]s (or the callables selected from them) it produces the
  * corresponding verification conditions ([VcgResult]) and dispatches them to the
  * SMT solver — synchronously ([check]) or asynchronously on a [ForkJoinPool]
- * ([checkAsync]). All batch operations run the independent per-callable tasks on
- * the pool and join them in submission order, so callers observe deterministic
- * results.
+ * ([checkAsync]). The collection-returning batch operations run the independent
+ * per-callable tasks on the pool and join them in submission order, so callers
+ * observe deterministic results; the callback overload of [verifyAndCheckAll]
+ * instead delivers each outcome from the worker thread as soon as it is solved.
  *
  * A [VcgCache] may be attached to reuse earlier solver answers: a verification
  * condition whose *content* was already solved before (see [contentKey]) is not
@@ -117,6 +120,40 @@ class VcgFacade(
     /** Convenience: [verifyAndCheck] for the targets of the given compilation units. */
     fun verifyAndCheckAll(cus: Iterable<CompilationUnit>): List<VcgOutcome> =
         verifyAndCheckAll(targets(cus))
+
+    /**
+     * Verifies and checks all callables in parallel, invoking [onOutcome] from the
+     * worker thread as soon as that callable's conditions have been solved. Outcomes
+     * are therefore delivered in *completion* order, not submission order. The call
+     * blocks until every callable is done, so [onOutcome] has been invoked exactly
+     * once per callable when it returns.
+     */
+    fun verifyAndCheckAll(
+        callables: Collection<CallableDeclaration<*>>,
+        onOutcome: (VcgOutcome) -> Unit,
+    ) {
+        if (callables.isEmpty()) return
+        val latch = CountDownLatch(callables.size)
+        val failures = ConcurrentLinkedQueue<Throwable>()
+        for (c in callables) {
+            pool.execute {
+                try {
+                    val result = verify(c)
+                    onOutcome(VcgOutcome(result, check(result)))
+                } catch (t: Throwable) {
+                    failures.add(t)
+                } finally {
+                    latch.countDown()
+                }
+            }
+        }
+        latch.await()
+        failures.firstOrNull()?.let { throw it }
+    }
+
+    /** Convenience: [verifyAndCheckAll] with an outcome callback for the given compilation units. */
+    fun verifyAndCheckAll(cus: Iterable<CompilationUnit>, onOutcome: (VcgOutcome) -> Unit): Unit =
+        verifyAndCheckAll(targets(cus), onOutcome)
 
     //endregion
 

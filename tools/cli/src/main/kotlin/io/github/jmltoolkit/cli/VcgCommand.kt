@@ -35,9 +35,10 @@ import java.util.regex.Pattern
  * results (PROVEN / FAILED / UNKNOWN), keyed by the condition's unique id of the
  * form `<class>#<method>(<params>)#<kind>-<n>@<line>:<column>`.
  *
- * Generation and solving go through [VcgFacade]: independent per-callable tasks run
- * in parallel on the common [ForkJoinPool] and are joined in submission order so the
- * report stays deterministic. With `--vcg-cache <file>` solver answers are reused
+ * Generation and solving go through [VcgFacade]: each callable runs as an
+ * independent task on the common [ForkJoinPool], and its conditions are printed
+ * as soon as it is solved, so a slow callable does not delay the report of the
+ * already-finished ones. With `--vcg-cache <file>` solver answers are reused
  * (keyed by the *content* sent to the SMT solver, not by condition names).
  * `--vcg-include`/`--vcg-exclude` filter the report by glob expressions on the
  * condition id.
@@ -101,28 +102,41 @@ class VcgCommand : FileBasedCommand(name = "vcg") {
             pool = ForkJoinPool.commonPool(),
             cache = cache,
         )
-        val outcomes = facade.verifyAndCheckAll(cus)
         val includes = vcgInclude.map { glob(it) }
         val excludes = vcgExclude.map { glob(it) }
         fun included(id: String): Boolean =
             (includes.isEmpty() || includes.any { it.matcher(id).matches() }) &&
                 excludes.none { it.matcher(id).matches() }
+        val outputLock = Object()
         var total = 0
         var failed = 0
-        for (outcome in outcomes) {
+        // Verify and solve each callable in parallel and print its conditions as soon
+        // as it is done; the per-callable block keeps the lines of one callable
+        // contiguous and the guarded counters make the summary exact.
+        facade.verifyAndCheckAll(cus) { outcome ->
+            val lines = StringBuilder()
+            var localTotal = 0
+            var localFailed = 0
             for (vc in outcome.result.conditions) {
                 if (!included(vc.id)) continue
+                localTotal++
                 val status = outcome.statuses[vc.id] ?: VcgResult.Status.UNKNOWN
-                total++
                 when (status) {
-                    VcgResult.Status.PROVEN -> echo("  ok   ${vc.id}  ${vc.description}")
+                    VcgResult.Status.PROVEN -> lines.append("  ok   ${vc.id}  ${vc.description}\n")
 
                     VcgResult.Status.FAILED -> {
-                        echo("  FAIL ${vc.id}  ${vc.description}")
-                        failed++
+                        lines.append("  FAIL ${vc.id}  ${vc.description}\n")
+                        localFailed++
                     }
 
-                    VcgResult.Status.UNKNOWN -> echo("  ???? ${vc.id}  ${vc.description}")
+                    VcgResult.Status.UNKNOWN -> lines.append("  ???? ${vc.id}  ${vc.description}\n")
+                }
+            }
+            if (lines.isNotEmpty()) {
+                synchronized(outputLock) {
+                    echo(lines.toString().removeSuffix("\n"))
+                    total += localTotal
+                    failed += localFailed
                 }
             }
         }

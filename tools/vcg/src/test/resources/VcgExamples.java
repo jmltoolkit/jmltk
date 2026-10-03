@@ -1416,6 +1416,64 @@ public class VcgExamples {
         return 0;
     }
 
+    // ---- variable aliasing: a write through one reference must be visible
+    // ---- through every other reference that provably denotes the same object
+    // ---- or array (see aliasArrayParams / aliasArrayLocal / aliasObjectLocal)
+
+    // a and b may be the same array; the assertion captures that with `==>`.
+    // Before the reference-identity model this proves *vacuously* (array values
+    // are compared extensionally by content, and the mutated contents differ at
+    // index 0); afterwards it proves because `a == b` is reference equality.
+    //@ requires a != null && a.length >= 1 && b != null && b.length >= 1;
+    //@ ensures true;
+    public void aliasArrayParams(int[] a, int[] b) {
+        a[0] = 1;
+        b[0] = 2;
+        //@ assert a == b ==> a[0] == 2;
+    }
+
+    // the precondition pins the two parameters to denote the same array object:
+    // the two stores hit one shared array, so the last one wins and `a[0]` is 2.
+    // This can only be discharged once `==` on arrays means reference identity.
+    //@ requires a != null && a.length >= 1 && b != null && b.length >= 1 && a == b;
+    //@ ensures a[0] == 2;
+    public void aliasArrayParamAliased(int[] a, int[] b) {
+        a[0] = 1;
+        b[0] = 2;
+    }
+
+    // a local that aliases the parameter: the store through the alias is a store to `a`
+    //@ requires a != null && a.length >= 1;
+    //@ ensures a[0] == 5;
+    public void aliasArrayLocal(int[] a) {
+        int[] a2 = a;
+        a2[0] = 5;
+    }
+
+    // two aliases of the same array, each writing a different cell through its own name
+    //@ requires a != null && a.length >= 2;
+    //@ ensures a[0] == 7 && a[1] == 4;
+    public void aliasArrayTwoLocals(int[] a) {
+        int[] x = a;
+        int[] y = a;
+        x[0] = 7;
+        y[1] = 4;
+    }
+
+    // inlined callee invoked with the same array as both arguments; each increment
+    // in the callee applies to the single shared array object
+    //@ requires a != null && a.length >= 1 && a[0] == 1;
+    //@ ensures a[0] == 3;
+    public int inlineAliasedTwoArgs(int[] a) {
+        bumpBoth(a, a);
+        return a[0];
+    }
+
+    public void bumpBoth(int[] p, int[] q) {
+        p[0] = p[0] + 1;
+        q[0] = q[0] + 1;
+    }
+
     // self-recursive call under INLINE: findDeclarationInCu skips the callable itself
     //@ requires true;
     //@ ensures true;

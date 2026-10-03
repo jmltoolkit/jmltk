@@ -268,6 +268,17 @@ class VcgSemanticsTest {
             Arguments.of("callStaticInline", uInline),
             Arguments.of("inlineNested", uInline),
             Arguments.of("inlineArrayParam", uInline),
+            // the `==>` aliasing array example: `==` on arrays is reference identity
+            Arguments.of("aliasArrayParams", u),
+            Arguments.of("aliasArrayParams", b),
+            // aliasing arrays: assumed-equal parameters, in-frame aliases
+            Arguments.of("aliasArrayParamAliased", u),
+            Arguments.of("aliasArrayParamAliased", b),
+            Arguments.of("aliasArrayLocal", u),
+            Arguments.of("aliasArrayLocal", b),
+            Arguments.of("aliasArrayTwoLocals", u),
+            Arguments.of("aliasArrayTwoLocals", b),
+            Arguments.of("inlineAliasedTwoArgs", uInline),
             Arguments.of("callNewBox", uInline),
             Arguments.of("selfRecInline", uInline.copy(maxInlineDepth = 1)),
             // heap field selection on arbitrary receivers and unresolved types

@@ -61,6 +61,11 @@ class ExprTranslator(
      *  value, the field name, and the receiver's source text; returns null to fall
      *  back to the flat {@code this.field} constant handling. */
     val fieldAccessHandler: (receiver: SExpr, field: String, scopeText: String) -> SExpr? = { _, _, _ -> null },
+    /** resolves a read of a `this`-receiver field against an *explicit* environment
+     *  map. Unlike [fieldAccessHandler] the map is passed in so that `\old(...)`
+     *  (which translates against the pre-state map) resolves correctly; returns null
+     *  to fall back to the flat {@code this.field} constant handling. */
+    val thisFieldRead: (env: Map<String, SExpr>, thisVal: SExpr, field: String) -> SExpr? = { _, _, _ -> null },
     /** maps an array value to its reference identity (a `U` constant); `null` when
      *  the operand is not an array. Used by `==`/`!=` on arrays, which compare
      *  identities (Java semantics) rather than extensional contents. */
@@ -239,7 +244,16 @@ class ExprTranslator(
             return env[RESULT] ?: term.symbol(RESULT)
         }
         env[name]?.let { return it }
-        // bare field access of the enclosing class
+        // bare field access of the enclosing class: when the identity-keyed field
+        // map is live, a write through an alias of `this` (`Box b = this; b.value =
+        // 5`) may have updated the field, so route through the this-read handler
+        // (which prefers the map) instead of reading the flat constant directly.
+        if (env["this.$name"] != null || oldEnv["this.$name"] != null) {
+            val thisVal = env["this"] ?: oldEnv["this"]
+            if (thisVal != null) {
+                thisFieldRead(env, thisVal, name)?.let { return it }
+            }
+        }
         env["this.$name"]?.let { return it }
         oldEnv[name]?.let { return it }
         return unknownHandler(n)
@@ -249,6 +263,15 @@ class ExprTranslator(
         val scope = n.scope.accept(this, arg)!!
         if (n.nameAsString == "length") {
             return translator.arrayLength(scope)
+        }
+        // concrete `this.f` reads go through the this-read handler against this
+        // translator's own maps (so `\old(this.f)` sees the pre-state), preferring
+        // the identity-keyed field map when it is live
+        if (n.scope is ThisExpr) {
+            val thisVal = env["this"] ?: oldEnv["this"]
+            if (thisVal != null) {
+                thisFieldRead(env, thisVal, n.nameAsString)?.let { return it }
+            }
         }
         // arbitrary receiver `o.f`: delegate to the heap-selector model
         fieldAccessHandler(scope, n.nameAsString, n.scope.toString())?.let { return it }
@@ -295,7 +318,8 @@ class ExprTranslator(
         if ((n.nameAsString == "old" || n.nameAsString == "\\old") && n.arguments.size == 1) {
             val inner = ExprTranslator(
                 smtLog, translator, oldEnv, oldEnv, callHandler, unknownHandler,
-                fieldAccessHandler = fieldAccessHandler, arrayRefHandler = arrayRefHandler
+                fieldAccessHandler = fieldAccessHandler, thisFieldRead = thisFieldRead,
+                arrayRefHandler = arrayRefHandler
             )
             return n.arguments[0].accept(inner, arg)!!
         }

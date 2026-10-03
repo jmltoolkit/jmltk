@@ -292,6 +292,15 @@ class VcgSemanticsTest {
             Arguments.of("aliasObjectLocal", b),
             Arguments.of("aliasObjectTwice", u),
             Arguments.of("aliasObjectTwice", b),
+            // aliasing through the enclosing instance: `Box b = this; b.value = 5`
+            // (or a parameter assumed `b == this`) is observable as `this.value`,
+            // including under the bare field name in postconditions
+            Arguments.of("aliasThisViaLocal", u),
+            Arguments.of("aliasThisViaLocal", b),
+            Arguments.of("aliasThisViaParam", u),
+            Arguments.of("aliasThisViaParam", b),
+            Arguments.of("setValViaAlias", u),
+            Arguments.of("setValViaAlias", b),
             // array creation with symbolic length, unresolved return/catch types
             Arguments.of("makeArray", u),
             Arguments.of("returnsUnknown", u),

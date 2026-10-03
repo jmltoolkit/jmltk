@@ -605,6 +605,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             callHandler = { call -> handleCall(call, term.makeTrue(), Mode.Real) },
             unknownHandler = { n -> declareUnknown(n.nameAsString) },
             fieldAccessHandler = { receiver, field, scopeText -> fieldReadFor(e1, receiver, field, scopeText) },
+            thisFieldRead = { m, thisVal, field -> fieldReadFor(m, thisVal, field, "this") },
             arrayRefHandler = { v -> arrayRef(v) }
         )
     }
@@ -624,6 +625,13 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     ): SExpr {
         val thisRepr = activeEnv["this"]
         if (thisRepr != null && (receiver === thisRepr || scopeText == "this")) {
+            // `this`-receiver reads go through the identity-keyed field map whenever
+            // it is live, so a write through an alias of `this` (`Box b = this;
+            // b.value = 5`) is observable as `this.value`; otherwise the flat
+            // per-path slot (also the `\old` view, which never carries map keys).
+            val (jType, sType) = fieldSelectorType(thisRepr, "this", field)
+            val activeMap = activeEnv[fieldMapKey(field, sType)]
+            if (activeMap != null) return term.select(sType, jType, activeMap, thisRepr)
             return activeEnv["this.$field"] ?: declareUnknownField(field)
         }
         // The field's SMT sort must come from the *receiver's* type (not the
@@ -797,6 +805,17 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         val t = fieldMapType(elem)
         env[mapKey] = term.variable(t, null, mapKey)
         envTypes[mapKey] = t
+        // Anchor the base map's entry at `this` to the flat `this.<field>` slot so a
+        // field read on an alias of `this` that issued before the map became live
+        // (requires clauses, entry values) keeps its value once reads switch to the
+        // map: `select(base, this)` equals the flat entry until a write through a
+        // provably aliasing receiver actually stores into `this`'s slot.
+        val field = mapKey.substringAfterLast('.')
+        val thisRepr = env["this"]
+        val flat = env["this.$field"]
+        if (thisRepr != null && flat != null && thisRepr.smtType === SmtType.JAVA_OBJECT) {
+            query.addAssert(equality(term.select(elem, null, env[mapKey]!!, thisRepr), flat))
+        }
     }
 
     /** Next SSA version of a field map, declared with the printable `(Array U …)` sort. */
@@ -1379,7 +1398,22 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 return
             }
 
-            else -> flatWrite(s, t, g, mode, v)
+            else -> {
+                val key = locationKey(t)
+                // Bare writes to a field of the enclosing instance (`counter = 0`
+                // normalizes to NfLocal but resolves to `this.counter`) update the
+                // identity-keyed map too, so aliases of `this` observe the write
+                // exactly like an explicit `this.f = v`.
+                if (t is NfLocal && key.startsWith("this.")) {
+                    val recv = env["this"]
+                    if (recv != null && recv.smtType === SmtType.JAVA_OBJECT) {
+                        val fieldName = key.substringAfterLast('.')
+                        val sType = fieldSelectorType(recv, "this", fieldName).second
+                        if (sType !is SmtType.Array) fieldMapStore(fieldName, sType, recv, v, g, mode)
+                    }
+                }
+                flatWrite(s, t, g, mode, v)
+            }
         }
     }
 
@@ -1688,9 +1722,16 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         // (3) continue on the main path with a havoced, invariant-constrained state
         for (key in modified) {
             if (envTypes.containsKey(key)) {
+                val type = envTypes[key]!!
                 val name = "\$havoc_${++uid}"
-                query.declareConst(name, envTypes[key]!!)
-                env[key] = term.variable(envTypes[key]!!, envJavaTypes[key], name)
+                if (isFieldMapKey(key) && type is SmtType.Array) {
+                    query.addCommand(term.command("declare-const", term.symbol(name), fieldMapSort(type.to)))
+                } else if (type === SmtType.JAVA_OBJECT) {
+                    query.addCommand(term.command("declare-const", term.symbol(name), term.symbol("U")))
+                } else {
+                    query.declareConst(name, type)
+                }
+                env[key] = term.variable(type, envJavaTypes[key], name)
             }
         }
         val invMain = translatorOf().let { tr ->
@@ -1721,15 +1762,24 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     private fun modifiedLocations(stmts: List<NfStmt>): Set<String> {
         val res = HashSet<String>()
         fun fieldLocationKey(l: NfLocation) {
-            res.add(locationKey(l))
+            val key = locationKey(l)
+            res.add(key)
             // field-map key for scalar/object fields of receivers that resolve to
-            // an object term — those writes update the identity-keyed map, and the
-            // loop merges must version it like any other modified location
-            if (l is NfField && l.receiver != "this") {
-                val recvTerm = env[l.receiver] ?: env["this.${l.receiver}"]
+            // an object term (`this`-receiver and explicit receiver writes update
+            // the map; a bare `counter = 0` normalizes to NfLocal but resolves to
+            // `this.counter`) — the loop merges must version it like any
+            // modified slot
+            val isBareThisField = l is NfLocal && key.startsWith("this.")
+            if (l is NfField || isBareThisField) {
+                val recvTerm = if (!isBareThisField && (l as NfField).receiver != "this") {
+                    env[l.receiver] ?: env["this.${l.receiver}"]
+                } else {
+                    env["this"]
+                }
+                val scopeText = if (!isBareThisField && (l as NfField).receiver != "this") l.receiver else "this"
                 if (recvTerm != null && recvTerm.smtType === SmtType.JAVA_OBJECT) {
-                    val sType = fieldSelectorType(recvTerm, l.receiver, l.key.substringAfterLast('.')).second
-                    if (sType !is SmtType.Array) res.add(fieldMapKey(l.key.substringAfterLast('.'), sType))
+                    val sType = fieldSelectorType(recvTerm, scopeText, key.substringAfterLast('.')).second
+                    if (sType !is SmtType.Array) res.add(fieldMapKey(key.substringAfterLast('.'), sType))
                 }
             }
         }
@@ -2270,17 +2320,21 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
 
         fun havocKey(locKey: String) {
             val target = callerKey(locKey)
-            // receiver-bound `assignable this.f`: refresh the identity-keyed map
-            // entry at the receiver (the callee's assignable clause acts on the
-            // receiver object, whose field lives in the shared field map)
-            if (locKey.startsWith("this.") && receiver != null) {
+            // `assignable this.f` on a field with a live identity map refreshes the
+            // map entry as well: for a receiver-bound call the callee's assignable
+            // clause acts on the receiver object, and for a plain `assignable this.f`
+            // / `assignable f` on the enclosing instance it refreshes `this`'s slot —
+            // so the callee's `ensures` clauses and the caller's post-call reads
+            // agree on the map value.
+            if (locKey.startsWith("this.") && !isFieldMapKey(locKey)) {
                 val fieldName = target.substringAfterLast('.')
-                val recv = receiver!!
-                val sType = fieldSelectorType(recv, "this", fieldName).second
-                if (sType !is SmtType.Array && env.containsKey(fieldMapKey(fieldName, sType))) {
-                    val fresh = freshTemp(sType, null)
-                    fieldMapStore(fieldName, sType, recv, fresh, term.makeTrue(), mode)
-                    return
+                val recv = receiver ?: env["this"]
+                if (recv != null && recv.smtType === SmtType.JAVA_OBJECT) {
+                    val sType = fieldSelectorType(recv, "this", fieldName).second
+                    if (sType !is SmtType.Array && env.containsKey(fieldMapKey(fieldName, sType))) {
+                        val fresh = freshTemp(sType, null)
+                        fieldMapStore(fieldName, sType, recv, fresh, term.makeTrue(), mode)
+                    }
                 }
             }
             val type = envTypes[target] ?: return

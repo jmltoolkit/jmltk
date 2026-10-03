@@ -60,7 +60,13 @@ enum class CallStrategy {
  * @param maxInlineDepth recursion bound for [CallStrategy.INLINE]
  * @param checkOverflow emit VCs asserting no signed arithmetic overflow (bounded mode)
  * @param checkDivision emit VCs asserting no division/modulo by zero
- * @param checkIndex emit VCs asserting array indices are within bounds and non-null
+ * @param checkIndex emit VCs asserting array indices are within bounds
+ * @param checkNull emit VCs asserting no null-pointer dereference (receiver of an
+ *   instance method call / field read)
+ * @param checkCast emit VCs asserting reference casts are type-correct
+ * @param checkNegativeArraySize emit VCs asserting no array is created with a negative size
+ * @param checkStringIndex emit VCs asserting indices into `String`/`StringBuilder` are in
+ *   bounds, and model `String.length()` as an uninterpreted length function
  */
 data class VcgOptions(
     val mode: VerificationMode = VerificationMode.BOUNDED,
@@ -74,6 +80,10 @@ data class VcgOptions(
     val checkOverflow: Boolean = false,
     val checkDivision: Boolean = false,
     val checkIndex: Boolean = false,
+    val checkNull: Boolean = false,
+    val checkCast: Boolean = false,
+    val checkNegativeArraySize: Boolean = false,
+    val checkStringIndex: Boolean = false,
 ) {
     fun loopStrategy(loop: Node): LoopStrategy = loopStrategies[loop] ?: defaultLoopStrategy
 

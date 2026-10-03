@@ -632,6 +632,17 @@ class NormalizerTest {
         } as NfBreak
         assertEquals(innerWhile.hashCode(), br.loopId, "a break in a nested loop inside a case targets the loop")
     }
+
+    @Test
+    fun testContinueInSwitchCaseTargetsEnclosingLoop() {
+        val src = "while (c) { switch (x) { case 1: continue; } }"
+        val block = blockOf(src)
+        val whileStmt = block.getStatement(0).asWhileStmt()
+        val nf = normalize(src)
+        val swIn = (nf[0] as NfLoop).body.first { it is NfSwitch } as NfSwitch
+        val cont = swIn.cases[0].body.first { it is NfContinue } as NfContinue
+        assertEquals(whileStmt.hashCode(), cont.loopId, "a continue in a case targets the enclosing loop, not the switch")
+    }
     //endregion
 
     //region origin (provenance) tracking

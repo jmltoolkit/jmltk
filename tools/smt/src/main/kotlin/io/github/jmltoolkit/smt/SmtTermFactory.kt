@@ -201,7 +201,7 @@ object SmtTermFactory {
 
     fun imodulo(left: SExpr, right: SExpr): SExpr = fnApplyToInt("mod", left, right)
 
-    fun idivide(left: SExpr, right: SExpr): SExpr = fnApplyToInt("/", left, right)
+    fun idivide(left: SExpr, right: SExpr): SExpr = fnApplyToInt("div", left, right)
 
     //endregion
     //region bit vectors

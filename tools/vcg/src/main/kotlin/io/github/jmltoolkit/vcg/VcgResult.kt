@@ -13,6 +13,8 @@ import io.github.jmltoolkit.smt.solver.Solver
  * A single verification condition. The obligation is negated and asserted with a
  * `:named` attribute; the solver must answer *unsat* for the condition to hold.
  *
+ * @param kind machine-readable category of the condition (e.g. `postcondition`,
+ *   `assert`, `loop-invariant-preserved`, `divbyzero`).
  * @param range source location the condition is associated with (may be null
  *   for conditions without an obvious source anchor, e.g. clausal requirements).
  */
@@ -21,13 +23,16 @@ data class VerificationCondition(
     val description: String,
     val obligation: SExpr,
     val range: Range? = null,
+    val kind: String = "check",
 )
 
 /**
  * Result of the verification condition generation.
  *
  * @property query the SMT query: declarations, assumptions and one
- * `push / assert(!(!obligation) :named vc_i) / check-sat / pop` block per condition.
+ * `push / assert(!(!obligation) :named vN) / check-sat / pop` block per condition
+ * (`vN` is a positional, SMT-safe name; the human-readable condition id lives on
+ * [VerificationCondition.id] and never reaches the solver).
  * @property conditions the emitted verification conditions in emission order.
  */
 data class VcgResult(

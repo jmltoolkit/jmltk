@@ -39,7 +39,7 @@ object SExprParser {
                 val child: SExpr = parse(reader) ?: throw IllegalArgumentException("List not closed.")
                 seq.add(child)
             } while (true)
-            return SList(null, null, listOf())
+            return SList(null, null, seq)
         } else if (Character.isDigit(c) || c == '-'.code) {
             return parseNumber(reader)
         } else if (Character.isAlphabetic(c) || c == ':'.code) {

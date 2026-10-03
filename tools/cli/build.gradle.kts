@@ -72,6 +72,7 @@ dependencies {
     implementation(project(":tools:stat"))
     implementation(project(":tools:jml2java"))
     implementation(project(":tools:jmlstub"))
+    implementation(project(":tools:vcg"))
 
     implementation(project(":tools:lsp"))
 }

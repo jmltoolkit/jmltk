@@ -13,10 +13,27 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.ForkJoinPool
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.exitProcess
+
+/**
+ * Cancellation token for an in-flight server-initiated task (e.g. a VCG verification).
+ * The client references it through the `window/workDoneProgress` token; when the client
+ * sends `window/workDoneProgress/cancel` the LSP server flips the flag and the running
+ * solver process is torn down.
+ */
+internal class VerificationHandle(val token: String) {
+    private val flag = AtomicBoolean(false)
+    fun cancel() {
+        flag.set(true)
+    }
+
+    fun isCancelled(): Boolean = flag.get()
+}
 
 class JmlLanguageServer :
     LanguageServer,
@@ -36,6 +53,27 @@ class JmlLanguageServer :
 
     internal val actions by lazy {
         ServiceLoader.load(LspAction::class.java).toList()
+    }
+
+    /** Cancellation handles of in-flight verifications, keyed by progress token. */
+    private val runningVerifications = ConcurrentHashMap<String, VerificationHandle>()
+
+    /** Starts a new cancellable verification session; call [endVerification] when done. */
+    internal fun beginVerification(): VerificationHandle {
+        val handle = VerificationHandle("jml-vcg-" + UUID.randomUUID())
+        runningVerifications[handle.token] = handle
+        return handle
+    }
+
+    internal fun endVerification(handle: VerificationHandle) {
+        runningVerifications.remove(handle.token)
+    }
+
+    /** Client-initiated cancellation of a `window/workDoneProgress` token (LSP spec). */
+    override fun cancelProgress(params: WorkDoneProgressCancelParams) {
+        val token = params.token
+        val key = if (token.isLeft) token.left else token.right?.toString() ?: return
+        runningVerifications[key]?.cancel()
     }
 
     override fun initialize(params: InitializeParams): CompletableFuture<InitializeResult> {
@@ -62,7 +100,9 @@ class JmlLanguageServer :
             // capabilities.setDocumentFormattingProvider(true)
             capabilities.foldingRangeProvider = null
 
-            // capabilities.codeLensProvider = CodeLensOptions(false)
+            // Code lenses ("Verify method (VCG)", ...); resolveProvider=false since
+            // resolveCodeLens is not implemented.
+            capabilities.codeLensProvider = CodeLensOptions(false)
             capabilities.setSelectionRangeProvider(true)
 
             // capabilities.setDefinitionProvider(true)

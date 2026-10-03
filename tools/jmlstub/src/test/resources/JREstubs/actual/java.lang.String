@@ -1,0 +1,1234 @@
+package java.lang;
+
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharacterCodingException;
+import java.util.stream.Stream;
+import java.util.stream.IntStream;
+import java.util.Optional;
+
+public final class String implements java.io.Serializable, java.lang.Comparable, java.lang.CharSequence, java.lang.constant.Constable, java.lang.constant.ConstantDesc {
+
+    private final byte[] value;
+
+    private final byte coder;
+
+    private int hash;
+
+    private boolean hashIsZero;
+
+    private static final long serialVersionUID;
+
+    static final boolean COMPACT_STRINGS;
+
+    private static final ObjectStreamField[] serialPersistentFields;
+
+    private static final char REPL;
+
+    public static final java.util.Comparator CASE_INSENSITIVE_ORDER;
+
+    static final byte LATIN1;
+
+    static final byte UTF16;
+
+    public String(java.lang.StringBuilder arg0);
+
+    public String(byte[] arg0, int arg1, int arg2, java.nio.charset.Charset arg3);
+
+    public String(byte[] arg0, java.lang.String arg1);
+
+    public String(byte[] arg0, java.nio.charset.Charset arg1);
+
+    public String(byte[] arg0, int arg1, int arg2);
+
+    public String(byte[] arg0);
+
+    public String(java.lang.StringBuffer arg0);
+
+    public String(char[] arg0, int arg1, int arg2);
+
+    public String(char[] arg0);
+
+    public String(java.lang.String arg0);
+
+    public String();
+
+    public String(byte[] arg0, int arg1, int arg2, java.lang.String arg3);
+
+    public String(byte[] arg0, int arg1);
+
+    public String(byte[] arg0, int arg1, int arg2, int arg3);
+
+    public String(int[] arg0, int arg1, int arg2);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    byte[] value();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public boolean equals(java.lang.Object arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public int length();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String toString();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    static void checkIndex(int arg0, int arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public int hashCode();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public void getChars(int arg0, int arg1, char[] arg2, int arg3);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public int compareTo(java.lang.String arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public int indexOf(java.lang.String arg0, int arg1, int arg2);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    static int indexOf(byte[] arg0, byte arg1, int arg2, java.lang.String arg3, int arg4);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public int indexOf(java.lang.String arg0, int arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public int indexOf(int arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public int indexOf(int arg0, int arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public int indexOf(int arg0, int arg1, int arg2);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public int indexOf(java.lang.String arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.lang.String valueOf(long arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.lang.String valueOf(char[] arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.lang.String valueOf(java.lang.Object arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.lang.String valueOf(char[] arg0, int arg1, int arg2);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.lang.String valueOf(float arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.lang.String valueOf(double arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.lang.String valueOf(char arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.lang.String valueOf(boolean arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.lang.String valueOf(int arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    byte coder();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static java.lang.Void rangeCheck(char[] arg0, int arg1, int arg2);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    static int checkBoundsOffCount(int arg0, int arg1, int arg2);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    also
+        public exceptional_behavior
+        requires true;
+        ensures true;
+        signals (UnsupportedEncodingException e) true;
+        accessible true;
+        
+    */
+    private static java.nio.charset.Charset lookupCharset(java.lang.String arg0) throws UnsupportedEncodingException;
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static char decode2(int arg0, int arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static int decodeUTF8_UTF16(byte[] arg0, int arg1, int arg2, byte[] arg3, int arg4, boolean arg5);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static int scale(int arg0, float arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    also
+        public exceptional_behavior
+        requires true;
+        ensures true;
+        signals (CharacterCodingException e) true;
+        accessible true;
+        
+    */
+    private static int decodeWithDecoder(java.nio.charset.CharsetDecoder arg0, char[] arg1, byte[] arg2, int arg3, int arg4) throws CharacterCodingException;
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static java.lang.String newStringNoRepl1(byte[] arg0, java.nio.charset.Charset arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    static java.lang.String newStringUTF8NoRepl(byte[] arg0, int arg1, int arg2, boolean arg3);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static void throwMalformed(byte[] arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static void throwMalformed(int arg0, int arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static byte[] encodeUTF8(byte arg0, byte[] arg1, boolean arg2);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static byte[] encode8859_1(byte arg0, byte[] arg1, boolean arg2);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static byte[] encode8859_1(byte arg0, byte[] arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static byte[] encodeASCII(byte arg0, byte[] arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static byte[] encodeWithEncoder(java.nio.charset.Charset arg0, byte arg1, byte[] arg2, boolean arg3);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static byte[] safeTrim(byte[] arg0, int arg1, boolean arg2);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static byte[] encode(java.nio.charset.Charset arg0, byte arg1, byte[] arg2);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static byte[] getBytesNoRepl1(java.lang.String arg0, java.nio.charset.Charset arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static boolean isASCII(byte[] arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static void throwUnmappable(byte[] arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static void throwUnmappable(int arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static void replaceNegatives(byte[] arg0, int arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static boolean isNotContinuation(int arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static boolean isMalformed3(int arg0, int arg1, int arg2);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static int malformed3(byte[] arg0, int arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static char decode3(int arg0, int arg1, int arg2);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static boolean isMalformed3_2(int arg0, int arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static int decode4(int arg0, int arg1, int arg2, int arg3);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static boolean isMalformed4(int arg0, int arg1, int arg2);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static int malformed4(byte[] arg0, int arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static boolean isMalformed4_2(int arg0, int arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static boolean isMalformed4_3(int arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static byte[] encodeUTF8_UTF16(byte[] arg0, boolean arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    boolean isLatin1();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public char charAt(int arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public int codePointAt(int arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public int codePointBefore(int arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public int codePointCount(int arg0, int arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public int offsetByCodePoints(int arg0, int arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    static void checkBoundsBeginEnd(int arg0, int arg1, int arg2);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public byte[] getBytes();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    void getBytes(byte[] arg0, int arg1, int arg2, byte arg3, int arg4);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    void getBytes(byte[] arg0, int arg1, byte arg2);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public void getBytes(int arg0, int arg1, byte[] arg2, int arg3);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    also
+        public exceptional_behavior
+        requires true;
+        ensures true;
+        signals (UnsupportedEncodingException e) true;
+        accessible true;
+        
+    */
+    public byte[] getBytes(java.lang.String arg0) throws UnsupportedEncodingException;
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public byte[] getBytes(java.nio.charset.Charset arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public boolean contentEquals(java.lang.CharSequence arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public boolean contentEquals(java.lang.StringBuffer arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private boolean nonSyncContentEquals(java.lang.AbstractStringBuilder arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public boolean regionMatches(int arg0, java.lang.String arg1, int arg2, int arg3);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public boolean regionMatches(boolean arg0, int arg1, java.lang.String arg2, int arg3, int arg4);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public boolean startsWith(java.lang.String arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public boolean startsWith(java.lang.String arg0, int arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    static int lastIndexOf(byte[] arg0, byte arg1, int arg2, java.lang.String arg3, int arg4);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public int lastIndexOf(int arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public int lastIndexOf(java.lang.String arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public int lastIndexOf(int arg0, int arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public int lastIndexOf(java.lang.String arg0, int arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String substring(int arg0, int arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String substring(int arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public boolean isEmpty();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String replace(char arg0, char arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String replace(java.lang.CharSequence arg0, java.lang.CharSequence arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public boolean matches(java.lang.String arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String replaceFirst(java.lang.String arg0, java.lang.String arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String replaceAll(java.lang.String arg0, java.lang.String arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private java.lang.String[] split(java.lang.String arg0, int arg1, boolean arg2);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String[] split(java.lang.String arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String[] split(java.lang.String arg0, int arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private java.lang.String[] split(char arg0, int arg1, boolean arg2);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String[] splitWithDelimiters(java.lang.String arg0, int arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    static java.lang.String join(java.lang.String arg0, java.lang.String arg1, java.lang.String arg2, java.lang.String[] arg3, int arg4);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.lang.String join(java.lang.CharSequence arg0, java.lang.Iterable<? extends java.lang.CharSequence> arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static transient java.lang.String join(java.lang.CharSequence arg0, java.lang.CharSequence[] arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String toLowerCase();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String toLowerCase(java.util.Locale arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String toUpperCase();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String toUpperCase(java.util.Locale arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String trim();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String strip();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String stripLeading();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String stripTrailing();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private int indexOfNonWhitespace();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.util.stream.Stream<java.lang.String> lines();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String repeat(int arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private int lastIndexOfNonWhitespace();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    private static int outdent(java.util.List<java.lang.String> arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public boolean isBlank();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public char[] toCharArray();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static transient java.lang.String format(java.util.Locale arg0, java.lang.String arg1, java.lang.Object[] arg2);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static transient java.lang.String format(java.lang.String arg0, java.lang.Object[] arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    static void repeatCopyRest(byte[] arg0, int arg1, int arg2, int arg3);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String resolveConstantDesc(java.lang.invoke.MethodHandles$Lookup arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.util.stream.IntStream codePoints();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    also
+        public exceptional_behavior
+        requires true;
+        ensures true;
+        signals (CharacterCodingException e) true;
+        accessible true;
+        
+    */
+    static java.lang.String newStringNoRepl(byte[] arg0, java.nio.charset.Charset arg1) throws CharacterCodingException;
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    static byte[] getBytesUTF8NoRepl(java.lang.String arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    also
+        public exceptional_behavior
+        requires true;
+        ensures true;
+        signals (CharacterCodingException e) true;
+        accessible true;
+        
+    */
+    static byte[] getBytesNoRepl(java.lang.String arg0, java.nio.charset.Charset arg1) throws CharacterCodingException;
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    static int decodeASCII(byte[] arg0, int arg1, char[] arg2, int arg3, int arg4);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public boolean equalsIgnoreCase(java.lang.String arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public int compareToIgnoreCase(java.lang.String arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public boolean endsWith(java.lang.String arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.CharSequence subSequence(int arg0, int arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String concat(java.lang.String arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public boolean contains(java.lang.CharSequence arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String indent(int arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String stripIndent();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String translateEscapes();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.util.stream.IntStream chars();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public R transform(java.util.function.Function<? super java.lang.String, ? extends R> arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public transient java.lang.String formatted(java.lang.Object[] arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.lang.String copyValueOf(char[] arg0, int arg1, int arg2);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.lang.String copyValueOf(char[] arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public native java.lang.String intern();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    static void checkOffset(int arg0, int arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    static java.lang.String valueOfCodePoint(int arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.util.Optional<java.lang.String> describeConstable();
+}

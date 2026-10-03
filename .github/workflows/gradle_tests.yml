@@ -67,6 +67,17 @@ jobs:
         name: Echo exact java version being used
         run: java -version
 
+      ## Install the Z3 SMT solver; without it the solver-backed tests in
+      ## :tools:smt and :tools:vcg are skipped via `assumeTrue(Z3.z3Installed())`.
+      ## The test matrix currently only uses ubuntu-latest; other OSes would
+      ## need a different installation method (e.g. the Z3Setup/setup-z3 action).
+      - &setupz3
+        name: Install Z3 SMT solver
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y z3
+          z3 --version
+
       - &gradletest
         name: Test with Gradle and generate coverage
         env:
@@ -103,6 +114,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - *setupjava
       - *checkjava
+      - *setupz3
 
       - name: Test with Gradle and generate coverage
         env:

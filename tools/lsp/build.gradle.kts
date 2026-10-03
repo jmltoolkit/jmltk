@@ -20,6 +20,7 @@ dependencies {
     implementation(project(":tools:redux"))
     implementation(project(":tools:lint"))
     implementation(project(":tools:jml2java"))
+    implementation(project(":tools:vcg"))
 
     implementation(libs.tinylog.api.kotlin)
     implementation(libs.tinylog.api)

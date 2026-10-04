@@ -4,14 +4,19 @@
  */
 package io.github.jmltoolkit.vcg
 
+import com.github.javaparser.ast.CompilationUnit
+import com.github.javaparser.ast.Modifier
 import com.github.javaparser.ast.body.CallableDeclaration
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
+import com.github.javaparser.ast.body.TypeDeclaration
 import com.github.javaparser.ast.expr.ArrayAccessExpr
 import com.github.javaparser.ast.expr.ArrayCreationExpr
 import com.github.javaparser.ast.expr.AssignExpr
 import com.github.javaparser.ast.expr.BinaryExpr
 import com.github.javaparser.ast.expr.CastExpr
+import com.github.javaparser.ast.expr.ClassExpr
 import com.github.javaparser.ast.expr.ConditionalExpr
 import com.github.javaparser.ast.expr.EnclosedExpr
 import com.github.javaparser.ast.expr.Expression
@@ -499,15 +504,38 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         for (e in clauseExprs(ctx.contract, REQUIRES)) {
             query.addAssert(translatorOf(e).tr(e))
         }
+        assumeClassInvariant()
+    }
+
+    /**
+     * JML entry semantics: a non-helper instance method may assume the
+     * statically-visible class invariants of the enclosing instance
+     * (`\invariant_for(this)`). Constructors assume nothing (fields are not yet
+     * initialized) and static methods have no enclosing instance.
+     */
+    private fun assumeClassInvariant() {
+        if (isHelper || ctx.callable.isStatic || ctx.callable is ConstructorDeclaration) return
+        invariantForThisTerm()?.let { query.addAssert(it) }
     }
 
     private fun checkPostcondition(guard: SExpr) {
         val ensures = clauseExprs(ctx.contract, ENSURES)
-        if (ensures.isEmpty()) return
         var post = term.makeTrue()
+        var hasPost = ensures.isNotEmpty()
         for (e in ensures) {
             post = term.and(post, translatorOf(e).tr(e))
         }
+        // JML visible-state semantics: a non-helper instance method (like every
+        // constructor, which must *establish* the invariants) preserves the class
+        // invariants — `\invariant_for(this)` holds at method exit — so the folded
+        // invariant joins the postcondition it must satisfy.
+        if (!isHelper && !ctx.callable.isStatic) {
+            invariantForThisTerm()?.let {
+                post = term.and(post, it)
+                hasPost = true
+            }
+        }
+        if (!hasPost) return
         val callable = ctx.callable
         val m = callable as? MethodDeclaration
         val isVoid = m == null || m.type.toString() == "void"
@@ -519,6 +547,118 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 term.impl(term.and(guard, ret), post)
             }
         addObligation("postcondition", "postcondition", ob, Mode.Real, ctx.callable)
+    }
+
+    /** `helper` methods neither assume nor preserve the class invariants. */
+    private val isHelper: Boolean by lazy {
+        try {
+            ctx.callable.hasModifier(Modifier.DefaultKeyword.JML_HELPER)
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    /**
+     * The folded, translated `\invariant_for(this)` of the enclosing instance —
+     * the statically-visible class invariants, joined by [InvariantFold.fold] —
+     * or `null` when no invariant is in scope.
+     */
+    private fun invariantForThisTerm(): SExpr? {
+        val invs = InvariantFold.invariantsOf(ctx.enclosingType)
+        if (invs.isEmpty()) return null
+        return translatorOf().tr(InvariantFold.fold(invs))
+    }
+
+    /**
+     * Expands a literal `\invariant_for(...)` / `\static_invariant_for(...)`
+     * expression: the statically-visible invariants of the argument's class are
+     * gathered and folded, then translated against the current state. A non-`this`
+     * receiver is bound as the invariants' `this` (`\invariant_for(o)` evaluates
+     * `o`'s invariants about `o`). Recognized names always expand — an unresolved
+     * target folds to `true` (vacuously) rather than being misread as a call.
+     */
+    private fun invariantForTerm(receiver: SExpr?, receiverExpr: Expression?, isStatic: Boolean): SExpr {
+        val type = targetTypeForInvariant(receiver, receiverExpr) ?: return term.makeTrue()
+        val fold = InvariantFold.fold(InvariantFold.invariantsOf(type))
+        val bound =
+            if (receiverExpr is ThisExpr || (receiver != null && receiver === env["this"])) {
+                null
+            } else if (receiver != null) {
+                bindInvariantReceiver(receiver, type)
+            } else {
+                null
+            }
+        return (if (bound == null) translatorOf() else translatorOf(envOverride = bound)).tr(fold)
+    }
+
+    /** The type whose invariants a `\invariant_for`/`\static_invariant_for`
+     *  argument denotes, or `null` when it cannot be established. The receiver
+     *  term's resolved type wins (a callee-view `this` may be a bound argument);
+     *  a literal `this` falls back to the enclosing type; a `ClassExpr`
+     *  (`\static_invariant_for(T.class)`) resolves its class type. */
+    private fun targetTypeForInvariant(receiver: SExpr?, receiverExpr: Expression?): TypeDeclaration<*>? {
+        val qn = try {
+            (receiver?.javaType as? ResolvedReferenceType)?.qualifiedName
+        } catch (e: Exception) {
+            null
+        }
+        if (qn != null) return findTypeInCu(qn)
+        if (receiverExpr is ThisExpr) return ctx.enclosingType
+        val qn2 = when (receiverExpr) {
+            is ClassExpr -> try {
+                receiverExpr.type.resolve().asReferenceType().qualifiedName
+            } catch (e: Exception) {
+                null
+            }
+            else -> try {
+                receiverExpr?.calculateResolvedType()?.asReferenceType()?.qualifiedName
+            } catch (e: Exception) {
+                null
+            }
+        }
+        if (qn2 != null) findTypeInCu(qn2)?.let { return it }
+        return if (receiver != null && receiver === env["this"]) ctx.enclosingType else null
+    }
+
+    /** Finds the class declaration of qualified name [qn] in the verification CU. */
+    private fun findTypeInCu(qn: String): TypeDeclaration<*>? {
+        val cu = ctx.callable.findAncestor(CompilationUnit::class.java).orElse(null) ?: return null
+        return cu.findAll(ClassOrInterfaceDeclaration::class.java).firstOrNull {
+            try {
+                it.resolve().qualifiedName == qn
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
+
+    /**
+     * Receiver-bound view of the environment for translating `\invariant_for(o)`:
+     * `this` denotes `o`, and every scalar/object field of `o`'s class that lives
+     * in an identity-keyed field map is exposed again as `this.<field>` (select of
+     * the map at `o`), so bare-field and `this.f` reads in the invariants observe
+     * the receiver's map entry. Fields without a live map stay unconstrained —
+     * sound, since no fact is then assumed.
+     */
+    private fun bindInvariantReceiver(receiver: SExpr, type: TypeDeclaration<*>): Map<String, SExpr> {
+        val m = HashMap(env)
+        m["this"] = receiver
+        m.keys.removeAll { it.startsWith("this.") }
+        val cls = type as? ClassOrInterfaceDeclaration ?: return m
+        for (fd in cls.fields) {
+            for (v in fd.variables) {
+                val fname = v.nameAsString
+                val sType = try {
+                    envTypes["this.$fname"] ?: safeType(resolveType(v.type))
+                } catch (e: Exception) {
+                    continue
+                }
+                if (sType is SmtType.Array) continue
+                val mv = env[fieldMapKey(fname, sType)] ?: continue
+                m["this.$fname"] = term.select(sType, null, mv, receiver)
+            }
+        }
+        return m
     }
 
     private fun emitVcs() {
@@ -606,7 +746,8 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             unknownHandler = { n -> declareUnknown(n.nameAsString) },
             fieldAccessHandler = { receiver, field, scopeText -> fieldReadFor(e1, receiver, field, scopeText) },
             thisFieldRead = { m, thisVal, field -> fieldReadFor(m, thisVal, field, "this") },
-            arrayRefHandler = { v -> arrayRef(v) }
+            arrayRefHandler = { v -> arrayRef(v) },
+            invariantForHandler = { recv, recvExpr, isStatic -> invariantForTerm(recv, recvExpr, isStatic) }
         )
     }
 
@@ -696,7 +837,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     /** Declares an unknown field of `this` on first use (flat constant model). */
     private fun declareUnknownField(field: String): SExpr {
         val key = "this.$field"
-        val sType = envTypes[key] ?: SmtType.INT
+        val sType = envTypes[key] ?: if (options.mode == VerificationMode.BOUNDED) SmtType.BV32 else SmtType.INT
         query.declareConst(key, sType)
         val v = term.variable(sType, envJavaTypes[key], key)
         env[key] = v
@@ -706,7 +847,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
 
     private fun declareUnknown(name: String): SExpr {
         val key = unknownKey(name)
-        val sType = envTypes[key] ?: SmtType.INT
+        val sType = envTypes[key] ?: if (options.mode == VerificationMode.BOUNDED) SmtType.BV32 else SmtType.INT
         query.declareConst(key, sType)
         val v = term.variable(sType, envJavaTypes[key], key)
         env[key] = v
@@ -2093,6 +2234,23 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
 
     //region method calls
     private fun handleCall(call: MethodCallExpr, guard: SExpr, mode: Mode): SExpr {
+        // `\invariant_for` / `\static_invariant_for` in a statement position (e.g.
+        // `//@ assume \invariant_for(this);`) are folded invariant expressions, not
+        // Java method calls; expand them before any call resolution.
+        val callName = call.nameAsString
+        if (callName == "\\invariant_for" || callName == "\\static_invariant_for") {
+            val arg = call.arguments.firstOrNull()
+            val recv = if (arg != null && arg !is ClassExpr) {
+                try {
+                    atom(arg, guard, mode)
+                } catch (e: Exception) {
+                    null
+                }
+            } else {
+                null
+            }
+            return invariantForTerm(recv, arg, callName == "\\static_invariant_for") ?: term.makeTrue()
+        }
         // `String.length()`-style model read under the string-index feature: the
         // runtime length is the uninterpreted `(stringLength s)` function instead of
         // an opaque contract-call result.

@@ -10,6 +10,7 @@ import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.expr.MethodCallExpr
+import com.github.javaparser.ast.jml.expr.JmlLabelExpr
 import com.github.javaparser.ast.stmt.WhileStmt
 import com.github.javaparser.symbolsolver.JavaSymbolSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver
@@ -72,6 +73,28 @@ class VcgSemanticsTest {
     private fun vcgFor(name: String, options: VcgOptions = VcgOptions()): VcgResult {
         val res = Vcg(VcgContext.of(method(name)), options).verify()
         assertTrue(res.conditions.isNotEmpty(), "no VCs generated for $name")
+        return res
+    }
+
+    /** Resolves a method in the [typeIndex]-th top-level type of the fixture file. */
+    private fun methodIn(name: String, typeIndex: Int): MethodDeclaration {
+        val cls = cu.types[typeIndex].asClassOrInterfaceDeclaration()
+        return cls.methods.first { it.nameAsString == name }
+    }
+
+    private fun vcgForIn(name: String, typeIndex: Int, options: VcgOptions = VcgOptions()): VcgResult {
+        val res = Vcg(VcgContext.of(methodIn(name, typeIndex)), options).verify()
+        assertTrue(res.conditions.isNotEmpty(), "no VCs generated for $name")
+        return res
+    }
+
+    /** Resolves the constructor of the [typeIndex]-th top-level type. */
+    private fun ctorIn(typeIndex: Int): ConstructorDeclaration =
+        cu.types[typeIndex].asClassOrInterfaceDeclaration().constructors.first()
+
+    private fun vcgForCtorIn(typeIndex: Int, options: VcgOptions = VcgOptions()): VcgResult {
+        val res = Vcg(VcgContext.of(ctorIn(typeIndex)), options).verify()
+        assertTrue(res.conditions.isNotEmpty(), "no VCs generated for ctor of type $typeIndex")
         return res
     }
 
@@ -644,6 +667,115 @@ class VcgSemanticsTest {
         val ctx = VcgContext(md, com.github.javaparser.ast.jml.clauses.JmlContract())
         val ex = assertThrows(IllegalArgumentException::class.java) { ctx.enclosingType }
         assertTrue(ex.message!!.contains("enclosed"), ex.message)
+    }
+
+    //region class invariants (\invariant_for)
+
+    @Test
+    fun testInvariantAssumedInPrecondition() {
+        // `readCounterInv` has no requires clause; its postcondition is only
+        // provable because the class invariants are folded into `\invariant_for(this)`
+        // and assumed at method entry
+        expectAllProven(vcgForIn("readCounterInv", 2, u))
+        expectAllProven(vcgForIn("readCounterInv", 2, b))
+    }
+
+    @Test
+    fun testInvariantPreservedByMethod() {
+        expectAllProven(vcgForIn("setCounter5", 2, u))
+        expectAllProven(vcgForIn("setCounter5", 2, b))
+    }
+
+    @Test
+    fun testInvariantViolationFalsifiable() {
+        // writing -1 to `counter` violates the assumed `counter >= 0` invariant, so
+        // the exit obligation must fail
+        expectSomeFalsifiable(vcgForIn("setCounterNeg", 2, u))
+        expectSomeFalsifiable(vcgForIn("setCounterNeg", 2, b))
+    }
+
+    @Test
+    fun testHelperMethodExemptFromInvariant() {
+        // a `helper` method may break the invariants: no `\invariant_for(this)` is
+        // assumed on entry nor preserved on exit
+        expectAllProven(vcgForIn("helperBreaksInvariant", 2, u))
+    }
+
+    @Test
+    fun testExplicitInvariantForExpression() {
+        // a literal `\invariant_for(this)` in requires/ensures expands to the same
+        // folded conjunction (it is parsed as a `\`-prefixed method call)
+        expectAllProven(vcgForIn("explicitInvariantFor", 2, u))
+        expectAllProven(vcgForIn("explicitInvariantFor", 2, b))
+    }
+
+    @Test
+    fun testStaticInvariantForExpression() {
+        // `\static_invariant_for(InvariantExamples.class)` is a recognized call shape;
+        // on the static method only the explicit requires is in play
+        expectAllProven(vcgForIn("staticInvariantDoubles", 2, u))
+    }
+
+    @Test
+    fun testInheritedInvariantAssumed() {
+        // a subclass method: the base class's `invariant this.limit > 0` is part of
+        // the statically-visible set gathered from the context
+        expectAllProven(vcgForIn("readBaseInv", 3, u))
+        expectAllProven(vcgForIn("readBaseInv", 3, b))
+    }
+
+    @Test
+    fun testConstructorEstablishingInvariantProven() {
+        // a constructor that sets `counter` consistently with the class invariant
+        // verifies: `invariant this.counter >= 0` is a postcondition for ctors
+        expectAllProven(vcgForCtorIn(4, u))
+        expectAllProven(vcgForCtorIn(4, b))
+    }
+
+    @Test
+    fun testConstructorViolatingInvariantFalsifiable() {
+        // the constructor stores -1 — it can never establish `counter >= 0`
+        expectSomeFalsifiable(vcgForCtorIn(5, u))
+        expectSomeFalsifiable(vcgForCtorIn(5, b))
+    }
+
+    @Test
+    fun testStaticMethodNotConstrainedByInvariant() {
+        // `staticCount = -1` violates `invariant staticCount >= 0`, but a static
+        // method has no enclosing instance: no `\invariant_for(this)` is assumed on
+        // entry nor preserved on exit, so the trivial postcondition proves (unlike
+        // `setCounterNeg`, which must fail for the same reason on an instance field)
+        expectAllProven(vcgForIn("staticBreaksCount", 2, u))
+        expectAllProven(vcgForIn("staticBreaksCount", 2, b))
+    }
+
+    @Test
+    fun testInvariantForLabelsPreservedByFold() {
+        // the folding transformation labels every conjunct (\lblpos) so the clauses
+        // stay addressable; the label node is transparent to translation
+        val cls = cu.types[2].asClassOrInterfaceDeclaration()
+        val invs = InvariantFold.invariantsOf(cls)
+        // own invariants (counter >= 0, counter <= 10, staticCount >= 0)
+        // plus the inherited `invariant this.limit > 0` of the base type
+        assertEquals(4, invs.size, "expected own + inherited invariant clauses")
+        assertTrue(invs.all { it.label.startsWith("inv_") }, "generated labels: ${invs.map { it.label }}")
+        val folded = InvariantFold.fold(invs)
+        // the fold is a conjunction of \lblpos-labeled clauses
+        val labels = mutableListOf<Pair<String, String>>()
+        fun dig(e: com.github.javaparser.ast.expr.Expression) {
+            when (e) {
+                is com.github.javaparser.ast.expr.BinaryExpr -> {
+                    dig(e.left); dig(e.right)
+                }
+                is JmlLabelExpr -> labels.add(e.label.asString() to e.expression.toString())
+                else -> {}
+            }
+        }
+        dig(folded)
+        assertEquals(4, labels.size, "all invariants must be \\lblpos-labeled: $labels")
+        assertTrue(labels.all { (l, _) -> l.startsWith("inv_") })
+        assertTrue(labels.map { it.second }.any { it.contains("counter") })
+        assertTrue(labels.map { it.second }.any { it.contains("limit") })
     }
     //endregion
 }

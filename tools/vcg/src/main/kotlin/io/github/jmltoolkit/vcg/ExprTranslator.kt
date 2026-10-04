@@ -10,6 +10,7 @@ import com.github.javaparser.ast.expr.BinaryExpr
 import com.github.javaparser.ast.expr.BooleanLiteralExpr
 import com.github.javaparser.ast.expr.CastExpr
 import com.github.javaparser.ast.expr.CharLiteralExpr
+import com.github.javaparser.ast.expr.ClassExpr
 import com.github.javaparser.ast.expr.ConditionalExpr
 import com.github.javaparser.ast.expr.EnclosedExpr
 import com.github.javaparser.ast.expr.Expression
@@ -24,6 +25,7 @@ import com.github.javaparser.ast.expr.StringLiteralExpr
 import com.github.javaparser.ast.expr.ThisExpr
 import com.github.javaparser.ast.expr.UnaryExpr
 import com.github.javaparser.ast.jml.expr.JmlBinaryInfixExpr
+import com.github.javaparser.ast.jml.expr.JmlLabelExpr
 import com.github.javaparser.ast.jml.expr.JmlMultiCompareExpr
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr.JmlDefaultBinder
@@ -70,6 +72,12 @@ class ExprTranslator(
      *  the operand is not an array. Used by `==`/`!=` on arrays, which compare
      *  identities (Java semantics) rather than extensional contents. */
     val arrayRefHandler: (SExpr) -> SExpr? = { null },
+    /** expands a `\invariant_for(..)` / `\static_invariant_for(..)` expression:
+     *  given the translated receiver term (null for type-level arguments such as a
+     *  `ClassExpr`), the receiver's source expression, and the static flag, returns
+     *  the folded class-invariant term; `null` falls back to ordinary method-call
+     *  handling. */
+    val invariantForHandler: (receiver: SExpr?, receiverExpr: Expression, isStatic: Boolean) -> SExpr? = { _, _, _ -> null },
 ) : GenericVisitorAdapter<SExpr, Any?>() {
     private val term = SmtTermFactory
 
@@ -202,7 +210,8 @@ class ExprTranslator(
         }
         val inner = ExprTranslator(
             smtLog, translator, bound, oldEnv, callHandler, unknownHandler,
-            fieldAccessHandler = fieldAccessHandler, arrayRefHandler = arrayRefHandler
+            fieldAccessHandler = fieldAccessHandler, arrayRefHandler = arrayRefHandler,
+            invariantForHandler = invariantForHandler
         )
         val conjuncts = { exprs: List<Expression> ->
             exprs.fold(term.makeTrue() as SExpr) { acc, e -> term.and(acc, e.accept(inner, arg)!!) }
@@ -319,12 +328,30 @@ class ExprTranslator(
             val inner = ExprTranslator(
                 smtLog, translator, oldEnv, oldEnv, callHandler, unknownHandler,
                 fieldAccessHandler = fieldAccessHandler, thisFieldRead = thisFieldRead,
-                arrayRefHandler = arrayRefHandler
+                arrayRefHandler = arrayRefHandler, invariantForHandler = invariantForHandler
             )
             return n.arguments[0].accept(inner, arg)!!
         }
+        // \invariant_for(this) / \static_invariant_for(T.class): fold the class
+        // invariants of the argument's type (JML's statically-visible set). The
+        // keywords are lexed as `\`-prefixed names, so they arrive as method calls —
+        // never as resolvable Java methods — and must be expanded here instead of
+        // being routed to the call handler.
+        val name = n.nameAsString
+        if ((name == "\\invariant_for" || name == "\\static_invariant_for") && n.arguments.size == 1) {
+            val a = n.arguments[0]
+            val recv = if (a is ClassExpr) null else a.accept(this, arg)
+            // a recognized `\invariant_for` never falls through to call handling:
+            // an unresolved target folds to `true` (vacuously satisfiable)
+            return invariantForHandler(recv, a, name == "\\static_invariant_for") ?: term.makeTrue()
+        }
         return callHandler(n)
     }
+
+    /** A `\lbl` / `\lblpos` / `\lblneg` label is transparent to verification: the
+     *  clause is the wrapped expression. The label only names the conjunct (on
+     *  failure it identifies the violated invariant clause). */
+    override fun visit(n: JmlLabelExpr, arg: Any?): SExpr = n.expression.accept(this, arg)!!
 
     companion object {
         const val RESULT = "\$result"

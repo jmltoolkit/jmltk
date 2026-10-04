@@ -1650,3 +1650,108 @@ public class VcgExamples {
         return "ab".substring(i, j);
     }
 }
+
+// ---- \invariant_for fixtures: separate top-level types so the class-level
+// ---- invariants only constrain the methods that are meant to observe them ----
+
+// the base type contributes its invariants to the statically-visible set of a
+// child that extends it (gathered from the context)
+
+class InvariantExamplesBase {
+    int limit;
+
+    //@ invariant this.limit > 0;
+}
+
+class InvariantExamples extends InvariantExamplesBase {
+    int counter;
+    static int staticCount;
+
+    //@ invariant counter >= 0;
+    //@ invariant this.counter <= 10;
+    //@ invariant staticCount >= 0;
+
+    // `counter` is unconstrained at entry (no requires clause): the postcondition
+    // is only provable because the class invariants are assumed for `this`
+    //@ ensures this.counter >= 0 && this.counter <= 10;
+    public int readCounterInv() {
+        return this.counter;
+    }
+
+    // a method that preserves the invariants verifies
+    //@ ensures this.counter == 5;
+    public void setCounter5() {
+        this.counter = 5;
+    }
+
+    // preserving the invariants is part of the postcondition: writing -1 violates
+    // `invariant counter >= 0`
+    //@ ensures true;
+    public void setCounterNeg() {
+        this.counter = -1;
+    }
+
+    // a `helper` method is exempt from the invariant on entry and exit
+    //@ ensures true;
+    //@ helper
+    public void helperBreaksInvariant() {
+        this.counter = -1;
+    }
+
+    // the literal \invariant_for spelling expands to the same folded conjunction
+    //@ requires \invariant_for(this);
+    //@ ensures \invariant_for(this);
+    public int explicitInvariantFor(int x) {
+        return x;
+    }
+
+    // \static_invariant_for(T.class) is recognized (a static method has no
+    // enclosing instance, so the instance invariants stay satisfiable and the
+    // static-field fact does flow through the folded conjunction)
+    //@ requires \static_invariant_for(InvariantExamples.class);
+    //@ ensures \result == staticCount + 1;
+    public static int staticInvariantDoubles() {
+        return staticCount + 1;
+    }
+
+    // static methods have no enclosing instance: the instance-method invariant
+    // machinery is not in play, so this proves despite violating `staticCount >= 0`
+    //@ ensures true;
+    public static void staticBreaksCount() {
+        staticCount = -1;
+    }
+}
+
+// an inherited invariant (`this.limit > 0`) is assumed for a subclass method
+class InvariantChild extends InvariantExamplesBase {
+    //@ ensures this.limit > 0;
+    public int readBaseInv() {
+        return this.limit;
+    }
+}
+
+// constructors must *establish* the class invariants: no `\invariant_for(this)`
+// is assumed at entry (fields are uninitialized), but the exit obligation holds
+class InvariantCtorExamples {
+    int counter;
+
+    //@ invariant this.counter >= 0;
+
+    //@ requires c >= 0;
+    //@ ensures this.counter == c;
+    public InvariantCtorExamples(int c) {
+        this.counter = c;
+    }
+}
+
+// this constructor cannot establish the invariant, so its postcondition must fail
+class InvariantCtorBad {
+    int counter;
+
+    //@ invariant this.counter >= 0;
+
+    //@ ensures true;
+    public InvariantCtorBad(int c) {
+        this.counter = -1;
+    }
+}

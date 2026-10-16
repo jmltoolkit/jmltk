@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.int
 import com.github.javaparser.ParserConfiguration
@@ -59,6 +60,9 @@ class VcgCommand : FileBasedCommand(name = "vcg") {
     private val checkDivision by option(
         "--check-division", help = "emit VCs asserting no division/modulo by zero"
     ).flag()
+    private val checkOverflow by option(
+        "--check-overflow", help = "emit VCs asserting no signed arithmetic overflow (BOUNDED mode)"
+    ).flag()
     private val checkIndex by option(
         "--check-index", help = "emit VCs asserting array indices are within bounds"
     ).flag()
@@ -74,6 +78,11 @@ class VcgCommand : FileBasedCommand(name = "vcg") {
     private val checkStringIndex by option(
         "--check-string-index", help = "emit VCs asserting string indices are in bounds"
     ).flag()
+    private val checksPolicy by option(
+        "--checks",
+        help = "runtime-check policy: all | none | default (the six exception checks). " +
+            "Individual --check-* flags enable a check on top of the policy."
+    ).choice("all", "none", "default").default("default")
     private val allowUnrefinedCalls by option(
         "--allow-unrefined-calls",
         help = "havoc the caller-visible frame for calls whose callee has no JML contract " +
@@ -149,19 +158,37 @@ class VcgCommand : FileBasedCommand(name = "vcg") {
         echo("$total conditions, $failed failing")
     }
 
-    private fun vcgOptions(): VcgOptions = VcgOptions(
-        mode = if (unbounded) VerificationMode.UNBOUNDED else VerificationMode.BOUNDED,
-        defaultLoopStrategy = if (invariant) LoopStrategy.INVARIANT else LoopStrategy.UNROLL,
-        defaultUnrollDepth = unroll,
-        defaultCallStrategy = CallStrategy.CONTRACT,
-        checkDivision = checkDivision,
-        checkIndex = checkIndex,
-        checkNull = checkNull,
-        checkCast = checkCast,
-        checkNegativeArraySize = checkNegativeArraySize,
-        checkStringIndex = checkStringIndex,
-        allowUnrefinedCalls = allowUnrefinedCalls,
-    )
+    private fun vcgOptions(): VcgOptions {
+        val all = checksPolicy == "all"
+        val none = checksPolicy == "none"
+        // the VcgOptions defaults are the documented default policy: the six
+        // runtime-exception checks on, overflow off (BOUNDED wrap-around already
+        // matches Java; the overflow check only *flags* wraparounds)
+        val base = VcgOptions(
+            mode = if (unbounded) VerificationMode.UNBOUNDED else VerificationMode.BOUNDED,
+            defaultLoopStrategy = if (invariant) LoopStrategy.INVARIANT else LoopStrategy.UNROLL,
+            defaultUnrollDepth = unroll,
+            defaultCallStrategy = CallStrategy.CONTRACT,
+            allowUnrefinedCalls = allowUnrefinedCalls,
+        )
+        // `--checks=all|none` sets the whole set; `--checks=default` (and no
+        // --checks) keeps the library defaults; individual --check-* flags only
+        // ever enable a check on top of the chosen policy.
+        fun pick(policyBase: Boolean, flag: Boolean): Boolean = when {
+            all -> true
+            none -> flag
+            else -> policyBase || flag
+        }
+        return base.copy(
+            checkOverflow = pick(base.checkOverflow, checkOverflow),
+            checkDivision = pick(base.checkDivision, checkDivision),
+            checkIndex = pick(base.checkIndex, checkIndex),
+            checkNull = pick(base.checkNull, checkNull),
+            checkCast = pick(base.checkCast, checkCast),
+            checkNegativeArraySize = pick(base.checkNegativeArraySize, checkNegativeArraySize),
+            checkStringIndex = pick(base.checkStringIndex, checkStringIndex),
+        )
+    }
 
     /** Converts a glob (`*` matches any run of characters, `?` any single one) to a regex. */
     private fun glob(pattern: String): Pattern {

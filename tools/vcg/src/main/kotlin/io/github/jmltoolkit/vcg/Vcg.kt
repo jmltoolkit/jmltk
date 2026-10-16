@@ -242,7 +242,6 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             }
         }
         // exceptions are Object subtypes (transitively handled by z3 via the subtype axiom)
-        if (options.checkStringIndex) ensureStringLengthFn()
     }
 
     /**
@@ -284,9 +283,14 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         )
     }
 
-    /** `(stringLength s)`, the runtime length of a `String`-like reference. */
-    private fun stringLengthOf(s: SExpr): SExpr =
-        term.list(null, intSort, term.symbol("stringLength"), s)
+    /** `(stringLength s)`, the runtime length of a `String`-like reference. The
+     *  function is declared lazily at first use, so queries that never touch the
+     *  string model (P3.3: `checkStringIndex` is part of the default policy) stay
+     *  free of the declaration. */
+    private fun stringLengthOf(s: SExpr): SExpr {
+        ensureStringLengthFn()
+        return term.list(null, intSort, term.symbol("stringLength"), s)
+    }
 
     /**
      * The declared reference constant for a distinct string literal. A literal is a
@@ -301,7 +305,6 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             val v = term.variable(SmtType.JAVA_OBJECT, null, n)
             query.addAssert(term.nonNull(v))
             if (options.checkStringIndex) {
-                ensureStringLengthFn()
                 query.addAssert(equality(stringLengthOf(v), translator.makeInt(value.length.toLong())))
             }
             n
@@ -1506,7 +1509,29 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             is NfArray -> {
                 val key = localKey(t.key)
                 val arrType = envTypes[key] ?: SmtType.Array(SmtType.INT, SmtType.INT)
-                val arr = env[key] ?: freshVersion(key, arrType)
+                val arr = env[key] ?: run {
+                    val slot = freshVersion(key, arrType)
+                    // First touch of an array-typed *receiver* field (e.g. `h.vals`):
+                    // its current value is the field-selector read, not an
+                    // unconstrained fresh array. Without this tie the flat slot and the
+                    // selector term never meet — the store's index check (default-on
+                    // since P3.3) cannot be discharged from a `requires h.vals.length
+                    // >= n`, and the stored element ignores the previous contents.
+                    val dot = key.lastIndexOf('.')
+                    val recvName = if (dot > 0 && key.substring(0, dot) != "this") key.substring(0, dot) else null
+                    if (recvName != null) {
+                        val ra = env[recvName] ?: env["this.$recvName"]
+                        if (ra != null && ra.smtType === SmtType.JAVA_OBJECT) {
+                            val fname = key.substring(dot + 1)
+                            val (jType, sType) = fieldSelectorType(ra, recvName, fname)
+                            if (sType is SmtType.Array) {
+                                val fn = fieldSelector(fname, sType, jType)
+                                emit(mode, g, equality(slot, term.list(jType, sType, term.symbol(fn), ra)))
+                            }
+                        }
+                    }
+                    slot
+                }
                 // Java stores wrap the value to the element type: `((_ extract 7 0) v)`
                 // for a byte[] element that was computed at promoted int width.
                 val vv = convertTo(v, (arrType as? SmtType.Array)?.to)
@@ -2151,6 +2176,9 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             // arguments are still evaluated for their side effects.
             for (a in e.arguments) atom(a, guard, mode)
             val obj = freshTemp(SmtType.JAVA_OBJECT, tryExprType(e))
+            // Java `new` never returns null: axiomatize the fresh object as non-null
+            // so the default-on `nullcheck` on a `new T().m(...)` receiver proves.
+            emit(mode, guard, term.nonNull(obj))
             if (options.checkCast && obj.smtType === SmtType.JAVA_OBJECT) {
                 // Bind typeof/instanceof so that `(T) new T(...)` casts are provable.
                 val jt = try { e.calculateResolvedType() } catch (ex: Exception) { null }
@@ -2404,7 +2432,6 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         if (options.checkStringIndex && call.arguments.isEmpty() && call.nameAsString == "length") {
             val scope = call.scope.orElse(null)
             if (isStringLike(scope)) {
-                ensureStringLengthFn()
                 val recv = if (scope == null || scope is ThisExpr) {
                     term.makeThis()
                 } else {

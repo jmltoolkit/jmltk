@@ -138,6 +138,8 @@ class VerifyMethod : LspAction<MethodDeclaration> {
     }
 
     private fun verify(callable: CallableDeclaration<*>, server: JmlLanguageServer): VcgResult {
+        // The LSP follows the VcgOptions default policy (P3.3): the six runtime-
+        // exception checks are on, overflow stays opt-in, `--checks` selects a set.
         val options = VcgOptions(
             mode = VerificationMode.UNBOUNDED,
             defaultCallStrategy = CallStrategy.CONTRACT,

@@ -69,10 +69,29 @@ Where: validation pass at `verify()` entry / `Normalizer`.
 Steps: curated "unsupported: <construct>" errors with source `Range` (switch expressions, lambdas, anonymous classes, enums, `\fresh`/`\reach`/`\TYPE`-keywords, assert-with-message, …). Single `UnsupportedFeatureException`.
 Effort: small. Impact: developer triage speed.
 
-### P3.3 Runtime checks: document + default policy
+### P3.3 Runtime checks: document + default policy — DONE
 Where: `VcgOptions`, CLI `vcg` subcommand, LSP.
 Steps: decide and document the default set (`checkNull/checkIndex/checkDivision`/…); add `--checks=all|none|default`; align LSP; update README + PR description bullet.
 Effort: tiny.
+Decision (user, 2026-10-16): default-on for the six runtime-exception checks
+(`checkNull`, `checkDivision`, `checkIndex`, `checkCast`, `checkNegativeArraySize`,
+`checkStringIndex`); `checkOverflow` stays opt-in (BOUNDED wrap-around already matches
+Java; the check only flags wraparounds, and is vacuous in UNBOUNDED). Implementation:
+`VcgOptions` defaults flipped; `--checks=all|none|default` selector + missing
+`--check-overflow` flag on the CLI; the LSP inherits the policy via the `VcgOptions`
+defaults. Supporting modeling fixes that default-on checks exposed:
+- `new T(...)` results are axiomatized non-null (Java `new` never returns null), so a
+  default-on `nullcheck` on a `new T().m()` receiver proves;
+- the first store to an array-typed *receiver* field (`h.vals[i] = v`) initializes the
+  flat slot from the field-selector read (`field__vals(h)`) instead of a fresh
+  unconstrained array, so a default-on index check discharges against a
+  `requires h.vals.length >= n`;
+- `stringLength` is now declared lazily at first use (the string-index feature is part
+  of the default set, but string-free queries must not carry the declaration).
+Tests: `testRuntimeChecksOnByDefault` (replaces `testRuntimeChecksOffByDefault`) +
+`testRuntimeChecksOffWithNonePolicy` (opt-out still silent); strengthened
+`arrayStoreInLoop` requires (`a.length >= 3`); regenerated 7 golden snapshots that
+gained only the new default-on obligations plus obligation-id renumbering.
 
 ## Phase 4 — Design-level changes (decide first, then implement)
 
@@ -98,6 +117,6 @@ Effort: high.
 3. P4.1, then decide P4.2/P4.3 (likely separate PRs + documented limitation).
 
 ## Open decisions
-- P1.3: reject-by-default or `--allow-unrefined` best-effort?
-- P3.3: which runtime checks on by default?
+- P1.3: reject-by-default or `--allow-unrefined` best-effort? **Decided (P1.3): reject-by-default, opt-in `--allow-unrefined-calls`.**
+- P3.3: which runtime checks on by default? **Decided (P3.3): the six exception checks, `checkOverflow` opt-in, `--checks=all|none|default`.**
 - P4.2: "arrays never-null" acceptable as a documented approximation, or must it be fixed?

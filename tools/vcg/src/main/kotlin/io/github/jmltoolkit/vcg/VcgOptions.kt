@@ -58,7 +58,9 @@ enum class CallStrategy {
  * @param defaultCallStrategy used for calls without individual entry in [callStrategies]
  * @param callStrategies individual strategy per call site
  * @param maxInlineDepth recursion bound for [CallStrategy.INLINE]
- * @param checkOverflow emit VCs asserting no signed arithmetic overflow (bounded mode)
+ * @param checkOverflow emit VCs asserting no signed arithmetic overflow (bounded mode).
+ *   Off by default: bit-vectors already wrap exactly like Java, so this is a
+ *   bug-witness obligation, not a semantic divergence
  * @param checkDivision emit VCs asserting no division/modulo by zero
  * @param checkIndex emit VCs asserting array indices are within bounds
  * @param checkNull emit VCs asserting no null-pointer dereference (receiver of an
@@ -72,6 +74,14 @@ enum class CallStrategy {
  *   a contract), havoc the caller-visible frame (`this.*`, arrays, field maps) and
  *   return an unconstrained result — a sound over-approximation instead of the
  *   default loud diagnostic
+ *
+ * The six runtime-exception checks ([checkNull], [checkDivision], [checkIndex],
+ * [checkCast], [checkNegativeArraySize], [checkStringIndex]) are ON by default
+ * (P3.3): the encoded model does not throw these exceptions, so without the check a
+ * PROVEN method may still crash in Java — the checks restore Java-faithful
+ * obligations. Use `--checks=none` / explicit flags to opt out per check.
+ * [checkOverflow] stays opt-in because BOUNDED bit-vectors already implement Java
+ * wrap-around; it only *flags* unintended wraparounds (and is vacuous in UNBOUNDED).
  */
 data class VcgOptions(
     val mode: VerificationMode = VerificationMode.BOUNDED,
@@ -83,12 +93,12 @@ data class VcgOptions(
     val callStrategies: Map<MethodCallExpr, CallStrategy> = emptyMap(),
     val maxInlineDepth: Int = 3,
     val checkOverflow: Boolean = false,
-    val checkDivision: Boolean = false,
-    val checkIndex: Boolean = false,
-    val checkNull: Boolean = false,
-    val checkCast: Boolean = false,
-    val checkNegativeArraySize: Boolean = false,
-    val checkStringIndex: Boolean = false,
+    val checkDivision: Boolean = true,
+    val checkIndex: Boolean = true,
+    val checkNull: Boolean = true,
+    val checkCast: Boolean = true,
+    val checkNegativeArraySize: Boolean = true,
+    val checkStringIndex: Boolean = true,
     val allowUnrefinedCalls: Boolean = false,
 ) {
     fun loopStrategy(loop: Node): LoopStrategy = loopStrategies[loop] ?: defaultLoopStrategy

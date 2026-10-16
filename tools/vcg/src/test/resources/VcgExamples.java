@@ -1336,7 +1336,9 @@ public class VcgExamples {
     }
 
     // array store inside an unrolled loop -> locationKey(NfArray) in modifiedLocations
-    //@ requires a != null && a.length >= 2 && n >= 0 && n <= 3;
+    // (the loop index reaches 2 for n == 3, so the array must hold three elements:
+    // default-on index checks (P3.3) otherwise flag the third iteration's store)
+    //@ requires a != null && a.length >= 3 && n >= 0 && n <= 3;
     //@ ensures a[0] == 1 && a[1] == 2;
     public void arrayStoreInLoop(int[] a, int n, int v) {
         int i = 0;

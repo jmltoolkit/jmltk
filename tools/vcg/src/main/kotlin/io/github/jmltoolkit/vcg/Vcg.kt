@@ -1643,6 +1643,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     /** The historical flat per-path SSA write for locals and `this`-receiver fields. */
     private fun flatWrite(s: NfAssign, t: NfLocation, g: SExpr, mode: Mode, v: SExpr) {
         val key = locationKey(t)
+        val declaredJType = (t as? NfLocal)?.declaredType?.let { dt -> tryResolve(dt) }
         val type = when (t) {
             is NfLocal -> t.declaredType?.let { dt -> safeType(tryResolve(dt)) } ?: locType(t)
             is NfField -> fieldWriteType(t, key)
@@ -1652,7 +1653,10 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         // promoted right-hand side to its declared width (Java wrap-around).
         val vv = convertTo(v, type)
         val prev = env[key]
-        val next = freshVersion(key, type)
+        // the local keeps its resolved declared type as meta-information on the
+        // SExpr: receiver-bound views (contract calls on `o.m()` with `o` a local,
+        // invariant folding) consult `receiver.javaType` to expose `o`'s fields
+        val next = freshVersion(key, type, declaredJType)
         // phi-style assignment: when the guard is false (dead path — e.g.
         // statements after a `break`/`continue`/`return`) the variable keeps
         // its previous value. Without this, `next` is an unconstrained fresh
@@ -2173,8 +2177,9 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
 
         is ObjectCreationExpr -> {
             // `new T(...)`: a fresh object of the (reference) sort. Constructor
-            // arguments are still evaluated for their side effects.
-            for (a in e.arguments) atom(a, guard, mode)
+            // arguments are evaluated (and captured, so the constructor's contract
+            // can bind them to the parameters) for their side effects.
+            val args = e.arguments.map { atom(it, guard, mode) }
             val obj = freshTemp(SmtType.JAVA_OBJECT, tryExprType(e))
             // Java `new` never returns null: axiomatize the fresh object as non-null
             // so the default-on `nullcheck` on a `new T().m(...)` receiver proves.
@@ -2197,6 +2202,22 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                         term.list(null, SmtType.BOOL, term.symbol("instanceof"), obj, sort)
                     )
                 }
+            }
+            // P2.1: a construction whose constructor is in this compilation unit and
+            // carries a JML contract is a *contract call site*: the caller must
+            // establish the constructor's requires, may assume its ensures, and may
+            // assume the constructed class's invariant. Uncontracted constructors
+            // (library classes, implicit constructors, contractless in-CU bodies —
+            // mirroring the P1.3 "contractless-with-body keeps old behavior" carve-out)
+            // keep the fresh-constant model: the object's fields are unconstrained,
+            // which is a sound over-approximation of an unrefined construction.
+            val ctor = try {
+                findConstructor(e)
+            } catch (ex: Exception) {
+                null
+            }
+            if (ctor != null && ctor.contracts.isNotEmpty()) {
+                constructorContract(e, args, obj, guard, mode, ctor)
             }
             obj
         }
@@ -2793,7 +2814,238 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     }
 
     /**
-     * Inline the callee body; the result is the callee's return value. After the body
+     * The in-CU `ConstructorDeclaration` behind `new T(...)`, or `null` for library
+     * constructors and implicit default constructors (which cannot carry a JML
+     * contract). Prefers the symbol solver's resolution (exact overload); falls back
+     * to a same-CU search by resolved qualified type name and arity.
+     */
+    private fun findConstructor(e: ObjectCreationExpr): ConstructorDeclaration? {
+        try {
+            val ast = e.resolve().toAst().orElse(null) as? ConstructorDeclaration
+            if (ast != null) return ast
+        } catch (ex: Exception) {
+            // fall through to the same-CU search
+        }
+        val qn = try {
+            (e.calculateResolvedType() as? ResolvedReferenceType)?.qualifiedName
+        } catch (ex: Exception) {
+            null
+        } ?: return null
+        val cu = ctx.callable.findAncestor(CompilationUnit::class.java).orElse(null) ?: return null
+        return cu.findAll(ConstructorDeclaration::class.java).firstOrNull { cd ->
+            cd.parameters.size == e.arguments.size && try {
+                cd.findAncestor(ClassOrInterfaceDeclaration::class.java)
+                    .orElse(null)?.resolve()?.qualifiedName == qn
+            } catch (ex: Exception) {
+                false
+            }
+        }
+    }
+
+    /**
+     * Applies a contracted constructor at its creation site (P2.1). The fresh object
+     * is the callee view's `this` (constructor contracts speak about the object being
+     * built); the caller must establish the *disjunction* of the per-case `requires`,
+     * may assume each case's `ensures` guarded by its own (pre-state) `requires`, and
+     * may assume the constructed class's class invariant — a constructor contract
+     * establishes it, exactly as `checkPostcondition` folds it into the constructor's
+     * own verification obligation.
+     */
+    private fun constructorContract(
+        creation: ObjectCreationExpr,
+        args: List<SExpr>,
+        obj: SExpr,
+        guard: SExpr,
+        mode: Mode,
+        ctor: ConstructorDeclaration,
+    ) {
+        JMLUtils.unroll(ctor.contracts)
+        val cases = ctor.contracts.toList()
+        if (cases.isEmpty()) return
+
+        /** The callee view of the creation: current state + params + the fresh `this`. */
+        fun ctorView(): HashMap<String, SExpr> {
+            val m = HashMap(env)
+            // drop the enclosing method's own `this.*` flat slots so the clauses'
+            // field reads refer to the constructed object
+            m.keys.removeAll { it.startsWith("this.") }
+            m["this"] = obj
+            // expose the constructed object's fields: every scalar/object field of
+            // the constructor's class reads as `select(map, obj)` in the contract
+            // clauses. The maps are declared eagerly, so the clauses' reads and the
+            // caller's post-construction reads share the same select terms
+            // regardless of translation order (a bare/`this.` field otherwise falls
+            // back to the flat-`this` slot of the *enclosing* method, or to an
+            // unknown constant).
+            val cls = ctor.findAncestor(ClassOrInterfaceDeclaration::class.java).orElse(null)
+            if (cls != null) {
+                for (fd in cls.fields) {
+                    if (fd.isStatic) continue
+                    for (v in fd.variables) {
+                        val fname = v.nameAsString
+                        val sType = try {
+                            envTypes["this.$fname"] ?: safeType(resolveType(v.type))
+                        } catch (e: Exception) {
+                            continue
+                        }
+                        if (sType is SmtType.Array) continue
+                        val mkey = fieldMapKey(fname, sType)
+                        if (env[mkey] == null) declareFieldMap(mkey, sType)
+                        val mv = env[mkey] ?: continue
+                        m["this.$fname"] = term.select(sType, null, mv, obj)
+                    }
+                }
+            }
+            ctor.parameters.forEachIndexed { i, p ->
+                if (i < args.size) m[p.nameAsString] = args[i]
+            }
+            return m
+        }
+
+        // (a) precondition against the pre-state: the caller must establish the
+        // disjunction of the per-case requires (at least one spec case applies).
+        val trPre = translatorOf(envOverride = ctorView())
+        val caseRequires = cases.map { c -> clauseExprs(c, REQUIRES).map { trPre.tr(it) } }
+        val forcedCases = cases.filterIndexed { i, _ -> caseRequires[i].isNotEmpty() }
+        if (cases.isNotEmpty() && forcedCases.size == cases.size) {
+            val disjunction = caseRequires
+                .map { r -> r.reduce { a, b -> term.and(a, b) } }
+                .reduce { a, b -> term.or(a, b) }
+            addObligation(
+                "precondition",
+                "precondition of constructor ${describe(creation)}",
+                term.impl(guard, disjunction),
+                mode,
+                creation
+            )
+        }
+        // (b) havoc the assignable locations (union over all cases). The fresh
+        // object's own state (`this.f`, bare fields) is already unconstrained, so
+        // only *aliasable* caller-visible state named in the assignable clauses is
+        // refreshed. No assignable clause / `\everything` (the JML default) means the
+        // constructor may touch anything reachable — mirror contractCall.
+        val assignable = cases.flatMap { clauseExprs(it, ASSIGNABLE) }
+        if (assignable.isEmpty() || assignable.any { it.toString().contains("everything") }) {
+            for (key in env.keys.toList()) {
+                if (key.startsWith("this.") || envTypes[key] is SmtType.Array || isFieldMapKey(key)) {
+                    havocCallerKey(key, mode = mode)
+                }
+            }
+        } else {
+            for (loc in assignable) {
+                if (loc.toString().contains("nothing")) continue
+                havocCtorLocation(loc, ctor, mode)
+            }
+        }
+        // (c) assume each case's ensures (same pre-state-requires guard discipline as
+        // contractCall), then the constructed class's invariant, which a valid
+        // constructor contract guarantees and its verification re-establishes.
+        val trPost = translatorOf(envOverride = ctorView())
+        for ((i, c) in cases.withIndex()) {
+            val posts = clauseExprs(c, ENSURES)
+            if (posts.isEmpty()) continue
+            val post = posts.map { trPost.tr(it) }.reduce { a, b -> term.and(a, b) }
+            val req = caseRequires[i]
+            val assume = if (req.isEmpty()) {
+                post
+            } else {
+                term.impl(req.reduce { a, b -> term.and(a, b) }, post)
+            }
+            emit(mode, guard, assume)
+        }
+        invariantForTerm(obj, creation, isStatic = false)?.let { emit(mode, guard, it) }
+    }
+
+    /**
+     * Havocs one assignable *location* of a constructor contract in the caller's
+     * environment. `this.f`-style locations denote the fresh object's own state and
+     * are already unconstrained; only aliasable caller-visible state is refreshed —
+     * a named receiver field (`o.f`) through its map entry, an array slot through a
+     * fresh version, a scalar parameter through a fresh constant.
+     */
+    private fun havocCtorLocation(loc: Expression, ctor: ConstructorDeclaration, mode: Mode) {
+        when (loc) {
+            is NameExpr -> {
+                // a bare field of the constructed class is fresh-object state; a
+                // parameter name is the caller's argument (by-reference for objects)
+                val cls = ctor.findAncestor(ClassOrInterfaceDeclaration::class.java).orElse(null)
+                val isCtorField = cls?.fields?.any { f ->
+                    f.variables.any { it.nameAsString == loc.nameAsString }
+                } == true
+                if (isCtorField) return
+                havocCallerKey(loc.nameAsString, mode = mode)
+            }
+
+            is FieldAccessExpr -> {
+                val key = try {
+                    Normalizer().key(loc)
+                } catch (ex: Exception) {
+                    return
+                }
+                // `this.f` and bare fields of the constructed class are fresh state
+                if (key.startsWith("this.")) return
+                val recvName = key.substringBeforeLast('.')
+                val fieldName = key.substringAfterLast('.')
+                val recv = env[recvName]
+                val sType = if (recv != null) {
+                    try {
+                        fieldSelectorType(recv, recvName, fieldName).second
+                    } catch (ex: Exception) {
+                        null
+                    }
+                } else {
+                    null
+                }
+                if (sType is SmtType.Array) {
+                    havocCallerKey(key, mode = mode)
+                    return
+                }
+                if (recv != null && recv.smtType === SmtType.JAVA_OBJECT &&
+                    sType != null && env.containsKey(fieldMapKey(fieldName, sType))
+                ) {
+                    val fresh = freshTemp(sType, null)
+                    fieldMapStore(fieldName, sType, recv, fresh, term.makeTrue(), mode)
+                }
+            }
+
+            is ArrayAccessExpr -> {
+                val key = try {
+                    localKey(Normalizer().key(loc.name))
+                } catch (ex: Exception) {
+                    return
+                }
+                havocCallerKey(key, mode = mode)
+            }
+
+            else -> {}
+        }
+    }
+
+    /** Havocs one caller-environment key by declaring a fresh constant; `this.f`
+     *  field keys also refresh the identity-keyed map entry for [receiver]
+     *  (defaults to the caller's `this`), so subsequent map reads observe the new
+     *  value. Mirrors the caller-state half of `contractCall`'s local rule. */
+    private fun havocCallerKey(locKey: String, receiver: SExpr? = null, mode: Mode = Mode.Real) {
+        if (locKey.startsWith("this.") && !isFieldMapKey(locKey)) {
+            val fieldName = locKey.substringAfterLast('.')
+            val recv = receiver ?: env["this"]
+            if (recv != null && recv.smtType === SmtType.JAVA_OBJECT) {
+                val sType = try {
+                    fieldSelectorType(recv, "this", fieldName).second
+                } catch (e: Exception) {
+                    null
+                }
+                if (sType != null && sType !is SmtType.Array && env.containsKey(fieldMapKey(fieldName, sType))) {
+                    val fresh = freshTemp(sType, null)
+                    fieldMapStore(fieldName, sType, recv, fresh, term.makeTrue(), mode)
+                }
+            }
+        }
+        val type = envTypes[locKey] ?: return
+        declareHavocConst(locKey, type)
+    }
+
+    /** Inline the callee body; the result is the callee's return value. After the body
      * has run in a private copy of the environment, the callee's effects on *aliased*
      * mutable state are propagated back to the caller: field writes (`this.f`, `o.f`,
      * and receiver fields for `o.m(...)` calls, remapped to the receiver's keys) and

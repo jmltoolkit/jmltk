@@ -99,6 +99,12 @@ class VcgGoldenQueriesTest {
             arrayOf("byteCompoundAssign", "B", "BOUNDED"),
             arrayOf("charArith", "B", "BOUNDED"),
             arrayOf("mixedIntByte", "B", "BOUNDED"),
+            // constructor contracts at creation sites (P2.1): the construction
+            // asserts the ctor's requires, assumes its ensures + the class
+            // invariant, and the later `get()` contract call reads through the
+            // same identity-keyed field map
+            arrayOf("useCountedCtor", "U_CONTRACT", "UNBOUNDED_contract"),
+            arrayOf("ctorInvariantUsable", "U", "UNBOUNDED"),
         ).map { Triple(it[0], it[1], it[2]) }
 
     private fun options(tag: String): VcgOptions = when (tag) {

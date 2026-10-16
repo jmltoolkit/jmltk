@@ -234,10 +234,11 @@ Steps (per earlier sketch): pre-call receiver/`this` invariant **check**, post-c
 Tests: break invariant mid-method before a call → must fail; KeY binary-search stays green.
 Effort: medium. Impact: high (largest semantic decision).
 
-### P4.2 Array nullability model
-Where: array value-map model (`Vcg.kt`, 883–899, 1987–2007).
-Steps: design decision — (a) distinguished `null` array constant + explicit null checks, (b) nullable reference encoding, or (c) keep never-null as a documented approximation. Only commit to (a)/(b) after a test spike showing the impact on the 125-case suite.
-Effort: high. Impact: medium.
+### P4.2 Array nullability model  ✅ DONE
+Where: array value-map model (`Vcg.kt`), `ExprTranslator` array folding, fixtures/goldens.
+Decision (spike measured first: 14 of 260 suite cases failed, all reconciled): **arrays behave like ordinary references.** Reference nullability is driven by the JML modifiers exactly as for objects — `non_null` opts a location out of being `null`; element nullability is the store obligation (elements non-null by default; `nonnullelements` is the explicit statement of that default; a `nullable` element store is the binding tell that cannot be expressed, so it stays a documented deviation).
+Encoding chosen: per-sort null-array constant `$null_array_<tag>` (declared lazily), real `(= arr $null_array_<tag>)` for `arr == null`, deref nullchecks on `a[i]` / `a.length` / element stores, `new T[n]` asserted non-null, `non_null` locations fold + entry assumptions (params = implicit requires; fields = type invariant, asserted at entry, not in constructors; locals = store obligations), element-store obligations `e != null` (reads stay unconstrained — documented deviation: folding reads would break fresh-array elements). Object element sorts now print `U` (the declared reference sort, not the never-declared `Object` placeholder) and array lengths use per-sort `bv$length_<tag>`/`int$length_<tag>` functions (SMT-LIB forbids overloading); alias frames only apply to same-sort arrays (Java forbids mixed-sort identity). Anonymous array constants use a per-verification counter so queries are reproducible.
+Tests: 8 proven + 2 falsifiable fixtures, `NonNullHolder` (`non_null int[]` field) case, 6 new goldens; suite grew 260 → 277 semantics cases, all green; whole-project compile + spotless green.
 
 ### P4.3 Strings
 Where: `stringLengthOf`, `stringIndexChecker`, `isStringLike`.
@@ -254,4 +255,4 @@ Effort: high.
 - P2.1: reject unresolvable constructors (P1.3 mirror) or keep the fresh-object approximation? **Decided (P2.1): keep the fresh-object approximation** — unrefined construction is a sound over-approximation, and reads on such objects are already guarded by P1.3 (deviation documented in the P2.1 section).
 - P2.2: which entry bindings are sound? **Decided (P2.2): bind only where every legal execution reaches the entry state with the constant** — `static final` everywhere, constant instance initializers in constructors (initializer-before-body), `final` instance constants in methods; mutable static and mutable instance fields are never bound (documented in the P2.2 section).
 - P3.3: which runtime checks on by default? **Decided (P3.3): the six exception checks, `checkOverflow` opt-in, `--checks=all|none|default`.**
-- P4.2: "arrays never-null" acceptable as a documented approximation, or must it be fixed?
+- P4.2: "arrays never-null" acceptable as a documented approximation, or must it be fixed? **Decided (P4.2): fixed — arrays are ordinary (nullable-by-default) references;** `non_null` opts out, elements are non-null-by-default stores, `nonnullelements` states the default, and a `nullable`-elements modifier set is out of scope (grammar has no such keyword).

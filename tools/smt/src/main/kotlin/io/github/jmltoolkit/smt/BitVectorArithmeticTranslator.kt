@@ -93,6 +93,7 @@ open class BitVectorArithmeticTranslator(val smtLog: SmtQuery) : ArithmeticTrans
             // JLS 15.15.1/15.15.2/15.15.4: unary plus/minus and the pre-increment/
             // decrement in expression position promote byte/short/char to int.
             UnaryExpr.Operator.MINUS, PREFIX_INCREMENT, PREFIX_DECREMENT -> widenTo(accept, 32)
+
             else -> accept
         }
         return when (operator) {

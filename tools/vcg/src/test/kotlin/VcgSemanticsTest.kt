@@ -280,6 +280,19 @@ class VcgSemanticsTest {
             Arguments.of("arrayStoreInLoop", u.copy(defaultUnrollDepth = 4)),
             Arguments.of("arrayNullInStmt2", u),
             Arguments.of("arrayNullInStmt2", b),
+            // P4.2: arrays are ordinary (nullable) references
+            Arguments.of("nullableArrayBranch", u),
+            Arguments.of("nullableArrayBranch", b),
+            Arguments.of("nullableArrayGuard", u),
+            Arguments.of("nullableArrayGuard", b),
+            Arguments.of("nonNullParamArray", u),
+            Arguments.of("nonNullParamArray", b),
+            Arguments.of("freshArrayNonNull", u),
+            Arguments.of("freshArrayNonNull", b),
+            Arguments.of("storeNonNullElement", u),
+            Arguments.of("storeNonNullElement", b),
+            Arguments.of("storeElemNonNullElements", u),
+            Arguments.of("storeElemNonNullElements", b),
             // runtime-checks parity: subtraction overflow, remainder division
             Arguments.of("boundedSub", b.copy(checkOverflow = true)),
             Arguments.of("boundedRem", b.copy(checkDivision = true)),
@@ -401,6 +414,13 @@ class VcgSemanticsTest {
             Arguments.of("twoCaseAbsWrong", b),
             Arguments.of("unreachableGap", u),
             Arguments.of("unreachableGap", b),
+            // P4.2: dereferencing a (possibly) null array without a guarantee is a
+            // nullcheck violation; storing null into an object array violates the
+            // element non-null-by-default obligation
+            Arguments.of("derefNullableArray", u),
+            Arguments.of("derefNullableArray", b),
+            Arguments.of("storeNullElementFalsifiable", u),
+            Arguments.of("storeNullElementFalsifiable", b),
         )
 
         /** P3.2: fixture method + the message fragment its diagnostic must carry. */
@@ -503,7 +523,8 @@ class VcgSemanticsTest {
     fun testEnumVerificationRejected() {
         // P3.2: an enum member has no ordinal/constant model; verifying it is
         // rejected up front with a structured diagnostic
-        val en = cu.types.last().asEnumDeclaration()
+        val en =
+            cu.types.first { it.isEnumDeclaration && it.asEnumDeclaration().nameAsString == "Color" }.asEnumDeclaration()
         val md = en.methods.first { it.nameAsString == "rgb" }
         val ex = assertThrows(UnsupportedFeatureException::class.java) {
             Vcg(VcgContext.of(md), u).verify()
@@ -716,6 +737,24 @@ class VcgSemanticsTest {
         val resB = vcgFor("newArrayNeg", b.copy(checkNegativeArraySize = true))
         assertTrue(resB.conditions.any { it.kind == "negative-array-size" })
         expectAllProven(resB)
+    }
+
+    @Test
+    fun testNonNullArrayFieldAssumedAtEntry() {
+        // P4.2: a `non_null`-declared array field is the type invariant — assumed
+        // at (non-constructor) method entry, so the field derefs skip nullchecks
+        // and the element store proves against the explicit length bound. The
+        // entry state must carry `this.data != $null_array_...`.
+        val res = vcgForIn("storeNonNullField", 8, u)
+        assertTrue(
+            res.query.toString().contains("\$null_array_"),
+            "expected the per-sort null-array constant in the query"
+        )
+        assertTrue(
+            res.conditions.none { it.kind == "nullcheck" },
+            "a non_null field derefs skip nullchecks: " + res.conditions.map { it.kind }
+        )
+        expectAllProven(res)
     }
 
     @Test

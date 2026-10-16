@@ -109,6 +109,16 @@ class VcgGoldenQueriesTest {
             // entry-state equalities (`(= P22_TWO_BLOCKS 2048)`) instead of
             // unconstrained slots
             arrayOf("p22StaticFinalBlocks", "U", "UNBOUNDED"),
+            // P4.2: arrays are ordinary (nullable) references — real
+            // `!= $null_array_<sort>` null comparisons, per-sort array-length
+            // functions, element-store non-null obligations, and deref-nullcheck
+            // violations for unguaranteed arrays
+            arrayOf("nullableArrayBranch", "U", "UNBOUNDED"),
+            arrayOf("nullableArrayBranch", "B", "BOUNDED"),
+            arrayOf("nonNullParamArray", "U", "UNBOUNDED"),
+            arrayOf("freshArrayNonNull", "U", "UNBOUNDED"),
+            arrayOf("storeNonNullElement", "U", "UNBOUNDED"),
+            arrayOf("derefNullableArray", "U", "UNBOUNDED"),
         ).map { Triple(it[0], it[1], it[2]) }
 
     private fun options(tag: String): VcgOptions = when (tag) {

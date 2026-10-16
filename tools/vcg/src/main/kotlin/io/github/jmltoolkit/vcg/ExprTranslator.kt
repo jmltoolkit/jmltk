@@ -37,6 +37,7 @@ import io.github.jmltoolkit.smt.SmtQuery
 import io.github.jmltoolkit.smt.SmtTermFactory
 import io.github.jmltoolkit.smt.SmtTermFactory.equality
 import io.github.jmltoolkit.smt.model.SAtom
+import java.util.concurrent.atomic.AtomicInteger
 import io.github.jmltoolkit.smt.model.SExpr
 import io.github.jmltoolkit.smt.model.SList
 import io.github.jmltoolkit.smt.model.SmtType
@@ -72,12 +73,30 @@ class ExprTranslator(
      *  the operand is not an array. Used by `==`/`!=` on arrays, which compare
      *  identities (Java semantics) rather than extensional contents. */
     val arrayRefHandler: (SExpr) -> SExpr? = { null },
+    /** Decides whether an array-typed source expression may denote `null` (P4.2):
+     *  arrays are ordinary references — nullable by default, never-null only for
+     *  `new T[...]` results and `non_null`-declared locations. When it answers
+     *  false, `arr == null` / `arr != null` fold to constant false/true. */
+    val arrayMayBeNull: (Expression) -> Boolean = { true },
+    /** Maps an array term to the per-sort `$null_array_<sort>` constant (declared
+     *  lazily in the query); `null` falls back to the legacy never-null folding. */
+    val arrayNullTerm: (SExpr) -> SExpr? = { null },
+    /** Length term of an array value: `bv$length`/`int$length` for int arrays, the
+     *  per-sort `_<tag>` variant for other element sorts (whose signature differs
+     *  and cannot reuse the int-array function). */
+    val arrayLengthHandler: (SExpr) -> SExpr = { arr -> translator.arrayLength(arr) },
     /** expands a `\invariant_for(..)` / `\static_invariant_for(..)` expression:
      *  given the translated receiver term (null for type-level arguments such as a
      *  `ClassExpr`), the receiver's source expression, and the static flag, returns
      *  the folded class-invariant term; `null` falls back to ordinary method-call
      *  handling. */
     val invariantForHandler: (receiver: SExpr?, receiverExpr: Expression, isStatic: Boolean) -> SExpr? = { _, _, _ -> null },
+    /** Counter for fresh `anon_array_` constants. Names only need to be unique
+     *  within one generated query, so a *per-verification* counter (starting at 0)
+     *  makes queries reproducible; the VCG passes one instance counter to all of a
+     *  verification's translators (the main one and its `\old`/quantifier inner
+     *  ones) so anonymous array constants never collide within the query text. */
+    val anonArrayCounter: AtomicInteger = anonCnt,
 ) : GenericVisitorAdapter<SExpr, Any?>() {
     private val term = SmtTermFactory
 
@@ -86,8 +105,6 @@ class ExprTranslator(
     override fun visit(n: BinaryExpr, arg: Any?): SExpr {
         val left = n.left.accept(this, arg)!!
         val right = n.right.accept(this, arg)!!
-        // a reference comparison against an array is a sort mismatch: arrays (value
-        // maps) are never null, so `arr == null` is false and `arr != null` is true.
         if (n.operator == BinaryExpr.Operator.EQUALS || n.operator == BinaryExpr.Operator.NOT_EQUALS) {
             val arrSide =
                 if (left.smtType is SmtType.Array) {
@@ -106,6 +123,15 @@ class ExprTranslator(
                     null
                 }
             if (arrSide != null && nullSide != null) {
+                // P4.2: arrays are ordinary references — `arr == null` compares
+                // against the per-sort null-array value (arrays are nullable by
+                // default; only `non_null`-declared locations and `new T[...]`
+                // results keep the constant false/true folding).
+                val arrAst = if (arrSide === left) n.left else n.right
+                val nullArr = arrayNullTerm(arrSide)
+                if (nullArr != null && arrayMayBeNull(arrAst)) {
+                    return translator.binary(n.operator, arrSide, nullArr)
+                }
                 return if (n.operator == BinaryExpr.Operator.EQUALS) term.makeFalse() else term.makeTrue()
             }
             // `==`/`!=` on arrays is reference equality: compare identities.
@@ -211,7 +237,9 @@ class ExprTranslator(
         val inner = ExprTranslator(
             smtLog, translator, bound, oldEnv, callHandler, unknownHandler,
             fieldAccessHandler = fieldAccessHandler, arrayRefHandler = arrayRefHandler,
-            invariantForHandler = invariantForHandler
+            arrayMayBeNull = arrayMayBeNull, arrayNullTerm = arrayNullTerm,
+            arrayLengthHandler = arrayLengthHandler, invariantForHandler = invariantForHandler,
+            anonArrayCounter = anonArrayCounter
         )
         val conjuncts = { exprs: List<Expression> ->
             exprs.fold(term.makeTrue() as SExpr) { acc, e -> term.and(acc, e.accept(inner, arg)!!) }
@@ -271,7 +299,7 @@ class ExprTranslator(
     override fun visit(n: FieldAccessExpr, arg: Any?): SExpr {
         val scope = n.scope.accept(this, arg)!!
         if (n.nameAsString == "length") {
-            return translator.arrayLength(scope)
+            return arrayLengthHandler(scope)
         }
         // concrete `this.f` reads go through the this-read handler against this
         // translator's own maps (so `\old(this.f)` sees the pre-state), preferring
@@ -313,10 +341,16 @@ class ExprTranslator(
 
     /** Declares a fresh anonymous array constant of [type]; optionally binds its length. */
     fun createArray(javaType: ResolvedType?, type: SmtType, length: SExpr?): SExpr {
-        val name = "anon_array_${anonCnt.getAndIncrement()}"
+        val name = "anon_array_${anonArrayCounter.getAndIncrement()}"
         smtLog.declareConst(name, type)
         val v = term.variable(type, javaType, name)
-        if (length != null) smtLog.addAssert(equality(translator.arrayLength(v), length))
+        if (length != null) smtLog.addAssert(equality(arrayLengthHandler(v), length))
+        // P4.2: `new T[...]` never returns null (Java) — tie the fresh array to the
+        // per-sort null-array constant so `== null` and deref nullchecks on it are
+        // decided by the solver instead of staying open.
+        if (type is SmtType.Array) {
+            arrayNullTerm(v)?.let { nullArr -> smtLog.addAssert(term.not(equality(v, nullArr))) }
+        }
         return v
     }
 
@@ -328,7 +362,9 @@ class ExprTranslator(
             val inner = ExprTranslator(
                 smtLog, translator, oldEnv, oldEnv, callHandler, unknownHandler,
                 fieldAccessHandler = fieldAccessHandler, thisFieldRead = thisFieldRead,
-                arrayRefHandler = arrayRefHandler, invariantForHandler = invariantForHandler
+                arrayRefHandler = arrayRefHandler, arrayMayBeNull = arrayMayBeNull,
+                arrayNullTerm = arrayNullTerm, arrayLengthHandler = arrayLengthHandler,
+                invariantForHandler = invariantForHandler, anonArrayCounter = anonArrayCounter
             )
             return n.arguments[0].accept(inner, arg)!!
         }
@@ -362,7 +398,9 @@ class ExprTranslator(
         const val EXC = "\$exc"
         /** the thrown exception object */
         const val EXCVAL = "\$excval"
-        /** unique suffix for anonymous array constants; shared across concurrent verifications */
+        /** unique suffix for anonymous array constants. Standalone translators
+         *  (tests, legacy callers) share this counter; the VCG passes a fresh
+         *  per-verification counter instead so golden queries are reproducible. */
         private val anonCnt = java.util.concurrent.atomic.AtomicInteger()
     }
 }

@@ -381,7 +381,11 @@ object SmtTermFactory {
 
     fun boolType(): SExpr = symbol("Bool")
 
-    fun javaObjectType(): SExpr = symbol("Object")
+    // The reference universe is the `U` sort declared by the type hierarchy
+    // (`declare-sort U`); the historic `Object` placeholder was never a declared
+    // sort, so any query that printed it (e.g. an object-array element sort) was
+    // ill-formed. See Vcg.setupTypeHierarchy.
+    fun javaObjectType(): SExpr = symbol("U")
 
     fun type(type: SmtType): SExpr {
         if (type === SmtType.JAVA_OBJECT) return javaObjectType()

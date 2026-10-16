@@ -836,6 +836,59 @@ public class VcgExamples {
         return 0;
     }
 
+    // byte/short/char arithmetic runs at int precision after binary numeric
+    // promotion (JLS 5.6): a byte sum can reach 128 without wrapping at 8 bits.
+    //@ requires true;
+    //@ ensures \result == 128;
+    public int bytePlus() {
+        byte a = 127;
+        byte b = 1;
+        return a + b;
+    }
+
+    // byte multiply would wrap at 8 bits (500 mod 256 == 244) but not at the
+    // promoted int width.
+    //@ requires true;
+    //@ ensures \result == 500;
+    public int byteMultiply() {
+        byte a = 100;
+        byte b = 5;
+        return a * b;
+    }
+
+    // compound assignment truncates the int result back to byte: 10 + 300 == 310
+    // wraps to 54 on the store (JLS 5.1.3).
+    //@ requires true;
+    //@ ensures \result == 54;
+    public int byteCompoundAssign() {
+        byte b = 10;
+        b += 300;
+        return b;
+    }
+
+    // the explicit cast wraps (300 -> 44), and the promoted sum is then 45.
+    //@ requires true;
+    //@ ensures \result == 45;
+    public int byteCastArith() {
+        return (byte) 300 + 1;
+    }
+
+    // char values are unsigned: '\uFFFF' zero-extends to 65535 when promoted.
+    //@ requires true;
+    //@ ensures \result == 65535;
+    public int charArith() {
+        return '\uFFFF' + 0;
+    }
+
+    // a byte variable mixed with int literals arithmetic is well-sorted and
+    // correct after promotion.
+    //@ requires x >= 0 && x <= 127;
+    //@ ensures \result == x + 300;
+    public int mixedIntByte(int x) {
+        byte b = 100;
+        return b + x + 200;
+    }
+
     //@ requires true;
     //@ ensures \result == 0;
     public int newObject(int x) {

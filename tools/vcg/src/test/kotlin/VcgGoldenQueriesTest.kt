@@ -94,6 +94,11 @@ class VcgGoldenQueriesTest {
             arrayOf("twoCaseAbs", "B", "BOUNDED"),
             arrayOf("callTwoCaseAbs", "U_CONTRACT", "UNBOUNDED_contract"),
             arrayOf("unreachableGap", "U", "UNBOUNDED"),
+            // binary numeric promotion (P1.2): sign/zero-extension, truncation on store
+            arrayOf("bytePlus", "B", "BOUNDED"),
+            arrayOf("byteCompoundAssign", "B", "BOUNDED"),
+            arrayOf("charArith", "B", "BOUNDED"),
+            arrayOf("mixedIntByte", "B", "BOUNDED"),
         ).map { Triple(it[0], it[1], it[2]) }
 
     private fun options(tag: String): VcgOptions = when (tag) {

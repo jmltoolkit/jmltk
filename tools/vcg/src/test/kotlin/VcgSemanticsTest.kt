@@ -283,6 +283,14 @@ class VcgSemanticsTest {
             Arguments.of("twoCaseAbs", b),
             Arguments.of("callTwoCaseAbs", u),
             Arguments.of("callTwoCaseAbs", b),
+            // binary numeric promotion (P1.2): byte/short/char widen to int before
+            // arithmetic, stores/casts truncate back (BOUNDED mode)
+            Arguments.of("bytePlus", b),
+            Arguments.of("byteMultiply", b),
+            Arguments.of("byteCompoundAssign", b),
+            Arguments.of("byteCastArith", b),
+            Arguments.of("charArith", b),
+            Arguments.of("mixedIntByte", b),
             // switches: matching, fall-through, break scoping, in a loop, continue
             Arguments.of("switchBasic", u),
             Arguments.of("switchBasic", b),

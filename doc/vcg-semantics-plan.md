@@ -39,14 +39,54 @@ Effort: small. Impact: turns silent unsoundness into a loud diagnostic (or a bou
 
 ## Phase 2 — Completeness (fails to prove things it should)
 
-### P2.1 Constructor contracts at creation sites
-Where: `ObjectCreationExpr` branch (`Vcg.kt`, ~2051); reuse `contractCall` (`Vcg.kt`, 2417).
-Steps:
-1. Resolve the constructor declaration (mirror `handleCall`); P1.3 policy if unresolvable.
-2. Fresh `this` term; assert `requires` (guarded), havoc assignable (`this.f`, arrays), assume `ensures` + established invariant (fold like `checkPostcondition`, 532–537).
-3. Reuse `calleeView`/`bindReceiver` with the fresh object as `this`.
-Tests: `new Counter(5)`; constructor `requires` failure at the creation site; constructor-established invariant usable by caller.
-Effort: medium (mostly reuse). Impact: medium-high.
+### P2.1 Constructor contracts at creation sites — DONE
+Where: `ObjectCreationExpr` branch (`Vcg.kt`, ~2174), `constructorContract`/`findConstructor`/`havocCtorLocation`/`havocCallerKey` (`Vcg.kt`, 2822–3055).
+What was implemented:
+- `new T(...)` is now a *contract call site* when the constructor is in the
+  verification CU and carries a JML contract (`findConstructor` prefers
+  `creation.resolve().toAst()`, falls back to a same-CU search by resolved
+  qualified name + arity).
+- The callee view binds `this` to the fresh object and exposes every
+  non-static scalar/object field of the constructed class as
+  `select(field-map, fresh)`; the field maps are *declared eagerly* so the
+  clause reads and the caller's post-construction reads share the same select
+  terms regardless of translation order (a bare/`this.f` read must not fall
+  back to the enclosing method's flat `this.f` slot).
+- Creation site semantics (mirrors `contractCall`): the caller must establish
+  the *disjunction* of the per-case `requires` (obligation); the per-case
+  `ensures` are assumed guarded by their own pre-state `requires`; and the
+  constructed class's invariant is assumed (`invariant_for(fresh)` — a valid
+  constructor contract establishes it, exactly as `checkPostcondition` folds it
+  into the constructor's own verification).
+- Assignable: the fresh object's own state (`this.f`, bare fields) is already
+  unconstrained, so only *aliasable* caller-visible state named in the union of
+  the assignable clauses is refreshed (receiver fields via their map entries,
+  array slots via fresh versions, scalar params via fresh constants). No
+  assignable / `\everything` (the JML default) refreshes the reachable frame —
+  tested fixtures carry explicit assignables.
+- **Documented deviation from the original sketch (step 1, "P1.3 policy if
+  unresolvable")**: unresolvable constructors (library classes such as
+  `new Object()`/`new ArrayList<>()`, implicit default constructors, contrary
+  in-CU constructors) are **not** rejected — they keep the fresh-object model
+  with unconstrained fields. Rationale: rejecting would break construction of
+  every library/plain class, and unlike an unrefined *call* (an uninterpreted
+  result value whose side effects are unseen), an unrefined *construction*
+  yields a fresh object with unconstrained fields — a sound over-approximation;
+  any later method call on it is already guarded by P1.3. This mirrors the
+  P1.3 carve-out that contractless-with-body callees keep the old (havoc)
+  behavior.
+- Also fixed along the way: locals now carry their resolved declared type as
+  meta-information on the SSA term (`flatWrite`), so `bindReceiver` can expose
+  the fields of a *local receiver* (`o.m()` with `o` a local) — previously the
+  callee-view field reads fell back to an uninterpreted constant, a latent gap
+  that only surfaces now that local receivers hit contract calls.
+Tests: `useCountedCtor` (proves in both U and BOUNDED — `new Counted(5)` then
+`c.get()` reads count through the same field map); `ctorRequiresViolated`
+(falsifiable "precondition of constructor" obligation at the creation site);
+`ctorInvariantUsable` (assert `c.count >= 0` discharges only through the
+assumed class invariant, since the tested constructor pins nothing via
+ensures). Golden guardrails: `useCountedCtor__U_CONTRACT`, `ctorInvariantUsable__U`.
+Effort: medium. Impact: medium-high.
 
 ### P2.2 Field/static-final initializers (partial)
 Where: `setupContext` (`Vcg.kt`, 336+) / field declarations in `VcgFacade`.
@@ -97,7 +137,7 @@ gained only the new default-on obligations plus obligation-id renumbering.
 
 ### P4.1 Visible-state class invariants
 Where: `contractCall` (pre/post call), `inlineCall`, `isHelperDecl`.
-Steps (per earlier sketch): pre-call receiver/`this` invariant **check**, post-call **assume** (minimal sound variant); skip `\helper` callees; extend `needsEarlyReceiver` to share receiver evaluation; constructor call sites assume established invariant (ties into P2.1).
+Steps (per earlier sketch): pre-call receiver/`this` invariant **check**, post-call **assume** (minimal sound variant); skip `\helper` callees; extend `needsEarlyReceiver` to share receiver evaluation. (Constructor call sites already assume the constructed class's invariant qua P2.1.)
 Tests: break invariant mid-method before a call → must fail; KeY binary-search stays green.
 Effort: medium. Impact: high (largest semantic decision).
 
@@ -118,5 +158,6 @@ Effort: high.
 
 ## Open decisions
 - P1.3: reject-by-default or `--allow-unrefined` best-effort? **Decided (P1.3): reject-by-default, opt-in `--allow-unrefined-calls`.**
+- P2.1: reject unresolvable constructors (P1.3 mirror) or keep the fresh-object approximation? **Decided (P2.1): keep the fresh-object approximation** — unrefined construction is a sound over-approximation, and reads on such objects are already guarded by P1.3 (deviation documented in the P2.1 section).
 - P3.3: which runtime checks on by default? **Decided (P3.3): the six exception checks, `checkOverflow` opt-in, `--checks=all|none|default`.**
 - P4.2: "arrays never-null" acceptable as a documented approximation, or must it be fixed?

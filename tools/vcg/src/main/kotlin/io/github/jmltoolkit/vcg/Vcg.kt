@@ -1884,6 +1884,22 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         val brkMain = flag(ExprTranslator.BREAK + loopId)
         emit(mode, g, invMain)
         emit(mode, g, term.not(condMain))
+        // A normal exit from the loop means its body was completed without
+        // returning, breaking, or continuing: the method's `$ret` and the loop's
+        // `$break`/`$continue` flags were just havoced, and if they stay
+        // unconstrained the solver may treat the loop as "returned" with `$result`
+        // still at its pre-loop value — silently disabling the code after the loop
+        // and producing spurious postcondition failures (cf. a `return` inside the
+        // loop followed by a post-loop `return -1`).
+        emit(mode, g, term.not(flag(ExprTranslator.RET)))
+        emit(mode, g, term.not(flag(ExprTranslator.CONTINUE + loopId)))
+        if (strategy == LoopStrategy.LOOP_CONTRACT) {
+            // under the loop contract a `break` is a second, legitimate exit: the
+            // fall-through branch is the one on which no break occurred
+            emit(mode, term.and(g, term.not(condMain)), term.not(brkMain))
+        } else {
+            emit(mode, g, term.not(brkMain))
+        }
         if (strategy == LoopStrategy.LOOP_CONTRACT && breaks.isNotEmpty()) {
             for (b in breaks) {
                 emit(mode, term.and(g, brkMain), translatorOf().tr(b))
@@ -2085,7 +2101,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 )
             }
             translatorOf().createArray(
-                e.calculateResolvedType(), translator.getType(e.calculateResolvedType()), dimTerm
+                tryExprType(e), arraySmtType(e), dimTerm
             )
         }
 
@@ -2229,6 +2245,32 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         e.calculateResolvedType()
     } catch (ex: Exception) {
         null
+    }
+
+    /** The SMT array type of a `new T[..]` when the expression's resolved type is
+     *  unavailable (the node is a detached copy, e.g. from a re-parented parsed
+     *  fragment). Mirrors `translator.getType` on the array's resolved type. */
+    private fun arraySmtType(e: ArrayCreationExpr): SmtType {
+        val t = e.elementType
+        val element = when {
+            !t.isPrimitiveType -> SmtType.JAVA_OBJECT
+            t.asString() == "boolean" -> SmtType.BOOL
+            t.asString() == "float" || t.asString() == "double" ->
+                if (options.mode == VerificationMode.BOUNDED) {
+                    if (t.asString() == "float") SmtType.FP32 else SmtType.FP64
+                } else {
+                    SmtType.REAL
+                }
+            options.mode != VerificationMode.BOUNDED -> SmtType.INT
+            else -> when (t.asString()) {
+                "byte" -> SmtType.BV8
+                "short" -> SmtType.BV16
+                "char" -> SmtType.BV16
+                "long" -> SmtType.BV64
+                else -> SmtType.BV32
+            }
+        }
+        return SmtType.Array(SmtType.INT, element)
     }
     //endregion
 

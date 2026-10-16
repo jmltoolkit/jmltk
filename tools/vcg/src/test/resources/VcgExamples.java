@@ -16,6 +16,22 @@ public class VcgExamples {
         return x + 1;
     }
 
+    // regression: when a loop is handled via its invariant, the return/break/continue
+    // flags are havoced on the loop-exit path; they must be tied to "the body did
+    // not return" — otherwise the post-loop `return -1` is treated as optional and
+    // `\result` stays at its pre-loop value (`ensures \result == -1` → falsifiable)
+    //@ requires n >= 0;
+    //@ ensures \result == -1;
+    public int loopNoReturn(int n) {
+        int i = 0;
+        //@ maintaining 0 <= i && i <= n;
+        //@ decreasing n - i;
+        while (i < n) {
+            i = i + 1;
+        }
+        return -1;
+    }
+
     //@ requires n >= 0 && n <= 5;
     //@ ensures \result >= 0;
     public int sumBounded(int n) {
@@ -171,6 +187,35 @@ public class VcgExamples {
                 hi = mid - 1;
             }
         }
+        return -1;
+    }
+
+    // KeY's classic binary search (key.core.testgen/.../BinarySearch.java), verified
+    // through the loop's invariant: a `return` inside the loop body plus post-loop
+    // `return -1` is the exact shape that exposed the loop-exit return-flag bug
+    //@ requires (\forall int x; (\forall int y; 0 <= x && x < y && y < a.length; a[x] <= a[y]));
+    //@ ensures ((\exists int x; 0 <= x && x < a.length; a[x] == v) ? a[\result] == v : \result == -1);
+    static int binarySearchInv(int[] a, int v) {
+        int l = 0;
+        int r = a.length - 1;
+        if (a.length == 0) return -1;
+        if (a.length == 1) return a[0] == v ? 0 : -1;
+        //@ maintaining 0 <= l && l < r && r < a.length
+        //@           && (\forall int x; 0 <= x && x < l; a[x] < v)
+        //@           && (\forall int x; r < x && x < a.length; v < a[x]);
+        //@ decreasing r - l;
+        while (r > l + 1) {
+            int mid = (l + r) / 2;
+            if (a[mid] == v) {
+                return mid;
+            } else if (a[mid] > v) {
+                r = mid;
+            } else {
+                l = mid;
+            }
+        }
+        if (a[l] == v) return l;
+        if (a[r] == v) return r;
         return -1;
     }
 

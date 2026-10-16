@@ -89,19 +89,33 @@ class VcgGoldenQueriesTest {
             arrayOf("callAssignableField", "U_CONTRACT", "UNBOUNDED_contract"),
             arrayOf("callInlineMixedArgs", "U_INLINE", "UNBOUNDED_inline"),
             arrayOf("callBumpEverything", "U_CONTRACT", "UNBOUNDED_contract"),
+            // multiple spec cases (P1.1): disjunctive requires/ensures semantics
+            arrayOf("twoCaseAbs", "U", "UNBOUNDED"),
+            arrayOf("twoCaseAbs", "B", "BOUNDED"),
+            arrayOf("callTwoCaseAbs", "U_CONTRACT", "UNBOUNDED_contract"),
+            arrayOf("unreachableGap", "U", "UNBOUNDED"),
         ).map { Triple(it[0], it[1], it[2]) }
 
     private fun options(tag: String): VcgOptions = when (tag) {
         "U" -> VcgOptions(mode = VerificationMode.UNBOUNDED)
+
         "B" -> VcgOptions(mode = VerificationMode.BOUNDED)
+
         "B_OVF_DIV" ->
             VcgOptions(mode = VerificationMode.BOUNDED, checkOverflow = true, checkDivision = true)
+
         "B_IDX" -> VcgOptions(mode = VerificationMode.BOUNDED, checkIndex = true)
+
         "U_INV" -> VcgOptions(mode = VerificationMode.UNBOUNDED, defaultLoopStrategy = LoopStrategy.INVARIANT)
+
         "U_CONTRACT" -> VcgOptions(mode = VerificationMode.UNBOUNDED, defaultCallStrategy = CallStrategy.CONTRACT)
+
         "U_INLINE" -> VcgOptions(mode = VerificationMode.UNBOUNDED, defaultCallStrategy = CallStrategy.INLINE)
+
         "U_UNROLL4" -> VcgOptions(mode = VerificationMode.UNBOUNDED, defaultUnrollDepth = 4)
+
         "B_UNROLL4" -> VcgOptions(mode = VerificationMode.BOUNDED, defaultUnrollDepth = 4)
+
         else -> error("no options for tag $tag")
     }
 

@@ -96,6 +96,6 @@
 (declare-const $ret$4 Bool)
 (assert (= $ret$4 (ite (and (and true (not false)) (not false)) true false)))
 (push)
-(assert (! (not (=> (and true $ret$4) (and true (>= $result$4 0)))) :named v1))
+(assert (! (not (=> (and (and true (and (and (and (and (not (= b null)) true) (>= (int$length a) 1)) (>= (select fld$int.n b) 0)) (>= (select a 0) 0))) $ret$4) (and true (>= $result$4 0)))) :named v1))
 (check-sat)
 (pop)

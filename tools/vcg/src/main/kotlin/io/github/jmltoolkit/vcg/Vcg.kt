@@ -500,9 +500,29 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         return fn
     }
 
+    /** Per-case requires terms, translated against the *entry* (pre-state)
+     *  environment in [assumeRequires] and reused as the per-case guards in
+     *  [checkPostcondition], so the guards always speak about the values that held
+     *  at method entry (never the post-body, post-havoc state). */
+    private var entryCaseRequires: List<List<SExpr>> = emptyList()
+
     private fun assumeRequires() {
-        for (e in clauseExprs(ctx.contract, REQUIRES)) {
-            query.addAssert(translatorOf(e).tr(e))
+        // Multiple spec cases are disjunctive (JML): the method is only obliged to be
+        // well-behaved when the caller picks some case, so the entry assumption is the
+        // disjunction of the per-case requires (`R_1 \/ R_2 \/ ...`); a spec case
+        // without a requires clause is `true` and makes the disjunction trivial. The
+        // per-case postcondition obligations are then guarded by their own requires
+        // (see [checkPostcondition]).
+        entryCaseRequires = ctx.contracts.map { case ->
+            clauseExprs(case, REQUIRES).map { translatorOf(it).tr(it) }
+        }
+        // a spec case without a requires clause is `true` and makes the disjunction
+        // trivial (no legal caller can violate it), so only assert when some case
+        // actually constrains the entry state.
+        val constrained = entryCaseRequires
+            .mapNotNull { r -> if (r.isEmpty()) null else r.reduce { a, b -> term.and(a, b) } }
+        if (constrained.isNotEmpty()) {
+            query.addAssert(constrained.reduce { a, b -> term.or(a, b) })
         }
         assumeClassInvariant()
     }
@@ -519,34 +539,39 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     }
 
     private fun checkPostcondition(guard: SExpr) {
-        val ensures = clauseExprs(ctx.contract, ENSURES)
-        var post = term.makeTrue()
-        var hasPost = ensures.isNotEmpty()
-        for (e in ensures) {
-            post = term.and(post, translatorOf(e).tr(e))
-        }
         // JML visible-state semantics: a non-helper instance method (like every
         // constructor, which must *establish* the invariants) preserves the class
         // invariants — `\invariant_for(this)` holds at method exit — so the folded
         // invariant joins the postcondition it must satisfy.
-        if (!isHelper && !ctx.callable.isStatic) {
-            invariantForThisTerm()?.let {
-                post = term.and(post, it)
-                hasPost = true
-            }
-        }
-        if (!hasPost) return
+        val invariant =
+            if (!isHelper && !ctx.callable.isStatic) invariantForThisTerm() else null
         val callable = ctx.callable
         val m = callable as? MethodDeclaration
         val isVoid = m == null || m.type.toString() == "void"
         val ret = flag(ExprTranslator.RET)
-        val ob =
-            if (isVoid) {
-                term.impl(guard, post)
-            } else {
-                term.impl(term.and(guard, ret), post)
+        // Multiple spec cases are verified *separately*: for case i the obligation is
+        // `guard /\ requires_i (/\ ret) ==> ensures_i`, i.e. the callee must satisfy
+        // every case whenever that case's own requires held at entry. A case without
+        // requires must always hold.
+        for ((i, case) in ctx.contracts.withIndex()) {
+            var post = term.makeTrue()
+            var hasPost = false
+            for (e in clauseExprs(case, ENSURES)) {
+                post = term.and(post, translatorOf(e).tr(e))
+                hasPost = true
             }
-        addObligation("postcondition", "postcondition", ob, Mode.Real, ctx.callable)
+            if (invariant != null) {
+                post = term.and(post, invariant)
+                hasPost = true
+            }
+            if (!hasPost) continue
+            var ante = guard
+            for (r in entryCaseRequires.getOrElse(i) { emptyList() }) {
+                ante = term.and(ante, r)
+            }
+            if (!isVoid) ante = term.and(ante, ret)
+            addObligation("postcondition", "postcondition", term.impl(ante, post), Mode.Real, callable)
+        }
     }
 
     /** `helper` methods neither assume nor preserve the class invariants. */
@@ -579,7 +604,9 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
      */
     private fun invariantForTerm(receiver: SExpr?, receiverExpr: Expression?, isStatic: Boolean): SExpr {
         val type = targetTypeForInvariant(receiver, receiverExpr) ?: return term.makeTrue()
-        val fold = InvariantFold.fold(InvariantFold.invariantsOf(type))
+        // `\static_invariant_for` folds only the static invariants: the instance
+        // clauses read `this`, which is not declared inside a static method.
+        val fold = InvariantFold.fold(InvariantFold.invariantsOf(type, staticOnly = isStatic))
         val bound =
             if (receiverExpr is ThisExpr || (receiver != null && receiver === env["this"])) {
                 null
@@ -2467,9 +2494,12 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         }
         val contracts = decl.contracts
         JMLUtils.unroll(contracts)
-        // merge all clauses of all (unrolled) contracts of the callee
-        val joint = JmlContract()
-        for (c in contracts) joint.clauses.addAll(c.clauses)
+        // The callee's spec cases stay separate (JML disjunction): each case i gives
+        // `requires_i -> ensures_i`, the caller must establish the *union* of the
+        // assignable clauses and may assume each case's ensures guarded by its own
+        // requires. Merging clauses conjunctively would demand all requires and
+        // assume all ensures — unsound for cases with distinct preconditions.
+        val cases = contracts.toList()
 
         if (!needsEarlyReceiver) {
             receiver = if (scope != null && scope !is ThisExpr && !decl.isStatic) {
@@ -2572,15 +2602,32 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             return m
         }
 
-        // (a) assert the precondition against the pre-call state
+        // (a) precondition against the pre-call state: the caller must establish the
+        // disjunction of the per-case requires (at least one spec case applies). A
+        // case without a requires clause always applies, making the disjunction `true`.
         val trPre = translatorOf(envOverride = calleeView())
-        for (pre in clauseExprs(joint, REQUIRES)) {
-            addObligation("precondition", "precondition of ${decl.nameAsString}", term.impl(guard, trPre.tr(pre)), mode)
+        val caseRequires = mutableListOf<List<SExpr>>()
+        for (c in cases) {
+            caseRequires += clauseExprs(c, REQUIRES).map { trPre.tr(it) }
         }
-        // (b) havoc the assignable locations (in the caller's environment)
-        val assignable = clauseExprs(joint, ASSIGNABLE)
+        val forcedCases = cases.filter { clauseExprs(it, REQUIRES).isNotEmpty() }
+        if (cases.isNotEmpty() && forcedCases.size == cases.size) {
+            val disjunction = caseRequires
+                .map { r -> r.reduce { a, b -> term.and(a, b) } }
+                .reduce { a, b -> term.or(a, b) }
+            addObligation(
+                "precondition",
+                "precondition of ${decl.nameAsString}",
+                term.impl(guard, disjunction),
+                mode
+            )
+        }
+        // (b) havoc the assignable locations (union over all cases, in the caller's
+        // environment).
+        val assignable = cases.flatMap { clauseExprs(it, ASSIGNABLE) }
         if (assignable.isEmpty() || assignable.any { it.toString().contains("everything") }) {
-            // \everything or no assignable clause: havoc all fields and arrays
+            // \everything in any case, or no assignable clause at all: havoc all
+            // fields and arrays.
             for (key in env.keys.toList()) {
                 if (key.startsWith("this.") || envTypes[key] is SmtType.Array || isFieldMapKey(key)) {
                     havocKey(key)
@@ -2598,10 +2645,22 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 havocKey(key)
             }
         }
-        // (c) assume the postcondition against the post-havoc state
+        // (c) assume the postcondition against the post-havoc state: for each spec
+        // case i, assume `requires_i (pre-state) -> ensures_i (post-state)`. The
+        // guard anchors on the *pre-call* values of the requires, so a case whose
+        // precondition failed before the call commits the callee to nothing.
         val trPost = translatorOf(envOverride = calleeView())
-        for (post in clauseExprs(joint, ENSURES)) {
-            emit(mode, guard, trPost.tr(post))
+        for ((i, c) in cases.withIndex()) {
+            val posts = clauseExprs(c, ENSURES)
+            if (posts.isEmpty()) continue
+            val post = posts.map { trPost.tr(it) }.reduce { a, b -> term.and(a, b) }
+            val req = caseRequires[i]
+            val assume = if (req.isEmpty()) {
+                post
+            } else {
+                term.impl(req.reduce { a, b -> term.and(a, b) }, post)
+            }
+            emit(mode, guard, assume)
         }
         return result
     }

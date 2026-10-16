@@ -66,6 +66,6 @@
 (declare-const this.val$1 (_ BitVec 32))
 (assert (= this.val$1 (ite (and (and true (not false)) (not false)) $t1 this.val)))
 (push)
-(assert (! (not (=> true (and true (= (select fld$bv32.val$1 this) ((_ int2bv 32) 9))))) :named v1))
+(assert (! (not (=> (and true (= this.val ((_ int2bv 32) 0))) (and true (= (select fld$bv32.val$1 this) ((_ int2bv 32) 9))))) :named v1))
 (check-sat)
 (pop)

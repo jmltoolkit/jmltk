@@ -69,6 +69,6 @@
 (declare-const $exc$1 Bool)
 (assert (= $exc$1 (ite (and (and (and true (not false)) (not false)) (not false)) false false)))
 (push)
-(assert (! (not (=> (and true $ret$1) (and true (= $result$1 ((_ int2bv 32) 5))))) :named v1))
+(assert (! (not (=> (and (and true true) $ret$1) (and true (= $result$1 ((_ int2bv 32) 5))))) :named v1))
 (check-sat)
 (pop)

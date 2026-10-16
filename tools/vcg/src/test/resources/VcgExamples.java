@@ -158,7 +158,7 @@ public class VcgExamples {
         }
     }
 
-    //@ requires (\forall int j; 0 <= j && j < a.length; a[j] >= 0);
+    //@ requires a != null && (\forall int j; 0 <= j && j < a.length; a[j] >= 0);
     //@ ensures \result >= 0;
     public int sumArray(int[] a) {
         int s = 0;
@@ -193,7 +193,8 @@ public class VcgExamples {
     // KeY's classic binary search (key.core.testgen/.../BinarySearch.java), verified
     // through the loop's invariant: a `return` inside the loop body plus post-loop
     // `return -1` is the exact shape that exposed the loop-exit return-flag bug
-    //@ requires (\forall int x; (\forall int y; 0 <= x && x < y && y < a.length; a[x] <= a[y]));
+    //@ requires a != null &&
+    //@     (\forall int x; (\forall int y; 0 <= x && x < y && y < a.length; a[x] <= a[y]));
     //@ ensures ((\exists int x; 0 <= x && x < a.length; a[x] == v) ? a[\result] == v : \result == -1);
     static int binarySearchInv(int[] a, int v) {
         int l = 0;
@@ -794,7 +795,7 @@ public class VcgExamples {
         a[0] = 3;
     }
 
-    //@ requires true;
+    //@ requires a != null;
     //@ ensures true;
     public void callAssignableCast(int[] a) {
         bumpCastA(a);
@@ -1646,6 +1647,79 @@ public class VcgExamples {
         y[1] = 4;
     }
 
+    // ---- P4.2: arrays are ordinary (nullable) references ------------------
+    // Unannotated array parameters/fields/locals may be null unless declared
+    // `non_null`; `arr == null`/`arr != null` are real predicates; derefs carry
+    // nullchecks; object-array elements are non-null by default (`nonnullelements`
+    // states that default explicitly). `new T[...]` results are never null.
+
+    // `a == null` is a real predicate: both branches are reachable and the
+    // specification speaks about the null path (impossible under the legacy
+    // never-null encoding — `a == null` was always false).
+    //@ ensures \result == 2 || a == null;
+    public int nullableArrayBranch(int[] a) {
+        return (a == null) ? 1 : 2;
+    }
+
+    // a deref of a (possibly) null array guarded by an explicit null test: the
+    // nullcheck on `a[0]` discharges from `a != null` on the reachable branch
+    //@ requires a == null || a.length >= 1;
+    //@ ensures \result == (a == null ? 0 : 1);
+    public int nullableArrayGuard(int[] a) {
+        if (a == null) {
+            return 0;
+        }
+        int v = a[0];
+        return 1;
+    }
+
+    // `non_null`-declared parameter: the array can never be null (the caller's
+    // implicit `requires a != null`), so it derefs without nullchecks and the
+    // comparison folds — the spec still needs the explicit length bound.
+    //@ requires a.length >= 1;
+    //@ ensures \result == a[0];
+    public int nonNullParamArray(/*@ non_null @*/ int[] a) {
+        return a[0];
+    }
+
+    // `new T[...]` never returns null (Java): the nullcheck discharges
+    //@ ensures \result == 0;
+    public int freshArrayNonNull() {
+        int[] a = new int[5];
+        //@ assert a != null;
+        return 0;
+    }
+
+    // object-array elements are non-null by default: storing a provably non-null
+    // reference passes the element-store obligation
+    //@ requires arr != null && arr.length >= 1 && b != null;
+    //@ ensures arr[0] == b;
+    public void storeNonNullElement(Box[] arr, Box b) {
+        arr[0] = b;
+    }
+
+    // `nonnullelements` states the default element nullability explicitly
+    //@ requires a != null && a.length >= 1 && b != null;
+    //@ ensures a[0] == b;
+    public void storeElemNonNullElements(/*@ nonnullelements @*/ Box[] a, Box b) {
+        a[0] = b;
+    }
+
+    // a deref of a nullable array without any guarantee: the default nullcheck
+    // obligation cannot be discharged from the (empty) state
+    //@ ensures true;
+    public void derefNullableArray(int[] a) {
+        int v = a[0];
+    }
+
+    // elements are non-null by default: storing null into an object array is
+    // rejected (the element-store obligation `b != null` is falsifiable)
+    //@ requires arr != null && arr.length >= 1;
+    //@ ensures true;
+    public void storeNullElementFalsifiable(Box[] arr) {
+        arr[0] = null;
+    }
+
     // object aliasing: `b2 = b` then a write through `b2` mutates `b.value`
     //@ requires b != null;
     //@ ensures b.value == 5;
@@ -2147,5 +2221,18 @@ enum Color {
 
     public int rgb() {
         return 3;
+    }
+}
+
+// P4.2: a `non_null`-declared array field is the type invariant — assumed at
+// method entry (not in constructors), so it derefs without nullchecks and the
+// spec still bounds the deref explicitly.
+class NonNullHolder {
+    /*@ non_null @*/ int[] data;
+
+    //@ requires data.length >= 1;
+    //@ ensures data[0] == 5;
+    public void storeNonNullField() {
+        this.data[0] = 5;
     }
 }

@@ -1810,6 +1810,59 @@ public class VcgExamples {
     public String subOk(int i, int j) {
         return "ab".substring(i, j);
     }
+
+    // ---- P2.1: constructor contracts at creation sites ----
+    // note: named Counted (not Counter), because `Counter` is already a distinct
+    // nested fixture type used by readCounter/writeReadCounter/... — a same-name
+    // nested class would confuse the type solver's lookup of `VcgExamples.Counter`
+
+    // a contracted constructor: the creation site must establish the requires,
+    // may assume the ensures, and may assume the class invariant (count >= 0)
+    // once construction finished
+    static class Counted {
+        private int count;
+
+        //@ invariant count >= 0;
+
+        //@ requires n >= 0;
+        //@ assignable this.count;
+        //@ ensures count == n;
+        public Counted(int n) {
+            this.count = n;
+        }
+
+        //@ assignable \nothing;
+        //@ ensures \result == count;
+        public int get() {
+            return count;
+        }
+    }
+
+    // `new Counted(5)` satisfies the constructor's requires; the caller may then
+    // assume `count == 5` (ensures) through the later `get()` contract call
+    //@ ensures \result == 5;
+    public int useCountedCtor() {
+        Counted c = new Counted(5);
+        return c.get();
+    }
+
+    // the constructor's requires (n >= 0) are violated at the creation site, so
+    // the precondition obligation is falsifiable
+    //@ ensures true;
+    public int ctorRequiresViolated() {
+        Counted c = new Counted(-1);
+        return c.get();
+    }
+
+    // the constructor-established invariant is usable by the caller: the contract
+    // pins nothing via ensures (count is fresh/unconstrained), so the assert only
+    // discharges through the assumed `\invariant_for(c)` (P2.1, step 2)
+    //@ ensures \result == true;
+    public boolean ctorInvariantUsable() {
+        Counted c = new Counted(3);
+        //@ assert c.count >= 0;
+        return true;
+    }
 }
 
 // ---- \invariant_for fixtures: separate top-level types so the class-level

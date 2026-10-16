@@ -228,6 +228,11 @@ class VcgSemanticsTest {
             Arguments.of("loopContractBreak", u),
             Arguments.of("callBumpBoxValue", uContract),
             Arguments.of("callBumpBoxValueInline", uInline),
+            // P2.1: constructor contracts at creation sites
+            Arguments.of("useCountedCtor", u),
+            Arguments.of("useCountedCtor", b),
+            Arguments.of("ctorInvariantUsable", u),
+            Arguments.of("ctorInvariantUsable", b),
             // corner cases: MIN/MAX literals and boundary arithmetic
             Arguments.of("intMinLiteral", u),
             Arguments.of("intMinLiteral", b),
@@ -649,6 +654,42 @@ class VcgSemanticsTest {
         expectAllProven(res)
         // the length reads must come from the stringLength function
         assertTrue(res.query.toString().contains("stringLength"), "expected a stringLength model read")
+    }
+
+    //endregion
+
+    //region constructor contracts at creation sites (P2.1)
+
+    @Test
+    fun testConstructorRequiresViolatedAtCreationSite() {
+        // `new Counter(-1)` violates the constructor's requires: the precondition
+        // obligation at the creation site is falsifiable
+        for (options in listOf(u, b)) {
+            val res = vcgFor("ctorRequiresViolated", options)
+            assertTrue(
+                res.conditions.any { it.kind == "precondition" && it.description.contains("constructor") },
+                "expected a constructor-precondition obligation: " +
+                    res.conditions.map { "${it.kind}:${it.description}" }
+            )
+            expectSomeFalsifiable(res)
+        }
+    }
+
+    @Test
+    fun testConstructorRequiresEstablishedAtCreationSite() {
+        // `new Counted(5)` discharges the requires; the ensures pins count, so the
+        // postcondition holds through the later `get()` contract call
+        expectAllProven(vcgFor("useCountedCtor", u))
+        expectAllProven(vcgFor("useCountedCtor", b))
+    }
+
+    @Test
+    fun testConstructorEstablishedInvariantUsableByCaller() {
+        // the contract pins nothing via ensures (count stays unconstrained), so the
+        // body assert only discharges through the assumed class invariant of the
+        // constructed type (P2.1 step 2)
+        expectAllProven(vcgFor("ctorInvariantUsable", u))
+        expectAllProven(vcgFor("ctorInvariantUsable", b))
     }
 
     //endregion

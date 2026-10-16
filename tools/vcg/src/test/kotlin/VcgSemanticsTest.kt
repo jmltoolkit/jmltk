@@ -402,6 +402,17 @@ class VcgSemanticsTest {
             Arguments.of("unreachableGap", u),
             Arguments.of("unreachableGap", b),
         )
+
+        /** P3.2: fixture method + the message fragment its diagnostic must carry. */
+        @JvmStatic
+        fun unsupportedConstructs(): Stream<Arguments> = Stream.of(
+            Arguments.of("lambdaUse", "lambda expressions"),
+            Arguments.of("methodRef", "method references"),
+            Arguments.of("anonClass", "anonymous classes"),
+            Arguments.of("javaAssert", "Java assert statements"),
+            Arguments.of("freshObj", "\\fresh"),
+            Arguments.of("reachObj", "\\reach"),
+        )
     }
 
     @ParameterizedTest(name = "[{index}] {0} {1}")
@@ -474,6 +485,66 @@ class VcgSemanticsTest {
             assertNotNull(ex.range, "diagnostic must carry the source range: ${ex.message}")
             assertTrue(ex.range!!.begin.line > 0, ex.message)
         }
+    }
+
+    @ParameterizedTest(name = "[{index}] {0} -> unsupported: {1}")
+    @MethodSource("unsupportedConstructs")
+    fun testUnsupportedConstructsRejected(name: String, fragment: String) {
+        // P3.2: constructs the VCG cannot model must abort generation with a
+        // structured UnsupportedFeatureException naming the construct and
+        // carrying its source range — not a generic failure or silent mis-model
+        val ex = assertThrows(UnsupportedFeatureException::class.java) { vcgFor(name, u) }
+        assertTrue(ex.message!!.contains(fragment), "unexpected message: ${ex.message}")
+        assertNotNull(ex.range, "diagnostic must carry the source range: ${ex.message}")
+        assertTrue(ex.range!!.begin.line > 0, ex.message)
+    }
+
+    @Test
+    fun testEnumVerificationRejected() {
+        // P3.2: an enum member has no ordinal/constant model; verifying it is
+        // rejected up front with a structured diagnostic
+        val en = cu.types.last().asEnumDeclaration()
+        val md = en.methods.first { it.nameAsString == "rgb" }
+        val ex = assertThrows(UnsupportedFeatureException::class.java) {
+            Vcg(VcgContext.of(md), u).verify()
+        }
+        assertTrue(ex.message!!.contains("enum"), ex.message)
+        assertTrue(ex.message!!.contains("Color"), ex.message)
+        assertNotNull(ex.range, "diagnostic must carry the source range: ${ex.message}")
+    }
+
+    @Test
+    fun testSwitchExpressionRejected() {
+        // P3.2: Java 12+ switch *expressions* are not modeled (only switch
+        // *statements* are). The fixture file parses at the default (JAVA_11)
+        // level, where a switch expression is a parse error, so probe the
+        // diagnostic on a snippet parsed at a modern language level instead.
+        val pp = JavaParser(
+            ParserConfiguration()
+                .setProcessJml(true)
+                .setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_17)
+        )
+        val r = pp.parse(
+            """
+            class WithSwitchExpr {
+                //@ ensures \result >= 0;
+                public int f(int x) {
+                    int r = switch (x) {
+                        case 1 -> 1;
+                        default -> 0;
+                    };
+                    return r;
+                }
+            }
+            """.trimIndent()
+        )
+        assertTrue(r.isSuccessful, r.problems.toString())
+        val md = r.result.get().findAll(MethodDeclaration::class.java).first()
+        val ex = assertThrows(UnsupportedFeatureException::class.java) {
+            Vcg(VcgContext.of(md), u).verify()
+        }
+        assertTrue(ex.message!!.contains("switch expressions"), ex.message)
+        assertNotNull(ex.range, "diagnostic must carry the source range: ${ex.message}")
     }
 
     @Test

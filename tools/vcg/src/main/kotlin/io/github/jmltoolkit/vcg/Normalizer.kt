@@ -189,13 +189,19 @@ class Normalizer {
 
     private fun normalizeDeclarator(v: VariableDeclarator): List<NfStmt> =
         if (v.initializer.isPresent) {
-            listOf(NfAssign(NfLocal(v.nameAsString, v.type), v.initializer.get().clone()))
+            // keep the original initializer: it stays attached to its compilation
+            // unit, so symbol resolution (e.g. `new int[a.length]`) still works
+            listOf(NfAssign(NfLocal(v.nameAsString, v.type), v.initializer.get()))
         } else {
             listOf(NfHavoc(NfLocal(v.nameAsString, v.type)))
         }
 
-    /** `x op= e` becomes `x = x op e`. */
+    /** `x op= e` becomes `x = x op e`. The plain `=` returns the value expression
+     *  itself (kept attached to its compilation unit), while a compound
+     *  assignment must clone the operands, since the synthesized `x op e` tree
+     *  re-parents them. */
     private fun normalizeAssignValue(e: AssignExpr): Expression {
+        if (e.operator == AssignExpr.Operator.ASSIGN) return e.value
         val value = e.value.clone()
         if (e.operator == AssignExpr.Operator.ASSIGN) return value
         val op = when (e.operator) {

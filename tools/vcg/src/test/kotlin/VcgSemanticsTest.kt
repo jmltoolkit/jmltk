@@ -213,6 +213,9 @@ class VcgSemanticsTest {
             Arguments.of("sumBoundedArr", b.copy(defaultUnrollDepth = 6)),
             Arguments.of("binarySearch", u.copy(defaultUnrollDepth = 4)),
             Arguments.of("binarySearch", b.copy(defaultUnrollDepth = 4)),
+            // KeY's binary search end-to-end through the loop invariant (regression: a
+            // `return` inside the loop must leave the post-loop statements enabled)
+            Arguments.of("binarySearchInv", u.copy(defaultLoopStrategy = LoopStrategy.INVARIANT)),
             Arguments.of("divideByItselfWithTry", u),
             Arguments.of("setBox", u),
             Arguments.of("sumAndMax", u),
@@ -421,6 +424,18 @@ class VcgSemanticsTest {
         // generation must reject it up front instead of emitting an ill-sorted query
         val ex = assertThrows(RuntimeException::class.java) { vcgFor("boxedIdentity", u) }
         assertTrue(ex.message!!.contains("boxed return type"), ex.message)
+    }
+
+    @Test
+    fun testLoopInvariantExitTiesReturnFlag() {
+        // regression: with the loop handled by its invariant, the havoced return
+        // flag must be tied to "the body did not return" on the exit path, so the
+        // post-loop `return -1` runs and `\result == -1` proves (before the fix the
+        // post-loop statements were skipped and `\result` stayed pre-loop → FAIL)
+        val optsU = u.copy(defaultLoopStrategy = LoopStrategy.INVARIANT)
+        val optsB = b.copy(defaultLoopStrategy = LoopStrategy.INVARIANT)
+        expectAllProven(vcgFor("loopNoReturn", optsU))
+        expectAllProven(vcgFor("loopNoReturn", optsB))
     }
 
     @Test

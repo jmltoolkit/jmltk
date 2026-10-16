@@ -138,8 +138,9 @@ class Normalizer {
 
         is JmlExpressionStmt -> normalizeJmlStmt(stmt)
 
-        else -> throw UnsupportedOperationException(
-            "Statement kind not supported by the normal form: ${stmt.javaClass.simpleName}"
+        else -> throw UnsupportedFeatureException(
+            "Statement kind not supported by the normal form: ${stmt.javaClass.simpleName}",
+            stmt.range.orElse(null)
         )
     }
 
@@ -185,8 +186,9 @@ class Normalizer {
 
             e is MethodCallExpr -> listOf(NfCall(e))
 
-            else -> throw UnsupportedOperationException(
-                "Expression statement not supported: ${e.javaClass.simpleName}"
+            else -> throw UnsupportedFeatureException(
+                "Expression statement not supported: ${e.javaClass.simpleName}",
+                stmt.range.orElse(null)
             )
         }
         return res.withOrigin(stmt)
@@ -227,16 +229,22 @@ class Normalizer {
             AssignExpr.Operator.LEFT_SHIFT -> BinaryExpr.Operator.LEFT_SHIFT
             AssignExpr.Operator.SIGNED_RIGHT_SHIFT -> BinaryExpr.Operator.SIGNED_RIGHT_SHIFT
             AssignExpr.Operator.UNSIGNED_RIGHT_SHIFT -> BinaryExpr.Operator.UNSIGNED_RIGHT_SHIFT
-            else -> throw UnsupportedOperationException("${e.operator}")
+            else -> throw UnsupportedFeatureException("${e.operator}", e.range.orElse(null))
         }
         return BinaryExpr(e.target.clone(), value, op)
     }
 
     private fun target(t: Expression): NfLocation = when (t) {
         is NameExpr -> NfLocal(t.nameAsString, null)
+
         is FieldAccessExpr -> NfField(t.scope.toString(), key(t))
+
         is ArrayAccessExpr -> NfArray(key(t.name), t.index.clone())
-        else -> throw UnsupportedOperationException("Assignment target: ${t.javaClass.simpleName}")
+
+        else -> throw UnsupportedFeatureException(
+            "Assignment target: ${t.javaClass.simpleName}",
+            t.range.orElse(null)
+        )
     }
 
     /** Stable key for a location, used to identify heap locations across versions. */

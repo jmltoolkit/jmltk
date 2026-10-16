@@ -1943,6 +1943,52 @@ public class VcgExamples {
         int[][] a = new int[n][];
         return a.length;
     }
+
+    // ---- P3.2: unsupported constructs raise a structured
+    // ---- UnsupportedFeatureException naming the construct at its source range
+
+    // lambdas are not modeled
+    public int lambdaUse(int x) {
+        java.util.function.Function<Integer, Integer> f = y -> y + 1;
+        return f.apply(x);
+    }
+
+    // method references are not modeled
+    public int methodRef() {
+        java.util.function.IntSupplier s = VcgExamples::answer;
+        return s.getAsInt();
+    }
+
+    public static int answer() {
+        return 42;
+    }
+
+    // anonymous classes are not modeled
+    public int anonClass() {
+        Runnable r = new Runnable() {
+            public void run() {
+            }
+        };
+        return 0;
+    }
+
+    // a plain Java `assert` (with or without a message) is not a JML assert
+    public int javaAssert(int x) {
+        assert x >= 0 : "negative";
+        return x;
+    }
+
+    // the JML \fresh keyword is not modeled
+    //@ ensures \fresh(\result);
+    public Object freshObj() {
+        return new Object();
+    }
+
+    // the JML \reach keyword is not modeled
+    //@ ensures \reach(\result).isEmpty();
+    public Object reachObj() {
+        return new Object();
+    }
 }
 
 // ---- \invariant_for fixtures: separate top-level types so the class-level
@@ -2090,5 +2136,16 @@ class ConstantInitCtor {
     //@ ensures \result == 0;
     public int countAfterAnyCtor() {
         return count;
+    }
+}
+
+// P3.2: verification of enum members is rejected up front — enumerations would
+// need an ordinal/constant model the VCG does not have
+enum Color {
+    RED,
+    GREEN;
+
+    public int rgb() {
+        return 3;
     }
 }

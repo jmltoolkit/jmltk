@@ -116,6 +116,7 @@ class VcgResultTest {
         val b = VcgOptions(mode = VerificationMode.BOUNDED)
         val uInline = u.copy(defaultCallStrategy = CallStrategy.INLINE)
         val uContract = u.copy(defaultCallStrategy = CallStrategy.CONTRACT)
+        val uUnrefined = u.copy(allowUnrefinedCalls = true)
 
         /** Same fixture/options rows as VcgSemanticsTest.proven(). */
         @JvmStatic
@@ -151,7 +152,7 @@ class VcgResultTest {
             Arguments.of("newObject", b),
             Arguments.of("throwNew", u),
             Arguments.of("throwNew", b),
-            Arguments.of("callUnresolved", u),
+            Arguments.of("callUnresolved", uUnrefined),
             Arguments.of("callInlineMixedArgs", uInline),
             Arguments.of("level0", uInline.copy(maxInlineDepth = 1)),
             Arguments.of("callBumpEverything", uContract),

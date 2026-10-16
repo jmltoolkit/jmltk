@@ -278,6 +278,11 @@ class VcgSemanticsTest {
             Arguments.of("callStaticContract", uContract),
             Arguments.of("callThisShorthand", uContract),
             Arguments.of("callObjParam", uContract),
+            // multiple spec cases: disjunctive requires/ensures (P1.1)
+            Arguments.of("twoCaseAbs", u),
+            Arguments.of("twoCaseAbs", b),
+            Arguments.of("callTwoCaseAbs", u),
+            Arguments.of("callTwoCaseAbs", b),
             // switches: matching, fall-through, break scoping, in a loop, continue
             Arguments.of("switchBasic", u),
             Arguments.of("switchBasic", b),
@@ -365,6 +370,12 @@ class VcgSemanticsTest {
             // a wrong switch postcondition exposes the non-matching branch
             Arguments.of("switchWrong", u),
             Arguments.of("switchWrong", b),
+            // multiple spec cases (P1.1): a body wrong for the second case, and a
+            // method whose cases leave a gap between their requires
+            Arguments.of("twoCaseAbsWrong", u),
+            Arguments.of("twoCaseAbsWrong", b),
+            Arguments.of("unreachableGap", u),
+            Arguments.of("unreachableGap", b),
         )
     }
 
@@ -679,7 +690,7 @@ class VcgSemanticsTest {
         val r = parser.parseBodyDeclaration<MethodDeclaration>("public void m(int x) { }")
         assertTrue(r.isSuccessful, r.problems.toString())
         val md = r.result.get() as MethodDeclaration
-        val ctx = VcgContext(md, com.github.javaparser.ast.jml.clauses.JmlContract())
+        val ctx = VcgContext(md, listOf(com.github.javaparser.ast.jml.clauses.JmlContract()))
         val ex = assertThrows(IllegalArgumentException::class.java) { ctx.enclosingType }
         assertTrue(ex.message!!.contains("enclosed"), ex.message)
     }

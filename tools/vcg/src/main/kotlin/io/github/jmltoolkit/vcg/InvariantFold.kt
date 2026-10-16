@@ -41,12 +41,15 @@ object InvariantFold {
     /**
      * Collects the statically-visible invariants of [type]. Clones the clause
      * expressions so the synthesized fold never steals AST nodes from the source
-     * compilation unit.
+     * compilation unit. With [staticOnly] only `static invariant` clauses are
+     * collected — the fold of `\static_invariant_for(T.class)` must not contain
+     * instance invariants (they read `this`, which a static method has no
+     * declaration for).
      */
     @JvmStatic
-    fun invariantsOf(type: TypeDeclaration<*>): List<Invariant> {
+    fun invariantsOf(type: TypeDeclaration<*>, staticOnly: Boolean = false): List<Invariant> {
         val out = ArrayList<Invariant>()
-        collect(type, out, LinkedHashSet())
+        collect(type, out, LinkedHashSet(), staticOnly)
         return out
     }
 
@@ -54,6 +57,7 @@ object InvariantFold {
         type: TypeDeclaration<*>,
         out: MutableList<Invariant>,
         seen: MutableSet<String>,
+        staticOnly: Boolean,
     ) {
         val cls = type as? ClassOrInterfaceDeclaration ?: return
         val id = cls.nameAsString + "@" + cls.range
@@ -61,6 +65,7 @@ object InvariantFold {
         var n = 1
         for (m in cls.members) {
             if (m !is JmlClassExprDeclaration || m.kind != JmlBodyClauseKind.INVARIANT) continue
+            if (staticOnly && !m.hasModifier(com.github.javaparser.ast.Modifier.DefaultKeyword.STATIC)) continue
             val label = m.name.orElse(null)?.asString() ?: "inv_${cls.nameAsString}_$n"
             n++
             out.add(Invariant(label, m.invariant.clone()))
@@ -82,7 +87,7 @@ object InvariantFold {
                     false
                 }
             } ?: continue
-            collect(anc, out, seen)
+            collect(anc, out, seen, staticOnly)
         }
     }
 

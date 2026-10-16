@@ -68,6 +68,6 @@
 (declare-const $havoc_9 (Array Int Int))
 (assert (=> (and (and true (not false)) (not false)) (= $havoc_5 7)))
 (push)
-(assert (! (not (=> true (and true (= $havoc_5 7)))) :named v1))
+(assert (! (not (=> (and true true) (and true (= $havoc_5 7)))) :named v1))
 (check-sat)
 (pop)

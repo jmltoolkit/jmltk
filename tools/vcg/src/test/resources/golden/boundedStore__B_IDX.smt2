@@ -72,6 +72,6 @@
 (check-sat)
 (pop)
 (push)
-(assert (! (not (=> true (and true (= (select a$1 ((_ int2bv 32) 0)) ((_ int2bv 32) 1))))) :named v2))
+(assert (! (not (=> (and true (and true (bvsge (bv$length a) ((_ int2bv 32) 1)))) (and true (= (select a$1 ((_ int2bv 32) 0)) ((_ int2bv 32) 1))))) :named v2))
 (check-sat)
 (pop)

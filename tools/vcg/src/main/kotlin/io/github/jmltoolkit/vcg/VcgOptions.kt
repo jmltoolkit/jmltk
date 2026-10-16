@@ -94,11 +94,11 @@ data class VcgOptions(
 
 /**
  * Context of a verification task: the callable (method or constructor) to verify,
- * its contract and the surrounding class members.
+ * its JML spec cases and the surrounding class members.
  */
 data class VcgContext(
     val callable: CallableDeclaration<*>,
-    val contract: com.github.javaparser.ast.jml.clauses.JmlContract,
+    val contracts: List<com.github.javaparser.ast.jml.clauses.JmlContract>,
 ) {
     val enclosingType: com.github.javaparser.ast.body.TypeDeclaration<*> by lazy {
         callable.findAncestor(com.github.javaparser.ast.body.TypeDeclaration::class.java)
@@ -107,17 +107,14 @@ data class VcgContext(
 
     companion object {
         /**
-         * Builds the verification context for a callable (method or constructor):
-         * all its JML contracts are unrolled and their clauses merged into a single
-         * contract.
+         * Builds the verification context for a callable (method or constructor).
+         * Multiple JML spec cases (`/*@ requires ..; ensures ..; @*/ also ...`) are
+         * kept as *separate* cases: JML gives them disjunctive semantics, so they are
+         * never merged into a single conjunctive contract here.
          */
         fun of(callable: CallableDeclaration<*>): VcgContext {
             JMLUtils.unroll(callable.contracts)
-            val joint = JmlContract()
-            for (c in callable.contracts) {
-                joint.clauses.addAll(c.clauses)
-            }
-            return VcgContext(callable, joint)
+            return VcgContext(callable, callable.contracts.toList())
         }
     }
 }

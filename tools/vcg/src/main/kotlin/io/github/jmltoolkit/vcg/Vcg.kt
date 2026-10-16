@@ -6,10 +6,12 @@ package io.github.jmltoolkit.vcg
 
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Modifier
+import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.NodeList
 import com.github.javaparser.ast.body.CallableDeclaration
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.body.ConstructorDeclaration
+import com.github.javaparser.ast.body.EnumDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.body.TypeDeclaration
 import com.github.javaparser.ast.expr.ArrayAccessExpr
@@ -25,12 +27,15 @@ import com.github.javaparser.ast.expr.EnclosedExpr
 import com.github.javaparser.ast.expr.Expression
 import com.github.javaparser.ast.expr.FieldAccessExpr
 import com.github.javaparser.ast.expr.IntegerLiteralExpr
+import com.github.javaparser.ast.expr.LambdaExpr
 import com.github.javaparser.ast.expr.LiteralExpr
 import com.github.javaparser.ast.expr.LongLiteralExpr
 import com.github.javaparser.ast.expr.MethodCallExpr
+import com.github.javaparser.ast.expr.MethodReferenceExpr
 import com.github.javaparser.ast.expr.NameExpr
 import com.github.javaparser.ast.expr.ObjectCreationExpr
 import com.github.javaparser.ast.expr.StringLiteralExpr
+import com.github.javaparser.ast.expr.SwitchExpr
 import com.github.javaparser.ast.expr.ThisExpr
 import com.github.javaparser.ast.expr.UnaryExpr
 import com.github.javaparser.ast.jml.NodeWithContracts
@@ -40,6 +45,7 @@ import com.github.javaparser.ast.jml.clauses.JmlLabeledClause
 import com.github.javaparser.ast.jml.clauses.JmlMultiExprClause
 import com.github.javaparser.ast.jml.clauses.JmlSimpleExprClause
 import com.github.javaparser.ast.jml.expr.JmlExpression
+import com.github.javaparser.ast.stmt.AssertStmt
 import com.github.javaparser.ast.stmt.BlockStmt
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType
 import com.github.javaparser.resolution.types.ResolvedReferenceType
@@ -151,8 +157,81 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     }
 
     //endregion
+    //region unsupported-construct diagnostics (P3.2)
+
+    /** JML keywords the VCG understands. Any other `\name` (in an expression or
+     *  a contract clause) aborts generation with a structured diagnostic — see
+     *  [validateSupported]. Keywords that arrive as quantifier/label binders
+     *  (`\forall`, `\exists`, `\sum`, `\lbl`, …) are separate AST node kinds and
+     *  need no entry here. */
+    private val SUPPORTED_JML_KEYWORDS =
+        setOf(
+            "\\result", "\\old",
+            "\\invariant_for", "\\static_invariant_for",
+            "\\everything", "\\nothing",
+        )
+
+    /**
+     * Aborts generation on constructs the VCG cannot model (P3.2). Runs at
+     * [verify] entry — before any query work — so failures are fast,
+     * deterministic and carry the exact source range of the first offending
+     * construct:
+     *  - Java 14 `switch` *expressions* (only `switch` statements are modeled),
+     *  - lambdas, method references and anonymous classes,
+     *  - Java `assert` statements (the supported form is a JML `//@ assert`),
+     *  - JML keywords outside the supported set (`\fresh`, `\reach`, `\TYPE`,
+     *    … — without this they were silently mis-modeled or failed later with
+     *    an unrelated resolver error),
+     *  - enumerations (verification would need an ordinal/constant model).
+     */
+    private fun validateSupported() {
+        ctx.callable.findAncestor(EnumDeclaration::class.java).ifPresent { enumDecl ->
+            throw UnsupportedFeatureException(
+                "unsupported: enum types (verifying members of ${enumDecl.nameAsString})",
+                enumDecl.range.orElse(null)
+            )
+        }
+        checkSupported(ctx.callable)
+        // JML contract clauses are walked explicitly so a detached or
+        // re-parented callable still gets its `\fresh`/`\reach` diagnostics.
+        ctx.contracts.forEach { checkSupported(it) }
+    }
+
+    private fun checkSupported(node: Node) {
+        val what: String? = when (node) {
+            is SwitchExpr -> "switch expressions"
+
+            is LambdaExpr -> "lambda expressions"
+
+            is MethodReferenceExpr -> "method references"
+
+            is AssertStmt -> "Java assert statements (use a JML `//@ assert` statement)"
+
+            is ObjectCreationExpr ->
+                if (node.anonymousClassBody.isPresent) "anonymous classes" else null
+
+            is NameExpr -> unsupportedJmlKeyword(node.nameAsString)
+
+            is MethodCallExpr -> unsupportedJmlKeyword(node.nameAsString)
+
+            else -> null
+        }
+        if (what != null) {
+            throw UnsupportedFeatureException(
+                "unsupported: $what ${describe(node)}",
+                node.range.orElse(null)
+            )
+        }
+        for (child in node.childNodes) checkSupported(child)
+    }
+
+    private fun unsupportedJmlKeyword(name: String): String? =
+        if (name.startsWith("\\") && name !in SUPPORTED_JML_KEYWORDS) "JML keyword $name" else null
+
+    //endregion
     //region entry point
     fun verify(): VcgResult {
+        validateSupported()
         query.addCommand(term.command("set-logic", term.symbol("ALL")))
         setupTypeHierarchy()
         setupContext()

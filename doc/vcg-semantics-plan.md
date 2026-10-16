@@ -170,9 +170,36 @@ the message and the source range. Goldens unchanged — no existing fixture or
 golden case uses multi-dimensional arrays.
 Effort: tiny. Impact: silent mis-modelling becomes a clear error.
 
-### P3.2 Unsupported constructs → structured diagnostics
-Where: validation pass at `verify()` entry / `Normalizer`.
-Steps: curated "unsupported: <construct>" errors with source `Range` (switch expressions, lambdas, anonymous classes, enums, `\fresh`/`\reach`/`\TYPE`-keywords, assert-with-message, …). Single `UnsupportedFeatureException`.
+### P3.2 Unsupported constructs → structured diagnostics — DONE
+Where: `validateSupported()` at `verify()` entry (`Vcg.kt`) + `Normalizer`.
+Implementation: a pre-query validation pass walks the callable (body + JML
+contract clauses) and aborts on the *first* construct the VCG cannot model with
+`UnsupportedFeatureException("unsupported: <construct> at line N", range)`:
+  - switch *expressions* (`SwitchExpr`) — only switch statements are modeled;
+  - lambdas, method references, anonymous classes (`ObjectCreationExpr` with a
+    body);
+  - Java `assert` statements (with or without a message — the supported form is
+    a JML `//@ assert` statement);
+  - JML keywords outside the supported set (`\fresh`, `\reach`, `\TYPE`, …
+    would otherwise be silently mis-modeled or fail with an unrelated resolver
+    error). Whitelisted: `\result`, `\old`, `\invariant_for`,
+    `\static_invariant_for`, `\everything`, `\nothing`; quantifier/label
+    binders (`\forall`, `\exists`, `\sum`, `\lbl`, …) are separate node kinds
+    and need no entry;
+  - enums: verifying a member of an `EnumDeclaration` is rejected up front (an
+    ordinal/constant model would be required).
+`UnsupportedFeatureException` (introduced in P3.1) is the *single* diagnostic
+type; the `Normalizer`'s generic statement/expression/assignment-target throws
+now use it too (it extends `UnsupportedOperationException`, so existing
+`assertThrows(UnsupportedOperationException::class.java)` guards stay green).
+Fail-fast: the pass runs before any query work.
+Tests: `testUnsupportedConstructsRejected` (lambda, method reference, anonymous
+class, Java assert, `\fresh`, `\reach`), `testSwitchExpressionRejected` (a
+switch expression can only parse at a JAVA_12+ level, so the probe parses a
+JAVA_17 snippet — the fixture file stays at the default JAVA_11 level), and
+`testEnumVerificationRejected` (the `Color` enum appended to the fixture file —
+its new top-level type adds the `sort_color` type constant + subtype edge to
+every golden query: add-only, verified by diffing the regenerated goldens).
 Effort: small. Impact: developer triage speed.
 
 ### P3.3 Runtime checks: document + default policy — DONE

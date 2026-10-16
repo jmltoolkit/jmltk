@@ -67,8 +67,10 @@ import java.util.stream.Stream
  * statement kinds that must raise [UnsupportedOperationException].
  *
  * The dumps mask loop/switch ids (`break()`, `continue()`, `switch(...)`) because
- * the ids are deep structural hashes of the parsed nodes; the exact id semantics
- * are asserted separately in the dedicated tests.
+ * the ids are deterministic sequential counters assigned by the normalizer during
+ * the statement traversal; the exact id semantics (stable, distinct per loop,
+ * break/continue binding to the innermost target) are asserted in the dedicated
+ * tests, including reproducibility across two normalizations of the same input.
  */
 @Timeout(120)
 class NormalizerTest {
@@ -516,68 +518,68 @@ class NormalizerTest {
     @Test
     fun testBreakTargetsEnclosingWhile() {
         val src = "while (c) { if (d) break; }"
-        val loop = blockOf(src).getStatement(0).asWhileStmt()
         val nf = normalize(src)
-        val br = nf.firstOfType { it is NfBreak } as NfBreak
-        assertEquals(loop.hashCode(), br.loopId, "break must target the enclosing while loop")
+        val loop = nf[0] as NfLoop
+        val br = loop.body.firstOfType { it is NfBreak } as NfBreak
+        assertEquals(loop.loopId, br.loopId, "break must target the enclosing while loop")
     }
 
     @Test
     fun testContinueTargetsEnclosingWhile() {
         val src = "while (c) { if (d) continue; }"
-        val loop = blockOf(src).getStatement(0).asWhileStmt()
         val nf = normalize(src)
-        val cont = nf.firstOfType { it is NfContinue } as NfContinue
-        assertEquals(loop.hashCode(), cont.loopId, "continue must target the enclosing while loop")
+        val loop = nf[0] as NfLoop
+        val cont = loop.body.firstOfType { it is NfContinue } as NfContinue
+        assertEquals(loop.loopId, cont.loopId, "continue must target the enclosing while loop")
     }
 
     @Test
     fun testBreakTargetsEnclosingFor() {
         val src = "for (int i = 0; i < n; i++) { break; }"
-        val loop = blockOf(src).getStatement(0) as ForStmt
         val nf = normalize(src)
-        val br = nf.firstOfType { it is NfBreak } as NfBreak
-        assertEquals(loop.hashCode(), br.loopId, "break must target the enclosing for loop")
+        val loop = nf.firstOfType { it is NfLoop } as NfLoop
+        val br = loop.body.firstOfType { it is NfBreak } as NfBreak
+        assertEquals(loop.loopId, br.loopId, "break must target the enclosing for loop")
     }
 
     @Test
     fun testBreakTargetsEnclosingForeach() {
         val src = "for (int x : a) { break; }"
-        val loop = blockOf(src).getStatement(0) as ForEachStmt
         val nf = normalize(src)
-        val br = nf.firstOfType { it is NfBreak } as NfBreak
-        assertEquals(loop.hashCode(), br.loopId, "break must target the enclosing foreach loop")
+        val loop = nf.firstOfType { it is NfLoop } as NfLoop
+        val br = loop.body.firstOfType { it is NfBreak } as NfBreak
+        assertEquals(loop.loopId, br.loopId, "break must target the enclosing foreach loop")
     }
 
     @Test
     fun testBreakTargetsEnclosingDoWhile() {
         val src = "do { break; } while (c);"
-        val loop = blockOf(src).getStatement(0) as DoStmt
         val nf = normalize(src)
+        val loop = nf.firstOfType { it is NfLoop } as NfLoop
         val br = nf.firstOfType { it is NfBreak } as NfBreak
-        assertEquals(loop.hashCode(), br.loopId, "break must target the enclosing do-while loop")
+        assertEquals(loop.loopId, br.loopId, "break must target the enclosing do-while loop")
     }
 
     @Test
     fun testNestedBreakTargetsInnermostLoop() {
         val src = "while (a) { while (b) { break; } }"
-        val outer = blockOf(src).getStatement(0).asWhileStmt()
-        val inner = outer.body.asBlockStmt().getStatement(0).asWhileStmt()
         val nf = normalize(src)
-        val br = nf.firstOfType { it is NfBreak } as NfBreak
-        assertEquals(inner.hashCode(), br.loopId, "break must target the *innermost* loop")
-        assertNotEquals(outer.hashCode(), br.loopId)
+        val outer = nf[0] as NfLoop
+        val inner = outer.body.firstOfType { it is NfLoop } as NfLoop
+        val br = inner.body.firstOfType { it is NfBreak } as NfBreak
+        assertEquals(inner.loopId, br.loopId, "break must target the *innermost* loop")
+        assertNotEquals(outer.loopId, br.loopId)
     }
 
     @Test
     fun testNestedContinueTargetsInnermostLoop() {
         val src = "while (a) { while (b) { continue; } }"
-        val outer = blockOf(src).getStatement(0).asWhileStmt()
-        val inner = outer.body.asBlockStmt().getStatement(0).asWhileStmt()
         val nf = normalize(src)
-        val cont = nf.firstOfType { it is NfContinue } as NfContinue
-        assertEquals(inner.hashCode(), cont.loopId, "continue must target the *innermost* loop")
-        assertNotEquals(outer.hashCode(), cont.loopId)
+        val outer = nf[0] as NfLoop
+        val inner = outer.body.firstOfType { it is NfLoop } as NfLoop
+        val cont = inner.body.firstOfType { it is NfContinue } as NfContinue
+        assertEquals(inner.loopId, cont.loopId, "continue must target the *innermost* loop")
+        assertNotEquals(outer.loopId, cont.loopId)
     }
 
     @Test
@@ -597,51 +599,61 @@ class NormalizerTest {
     @Test
     fun testSwitchBreakTargetsSwitch() {
         val src = "switch (x) { case 1: y = 1; break; }"
-        val sw = blockOf(src).getStatement(0) as SwitchStmt
         val nf = normalize(src)
         val swIn = nf[0] as NfSwitch
-        assertEquals(sw.hashCode(), swIn.switchId, "switch id must be the switch node hash")
+        assertTrue(swIn.switchId > 0, "switch id must be a normalizer-assigned id")
         val br = swIn.cases[0].body.first { it is NfBreak } as NfBreak
-        assertEquals(sw.hashCode(), br.loopId, "a break in a case must target the switch")
+        assertEquals(swIn.switchId, br.loopId, "a break in a case must target the switch")
     }
 
     @Test
     fun testBreakInSwitchInsideLoopTargetsSwitch() {
         val src = "while (c) { switch (x) { case 1: break; } }"
-        val block = blockOf(src)
-        val loop = block.getStatement(0).asWhileStmt()
-        val sw = loop.body.asBlockStmt().getStatement(0) as SwitchStmt
         val nf = normalize(src)
-        val swIn = (nf[0] as NfLoop).body.first { it is NfSwitch } as NfSwitch
+        val outer = nf[0] as NfLoop
+        val swIn = outer.body.firstOfType { it is NfSwitch } as NfSwitch
         val br = swIn.cases[0].body.first { it is NfBreak } as NfBreak
-        assertEquals(sw.hashCode(), swIn.switchId)
-        assertEquals(sw.hashCode(), br.loopId, "break binds to the switch, shadowing the outer loop")
-        assertNotEquals(loop.hashCode(), br.loopId)
+        assertEquals(swIn.switchId, br.loopId, "break binds to the switch, shadowing the outer loop")
+        assertNotEquals(outer.loopId, br.loopId)
     }
 
     @Test
     fun testBreakInsideNestedLoopInSwitchCaseTargetsLoop() {
         val src = "switch (x) { case 1: while (c) { break; } }"
-        val block = blockOf(src)
-        val sw = block.getStatement(0) as SwitchStmt
-        val innerWhile = sw.entries[0].statements[0].asWhileStmt()
         val nf = normalize(src)
         val swIn = nf[0] as NfSwitch
-        val br = swIn.cases[0].body.first { it is NfLoop }.let {
-            (it as NfLoop).body.first { b -> b is NfBreak }
-        } as NfBreak
-        assertEquals(innerWhile.hashCode(), br.loopId, "a break in a nested loop inside a case targets the loop")
+        val innerLoop = swIn.cases[0].body.firstOfType { it is NfLoop } as NfLoop
+        val br = innerLoop.body.firstOfType { it is NfBreak } as NfBreak
+        assertEquals(innerLoop.loopId, br.loopId, "a break in a nested loop inside a case targets the loop")
     }
 
     @Test
     fun testContinueInSwitchCaseTargetsEnclosingLoop() {
         val src = "while (c) { switch (x) { case 1: continue; } }"
-        val block = blockOf(src)
-        val whileStmt = block.getStatement(0).asWhileStmt()
         val nf = normalize(src)
-        val swIn = (nf[0] as NfLoop).body.first { it is NfSwitch } as NfSwitch
+        val outer = nf[0] as NfLoop
+        val swIn = outer.body.firstOfType { it is NfSwitch } as NfSwitch
         val cont = swIn.cases[0].body.first { it is NfContinue } as NfContinue
-        assertEquals(whileStmt.hashCode(), cont.loopId, "a continue in a case targets the enclosing loop, not the switch")
+        assertEquals(outer.loopId, cont.loopId, "a continue in a case targets the enclosing loop, not the switch")
+    }
+
+    @Test
+    fun testLoopIdsAreDeterministicSequentialAndReproducible() {
+        // The ids must not depend on Node identity hashes (which differ per JVM run):
+        // the same input must yield the same ids in every normalization, distinct
+        // loops must get distinct ids, and the ids are assigned in traversal order.
+        val src = "while (a) { while (b) { break; } }"
+        val nf1 = normalize(src)
+        val nf2 = normalize(src)
+        val outer1 = nf1[0] as NfLoop
+        val outer2 = nf2[0] as NfLoop
+        val inner1 = outer1.body.firstOfType { it is NfLoop } as NfLoop
+        val inner2 = outer2.body.firstOfType { it is NfLoop } as NfLoop
+        assertEquals(1, outer1.loopId, "outer loop gets the first id in traversal order")
+        assertEquals(2, inner1.loopId, "inner loop gets the second id in traversal order")
+        assertEquals(outer1.loopId, outer2.loopId, "loop ids must be reproducible across normalizations")
+        assertEquals(inner1.loopId, inner2.loopId, "loop ids must be reproducible across normalizations")
+        assertEquals(inner1.loopId, (nf2.firstOfType { it is NfBreak } as NfBreak).loopId)
     }
     //endregion
 

@@ -38,6 +38,7 @@ import com.github.javaparser.ast.expr.StringLiteralExpr
 import com.github.javaparser.ast.expr.SwitchExpr
 import com.github.javaparser.ast.expr.ThisExpr
 import com.github.javaparser.ast.expr.UnaryExpr
+import com.github.javaparser.ast.expr.VariableDeclarationExpr
 import com.github.javaparser.ast.jml.NodeWithContracts
 import com.github.javaparser.ast.jml.clauses.JmlClauseKind
 import com.github.javaparser.ast.jml.clauses.JmlContract
@@ -234,6 +235,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         validateSupported()
         query.addCommand(term.command("set-logic", term.symbol("ALL")))
         setupTypeHierarchy()
+        collectNonNullArrayLocs()
         setupContext()
         assumeRequires()
         val md = ctx.callable as? MethodDeclaration
@@ -499,6 +501,17 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             declareSmtConst(ExprTranslator.RESULT, sType)
             env[ExprTranslator.RESULT] = term.variable(sType, returnType, ExprTranslator.RESULT)
             envTypes[ExprTranslator.RESULT] = sType
+        }
+        // P4.2: array references are nullable by default; `non_null`-declared
+        // parameters are the caller's implicit `requires a != null`, and non-null
+        // fields are the type invariant — both are assumed at entry. In a
+        // constructor the instance fields inherit the *parent class* invariants
+        // only; this class's own non-null fields must be established by the body.
+        val assumeInstanceFields = ctx.callable !is ConstructorDeclaration
+        for (key in nonNullEntryKeys) {
+            if (key.startsWith("this.") && !assumeInstanceFields) continue
+            val slot = env[key] ?: continue
+            if (slot.smtType is SmtType.Array) query.addAssert(nonNullArray(slot))
         }
         oldEnv.putAll(env)
     }
@@ -831,34 +844,73 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         }
     }
 
-    /** Declares the array-length function for the current mode once. */
-    private fun ensureLengthFn(@Suppress("UNUSED_PARAMETER") arr: SmtType.Array) {
-        if (lengthFnDeclared) return
-        lengthFnDeclared = true
-        val unbounded = options.mode == VerificationMode.UNBOUNDED
-        val name = if (unbounded) "int\$length" else "bv\$length"
-        val ret = if (unbounded) SmtType.INT else SmtType.BV32
-        val arg = if (unbounded) {
-            SmtType.Array(SmtType.INT, SmtType.INT)
+    /** SMT-level print of an array sort: element/index sorts whose value universe
+     *  is the reference hierarchy print as `U` (the declared `U` sort), everything
+     *  else through the generic type printer — `term.type` alone would emit the
+     *  never-declared `Object` placeholder for reference-typed elements. */
+    private fun arraySortTerm(t: SmtType.Array): SExpr = SList(
+        null, null,
+        listOf(term.symbol("Array"), arraySortComponent(t.from), arraySortComponent(t.to))
+    )
+
+    private fun arraySortComponent(t: SmtType): SExpr =
+        if (t is SmtType.Array) {
+            arraySortTerm(t)
+        } else if (t === SmtType.JAVA_OBJECT) {
+            term.symbol("U")
         } else {
-            SmtType.Array(SmtType.BV32, SmtType.BV32)
+            term.type(t)
         }
+
+    /** Content-sort tag for per-sort function names (`$arrayref_…`, `$null_array_…`,
+     *  `bv$length_…`): distinct array element sorts get distinct signatures. */
+    private fun tagOf(arr: SmtType.Array): String =
+        arr.toString().filter { ch: Char -> ch.isLetterOrDigit() }
+
+    /** The per-sort array-length function name: the bare `int$length`/`bv$length`
+     *  keeps int arrays stable, other element sorts (e.g. `U` for `Box[]`) get a
+     *  distinct `_<tag>` signature because SMT-LIB forbids overloading. */
+    private fun lengthFnName(arr: SmtType.Array): String {
+        val unbounded = options.mode == VerificationMode.UNBOUNDED
+        val base = if (unbounded) "int\$length" else "bv\$length"
+        val to = arr.to
+        val isIntArray = (unbounded && to === SmtType.INT) || (!unbounded && to === SmtType.BV32)
+        return if (isIntArray) base else base + "_" + tagOf(arr)
+    }
+
+    private val lengthFns = HashSet<String>()
+
+    /** Per-verification counter for anonymous array constants: fresh per [Vcg]
+     *  instance so identical inputs produce identical queries (deterministic
+     *  goldens) while names stay unique within the query text. */
+    private val anonArrayCounter = java.util.concurrent.atomic.AtomicInteger()
+
+    /** Declares the array-length function for [arr]'s element sort once per sort,
+     *  together with its `length >= 0` axiom. Called eagerly for every array-typed
+     *  location so the function precedes any use in the query stream, and on demand
+     *  from [arrayLengthOf].
+     *
+     *  Java array lengths are always non-negative; without this the bit-vector
+     *  length may take a huge negative value that passes `len <= 4` under signed
+     *  comparison, turning e.g. a binary search bound into nonsense. This is a
+     *  guarded-free quantifier that E-matching instantiates only on `length`
+     *  terms, so it stays cheap (unlike a quantified store-preservation axiom,
+     *  which made the solver answer `unknown` on simple queries). */
+    private fun ensureLengthFn(arr: SmtType.Array) {
+        val name = lengthFnName(arr)
+        if (!lengthFns.add(name)) return
+        val unbounded = options.mode == VerificationMode.UNBOUNDED
+        val ret = if (unbounded) SmtType.INT else SmtType.BV32
         query.addCommand(
             term.command(
                 "declare-fun",
                 term.symbol(name),
-                SList(null, null, listOf(term.type(arg))),
+                SList(null, null, listOf(arraySortTerm(arr))),
                 term.type(ret)
             )
         )
-        // Java array lengths are always non-negative; without this the bit-vector
-        // length may take a huge negative value that passes `len <= 4` under signed
-        // comparison, turning e.g. a binary search bound into nonsense. This is a
-        // guarded-free quantifier that E-matching instantiates only on `length`
-        // terms, so it stays cheap (unlike a quantified store-preservation axiom,
-        // which made the solver answer `unknown` on simple queries).
-        val lenVar = term.binder(arg, "a")
-        val lenTerm = translator.arrayLength(term.variable(arg, null, "a"))
+        val lenVar = term.binder(arr, "a")
+        val lenTerm = term.list(null, ret, term.symbol(name), term.variable(arr, null, "a"))
         val zero = if (unbounded) translator.makeInt(java.math.BigInteger.ZERO) else translator.makeInt(0)
         query.addCommand(
             term.command(
@@ -868,7 +920,16 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         )
     }
 
-    private var lengthFnDeclared = false
+    /** Length term of [arr]: `bv$length`/`int$length` on int arrays, the per-sort
+     *  `_<tag>` variant otherwise (object arrays have a distinct signature). */
+    private fun arrayLengthOf(arr: SExpr): SExpr {
+        val a = arr.smtType as? SmtType.Array
+        if (a == null) return translator.arrayLength(arr)
+        ensureLengthFn(a)
+        val unbounded = options.mode == VerificationMode.UNBOUNDED
+        val ret = if (unbounded) SmtType.INT else SmtType.BV32
+        return term.list(null, ret, term.symbol(lengthFnName(a)), arr)
+    }
 
     /**
      * Declared heap selector functions for instance fields, keyed by field name.
@@ -1178,7 +1239,11 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             fieldAccessHandler = { receiver, field, scopeText -> fieldReadFor(e1, receiver, field, scopeText) },
             thisFieldRead = { m, thisVal, field -> fieldReadFor(m, thisVal, field, "this") },
             arrayRefHandler = { v -> arrayRef(v) },
-            invariantForHandler = { recv, recvExpr, isStatic -> invariantForTerm(recv, recvExpr, isStatic) }
+            arrayMayBeNull = { e -> arrayMayBeNull(e) },
+            arrayNullTerm = { v -> (v.smtType as? SmtType.Array)?.let { nullArrayValue(it) } },
+            arrayLengthHandler = { arr -> arrayLengthOf(arr) },
+            invariantForHandler = { recv, recvExpr, isStatic -> invariantForTerm(recv, recvExpr, isStatic) },
+            anonArrayCounter = anonArrayCounter
         )
     }
 
@@ -1236,7 +1301,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     /** Field-read term for `scope.name` given an already-translated [scopeTerm]; mirrors
      *  [io.github.jmltoolkit.vcg.ExprTranslator.visit] for `FieldAccessExpr`. */
     private fun fieldRead(scope: Expression, e: FieldAccessExpr, scopeTerm: SExpr): SExpr {
-        if (e.nameAsString == "length") return translator.arrayLength(scopeTerm)
+        if (e.nameAsString == "length") return arrayLengthOf(scopeTerm)
         fieldReadFor(env, scopeTerm, e.nameAsString, scope.toString()).let { return it }
     }
 
@@ -1312,13 +1377,13 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
      * without extensional (content) reasoning.
      */
     private fun arrayRefFn(contentType: SmtType.Array): String {
-        val tag = contentType.toString().filter { ch: Char -> ch.isLetterOrDigit() }
+        val tag = tagOf(contentType)
         return arrayRefFns.getOrPut(tag) {
             val fn = "\$arrayref_$tag"
             query.addCommand(
                 term.command(
                     "declare-fun", term.symbol(fn),
-                    SList(null, null, listOf(term.type(contentType))),
+                    SList(null, null, listOf(arraySortTerm(contentType))),
                     term.symbol("U")
                 )
             )
@@ -1332,6 +1397,115 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         if (v.toString().startsWith("fld$")) return null
         return term.list(null, SmtType.JAVA_OBJECT, term.symbol(arrayRefFn(arr)), v)
     }
+
+    //region array reference nullability (P4.2)
+
+    /**
+     * P4.2: arrays are ordinary references — *nullable by default*. An array-typed
+     * location (parameter, field, local) may hold `null` unless its declaration
+     * carries the JML `non_null` modifier (then it never does, and the VCG admits
+     * it as an implicit requires / type invariant). Dereferencing a (possibly)
+     * null array (`a[i]`, `a.length`, an element store) is a runtime null-checks,
+     * and `arr == null` / `arr != null` compare against the per-sort null-array
+     * value below instead of folding to constant false/true.
+     */
+    private val nonNullArrayLocs = HashSet<String>()
+
+    /** Subset of [nonNullArrayLocs] whose non-nullness is *assumed at entry*
+     *  (implicit `requires a != null` for parameters, type invariants for fields).
+     *  Non-nullness is never provable in the body unless the caller guarantees it
+     *  or an earlier verified store/creation established it. */
+    private val nonNullEntryKeys = HashSet<String>()
+
+    private val nullArrayConsts = HashMap<String, String>()
+
+    /** The per-sort `$null_array_<tag>` constant: the /null/ array reference value
+     *  of an array sort, declared lazily on first use (queries without array null
+     *  semantics — legacy callers of the translator — stay untouched). */
+    private fun nullArrayConst(type: SmtType.Array): String {
+        val tag = tagOf(type)
+        return nullArrayConsts.getOrPut(tag) {
+            val fn = "\$null_array_$tag"
+            query.addCommand(
+                term.command("declare-const", term.symbol(fn), arraySortTerm(type))
+            )
+            fn
+        }
+    }
+
+    /** The `$null_array_<sort>` value for an array sort (a typed reference to the
+     *  declared constant; declares it in the query on first use). */
+    private fun nullArrayValue(type: SmtType.Array): SExpr = term.variable(type, null, nullArrayConst(type))
+
+    /** `arr == null` as a real predicate (arrays are nullable references, P4.2). */
+    private fun isNullArray(arr: SExpr): SExpr {
+        val a = arr.smtType as? SmtType.Array ?: return term.makeFalse()
+        return equality(arr, nullArrayValue(a))
+    }
+
+    /** `arr != null` as a real predicate (arrays are nullable references, P4.2). */
+    private fun nonNullArray(arr: SExpr): SExpr {
+        val a = arr.smtType as? SmtType.Array ?: return term.makeTrue()
+        return term.not(equality(arr, nullArrayValue(a)))
+    }
+
+    /**
+     * P4.2: decides whether an array-typed source expression may denote `null`.
+     * Default true — arrays are nullable references. Never-null only for
+     * `new T[...]` results and `non_null`-declared locations (parameters, fields,
+     * locals — resolved by name; `this`-scoped fields). Other receivers default to
+     * nullable, on the safe side.
+     */
+    private fun arrayMayBeNull(e: Expression): Boolean = when (e) {
+        is ArrayCreationExpr -> false
+        is NameExpr -> e.nameAsString !in nonNullArrayLocs
+        is FieldAccessExpr -> !((e.scope is ThisExpr) && "this.${e.nameAsString}" in nonNullArrayLocs)
+        else -> true
+    }
+
+    /**
+     * Gathers the array locations declared `/*@ non_null @*/` (the only arrays that
+     * are never null by declaration) and the subset whose non-nullness is assumed
+     * at entry. Runs before [setupContext] so the entry assumptions can be emitted
+     * against the declared slots.
+     */
+    private fun collectNonNullArrayLocs() {
+        val callable = ctx.callable
+        fun hasNonNullModifier(mods: NodeList<Modifier>): Boolean =
+            mods.any {
+                (it.keyword as? Modifier.DefaultKeyword) == Modifier.DefaultKeyword.JML_NON_NULL
+            }
+        for (p in callable.parameters) {
+            if (p.type.isArrayType && hasNonNullModifier(p.getModifiers())) {
+                nonNullArrayLocs.add(p.nameAsString)
+                // the parameter's non-nullness is the caller's implicit `requires a != null`
+                nonNullEntryKeys.add(p.nameAsString)
+            }
+        }
+        for (f in ctx.enclosingType.fields) {
+            if (!hasNonNullModifier(f.getModifiers())) continue
+            for (v in f.variables) {
+                if (!v.type.isArrayType) continue
+                val key = if (f.isStatic) v.nameAsString else "this.${v.nameAsString}"
+                nonNullArrayLocs.add(key)
+                // bare-name reads (`data` for `this.data`) resolve to the same location
+                nonNullArrayLocs.add(v.nameAsString)
+                // fields are the type invariant — assumed at method entry
+                nonNullEntryKeys.add(key)
+            }
+        }
+        // locals: non-null is a *requirement* on every value stored into them —
+        // comparisons fold and derefs skip the nullcheck, but each assignment is
+        // obligated (see flatWrite).
+        for (vde in callable.findAll(VariableDeclarationExpr::class.java)) {
+            if (!hasNonNullModifier(vde.getModifiers())) continue
+            for (v in vde.variables) {
+                if (v.type.isArrayType) nonNullArrayLocs.add(v.nameAsString)
+            }
+        }
+    }
+
+    //endregion
 
     //region versioned identity-keyed field maps
 
@@ -1913,6 +2087,27 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 // for a byte[] element that was computed at promoted int width.
                 val vv = convertTo(v, (arrType as? SmtType.Array)?.to)
                 val idx = atom(t.index, g, mode)
+                // P4.2: arrays are ordinary (nullable) references — storing an
+                // element dereferences the array, so the base must be non-null.
+                // `non_null`-declared locations skip the check (their deref safety
+                // is the caller's/invariant's promise, asserted at entry).
+                val isNonNullLoc = key in nonNullArrayLocs || "this.$key" in nonNullArrayLocs
+                if (options.checkNull && !isNonNullLoc) {
+                    addObligation(
+                        "nullcheck", "dereference ${describe(s.origin!!)}",
+                        term.impl(g, nonNullArray(arr)), mode, s.origin
+                    )
+                }
+                // P4.2: object-array elements are non-null by default (JML element
+                // nullability; `/*@ nonnullelements @*/` states the default
+                // explicitly). Storing a possibly-null reference is therefore
+                // rejected unless the value is provably non-null.
+                if (options.checkNull && (arrType as? SmtType.Array)?.to === SmtType.JAVA_OBJECT) {
+                    addObligation(
+                        "nullcheck", "store non-null element ${describe(s.origin!!)}",
+                        term.impl(g, term.nonNull(v)), mode, s.origin
+                    )
+                }
                 if (options.checkIndex) {
                     addObligation(
                         "array-store",
@@ -1921,7 +2116,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                             g,
                             term.and(
                                 term.greaterOrEquals(idx, translator.makeInt(java.math.BigInteger.ZERO), true),
-                                term.lessThan(idx, translator.arrayLength(arr))
+                                term.lessThan(idx, arrayLengthOf(arr))
                             )
                         ),
                         mode,
@@ -1933,11 +2128,17 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 // guard, e.g. statements after a `break`), the array keeps its old
                 // value instead of becoming a fresh unconstrained constant.
                 emitPhi(mode, equality(next, iteTerm(g, term.store(arr, idx, vv), arr)))
+                // P4.2: an element store never makes the array reference null
+                // (Java) — axiomatize the stored version non-null, otherwise the
+                // SMT solver could conflate the `store(..)` application (a fresh
+                // value) with the per-sort null-array constant and later derefs of
+                // this SSA version could not discharge their nullchecks.
+                emit(mode, g, nonNullArray(next))
                 // frame the array length across the store: len(a[i := v]) == len(a).
                 // Without this, a fresh version introduced by the store has an
                 // unconstrained length and bounds checks on a read *afterwards*
                 // can no longer be discharged from the `a.length` constraints.
-                emit(mode, g, equality(translator.arrayLength(next), translator.arrayLength(arr)))
+                emit(mode, g, equality(arrayLengthOf(next), arrayLengthOf(arr)))
                 // An element store does not change the array's *reference identity*;
                 // preserving it keeps later frames and `==` comparisons sound.
                 arrayRef(arr)?.let { refOld ->
@@ -1958,14 +2159,26 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 for (k in arrayKeys) {
                     val kOld = env[k] ?: continue
                     val kArr = kOld.smtType as? SmtType.Array ?: continue
+                    // Java forbids two arrays of *different* element types sharing an
+                    // identity, and the frame below stores `vv` into the alias — two
+                    // array sorts in one query (e.g. `Box[]` and `int[]`) must not
+                    // cross-frame, or the store term is ill-sorted. Frame only the
+                    // same-sort aliases (identical `from`/`to` arrays).
+                    if (kArr.toString() != arrType.toString()) continue
                     val refK = arrayRef(kOld) ?: continue
                     val refA = arrayRef(arr) ?: continue
+                    val refEq = equality(refK, refA)
                     val kNext = freshVersion(k, kArr)
                     emitPhi(
                         mode,
-                        equality(kNext, iteTerm(g, iteTerm(equality(refK, refA), term.store(kOld, idx, vv), kOld), kOld))
+                        equality(kNext, iteTerm(g, iteTerm(refEq, term.store(kOld, idx, vv), kOld), kOld))
                     )
-                    emit(mode, g, equality(translator.arrayLength(kNext), translator.arrayLength(kOld)))
+                    emit(mode, g, equality(arrayLengthOf(kNext), arrayLengthOf(kOld)))
+                    // P4.2: when the identity match makes this frame an element
+                    // store (a fresh `store(..)` application), the framed version is
+                    // non-null — mirroring the main store's non-null axiom so later
+                    // derefs of aliased arrays discharge their nullchecks.
+                    emit(mode, g, term.impl(refEq, nonNullArray(kNext)))
                     arrayRef(kNext)?.let { newRef -> emit(mode, g, equality(newRef, refK)) }
                 }
             }
@@ -2029,6 +2242,15 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         // a local of a narrow primitive type (`byte b = 127 + 1`) truncates the
         // promoted right-hand side to its declared width (Java wrap-around).
         val vv = convertTo(v, type)
+        // P4.2: a `non_null`-declared array location never holds null — every
+        // stored value must be provably non-null (the entry assumption covers
+        // parameters/fields; this obligation covers locals and reassignments).
+        if (options.checkNull && type is SmtType.Array && key in nonNullArrayLocs) {
+            addObligation(
+                "nullcheck", "store non-null into $key ${describe(s.origin!!)}",
+                term.impl(g, nonNullArray(vv)), mode, s.origin
+            )
+        }
         val prev = env[key]
         // the local keeps its resolved declared type as meta-information on the
         // SExpr: receiver-bound views (contract calls on `o.m()` with `o` a local,
@@ -2456,8 +2678,10 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             val (lp, rp) = translator.promote(e.operator, l, r)
             checkDivision(e, rp, guard, mode)
             checkOverflow(e, guard, mode)
-            // a reference comparison against an array mixes sorts (arrays are value
-            // maps and are never null): `arr == null` is false, `arr != null` is true.
+            // P4.2: arrays are ordinary references — `arr == null` compares against
+            // the per-sort null-array value (arrays are nullable by default; only
+            // `non_null`-declared locations and `new T[...]` results keep the
+            // constant false/true folding).
             if (e.operator == BinaryExpr.Operator.EQUALS || e.operator == BinaryExpr.Operator.NOT_EQUALS) {
                 val arr = if (l.smtType is SmtType.Array) {
                     l
@@ -2474,6 +2698,11 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                     null
                 }
                 if (arr != null && nul != null) {
+                    val arrAst = if (arr === l) e.left else e.right
+                    if (arrayMayBeNull(arrAst)) {
+                        val res = translator.binary(e.operator, arr, nullArrayValue(arr.smtType as SmtType.Array))
+                        return if (res.smtType == SmtType.BOOL) res else tempAssign(res, guard, mode, e)
+                    }
                     return if (e.operator == BinaryExpr.Operator.EQUALS) term.makeFalse() else term.makeTrue()
                 }
                 // `==`/`!=` on two arrays is *reference* equality (Java semantics):
@@ -2635,6 +2864,16 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
 
         is ArrayAccessExpr -> {
             val arrayS: SExpr = atom((e as ArrayAccessExpr).name, guard, mode)
+            // P4.2: arrays are ordinary references — reading `a[i]` on a possibly
+            // null array is a runtime null-dereference (default check, like every
+            // other dereference). `non_null` locations and `new T[...]` receivers
+            // discharge the obligation.
+            if (options.checkNull && (arrayS.smtType as? SmtType.Array) != null && arrayMayBeNull(e.name)) {
+                addObligation(
+                    "nullcheck", "dereference ${describe(e)}",
+                    term.impl(guard, nonNullArray(arrayS)), mode, e
+                )
+            }
             val indexS: SExpr = atom(e.index, guard, mode)
             checkIndex(e, arrayS, indexS, guard, mode)
             val elementType = (arrayS.smtType as? SmtType.Array)?.to ?: SmtType.INT
@@ -2642,10 +2881,24 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         }
 
         is FieldAccessExpr -> {
-            // Dereferencing a null receiver is a runtime error (arrays are value
-            // maps and modelled never-null; `this` is already asserted non-null).
+            // Dereferencing a null receiver is a runtime error; `this` is already
+            // asserted non-null. P4.2: an array's `length` is a dereference too —
+            // arrays are nullable references, so `a.length` on a possibly null
+            // array carries a nullcheck obligation.
             val scopeExpr = e.scope
-            if (options.checkNull && scopeExpr != null && e.nameAsString != "length") {
+            if (e.nameAsString == "length" && scopeExpr != null) {
+                val scopeTerm = atom(scopeExpr, guard, mode)
+                if (scopeTerm.smtType is SmtType.Array) {
+                    if (options.checkNull && arrayMayBeNull(scopeExpr)) {
+                        addObligation(
+                            "nullcheck", "dereference ${describe(e)}",
+                            term.impl(guard, nonNullArray(scopeTerm)), mode, e
+                        )
+                    }
+                    return arrayLengthOf(scopeTerm)
+                }
+            }
+            if (options.checkNull && scopeExpr != null) {
                 if (scopeExpr is ThisExpr) {
                     translatorOf().tr(e)
                 } else {
@@ -2765,7 +3018,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 guard,
                 term.and(
                     term.greaterOrEquals(index, translator.makeInt(java.math.BigInteger.ZERO), true),
-                    term.lessThan(index, translator.arrayLength(array))
+                    term.lessThan(index, arrayLengthOf(array))
                 )
             ),
             mode,

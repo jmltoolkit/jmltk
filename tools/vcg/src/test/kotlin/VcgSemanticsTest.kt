@@ -135,6 +135,10 @@ class VcgSemanticsTest {
         val b = VcgOptions(mode = VerificationMode.BOUNDED)
         val uInline = u.copy(defaultCallStrategy = CallStrategy.INLINE)
         val uContract = u.copy(defaultCallStrategy = CallStrategy.CONTRACT)
+        // unrefined calls (library/native methods without contract or body) are rejected
+        // by default since P1.3; the tests that rely on their over-approximation opt in
+        val uUnrefined = u.copy(allowUnrefinedCalls = true)
+        val bUnrefined = b.copy(allowUnrefinedCalls = true)
         val RUNTIME_KINDS = setOf("nullcheck", "castcheck", "negative-array-size", "string-index")
 
         @JvmStatic
@@ -177,8 +181,10 @@ class VcgSemanticsTest {
             Arguments.of("newObject", b),
             Arguments.of("throwNew", u),
             Arguments.of("throwNew", b),
-            // calls: unresolved, inlined, contract-based, recursion depth limit
-            Arguments.of("callUnresolved", u),
+            // calls: unresolved (over-approximated with the P1.3 allow flag), inlined,
+            // contract-based, recursion depth limit
+            Arguments.of("callUnresolved", uUnrefined),
+            Arguments.of("callUnresolved", bUnrefined),
             Arguments.of("callInlineMixedArgs", uInline),
             Arguments.of("level0", uInline.copy(maxInlineDepth = 1)),
             Arguments.of("callBumpEverything", uContract),
@@ -485,6 +491,24 @@ class VcgSemanticsTest {
     }
 
     @Test
+    fun testUnresolvedCallRejectedByDefault() {
+        // P1.3: a call whose callee cannot be resolved (no JML contract, no body)
+        // must fail loudly instead of silently producing an unconstrained result
+        // while assuming the call touched nothing
+        val ex = assertThrows(IllegalStateException::class.java) { vcgFor("callUnresolved", u) }
+        assertTrue(ex.message!!.contains("no JML contract and no body"), ex.message)
+    }
+
+    @Test
+    fun testUnrefinedCallHavocsFrameWithFlag() {
+        // with allowUnrefinedCalls the unknown call havocs the caller-visible frame:
+        // a postcondition asserting `this.val` is untouched must be falsifiable (the
+        // callee may have written it), while a result read back from the field proves
+        expectSomeFalsifiable(vcgFor("callUnresolvedPreservesVal", uUnrefined))
+        expectAllProven(vcgFor("callUnresolvedRereads", uUnrefined))
+    }
+
+    @Test
     fun testMethodWithoutContractHasNoObligations() {
         val res = Vcg(VcgContext.of(method("incScalar")), u).verify()
         assertTrue(res.conditions.isEmpty(), "no contract means no obligations")
@@ -529,7 +553,9 @@ class VcgSemanticsTest {
     fun testRuntimeChecksOffByDefault() {
         // the new checks must be silent unless explicitly requested
         for (name in listOf("derefUnchecked", "fieldDerefUnchecked", "castWrongM", "newArrayNeg", "charAtUnchecked")) {
-            val res = vcgFor(name, u)
+            // library string calls are unrefined (no contract, no body): opt in so only
+            // the runtime-check silence is under test, not the P1.3 rejection policy
+            val res = vcgFor(name, if (name in listOf("derefUnchecked", "charAtUnchecked")) uUnrefined else u)
             assertTrue(
                 res.conditions.none { it.kind in RUNTIME_KINDS },
                 "unexpected runtime condition in $name: " + res.conditions.map { "${it.kind}:${it.description}" }
@@ -539,16 +565,16 @@ class VcgSemanticsTest {
 
     @Test
     fun testNullCheckEmittedAndProvable() {
-        expectAllProven(vcgFor("derefOk", u.copy(checkNull = true)))
-        expectAllProven(vcgFor("derefOk", b.copy(checkNull = true)))
+        expectAllProven(vcgFor("derefOk", u.copy(checkNull = true, allowUnrefinedCalls = true)))
+        expectAllProven(vcgFor("derefOk", b.copy(checkNull = true, allowUnrefinedCalls = true)))
         expectAllProven(vcgFor("fieldDerefOk", u.copy(checkNull = true)))
         expectAllProven(vcgFor("fieldDerefOk", b.copy(checkNull = true)))
     }
 
     @Test
     fun testNullCheckFalsifiableOnUnannotatedDereference() {
-        expectSomeFalsifiable(vcgFor("derefUnchecked", u.copy(checkNull = true)))
-        expectSomeFalsifiable(vcgFor("derefUnchecked", b.copy(checkNull = true)))
+        expectSomeFalsifiable(vcgFor("derefUnchecked", u.copy(checkNull = true, allowUnrefinedCalls = true)))
+        expectSomeFalsifiable(vcgFor("derefUnchecked", b.copy(checkNull = true, allowUnrefinedCalls = true)))
         expectSomeFalsifiable(vcgFor("fieldDerefUnchecked", u.copy(checkNull = true)))
     }
 
@@ -581,18 +607,21 @@ class VcgSemanticsTest {
 
     @Test
     fun testStringIndexProvenAndFalsifiable() {
-        expectAllProven(vcgFor("charAtOk", u.copy(checkStringIndex = true)))
-        expectAllProven(vcgFor("charAtOk", b.copy(checkStringIndex = true)))
-        expectAllProven(vcgFor("subOk", u.copy(checkStringIndex = true)))
-        expectSomeFalsifiable(vcgFor("charAtUnchecked", u.copy(checkStringIndex = true)))
-        expectSomeFalsifiable(vcgFor("charAtUnchecked", b.copy(checkStringIndex = true)))
+        // charAt/substring on a String literal are unrefined library calls: the
+        // bounds obligations come from the string-index feature, the call result
+        // itself is havoced/opaque via the allow flag
+        expectAllProven(vcgFor("charAtOk", u.copy(checkStringIndex = true, allowUnrefinedCalls = true)))
+        expectAllProven(vcgFor("charAtOk", b.copy(checkStringIndex = true, allowUnrefinedCalls = true)))
+        expectAllProven(vcgFor("subOk", u.copy(checkStringIndex = true, allowUnrefinedCalls = true)))
+        expectSomeFalsifiable(vcgFor("charAtUnchecked", u.copy(checkStringIndex = true, allowUnrefinedCalls = true)))
+        expectSomeFalsifiable(vcgFor("charAtUnchecked", b.copy(checkStringIndex = true, allowUnrefinedCalls = true)))
     }
 
     @Test
     fun testStringLengthIsModelReadUnderFlag() {
         // `String.length()` becomes an uninterpreted length read instead of an
         // opaque contract-call result; the model length of a literal is bound.
-        val res = vcgFor("derefOk", u.copy(checkStringIndex = true))
+        val res = vcgFor("derefOk", u.copy(checkStringIndex = true, allowUnrefinedCalls = true))
         // the postcondition is trivial; no runtime condition is emitted for a null-safe
         // dereference when only the string-index feature is enabled
         assertTrue(res.conditions.all { it.kind == "postcondition" }, res.conditions.map { it.kind }.toString())

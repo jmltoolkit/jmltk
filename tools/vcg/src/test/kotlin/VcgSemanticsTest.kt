@@ -547,20 +547,37 @@ class VcgSemanticsTest {
         assertTrue(res.conditions.any { it.description.contains("arithmetic overflow") })
     }
 
-    //region implicit runtime-exception checks (opt-in flags)
+    //region implicit runtime-exception checks (P3.3: the six checks are ON by default;
+    // --checks=none / explicit flags opt out)
 
     @Test
-    fun testRuntimeChecksOffByDefault() {
-        // the new checks must be silent unless explicitly requested
+    fun testRuntimeChecksOnByDefault() {
+        // P3.3: the default policy emits the six exception checks without flags
         for (name in listOf("derefUnchecked", "fieldDerefUnchecked", "castWrongM", "newArrayNeg", "charAtUnchecked")) {
-            // library string calls are unrefined (no contract, no body): opt in so only
-            // the runtime-check silence is under test, not the P1.3 rejection policy
+            // library string calls are unrefined (no contract, no body): opt in so the
+            // null/string checks are the only runtime conditions under test
             val res = vcgFor(name, if (name in listOf("derefUnchecked", "charAtUnchecked")) uUnrefined else u)
             assertTrue(
-                res.conditions.none { it.kind in RUNTIME_KINDS },
-                "unexpected runtime condition in $name: " + res.conditions.map { "${it.kind}:${it.description}" }
+                res.conditions.any { it.kind in RUNTIME_KINDS },
+                "expected a runtime condition in $name: " + res.conditions.map { "${it.kind}:${it.description}" }
             )
         }
+    }
+
+    @Test
+    fun testRuntimeChecksOffWithNonePolicy() {
+        // opt-out still works: with every check disabled no runtime condition appears
+        val none = VcgOptions(mode = VerificationMode.UNBOUNDED, allowUnrefinedCalls = true).let {
+            it.copy(
+                checkDivision = false, checkIndex = false, checkNull = false,
+                checkCast = false, checkNegativeArraySize = false, checkStringIndex = false
+            )
+        }
+        val res = vcgFor("derefUnchecked", none)
+        assertTrue(
+            res.conditions.none { it.kind in RUNTIME_KINDS },
+            "unexpected runtime condition: " + res.conditions.map { "${it.kind}:${it.description}" }
+        )
     }
 
     @Test
@@ -622,9 +639,14 @@ class VcgSemanticsTest {
         // `String.length()` becomes an uninterpreted length read instead of an
         // opaque contract-call result; the model length of a literal is bound.
         val res = vcgFor("derefOk", u.copy(checkStringIndex = true, allowUnrefinedCalls = true))
-        // the postcondition is trivial; no runtime condition is emitted for a null-safe
-        // dereference when only the string-index feature is enabled
-        assertTrue(res.conditions.all { it.kind == "postcondition" }, res.conditions.map { it.kind }.toString())
+        // default policy (P3.3) also emits a nullcheck for the `s.length()` receiver;
+        // it is discharged by `requires s != null`, and the string length still comes
+        // from the stringLength function
+        assertTrue(
+            res.conditions.any { it.kind == "nullcheck" },
+            "expected a default-on nullcheck: " + res.conditions.map { it.kind }
+        )
+        expectAllProven(res)
         // the length reads must come from the stringLength function
         assertTrue(res.query.toString().contains("stringLength"), "expected a stringLength model read")
     }

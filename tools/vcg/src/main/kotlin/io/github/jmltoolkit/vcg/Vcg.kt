@@ -36,6 +36,7 @@ import com.github.javaparser.ast.jml.clauses.JmlMultiExprClause
 import com.github.javaparser.ast.jml.clauses.JmlSimpleExprClause
 import com.github.javaparser.ast.jml.expr.JmlExpression
 import com.github.javaparser.ast.stmt.BlockStmt
+import com.github.javaparser.resolution.types.ResolvedPrimitiveType
 import com.github.javaparser.resolution.types.ResolvedReferenceType
 import com.github.javaparser.resolution.types.ResolvedType
 import io.github.jmltoolkit.smt.ArithmeticTranslator
@@ -437,6 +438,25 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         }
         if (t is SmtType.Array) ensureLengthFn(t)
         return t
+    }
+
+    /**
+     * Java numeric conversion of [v] to the bit-vector width of [target]
+     * (JLS 5.1.2 widening / 5.1.3 narrowing): widening sign-extends — `char`
+     * zero-extends, it is unsigned — and narrowing keeps the low-order bits, the
+     * Java wrap-around (`(byte) 300 == 44`). Non-bit-vector targets (booleans,
+     * references, arrays) and already-matching widths pass through unchanged.
+     */
+    private fun convertTo(v: SExpr, target: SmtType?): SExpr {
+        if (target !is SmtType.BitVec) return v
+        val vw = (v.smtType as? SmtType.BitVec)?.width ?: return v
+        if (vw == target.width) return v
+        return if (vw > target.width) {
+            term.extractLow(v, target.width)
+        } else {
+            val isChar = (v.javaType as? ResolvedPrimitiveType) === ResolvedPrimitiveType.CHAR
+            if (isChar) term.zeroExtend(v, target.width) else term.signExtend(v, target.width)
+        }
     }
 
     /** Declares the array-length function for the current mode once. */
@@ -1446,7 +1466,10 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         if (s.value != null && envTypes.containsKey(ExprTranslator.RESULT)) {
             // capture the previous value *before* freshVersion renames the env slot
             val prev = env[ExprTranslator.RESULT]
-            val v = atom(s.value, g, mode)
+            // a `byte`/`short`/`char` value returned from an int-typed method is
+            // converted (widened) to the declared return type; a value returned
+            // from a narrow-typed method is truncated to it.
+            val v = convertTo(atom(s.value, g, mode), envTypes[ExprTranslator.RESULT])
             val res = freshVersion(ExprTranslator.RESULT, envTypes[ExprTranslator.RESULT]!!)
             // `return` may be dead on some paths (an earlier return/abrupt exit already
             // happened, or an enclosing unrolled loop could not exit). Bind the new
@@ -1481,6 +1504,9 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 val key = localKey(t.key)
                 val arrType = envTypes[key] ?: SmtType.Array(SmtType.INT, SmtType.INT)
                 val arr = env[key] ?: freshVersion(key, arrType)
+                // Java stores wrap the value to the element type: `((_ extract 7 0) v)`
+                // for a byte[] element that was computed at promoted int width.
+                val vv = convertTo(v, (arrType as? SmtType.Array)?.to)
                 val idx = atom(t.index, g, mode)
                 if (options.checkIndex) {
                     addObligation(
@@ -1501,7 +1527,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 // phi-style store: on paths where the store does not execute (dead
                 // guard, e.g. statements after a `break`), the array keeps its old
                 // value instead of becoming a fresh unconstrained constant.
-                emitPhi(mode, equality(next, iteTerm(g, term.store(arr, idx, v), arr)))
+                emitPhi(mode, equality(next, iteTerm(g, term.store(arr, idx, vv), arr)))
                 // frame the array length across the store: len(a[i := v]) == len(a).
                 // Without this, a fresh version introduced by the store has an
                 // unconstrained length and bounds checks on a read *afterwards*
@@ -1532,7 +1558,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                     val kNext = freshVersion(k, kArr)
                     emitPhi(
                         mode,
-                        equality(kNext, iteTerm(g, iteTerm(equality(refK, refA), term.store(kOld, idx, v), kOld), kOld))
+                        equality(kNext, iteTerm(g, iteTerm(equality(refK, refA), term.store(kOld, idx, vv), kOld), kOld))
                     )
                     emit(mode, g, equality(translator.arrayLength(kNext), translator.arrayLength(kOld)))
                     arrayRef(kNext)?.let { newRef -> emit(mode, g, equality(newRef, refK)) }
@@ -1555,7 +1581,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 if (recvTerm != null && recvTerm.smtType === SmtType.JAVA_OBJECT) {
                     val sType = fieldSelectorType(recvTerm, if (t.receiver == "this") "this" else t.receiver, fieldName).second
                     if (sType !is SmtType.Array) {
-                        fieldMapStore(fieldName, sType, recvTerm, v, g, mode)
+                        fieldMapStore(fieldName, sType, recvTerm, convertTo(v, sType), g, mode)
                     }
                 }
                 if (t.receiver != "this") {
@@ -1578,7 +1604,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                     if (recv != null && recv.smtType === SmtType.JAVA_OBJECT) {
                         val fieldName = key.substringAfterLast('.')
                         val sType = fieldSelectorType(recv, "this", fieldName).second
-                        if (sType !is SmtType.Array) fieldMapStore(fieldName, sType, recv, v, g, mode)
+                        if (sType !is SmtType.Array) fieldMapStore(fieldName, sType, recv, convertTo(v, sType), g, mode)
                     }
                 }
                 flatWrite(s, t, g, mode, v)
@@ -1594,6 +1620,9 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             is NfField -> fieldWriteType(t, key)
             else -> locType(t)
         }
+        // a local of a narrow primitive type (`byte b = 127 + 1`) truncates the
+        // promoted right-hand side to its declared width (Java wrap-around).
+        val vv = convertTo(v, type)
         val prev = env[key]
         val next = freshVersion(key, type)
         // phi-style assignment: when the guard is false (dead path — e.g.
@@ -1601,14 +1630,14 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         // its previous value. Without this, `next` is an unconstrained fresh
         // constant that leaks into loop merges and postconditions.
         if (prev != null) {
-            emitPhi(mode, equality(next, iteTerm(g, v, prev)))
+            emitPhi(mode, equality(next, iteTerm(g, vv, prev)))
         } else {
-            emit(mode, g, equality(next, v))
+            emit(mode, g, equality(next, vv))
         }
         // copying an array reference (`y = x`) copies the identity too:
         // reads and writes through `y` afterwards alias `x`.
         val rn = arrayRef(next)
-        val rv = arrayRef(v)
+        val rv = arrayRef(vv)
         if (rn != null && rv != null) emit(mode, g, equality(rn, rv))
     }
 
@@ -2010,7 +2039,13 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         is BinaryExpr -> {
             val l = atom(e.left, guard, mode)
             val r = atom(e.right, guard, mode)
-            checkDivision(e, r, guard, mode)
+            // Java binary numeric promotion (JLS 5.6): byte/short/char operands are
+            // widened to int before the operation. `checkDivision` must test the
+            // *promoted* divisor too (an 8-bit `bv` zero test against a 32-bit
+            // constant would be ill-sorted); `binary` promotes internally for every
+            // other consumer.
+            val (lp, rp) = translator.promote(e.operator, l, r)
+            checkDivision(e, rp, guard, mode)
             checkOverflow(e, guard, mode)
             // a reference comparison against an array mixes sorts (arrays are value
             // maps and are never null): `arr == null` is false, `arr != null` is true.
@@ -2045,7 +2080,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                     }
                 }
             }
-            val res = translator.binary(e.operator, l, r)
+            val res = translator.binary(e.operator, lp, rp)
             if (res.smtType == SmtType.BOOL) res else tempAssign(res, guard, mode, e)
         }
 
@@ -2059,7 +2094,18 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             val c = atom(e.condition, guard, mode)
             val t = atom(e.thenExpr, term.and(guard, c), mode)
             val el = atom(e.elseExpr, term.and(guard, term.not(c)), mode)
-            SList(t.smtType ?: el.smtType, t.javaType, listOf(term.symbol("ite"), c, t, el))
+            // JLS 15.25 numeric promotion on the branches: byte/short/char met with
+            // int (or long) promote to int/long, so a `b > 0 ? b : 300` ternary over
+            // a BV8 variable and a BV32 literal stays well-sorted.
+            val tb = t.smtType as? SmtType.BitVec
+            val eb = el.smtType as? SmtType.BitVec
+            val (t2, el2) = if (tb != null && eb != null && tb.width != eb.width) {
+                val w = if (tb.width >= 64 || eb.width >= 64) 64 else 32
+                convertTo(t, SmtType.getBitVec(w)) to convertTo(el, SmtType.getBitVec(w))
+            } else {
+                t to el
+            }
+            SList(t2.smtType ?: el2.smtType, t2.javaType, listOf(term.symbol("ite"), c, t2, el2))
         }
 
         is EnclosedExpr -> atom(e.inner, guard, mode)
@@ -2077,7 +2123,22 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                     term.impl(guard, typeMatch(v, e.type)), mode, e
                 )
             }
-            v
+            // Java primitive casting (JLS 5.1.2/5.1.3): narrowing keeps the low
+            // bits (wrap-around), widening sign-extends (`char` zero-extends). This
+            // was previously a silent no-op, so `(byte)300` stayed 300 and mixing a
+            // narrowed BV8 with a BV32 literal produced ill-sorted SMT.
+            if (e.type.isPrimitiveType) {
+                val jType = try {
+                    e.type.resolve() as? ResolvedPrimitiveType
+                } catch (ex: Exception) {
+                    null
+                }
+                val converted = convertTo(v, jType?.let { translator.getType(it) })
+                if (jType != null) converted.javaType = jType
+                converted
+            } else {
+                v
+            }
         }
 
         is MethodCallExpr -> handleCall(e, guard, mode)
@@ -2231,8 +2292,13 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
      */
     private fun fnApplyOverflow(e: BinaryExpr): SExpr {
         val tr = translatorOf()
-        val a = e.left.accept(tr, null)!!
-        val b = e.right.accept(tr, null)!!
+        val a0 = e.left.accept(tr, null)!!
+        val b0 = e.right.accept(tr, null)!!
+        // args arrive unpromoted (`e.left.accept` translates the raw operand); apply
+        // Java's binary numeric promotion first so the width being checked is the
+        // promoted one — a byte+byte sum can never overflow an int, so its overflow
+        // check must not wrap at 8 bits.
+        val (a, b) = translator.promote(e.operator, a0, b0)
         val width = (a.smtType as? SmtType.BitVec)?.width
             ?: (b.smtType as? SmtType.BitVec)?.width
             ?: throw RuntimeException(

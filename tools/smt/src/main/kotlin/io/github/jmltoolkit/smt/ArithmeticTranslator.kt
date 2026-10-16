@@ -19,6 +19,14 @@ import java.math.BigInteger
 interface ArithmeticTranslator {
     fun binary(operator: BinaryExpr.Operator, left: SExpr, right: SExpr): SExpr
 
+    /**
+     * Applies Java's binary / unary numeric promotion (JLS 5.6.1 / 5.6.2) to the
+     * two operands of [operator]. Default: identity — the UNBOUNDED `Int` encoding
+     * needs no widening. The BOUNDED bit-vector translator widens byte/short/char
+     * (`BV8`/`BV16`) to `BV32` (long wins over everything), char zero-extending.
+     */
+    fun promote(operator: BinaryExpr.Operator, left: SExpr, right: SExpr): Pair<SExpr, SExpr> = left to right
+
     fun makeChar(n: CharLiteralExpr): SExpr
 
     fun unary(operator: UnaryExpr.Operator, accept: SExpr): SExpr

@@ -24,32 +24,50 @@ class KeyReverseScratchTest {
 
     @Test
     fun variants() {
-        verify("return-new-param-dim", """
+        verify(
+            "return-new-param-dim",
+            """
             class T { //@ requires n >= 0; //@ ensures true;
             public int[] m(int n) { return new int[n]; } }
-        """.trimIndent())
-        verify("assign-new-param-dim", """
+        """.trimIndent()
+        )
+        verify(
+            "assign-new-param-dim",
+            """
             class T { //@ requires n >= 0; //@ ensures true;
             public int[] m(int n) { int[] b = new int[n]; return b; } }
-        """.trimIndent())
-        verify("return-new-thisfield-dim", """
+        """.trimIndent()
+        )
+        verify(
+            "return-new-thisfield-dim",
+            """
             class T { public int[] a;
             //@ requires a != null && a.length >= 0; //@ ensures true;
             public int[] m() { return new int[a.length]; } }
-        """.trimIndent())
-        verify("assign-new-thisfield-dim", """
+        """.trimIndent()
+        )
+        verify(
+            "assign-new-thisfield-dim",
+            """
             class T { public int[] a;
             //@ requires a != null && a.length >= 0; //@ ensures true;
             public int[] m() { int[] b = new int[a.length]; return b; } }
-        """.trimIndent())
-        verify("assign-new-paramfield-dim", """
+        """.trimIndent()
+        )
+        verify(
+            "assign-new-paramfield-dim",
+            """
             class T { //@ requires p_a != null && p_a.length >= 0; //@ ensures true;
             public int[] m(int[] p_a) { int[] b = new int[p_a.length]; return b; } }
-        """.trimIndent())
-        verify("assign-new-literal-dim", """
+        """.trimIndent()
+        )
+        verify(
+            "assign-new-literal-dim",
+            """
             class T { //@ ensures true;
             public int[] m() { int[] b = new int[4]; return b; } }
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 }
 

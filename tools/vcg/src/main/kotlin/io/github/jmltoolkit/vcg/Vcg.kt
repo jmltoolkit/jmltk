@@ -610,6 +610,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             } catch (e: Exception) {
                 null
             }
+
             else -> try {
                 receiverExpr?.calculateResolvedType()?.asReferenceType()?.qualifiedName
             } catch (e: Exception) {
@@ -2254,14 +2255,18 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         val t = e.elementType
         val element = when {
             !t.isPrimitiveType -> SmtType.JAVA_OBJECT
+
             t.asString() == "boolean" -> SmtType.BOOL
+
             t.asString() == "float" || t.asString() == "double" ->
                 if (options.mode == VerificationMode.BOUNDED) {
                     if (t.asString() == "float") SmtType.FP32 else SmtType.FP64
                 } else {
                     SmtType.REAL
                 }
+
             options.mode != VerificationMode.BOUNDED -> SmtType.INT
+
             else -> when (t.asString()) {
                 "byte" -> SmtType.BV8
                 "short" -> SmtType.BV16

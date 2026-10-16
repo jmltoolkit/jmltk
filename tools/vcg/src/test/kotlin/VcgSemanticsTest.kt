@@ -782,7 +782,9 @@ class VcgSemanticsTest {
                 is com.github.javaparser.ast.expr.BinaryExpr -> {
                     dig(e.left); dig(e.right)
                 }
+
                 is JmlLabelExpr -> labels.add(e.label.asString() to e.expression.toString())
+
                 else -> {}
             }
         }

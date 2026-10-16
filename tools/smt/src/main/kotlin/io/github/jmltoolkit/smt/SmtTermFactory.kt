@@ -279,6 +279,48 @@ object SmtTermFactory {
         )
     }
 
+    /**
+     * Zero-extends [expr] to [toWidth] bits using SMT-LIB's `(_ zero_extend k)`.
+     * This is the Java widening conversion of a `char` (JLS 5.1.2), whose value is
+     * unsigned — a sign-extension would turn `\\uFFFF` into a negative int.
+     */
+    fun zeroExtend(expr: SExpr, toWidth: Int): SExpr {
+        val fromWidth = (expr.smtType as? BitVec)?.width
+            ?: throw RuntimeException("zeroExtend requires a bit-vector operand, got ${expr.smtType}")
+        val bits = toWidth - fromWidth
+        require(bits >= 0) { "zeroExtend: target width $toWidth must be at least the operand width $fromWidth" }
+        if (bits == 0) return expr
+        val type = SmtType.getBitVec(toWidth)
+        return SList(
+            type, null,
+            listOf(
+                SList(null, null, listOf(symbol("_"), symbol("zero_extend"), intValue(bits.toLong()))),
+                expr
+            )
+        )
+    }
+
+    /**
+     * Extracts the low [width] bits of [expr] (`(_ extract width-1 0)`): the Java
+     * narrowing primitive conversion (JLS 5.1.3) keeps the low-order bits, which is
+     * exactly the `(byte)`/`(short)`/`(char)` wrap-around semantics.
+     */
+    fun extractLow(expr: SExpr, width: Int): SExpr {
+        val fromWidth = (expr.smtType as? BitVec)?.width
+            ?: throw RuntimeException("extractLow requires a bit-vector operand, got ${expr.smtType}")
+        require(width in 1 until fromWidth) {
+            "extractLow: target width $width must be in (0, $fromWidth), got ${expr.smtType}"
+        }
+        val type = SmtType.getBitVec(width)
+        return SList(
+            type, null,
+            listOf(
+                SList(null, null, listOf(symbol("_"), symbol("extract"), intValue((width - 1).toLong()), intValue(0L))),
+                expr
+            )
+        )
+    }
+
     //endregion
     private fun isBool(sexpr: SExpr): Boolean = sexpr.smtType == SmtType.BOOL
 

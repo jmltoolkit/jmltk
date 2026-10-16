@@ -233,6 +233,11 @@ class VcgSemanticsTest {
             Arguments.of("useCountedCtor", b),
             Arguments.of("ctorInvariantUsable", u),
             Arguments.of("ctorInvariantUsable", b),
+            // P2.2: constant field initializers
+            Arguments.of("p22StaticFinalBlocks", u),
+            Arguments.of("p22StaticFinalBlocks", b),
+            Arguments.of("p22ConstantShapes", u),
+            Arguments.of("p22ConstantShapes", b),
             // corner cases: MIN/MAX literals and boundary arithmetic
             Arguments.of("intMinLiteral", u),
             Arguments.of("intMinLiteral", b),
@@ -690,6 +695,65 @@ class VcgSemanticsTest {
         // constructed type (P2.1 step 2)
         expectAllProven(vcgFor("ctorInvariantUsable", u))
         expectAllProven(vcgFor("ctorInvariantUsable", b))
+    }
+
+    //endregion
+
+    //region constant field initializers (P2.2)
+
+    @Test
+    fun testStaticFinalConstantsFoldIntoEntry() {
+        // `static final` constant initializers (plus the arithmetic folded through
+        // them) are bound at method entry, so the ensures silently discharges where
+        // the field used to be unconstrained (havoc)
+        expectAllProven(vcgFor("p22StaticFinalBlocks", u))
+        expectAllProven(vcgFor("p22StaticFinalBlocks", b))
+        expectAllProven(vcgFor("p22StaticFinalBool", u))
+        expectAllProven(vcgFor("p22StaticFinalBool", b))
+        expectAllProven(vcgFor("p22ConstantShapes", u))
+        expectAllProven(vcgFor("p22ConstantShapes", b))
+    }
+
+    @Test
+    fun testNonConstantInitializerStaysUnconstrained() {
+        // a non-constant initializer (method call) is never folded: the field keeps
+        // its unconstrained slot, so the spec that depends on it is falsifiable
+        expectSomeFalsifiable(vcgFor("p22NonConstInit", u))
+        expectSomeFalsifiable(vcgFor("p22NonConstInit", b))
+    }
+
+    @Test
+    fun testForwardRefInitializerStaysUnconstrained() {
+        // JLS 8.3.3 textual order: an initializer only sees earlier-declared
+        // fields, so a forward reference is not folded (stays unconstrained)
+        expectSomeFalsifiable(vcgFor("p22ForwardRefInstance", u))
+        expectSomeFalsifiable(vcgFor("p22ForwardRefInstance", b))
+    }
+
+    @Test
+    fun testConstantInstanceInitializersProveConstructor() {
+        // the initializer (`count = 0`) runs before the ctor body, so an empty
+        // default ctor still establishes `count == 0` and `invariant count >= 0`
+        expectAllProven(vcgForCtorIn(6, u))
+        expectAllProven(vcgForCtorIn(6, b))
+    }
+
+    @Test
+    fun testFinalInstanceConstantReadableInMethod() {
+        // a `final` instance constant can never be rewritten by any constructor,
+        // so cap == 5 holds for every instance method entry
+        expectAllProven(vcgForIn("capacity", 6, u))
+        expectAllProven(vcgForIn("capacity", 6, b))
+    }
+
+    @Test
+    fun testMutableInstanceInitializerNotUsedInMethods() {
+        // soundness boundary: `count` is mutable instance state, so the method may
+        // run on an object built by the (int n) ctor that overwrote it — the
+        // initializer is NOT folded into method entry, and `\result == 0` stays
+        // unprovable even though the default constructor establishes count == 0
+        expectSomeFalsifiable(vcgForIn("countAfterAnyCtor", 6, u))
+        expectSomeFalsifiable(vcgForIn("countAfterAnyCtor", 6, b))
     }
 
     //endregion

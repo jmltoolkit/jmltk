@@ -88,13 +88,64 @@ assumed class invariant, since the tested constructor pins nothing via
 ensures). Golden guardrails: `useCountedCtor__U_CONTRACT`, `ctorInvariantUsable__U`.
 Effort: medium. Impact: medium-high.
 
-### P2.2 Field/static-final initializers (partial)
+### P2.2 Field/static-final initializers (partial) — DONE
 Where: `setupContext` (`Vcg.kt`, 336+) / field declarations in `VcgFacade`.
 Steps:
 1. Bind instance fields with literal/`static final` constant initializers to their value in the initial env (not havoced).
 2. Constant-foldable initializers only (literals, `static final` refs); everything else stays unconstrained (documented).
 3. Optional: fold `static final` constants into reads.
 Tests: a previously-unprovable method now proves; non-constant initializer test stays unconstrained.
+Effort: small–medium. Impact: medium.
+
+Implemented (2026-10-16):
+- **Constant folder** (`foldFieldConstants` + `foldFieldConst`): folds only JLS-style
+  constant expressions in *textual declaration order* (JLS 8.3.3 — an initializer
+  may only fold through *earlier*-declared fields, so forward references never
+  leak a value Java would still see as the default). Supported shapes: decimal /
+  hex / octal / binary int literals (JLS 3.10.1 typing incl. two's-complement
+  hex literals like `0xffffffff`, `int` vs `long` classification), `long`
+  literals, `char`/`boolean` literals, unary `+ - ! ~`, `+ - * / % << >> & | ^`,
+  comparisons and `&& || == !=`. Everything else (method calls, casts,
+  `>>>` — its value differs between the two arithmetic modes —, non-constant
+  reads, forward references) stays unconstrained; the folder never approximates.
+- **Intermediate-overflow discipline**: every intermediate result must lie in the
+  signed range of its promoted type (int: `2^31`, long: `2^63`), so the folded
+  value never wraps — it is the exact Java value in *both* modes (BOUNDED's
+  bit-vectors wrap on `store`-style ops, UNBOUNDED's `Int` never does; a pin with
+  a wrapped value would be mode-dependent and unsound in one of them). `x / 0`,
+  `MIN / -1` and wrapping shifts (`1 << 31`) are left unconstrained.
+- **Entry binding rules** (`bindFieldConstant`) — a constant initializer pins the
+  `this.<f>` / bare slot only where *every* legal execution reaches the entry
+  state with that value:
+  - `static final` constants: bound for every callable (class-init runs first,
+    `final` forbids later writes) — this also delivers "fold constants into
+    reads" for the enclosing class;
+  - any constant instance initializer: bound when verifying a *constructor*
+    (JLS 12.5: initializers run before the body) — e.g. an empty default ctor
+    now establishes `count == 0` and the class invariant through the folded
+    initializer alone;
+  - `final` instance constants: additionally bound for instance methods (no
+    constructor can rewrite a `final`-with-initializer field);
+  - never bound: mutable `static` fields (another method may have written them
+    before entry), mutable instance fields in methods (a competing constructor
+    may have overwritten them), reference-typed fields (unconstrained slots).
+- **Pins are SSA-first-class**: they assert on the base entry constant, so later
+  writes version the slot normally, `\old` sees the pinned value, and the
+  identity-keyed field-map anchor (`select(base, this) == this.<f>`) carries the
+  constant into alias reads for free.
+Tests: `p22StaticFinalBlocks` (`static final` arithmetic chain proves — was
+unprovable), `p22ConstantShapes` (minus/hex/char/long/comparison shapes, U+B),
+`p22NonConstInit` (method-call initializer stays unconstrained — falsifiable),
+`p22ForwardRefInstance` (JLS textual order: stays unconstrained, falsifiable);
+`ConstantInitCtor` fixture: default ctor proves `count == 0` + `invariant count
+>= 0` from the folded initializer, `capacity()` reads the `final` instance
+constant, `countAfterAnyCtor` stays falsifiable (mutable instance field is NOT
+folded into methods — the `(int n)` ctor overwrites it, soundness boundary).
+Golden guardrail: `p22StaticFinalBlocks__U` (shows `(= P22_BLOCK 1024)` /
+`(= P22_TWO_BLOCKS 2048)` pins; `P22_DYNAMIC` / `p22FwdInstance` explicitly
+absent from the pins). 36 existing goldens regenerated — only the new type
+constant, the new field slots/pins and the two new instance slots havoced by the
+`\everything`-contract frame.
 Effort: small–medium. Impact: medium.
 
 ## Phase 3 — Diagnostics & explicit-limiting (cheap wins)
@@ -159,5 +210,6 @@ Effort: high.
 ## Open decisions
 - P1.3: reject-by-default or `--allow-unrefined` best-effort? **Decided (P1.3): reject-by-default, opt-in `--allow-unrefined-calls`.**
 - P2.1: reject unresolvable constructors (P1.3 mirror) or keep the fresh-object approximation? **Decided (P2.1): keep the fresh-object approximation** — unrefined construction is a sound over-approximation, and reads on such objects are already guarded by P1.3 (deviation documented in the P2.1 section).
+- P2.2: which entry bindings are sound? **Decided (P2.2): bind only where every legal execution reaches the entry state with the constant** — `static final` everywhere, constant instance initializers in constructors (initializer-before-body), `final` instance constants in methods; mutable static and mutable instance fields are never bound (documented in the P2.2 section).
 - P3.3: which runtime checks on by default? **Decided (P3.3): the six exception checks, `checkOverflow` opt-in, `--checks=all|none|default`.**
 - P4.2: "arrays never-null" acceptable as a documented approximation, or must it be fixed?

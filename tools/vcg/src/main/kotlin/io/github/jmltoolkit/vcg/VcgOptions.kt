@@ -67,6 +67,11 @@ enum class CallStrategy {
  * @param checkNegativeArraySize emit VCs asserting no array is created with a negative size
  * @param checkStringIndex emit VCs asserting indices into `String`/`StringBuilder` are in
  *   bounds, and model `String.length()` as an uninterpreted length function
+ * @param allowUnrefinedCalls instead of rejecting a call whose callee has no JML
+ *   contract and no body (unresolvable, or a bodyless native/abstract method without
+ *   a contract), havoc the caller-visible frame (`this.*`, arrays, field maps) and
+ *   return an unconstrained result — a sound over-approximation instead of the
+ *   default loud diagnostic
  */
 data class VcgOptions(
     val mode: VerificationMode = VerificationMode.BOUNDED,
@@ -84,6 +89,7 @@ data class VcgOptions(
     val checkCast: Boolean = false,
     val checkNegativeArraySize: Boolean = false,
     val checkStringIndex: Boolean = false,
+    val allowUnrefinedCalls: Boolean = false,
 ) {
     fun loopStrategy(loop: Node): LoopStrategy = loopStrategies[loop] ?: defaultLoopStrategy
 

@@ -6,6 +6,7 @@ package io.github.jmltoolkit.vcg
 
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Modifier
+import com.github.javaparser.ast.NodeList
 import com.github.javaparser.ast.body.CallableDeclaration
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.body.ConstructorDeclaration
@@ -432,9 +433,11 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
 
     private fun safeType(jType: ResolvedType?): SmtType {
         val t = try {
-            if (jType != null) translator.getType(jType) else SmtType.INT
+            // fall back to the mode's `int` encoding: BV32 in BOUNDED, Int in
+            // UNBOUNDED — the raw SmtType.INT sort is ill-sorted next to BV32
+            if (jType != null) translator.getType(jType) else translator.getType(ResolvedPrimitiveType.INT)
         } catch (e: Exception) {
-            SmtType.INT
+            translator.getType(ResolvedPrimitiveType.INT)
         }
         if (t is SmtType.Array) ensureLengthFn(t)
         return t
@@ -2427,7 +2430,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 null
             }
         if (decl == null || decl.body.isEmpty) {
-            return contractCall(call, guard, mode, null)
+            return contractCall(call, guard, mode, decl)
         }
         return when (strategy) {
             CallStrategy.INLINE -> {
@@ -2554,11 +2557,14 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             if (recvForString != null) stringIndexChecker(call, args, recvForString, guard, mode)
         }
 
-        if (decl == null) {
-            // unknown callee: unconstrained result, nothing havoced (unsound but best effort)
-            return result
+        // bind the receiver for the callee view (and the unrefined-call havoc) even
+        // when no receiver-sensitive check forced it up front
+        if (receiver == null && scope != null && scope !is ThisExpr && decl?.isStatic != true) {
+            receiver = atom(scope, guard, mode)
+            receiverPrefix = "$scope."
         }
-        val contracts = decl.contracts
+
+        val contracts = decl?.contracts ?: NodeList<JmlContract>()
         JMLUtils.unroll(contracts)
         // The callee's spec cases stay separate (JML disjunction): each case i gives
         // `requires_i -> ensures_i`, the caller must establish the *union* of the
@@ -2566,15 +2572,6 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         // requires. Merging clauses conjunctively would demand all requires and
         // assume all ensures — unsound for cases with distinct preconditions.
         val cases = contracts.toList()
-
-        if (!needsEarlyReceiver) {
-            receiver = if (scope != null && scope !is ThisExpr && !decl.isStatic) {
-                atom(scope, guard, mode)
-            } else {
-                null
-            }
-            receiverPrefix = if (receiver != null) "$scope." else null
-        }
 
         /** Rebinds the callee's `this` (and tracked `this.*` entries) to the receiver. */
         fun bindReceiver(map: HashMap<String, SExpr>) {
@@ -2644,6 +2641,43 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             }
             val type = envTypes[target] ?: return
             declareHavocConst(target, type)
+        }
+
+        // (P1.3) unrefined callee: a call the caller cannot refine with — no
+        // declaration at all (hence no body and no JML contract), or a bodyless
+        // native/abstract method without a contract. Default: fail loudly instead of
+        // silently treating the result as an unconstrained constant while assuming
+        // the call touched nothing (unsound). With --allow-unrefined-calls, havoc
+        // the caller-visible frame (this.*, arrays, field maps — the \everything
+        // path) so the call is over-approximated instead of guessed.
+        fun havocEverything() {
+            for (key in env.keys.toList()) {
+                if (key.startsWith("this.") || envTypes[key] is SmtType.Array || isFieldMapKey(key)) {
+                    havocKey(key)
+                }
+            }
+        }
+        val unrefinedCallee =
+            "its callee has no JML contract and no body to inline; failing loudly instead of " +
+                "guessing its behavior. Refine the call with a JML contract (or a body) or rerun " +
+                "with --allow-unrefined-calls to havoc the caller-visible frame"
+        if (decl == null) {
+            if (!options.allowUnrefinedCalls) {
+                throw IllegalStateException(
+                    "VCG: call to ${describe(call)} could not be resolved and $unrefinedCallee"
+                )
+            }
+            havocEverything()
+            return result
+        }
+        if (cases.isEmpty() && decl.body.isEmpty) {
+            if (!options.allowUnrefinedCalls) {
+                throw IllegalStateException(
+                    "VCG: call to ${describe(call)} (${decl.nameAsString}): $unrefinedCallee"
+                )
+            }
+            havocEverything()
+            return result
         }
 
         /** The callee view of the environment: current state + params + result + receiver. */

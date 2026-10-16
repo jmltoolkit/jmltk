@@ -55,7 +55,7 @@
 (declare-fun bv$length ((Array (_ BitVec 32) (_ BitVec 32))) (_ BitVec 32))
 (assert (forall ((a (Array (_ BitVec 32) (_ BitVec 32)))) (bvsge (bv$length a) ((_ int2bv 32) 0))))
 (declare-const this.dataField (Array (_ BitVec 32) (_ BitVec 32)))
-(declare-const $result Int)
+(declare-const $result (_ BitVec 32))
 (assert (= this.val ((_ int2bv 32) 0)))
 (declare-const $t1 (_ BitVec 32))
 (assert (=> (and (and true (not false)) (not false)) (= $t1 (bvadd this.val ((_ int2bv 32) 9)))))

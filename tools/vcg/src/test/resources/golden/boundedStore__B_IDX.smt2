@@ -56,7 +56,7 @@
 (declare-const staticCounter (_ BitVec 32))
 (declare-const this.val (_ BitVec 32))
 (declare-const this.dataField (Array (_ BitVec 32) (_ BitVec 32)))
-(declare-const $result Int)
+(declare-const $result (_ BitVec 32))
 (assert (and true (bvsge (bv$length a) ((_ int2bv 32) 1))))
 (declare-const a$1 (Array (_ BitVec 32) (_ BitVec 32)))
 (assert (= a$1 (ite (and (and true (not false)) (not false)) (store a ((_ int2bv 32) 0) ((_ int2bv 32) 1)) a)))

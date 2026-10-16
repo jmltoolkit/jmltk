@@ -666,6 +666,27 @@ public class VcgExamples {
         return v;
     }
 
+    // P1.3: an unrefined call (unresolvable callee) is rejected by default; with
+    // allowUnrefinedCalls the caller-visible frame is havoced, so a caller that
+    // observes a field after the call cannot assume it is untouched. `this.val`
+    // must be read before the call so the havoc has a slot to refresh.
+    //@ requires true;
+    //@ ensures this.val == 0;
+    public int callUnresolvedPreservesVal(int x) {
+        int before = this.val;
+        mysteryHelper(x);
+        return this.val;
+    }
+
+    // the sound counterpart under the flag: returning the post-call field reads the
+    // havoced value, so `\result == this.val` stays provable.
+    //@ requires true;
+    //@ ensures \result == this.val;
+    public int callUnresolvedRereads(int x) {
+        mysteryHelper(x);
+        return this.val;
+    }
+
     //@ requires true;
     //@ ensures \result == 1;
     public int declareInThen(int c, int x) {

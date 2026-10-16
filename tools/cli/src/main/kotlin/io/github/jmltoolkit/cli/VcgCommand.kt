@@ -74,6 +74,11 @@ class VcgCommand : FileBasedCommand(name = "vcg") {
     private val checkStringIndex by option(
         "--check-string-index", help = "emit VCs asserting string indices are in bounds"
     ).flag()
+    private val allowUnrefinedCalls by option(
+        "--allow-unrefined-calls",
+        help = "havoc the caller-visible frame for calls whose callee has no JML contract " +
+            "and no body, instead of rejecting them"
+    ).flag()
     private val vcgInclude by option(
         "--vcg-include", help = "only report VCs whose id matches this glob (repeatable)"
     ).multiple()
@@ -155,6 +160,7 @@ class VcgCommand : FileBasedCommand(name = "vcg") {
         checkCast = checkCast,
         checkNegativeArraySize = checkNegativeArraySize,
         checkStringIndex = checkStringIndex,
+        allowUnrefinedCalls = allowUnrefinedCalls,
     )
 
     /** Converts a glob (`*` matches any run of characters, `?` any single one) to a regex. */

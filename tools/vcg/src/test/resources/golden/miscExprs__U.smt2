@@ -78,6 +78,6 @@
 (declare-const $ret$1 Bool)
 (assert (= $ret$1 (ite (and (and true (not false)) (not false)) true false)))
 (push)
-(assert (! (not (=> (and true $ret$1) (and true (>= $result$1 1)))) :named v1))
+(assert (! (not (=> (and (and true (and (<= 0 x) (<= x 10))) $ret$1) (and true (>= $result$1 1)))) :named v1))
 (check-sat)
 (pop)

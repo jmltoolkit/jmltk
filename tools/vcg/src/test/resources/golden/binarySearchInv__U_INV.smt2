@@ -147,6 +147,6 @@
 (check-sat)
 (pop)
 (push)
-(assert (! (not (=> (and true $ret$11) (and true (ite (exists ((x Int)) (and (and true (and (<= 0 x) (< x (int$length a)))) (= (select a x) v))) (= (select a $result$11) v) (= $result$11 (- 0 1)))))) :named v4))
+(assert (! (not (=> (and (and true (forall ((x Int)) (and true (forall ((y Int)) (=> (and (and (<= 0 x) (< x y)) (< y (int$length a))) (and true (<= (select a x) (select a y)))))))) $ret$11) (and true (ite (exists ((x Int)) (and (and true (and (<= 0 x) (< x (int$length a)))) (= (select a x) v))) (= (select a $result$11) v) (= $result$11 (- 0 1)))))) :named v4))
 (check-sat)
 (pop)

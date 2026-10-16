@@ -796,6 +796,46 @@ public class VcgExamples {
     public void bumpNothingA(int[] a) {
     }
 
+    // Two spec cases with disjoint requires — the JML disjunctive semantics. The
+    // correct body satisfies both; call sites may pick either case.
+    //@ requires x >= 0;
+    //@ ensures \result == x;
+    //@ also
+    //@ requires x < 0;
+    //@ ensures \result == -x;
+    public int twoCaseAbs(int x) {
+        return x < 0 ? -x : x;
+    }
+
+    //@ requires true;
+    //@ ensures \result == 6;
+    public int callTwoCaseAbs() {
+        return twoCaseAbs(-6);
+    }
+
+    // This body is wrong for the second case (and for x == 0 the two cases
+    // overlap): self-verification must expose a failing postcondition.
+    //@ requires x >= 0;
+    //@ ensures \result == x;
+    //@ also
+    //@ requires x < 0;
+    //@ ensures \result == -x;
+    public int twoCaseAbsWrong(int x) {
+        return x;
+    }
+
+    // Neither spec case applies to `x` in the gap (-100 ... 100): no legal caller
+    // may enter here, so nothing may be proven from a contradictory merged requires
+    // — this must fail after the disjunctive-semantics fix.
+    //@ requires x > 100;
+    //@ ensures \result == 1;
+    //@ also
+    //@ requires x < -100;
+    //@ ensures \result == 2;
+    public int unreachableGap(int x) {
+        return 0;
+    }
+
     //@ requires true;
     //@ ensures \result == 0;
     public int newObject(int x) {

@@ -88,6 +88,6 @@
 (check-sat)
 (pop)
 (push)
-(assert (! (not (=> (and true $ret$1) (and true (= $result$1 (- 0 1))))) :named v4))
+(assert (! (not (=> (and (and true (>= n 0)) $ret$1) (and true (= $result$1 (- 0 1))))) :named v4))
 (check-sat)
 (pop)

@@ -66,6 +66,6 @@
 (declare-const this.val$1 Int)
 (assert (= this.val$1 (ite (and (and true (not false)) (not false)) $t1 this.val)))
 (push)
-(assert (! (not (=> true (and true (= (select fld$int.val$1 this) 9)))) :named v1))
+(assert (! (not (=> (and true (= this.val 0)) (and true (= (select fld$int.val$1 this) 9)))) :named v1))
 (check-sat)
 (pop)

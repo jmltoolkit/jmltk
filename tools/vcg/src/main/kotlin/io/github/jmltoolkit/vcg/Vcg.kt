@@ -2521,6 +2521,16 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         }
 
         is ArrayCreationExpr -> {
+            // P3.1: a multi-dimensional array (`new int[n][m]`) has one level per
+            // dimension, but the model below only encodes the *first* one — the
+            // element sort silently collapses to a 1-D array of the base type.
+            // Reject instead of mis-modeling.
+            if (e.levels.size > 1) {
+                throw UnsupportedFeatureException(
+                    "unsupported: multi-dimensional array creation ${describe(e)}: $e",
+                    e.range.orElse(null)
+                )
+            }
             // A fresh anonymous array constant whose length is bound to the first
             // (possibly symbolic) dimension; a negative size is a runtime error.
             val dimension = if (e.levels.isNotEmpty() && e.levels[0].dimension.isPresent) {

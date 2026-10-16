@@ -1125,7 +1125,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
 
             is NfLoop -> {
                 execLoop(s, guard, mode)
-                return exitGuards[s.loopNode.hashCode()] ?: guard
+                return exitGuards[s.loopId] ?: guard
             }
 
             is NfThrow -> execThrow(s, guard, mode)
@@ -1651,7 +1651,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             } else {
                 options.loopStrategy(s.loopNode)
             }
-        val loopId = s.loopNode.hashCode()
+        val loopId = s.loopId
         val frame = LoopFrame(
             loopId, strategy,
             loopClauses(s.loopNode, LOOP_INVARIANTS),
@@ -2250,7 +2250,10 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
 
     /** The SMT array type of a `new T[..]` when the expression's resolved type is
      *  unavailable (the node is a detached copy, e.g. from a re-parented parsed
-     *  fragment). Mirrors `translator.getType` on the array's resolved type. */
+     *  fragment). Mirrors `translator.getType` on the array's resolved type: the
+     *  element sort follows the mode (BV32..BV64 / FP in BOUNDED, Int / Real in
+     *  UNBOUNDED) and so does the index sort (BV32 in BOUNDED — `bv$length` is
+     *  declared over `(Array (_ BitVec 32) _)` — and Int in UNBOUNDED). */
     private fun arraySmtType(e: ArrayCreationExpr): SmtType {
         val t = e.elementType
         val element = when {
@@ -2275,7 +2278,8 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 else -> SmtType.BV32
             }
         }
-        return SmtType.Array(SmtType.INT, element)
+        val index = if (options.mode == VerificationMode.BOUNDED) SmtType.BV32 else SmtType.INT
+        return SmtType.Array(index, element)
     }
     //endregion
 

@@ -47,8 +47,14 @@ data class NfIf(val cond: Expression, val thenStmts: List<NfStmt>, val elseStmts
  * A loop. [loopNode] is the original loop node (`while`, `for`, `do`); [cond] is the
  * (already desugared) loop condition; [body] contains the body including the
  * increment/update statements of a `for` loop.
+ *
+ * [loopId] is a stable, deterministic id assigned by the [io.github.jmltoolkit.vcg.Normalizer]
+ * (a sequential counter over the statement traversal). It must *not* be derived from
+ * `Node.hashCode()`: javaparser nodes use identity-based hash codes, which differ
+ * between JVM runs and would make the emitted SMT text (break/continue flag names,
+ * exit guards) nondeterministic.
  */
-data class NfLoop(val loopNode: Node, val cond: Expression, val body: List<NfStmt>) : NfStmt()
+data class NfLoop(val loopNode: Node, val cond: Expression, val body: List<NfStmt>, val loopId: Int) : NfStmt()
 
 data class NfReturn(val value: Expression?) : NfStmt()
 

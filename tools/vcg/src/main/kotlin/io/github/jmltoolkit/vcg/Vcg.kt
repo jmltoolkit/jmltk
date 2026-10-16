@@ -16,13 +16,17 @@ import com.github.javaparser.ast.expr.ArrayAccessExpr
 import com.github.javaparser.ast.expr.ArrayCreationExpr
 import com.github.javaparser.ast.expr.AssignExpr
 import com.github.javaparser.ast.expr.BinaryExpr
+import com.github.javaparser.ast.expr.BooleanLiteralExpr
 import com.github.javaparser.ast.expr.CastExpr
+import com.github.javaparser.ast.expr.CharLiteralExpr
 import com.github.javaparser.ast.expr.ClassExpr
 import com.github.javaparser.ast.expr.ConditionalExpr
 import com.github.javaparser.ast.expr.EnclosedExpr
 import com.github.javaparser.ast.expr.Expression
 import com.github.javaparser.ast.expr.FieldAccessExpr
+import com.github.javaparser.ast.expr.IntegerLiteralExpr
 import com.github.javaparser.ast.expr.LiteralExpr
+import com.github.javaparser.ast.expr.LongLiteralExpr
 import com.github.javaparser.ast.expr.MethodCallExpr
 import com.github.javaparser.ast.expr.NameExpr
 import com.github.javaparser.ast.expr.ObjectCreationExpr
@@ -50,6 +54,7 @@ import io.github.jmltoolkit.smt.model.SAtom
 import io.github.jmltoolkit.smt.model.SExpr
 import io.github.jmltoolkit.smt.model.SList
 import io.github.jmltoolkit.smt.model.SmtType
+import java.math.BigInteger
 import io.github.jmltoolkit.utils.JMLUtils
 import io.github.jmltoolkit.vcg.ir.NfArray
 import io.github.jmltoolkit.vcg.ir.NfAssert
@@ -358,6 +363,13 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 envJavaTypes[key] = jType
             }
         }
+        // P2.2: constant field initializers. `foldFieldConstants` folds the
+        // enclosing type's initializers in declaration order (JLS 8.3.3: an
+        // initializer sees only *earlier*-declared fields); the folded values are
+        // then pinned to the slots at method entry where the language guarantees
+        // them (`bindFieldConstant`), closing the gap where a field with a constant
+        // initializer was previously unconstrained (havoced).
+        val fieldConsts = foldFieldConstants()
         for (field in ctx.enclosingType.fields) {
             for (v in field.variables) {
                 val key = if (field.isStatic) v.nameAsString else "this." + v.nameAsString
@@ -375,6 +387,19 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                     // make the field also visible under its bare name
                     env[v.nameAsString] = env[key]!!
                     envTypes[v.nameAsString] = sType
+                }
+                val c = fieldConsts[v.nameAsString]
+                if (c != null && bindFieldConstant(field, sType)) {
+                    // pin the slot's entry value: `static final` constants for every
+                    // callable; for constructors the instance initializer runs before
+                    // the body, and a `final` instance constant can never be rewritten
+                    val valTerm = when (c) {
+                        is FieldConst.Bool ->
+                            if (sType === SmtType.BOOL) term.makeBoolean(c.value) else null
+
+                        is FieldConst.Num -> fieldNumTerm(c, jType, sType)
+                    }
+                    if (valTerm != null) query.addAssert(equality(env[key]!!, valTerm))
                 }
             }
         }
@@ -398,6 +423,268 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         }
         oldEnv.putAll(env)
     }
+
+    //region constant field initializers (P2.2)
+    /** A constant-folded value of a field initializer (P2.2): only JLS-style
+     *  constant expressions and same-class references into earlier-declared
+     *  constant fields are folded; everything else (method calls, non-constant
+     *  reads, casts, forward references) stays unconstrained — the folder never
+     *  approximates an unmodeled value. */
+    private sealed interface FieldConst {
+        /** A numeric constant. [asLong] marks an expression of JLS `long` type
+         *  (operands promote to 64-bit arithmetic, JLS 5.6.2); 32-bit semantics
+         *  apply otherwise. The value always lies in the signed range of its type:
+         *  every intermediate operation is checked, so the folded value never
+         *  wraps — it is the exact Java value (also in BOUNDED mode, where the
+         *  bit-vector encoding would wrap differently). */
+        data class Num(val value: BigInteger, val asLong: Boolean) : FieldConst
+
+        data class Bool(val value: Boolean) : FieldConst
+    }
+
+    /** Folds the enclosing type's field initializers in textual declaration order.
+     *  Only *earlier*-declared fields are visible to the fold (JLS 8.3.3 runs
+     *  initializers textually), so a forward reference never leaks a value that
+     *  Java would still see as the default. */
+    private fun foldFieldConstants(): Map<String, FieldConst> {
+        val consts = LinkedHashMap<String, FieldConst>()
+        for (field in ctx.enclosingType.fields) {
+            for (v in field.variables) {
+                val init = v.initializer.orElse(null) ?: continue
+                val c = foldFieldConst(init) { name -> consts[name] }
+                if (c != null) consts[v.nameAsString] = c
+            }
+        }
+        return consts
+    }
+
+    private fun foldFieldConst(e: Expression, lookup: (String) -> FieldConst?): FieldConst? =
+        when (e) {
+            is IntegerLiteralExpr -> intLiteralConst(e)
+
+            is LongLiteralExpr -> longLiteralConst(e)
+
+            is CharLiteralExpr -> FieldConst.Num(BigInteger.valueOf(e.asChar().code.toLong()), false)
+
+            is BooleanLiteralExpr -> FieldConst.Bool(e.value)
+
+            is UnaryExpr -> foldUnaryConst(e, lookup)
+
+            is BinaryExpr -> foldBinaryConst(e, lookup)
+
+            is NameExpr -> lookup(e.nameAsString)
+
+            is EnclosedExpr -> foldFieldConst(e.inner, lookup)
+
+            // `this.f` in an instance initializer names the same field as `f`
+            is FieldAccessExpr ->
+                if (e.scope is ThisExpr) lookup(e.nameAsString) else null
+
+            else -> null
+        }
+
+    /** Parses an `int` literal with JLS 3.10.1 typing: decimal literals are
+     *  non-negative and `long` when the value exceeds 2^31-1; hex/octal/binary
+     *  literals fit 32 bits (two's complement) as `int`, else 64 bits as `long`. */
+    private fun intLiteralConst(n: IntegerLiteralExpr): FieldConst.Num? {
+        val text = n.value.replace("_", "")
+        val decimal: Boolean
+        val radix: Int
+        val digits: String
+        when {
+            text.startsWith("0x", ignoreCase = true) -> {
+                decimal = false; radix = 16; digits = text.substring(2)
+            }
+
+            text.startsWith("0b", ignoreCase = true) -> {
+                decimal = false; radix = 2; digits = text.substring(2)
+            }
+
+            text.length > 1 && text.startsWith("0") -> {
+                decimal = false; radix = 8; digits = text.substring(1)
+            }
+
+            else -> {
+                decimal = true; radix = 10; digits = text
+            }
+        }
+        val v = try { BigInteger(digits, radix) } catch (e: NumberFormatException) { return null }
+        return if (decimal) {
+            when {
+                v <= I32_MAX -> FieldConst.Num(v, false)
+                v <= I64_MAX -> FieldConst.Num(v, true)
+                else -> null
+            }
+        } else {
+            when {
+                v.bitLength() <= 32 -> FieldConst.Num(twosComplement(v, 32), false)
+                v.bitLength() <= 64 -> FieldConst.Num(twosComplement(v, 64), true)
+                else -> null
+            }
+        }
+    }
+
+    /** Parses a `long` literal: the digits fit 64 bits and are interpreted in
+     *  two's complement (so `0xffffffffffffffffL` is `-1L`). */
+    private fun longLiteralConst(n: LongLiteralExpr): FieldConst.Num? {
+        var text = n.value.replace("_", "")
+        if (text.endsWith("l", ignoreCase = true)) text = text.dropLast(1)
+        val radix: Int
+        val digits: String
+        when {
+            text.startsWith("0x", ignoreCase = true) -> {
+                radix = 16; digits = text.substring(2)
+            }
+
+            text.startsWith("0b", ignoreCase = true) -> {
+                radix = 2; digits = text.substring(2)
+            }
+
+            text.length > 1 && text.startsWith("0") -> {
+                radix = 8; digits = text.substring(1)
+            }
+
+            else -> {
+                radix = 10; digits = text
+            }
+        }
+        val v = try { BigInteger(digits, radix) } catch (e: NumberFormatException) { return null }
+        if (v.bitLength() > 64) return null
+        return FieldConst.Num(twosComplement(v, 64), true)
+    }
+
+    private fun foldUnaryConst(e: UnaryExpr, lookup: (String) -> FieldConst?): FieldConst? {
+        val inner = foldFieldConst(e.expression, lookup) ?: return null
+        return when (e.operator) {
+            UnaryExpr.Operator.PLUS -> inner as? FieldConst.Num
+
+            UnaryExpr.Operator.MINUS -> {
+                val n = inner as? FieldConst.Num ?: return null
+                val v = n.value.negate()
+                if (fitsKind(n.asLong, v)) FieldConst.Num(v, n.asLong) else null
+            }
+
+            UnaryExpr.Operator.LOGICAL_COMPLEMENT ->
+                (inner as? FieldConst.Bool)?.let { FieldConst.Bool(!it.value) }
+
+            UnaryExpr.Operator.BITWISE_COMPLEMENT -> {
+                val n = inner as? FieldConst.Num ?: return null
+                val v = n.value.not()
+                if (fitsKind(n.asLong, v)) FieldConst.Num(v, n.asLong) else null
+            }
+
+            else -> null
+        }
+    }
+
+    private fun foldBinaryConst(e: BinaryExpr, lookup: (String) -> FieldConst?): FieldConst? {
+        // `>>>` is refused: its result differs between the untouched mathematical
+        // encoding (UNBOUNDED) and Java's 32-bit pattern (BOUNDED)
+        if (e.operator == BinaryExpr.Operator.UNSIGNED_RIGHT_SHIFT) return null
+        val l = foldFieldConst(e.left, lookup) ?: return null
+        val r = foldFieldConst(e.right, lookup) ?: return null
+        if (l is FieldConst.Bool && r is FieldConst.Bool) {
+            return when (e.operator) {
+                BinaryExpr.Operator.AND -> FieldConst.Bool(l.value && r.value)
+                BinaryExpr.Operator.OR -> FieldConst.Bool(l.value || r.value)
+                BinaryExpr.Operator.EQUALS -> FieldConst.Bool(l.value == r.value)
+                BinaryExpr.Operator.NOT_EQUALS -> FieldConst.Bool(l.value != r.value)
+                else -> null
+            }
+        }
+        if (l !is FieldConst.Num || r !is FieldConst.Num) return null
+        // binary numeric promotion (JLS 5.6.2): long wins over int/narrow
+        val asLong = l.asLong || r.asLong
+        val x = l.value
+        val y = r.value
+        fun fits(v: BigInteger) = fitsKind(asLong, v)
+        fun num(v: BigInteger) = if (fits(v)) FieldConst.Num(v, asLong) else null
+        return when (e.operator) {
+            BinaryExpr.Operator.PLUS -> num(x.add(y))
+            BinaryExpr.Operator.MINUS -> num(x.subtract(y))
+            BinaryExpr.Operator.MULTIPLY -> num(x.multiply(y))
+            BinaryExpr.Operator.DIVIDE -> if (y.signum() == 0) null else num(x.divide(y))
+            BinaryExpr.Operator.REMAINDER -> if (y.signum() == 0) null else num(x.remainder(y))
+            BinaryExpr.Operator.LEFT_SHIFT -> shiftConst(x, y, asLong, left = true)
+            BinaryExpr.Operator.SIGNED_RIGHT_SHIFT -> shiftConst(x, y, asLong, left = false)
+            BinaryExpr.Operator.BINARY_AND -> num(x.and(y))
+            BinaryExpr.Operator.BINARY_OR -> num(x.or(y))
+            BinaryExpr.Operator.XOR -> num(x.xor(y))
+            BinaryExpr.Operator.LESS -> FieldConst.Bool(x < y)
+            BinaryExpr.Operator.LESS_EQUALS -> FieldConst.Bool(x <= y)
+            BinaryExpr.Operator.GREATER -> FieldConst.Bool(x > y)
+            BinaryExpr.Operator.GREATER_EQUALS -> FieldConst.Bool(x >= y)
+            BinaryExpr.Operator.EQUALS -> FieldConst.Bool(x == y)
+            BinaryExpr.Operator.NOT_EQUALS -> FieldConst.Bool(x != y)
+            else -> null
+        }
+    }
+
+    /** Java `<<` / `>>` on a constant: the shift distance is masked to 31 (int) or
+     *  63 (long, JLS 15.19), and the exact mathematical result is kept only when
+     *  it still fits the operand's signed range — a wrapping shift like `1 << 31`
+     *  is left unconstrained instead of being pinned to a mode-dependent value. */
+    private fun shiftConst(x: BigInteger, y: BigInteger, asLong: Boolean, left: Boolean): FieldConst.Num? {
+        val mask = if (asLong) 63 else 31
+        val n = (y.longValueExact() and mask.toLong()).toInt()
+        val v = if (left) x.shiftLeft(n) else x.shiftRight(n)
+        return if (fitsKind(asLong, v)) FieldConst.Num(v, asLong) else null
+    }
+
+    private fun fitsKind(asLong: Boolean, v: BigInteger): Boolean =
+        if (asLong) v in I64_MIN..I64_MAX else v in I32_MIN..I32_MAX
+
+    /** Two's-complement interpretation of a [bits]-bit pattern ([v] is non-negative). */
+    private fun twosComplement(v: BigInteger, bits: Int): BigInteger {
+        val width = BigInteger.ONE.shiftLeft(bits)
+        return if (v.testBit(bits - 1)) v.subtract(width) else v
+    }
+
+    /**
+     * Whether a folded field constant is bound at method entry. The entry value
+     * is only pinned where *every* legal execution reaches the entry state with
+     * that value:
+     *  - `static final` constants hold for any callable (the class initializer
+     *    runs before every use and `final` prevents later writes);
+     *  - an instance constant initializer holds inside a constructor body (JLS
+     *    12.5: initializers run before the body), but *not* in an arbitrary
+     *    instance method, which may run on an object built by a constructor that
+     *    overwrote the field — except a `final` field, which no constructor can
+     *    rewrite, so its initializer value holds for every instance;
+     *  - mutable static fields are never bound (another method may have written
+     *    them before entry), and neither are nested non-`final`-instance cases.
+     */
+    private fun bindFieldConstant(field: com.github.javaparser.ast.body.FieldDeclaration, sType: SmtType): Boolean {
+        if (sType === SmtType.JAVA_OBJECT) return false // reference slots stay unconstrained
+        return when {
+            field.isStatic -> field.isFinal
+            ctx.callable is ConstructorDeclaration -> true
+            field.isFinal -> !ctx.callable.isStatic
+            else -> false
+        }
+    }
+
+    /** The SMT literal for a folded numeric constant, matching the slot's sort;
+     *  `null` when the value cannot be represented in the field's declared type
+     *  (defensive: valid Java never produces such a constant initializer). */
+    private fun fieldNumTerm(c: FieldConst.Num, jType: ResolvedType?, sType: SmtType?): SExpr? {
+        val p = jType as? ResolvedPrimitiveType ?: return null
+        val inRange = when (p) {
+            ResolvedPrimitiveType.BYTE -> c.value in I8_MIN..I8_MAX
+            ResolvedPrimitiveType.SHORT -> c.value in I16_MIN..I16_MAX
+            ResolvedPrimitiveType.CHAR -> c.value >= BigInteger.ZERO && c.value <= U16_MAX
+            ResolvedPrimitiveType.INT -> c.value in I32_MIN..I32_MAX
+            ResolvedPrimitiveType.LONG -> c.value in I64_MIN..I64_MAX
+            else -> false
+        }
+        if (!inRange) return null
+        return when (sType) {
+            is SmtType.BitVec -> term.makeBitvector(sType.width, c.value)
+            SmtType.INT -> term.makeInt(c.value.toString())
+            else -> null
+        }
+    }
+    //endregion
 
     private fun isBoxedType(t: ResolvedType): Boolean {
         val id = try {
@@ -738,6 +1025,17 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
 
     //region clause helpers
     companion object {
+        // P2.2: primitive value ranges for the constant-field folder
+        val I8_MIN = BigInteger.valueOf(Byte.MIN_VALUE.toLong())
+        val I8_MAX = BigInteger.valueOf(Byte.MAX_VALUE.toLong())
+        val I16_MIN = BigInteger.valueOf(Short.MIN_VALUE.toLong())
+        val I16_MAX = BigInteger.valueOf(Short.MAX_VALUE.toLong())
+        val U16_MAX = BigInteger.valueOf(0xFFFFL)
+        val I32_MIN = BigInteger.valueOf(Int.MIN_VALUE.toLong())
+        val I32_MAX = BigInteger.valueOf(Int.MAX_VALUE.toLong())
+        val I64_MIN = BigInteger.valueOf(Long.MIN_VALUE)
+        val I64_MAX = BigInteger.valueOf(Long.MAX_VALUE)
+
         val REQUIRES = setOf(
             JmlClauseKind.REQUIRES, JmlClauseKind.REQUIRES_FREE, JmlClauseKind.PRE
         )

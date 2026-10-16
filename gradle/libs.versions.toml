@@ -30,10 +30,11 @@ kotlinx-serialization = "1.11.0"
 tinylog = "2.8.1"
 eclipse-lsp4j = "1.0.0"
 key-project = "3.0.0"
-google-java-format = "1.37.0"
+google-java-format = "1.35.0"
 
 palantirJavaFormat = "2.94.0"
 checkstyleVersion = "13.1.0"
+violations-lib = "3.0.2"
 
 jdk = "21"
 
@@ -86,6 +87,8 @@ eclipse-lsp4j = { module = "org.eclipse.lsp4j:org.eclipse.lsp4j", version.ref = 
 key-core = { module = "org.key-project:key.core", version.ref = "key-project" }
 key-ui = { module = "org.key-project:key.ui", version.ref = "key-project" }
 
+violations = { module = "se.bjurr.violations:violations-lib", version.ref = "violations-lib" }
+
 google-java-format = { module = "com.google.googlejavaformat:google-java-format", version.ref = "google-java-format" }
 
 ktor-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
@@ -106,6 +109,7 @@ testing-runtime = ["org-junit-jupiter-junit-jupiter-engine"]
 
 [plugins]
 jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 graalvm-native = { id = "org.graalvm.buildtools.native", version = "1.1.14" }
 shadow = { id = "com.gradleup.shadow", version = "9.6.1" }

@@ -6,6 +6,6 @@ dependencies {
     api(project(":jmlparser-symbol-solver-core"))
     api(libs.gson)
     implementation(libs.logback)
-    implementation("se.bjurr.violations:violations-lib:3.0.2")
+    implementation(libs.violations)
     testImplementation(project(":tools:utils"))
 }

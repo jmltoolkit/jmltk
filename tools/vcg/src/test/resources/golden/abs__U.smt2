@@ -73,6 +73,6 @@
 (declare-const $result$3 Int)
 (assert (= $result$3 (ite (and (and true (not false)) (not false)) (ite (>= x 0) $result$1 $result$2) $result$2)))
 (push)
-(assert (! (not (=> (and true $ret$3) (and true (>= $result$3 0)))) :named v1))
+(assert (! (not (=> (and (and true (>= x 0)) $ret$3) (and true (>= $result$3 0)))) :named v1))
 (check-sat)
 (pop)

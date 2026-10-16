@@ -70,6 +70,6 @@
 (check-sat)
 (pop)
 (push)
-(assert (! (not (=> (and true $ret$1) (and true (= $result$1 (bvadd x y))))) :named v2))
+(assert (! (not (=> (and (and true (and (and (and (bvsge x (bvneg ((_ int2bv 32) 1000))) (bvsle x ((_ int2bv 32) 1000))) (bvsge y (bvneg ((_ int2bv 32) 1000)))) (bvsle y ((_ int2bv 32) 1000)))) $ret$1) (and true (= $result$1 (bvadd x y))))) :named v2))
 (check-sat)
 (pop)

@@ -1065,6 +1065,52 @@ class VcgSemanticsTest {
     }
 
     @Test
+    fun testVisibleStateInvariantHeldAtCall() {
+        // P4.1: a call is a visible state — the class invariant established by the
+        // body before the call discharges the pre-call check (contract strategy)
+        expectAllProven(vcgForIn("callWithInvariantHeld", 2, u))
+        expectAllProven(vcgForIn("callWithInvariantHeld", 2, b))
+    }
+
+    @Test
+    fun testVisibleStateInvariantBrokenBeforeCallFalsifiable() {
+        // P4.1 guardrail: breaking the invariant mid-method and only restoring it
+        // *after* a non-helper call leaves the call's pre-call check falsifiable
+        expectSomeFalsifiable(vcgForIn("breakInvariantBeforeCall", 2, u))
+        expectSomeFalsifiable(vcgForIn("breakInvariantBeforeCall", 2, b))
+    }
+
+    @Test
+    fun testPostCallInvariantAssumeLoadBearing() {
+        // P4.1: the callee's ensures says nothing about `counter` after the
+        // assignable havoc, yet the post-call assume re-establishes the bounds —
+        // the explicit assert (and the exit obligation) discharge through it
+        expectAllProven(vcgForIn("relyOnInvariantAfterCall", 2, u))
+        expectAllProven(vcgForIn("relyOnInvariantAfterCall", 2, b))
+        // the inline strategy is unaffected by the same visible state
+        expectAllProven(vcgForIn("relyOnInvariantAfterCall", 2, uInline))
+    }
+
+    @Test
+    fun testHelperCalleeExemptFromVisibleStateCheck() {
+        // P4.1: \helper callees are exempt at the call site — the invariant may be
+        // broken across the helper call and restored afterwards
+        expectAllProven(vcgForIn("helperCallExempt", 2, u))
+        expectAllProven(vcgForIn("helperCallExempt", 2, b))
+    }
+
+    @Test
+    fun testExplicitReceiverInvariantAtCall() {
+        // P4.1: the statically-visible invariant of an explicit receiver's class is
+        // checked at `r.m(...)`: held (via the constructor-established invariant)
+        // the call proves; broken, the second call's pre-call check is falsifiable
+        expectAllProven(vcgForIn("receiverInvariantHeld", 0, u))
+        expectAllProven(vcgForIn("receiverInvariantHeld", 0, b))
+        expectSomeFalsifiable(vcgForIn("receiverInvariantBroken", 0, u))
+        expectSomeFalsifiable(vcgForIn("receiverInvariantBroken", 0, b))
+    }
+
+    @Test
     fun testInvariantForLabelsPreservedByFold() {
         // the folding transformation labels every conjunct (\lblpos) so the clauses
         // stay addressable; the label node is transparent to translation

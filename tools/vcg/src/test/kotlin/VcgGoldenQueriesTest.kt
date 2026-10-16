@@ -6,6 +6,7 @@ package io.github.jmltoolkit.vcg
 
 import com.github.javaparser.JavaParser
 import com.github.javaparser.ParserConfiguration
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.symbolsolver.JavaSymbolSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver
@@ -51,7 +52,9 @@ class VcgGoldenQueriesTest {
     }
 
     private fun method(name: String): MethodDeclaration =
-        cu.types[0].asClassOrInterfaceDeclaration().methods.first { it.nameAsString == name }
+        cu.types
+            .flatMap { t -> (t as? ClassOrInterfaceDeclaration)?.methods ?: emptyList() }
+            .first { it.nameAsString == name }
 
     /** Curated representative subset: name, options, golden-file tag. */
     private fun cases(): List<Triple<String, String, String>> =
@@ -119,6 +122,18 @@ class VcgGoldenQueriesTest {
             arrayOf("freshArrayNonNull", "U", "UNBOUNDED"),
             arrayOf("storeNonNullElement", "U", "UNBOUNDED"),
             arrayOf("derefNullableArray", "U", "UNBOUNDED"),
+            // P4.1: visible-state class invariants at calls — the pre-call check
+            // and post-call assume of the receiver's invariants for non-helper
+            // callees, the \helper call-site exemption, and the explicit-receiver
+            // variant (`o.m(...)` where the receiver's class carries invariants)
+            arrayOf("callWithInvariantHeld", "U", "UNBOUNDED"),
+            arrayOf("callWithInvariantHeld", "B", "BOUNDED"),
+            arrayOf("breakInvariantBeforeCall", "U", "UNBOUNDED"),
+            arrayOf("relyOnInvariantAfterCall", "U_CONTRACT", "UNBOUNDED_contract"),
+            arrayOf("relyOnInvariantAfterCall", "U_INLINE", "UNBOUNDED_inline"),
+            arrayOf("helperCallExempt", "U", "UNBOUNDED"),
+            arrayOf("receiverInvariantHeld", "U", "UNBOUNDED"),
+            arrayOf("receiverInvariantBroken", "U", "UNBOUNDED"),
         ).map { Triple(it[0], it[1], it[2]) }
 
     private fun options(tag: String): VcgOptions = when (tag) {

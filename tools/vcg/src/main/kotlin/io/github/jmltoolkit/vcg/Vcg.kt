@@ -1047,6 +1047,58 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         return translatorOf().tr(InvariantFold.fold(invs))
     }
 
+    /** Whether [decl] is a JML `\helper` (exempt from the visible-state invariant
+     *  discipline: helpers may break and need not preserve the invariants). */
+    private fun isHelperCallee(decl: com.github.javaparser.ast.body.MethodDeclaration): Boolean =
+        try {
+            decl.hasModifier(Modifier.DefaultKeyword.JML_HELPER)
+        } catch (e: Exception) {
+            false
+        }
+
+    /**
+     * P4.1: whether calling [decl] on [scope] is a *visible state* that must
+     * discharge its receiver's class invariant — a non-helper instance callee
+     * whose receiver's class has statically-visible invariants in the CU.
+     * `this` (implicit or explicit) falls back to the enclosing type's set; an
+     * explicit receiver resolves its static type. Used both to decide whether an
+     * early receiver evaluation is needed and (with the receiver term) to build
+     * the check/assume terms.
+     */
+    private fun callNeedsInvariant(scope: Expression?, decl: com.github.javaparser.ast.body.MethodDeclaration?): Boolean {
+        if (decl == null || decl.isStatic) return false
+        if (isHelperCallee(decl)) return false
+        if (scope == null || scope is ThisExpr) return invariantForThisTerm() != null
+        val qn = try {
+            scope.calculateResolvedType().asReferenceType().qualifiedName
+        } catch (e: Exception) {
+            return false
+        }
+        val t = findTypeInCu(qn) ?: return false
+        return InvariantFold.invariantsOf(t).isNotEmpty()
+    }
+
+    /**
+     * P4.1: the folded invariant term that must hold at the call to [decl] on
+     * [scope] — `\invariant_for(this)` for the enclosing instance, otherwise the
+     * receiver's statically-visible set bound to it — or `null` when the call is
+     * exempt. Translated against the *current* environment, so a pre-call
+     * translation reads the pre-call state and a post-call translation the
+     * havocked/propagated state.
+     */
+    private fun callInvariantTerm(
+        scope: Expression?,
+        receiver: SExpr?,
+        decl: com.github.javaparser.ast.body.MethodDeclaration,
+    ): SExpr? {
+        if (decl.isStatic) return null
+        if (isHelperCallee(decl)) return null
+        if (scope == null || scope is ThisExpr) return invariantForThisTerm()
+        val t = targetTypeForInvariant(receiver, scope) ?: return null
+        if (InvariantFold.invariantsOf(t).isEmpty()) return null
+        return invariantForTerm(receiver, scope, false)
+    }
+
     /**
      * Expands a literal `\invariant_for(...)` / `\static_invariant_for(...)`
      * expression: the statically-visible invariants of the argument's class are
@@ -3224,7 +3276,15 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         // the null / string-index checks and the contract-view binding share a
         // single translation (no duplicated side effects).
         val scope = call.scope.orElse(null)
-        val needsEarlyReceiver = options.checkNull || options.checkStringIndex
+        // P4.1: a call to a non-helper instance method is a *visible state*: the
+        // receiver's class invariants must hold before the call (checked as an
+        // obligation) and may be assumed again afterwards (the callee's own
+        // visible-state discipline re-establishes them at its exit, where
+        // `checkPostcondition` folds them). When such a check applies to an
+        // explicit receiver, the receiver is evaluated up front so the check and
+        // the contract view share a single translation.
+        val callInvariant = callNeedsInvariant(scope, decl)
+        val needsEarlyReceiver = options.checkNull || options.checkStringIndex || callInvariant
         var receiver: SExpr? =
             if (needsEarlyReceiver && scope != null && scope !is ThisExpr && (decl?.isStatic != true)) {
                 atom(scope, guard, mode)
@@ -3250,6 +3310,22 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         if (receiver == null && scope != null && scope !is ThisExpr && decl?.isStatic != true) {
             receiver = atom(scope, guard, mode)
             receiverPrefix = "$scope."
+        }
+
+        // (P4.1) pre-call invariant check: at the visible state before the call, the
+        // receiver's (or `this`'s) class invariants must hold — the callee's entry
+        // assumption (`assumeClassInvariant`) is the caller's obligation here.
+        if (callInvariant && decl != null) {
+            val inv = callInvariantTerm(scope, receiver, decl)
+            if (inv != null) {
+                addObligation(
+                    "invariant",
+                    "class invariant at call to ${describe(call)}",
+                    term.impl(guard, inv),
+                    mode,
+                    call
+                )
+            }
         }
 
         val contracts = decl?.contracts ?: NodeList<JmlContract>()
@@ -3449,6 +3525,13 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 term.impl(req.reduce { a, b -> term.and(a, b) }, post)
             }
             emit(mode, guard, assume)
+        }
+        // (P4.1) post-call assume: the callee re-established the class invariants at
+        // its exit (its own `checkPostcondition` obligation), so the caller may
+        // assume them again — folded against the post-havoc state.
+        if (callInvariant && decl != null) {
+            val inv = callInvariantTerm(scope, receiver, decl)
+            if (inv != null) emit(mode, guard, inv)
         }
         return result
     }
@@ -3728,6 +3811,21 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 term.impl(guard, term.nonNull(receiver)), mode, call
             )
         }
+        // P4.1: even a spliced (inlined) callee starts a new activation of the
+        // receiver's class, so the call remains a visible state: the class
+        // invariants must hold before the callee body runs and may be assumed again
+        // after it (the callee's own exit discipline restores them).
+        val callInvariant =
+            if (callNeedsInvariant(scope, decl)) callInvariantTerm(scope, receiver, decl) else null
+        if (callInvariant != null) {
+            addObligation(
+                "invariant",
+                "class invariant at call to ${describe(call)}",
+                term.impl(guard, callInvariant),
+                mode,
+                call
+            )
+        }
         val receiverPrefix = if (receiver != null) "$scope." else null
         if (receiver != null) {
             calleeEnv["this"] = receiver
@@ -3788,6 +3886,12 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 // the callee wrote a field of an object the caller also references
                 if (envTypes.containsKey(key)) env[target] = value
             }
+        }
+        // (P4.1) post-inline assume: the callee restored the class invariants at its
+        // exit; assume them again against the propagated post-inline state.
+        if (callInvariant != null) {
+            val postInv = callInvariantTerm(scope, receiver, decl)
+            if (postInv != null) emit(mode, guard, postInv)
         }
         return result
     }

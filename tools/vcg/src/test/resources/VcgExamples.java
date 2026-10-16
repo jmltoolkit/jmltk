@@ -2063,6 +2063,26 @@ public class VcgExamples {
     public Object reachObj() {
         return new Object();
     }
+
+    // ---- P4.1: visible-state invariants for explicit receivers ----
+
+    // the invariant of the *receiver's* class must hold at `o.m(...)`: here it
+    // discharges through the constructor-established invariant (P2.1 assumes
+    // `\invariant_for(r)` once construction finished)
+    //@ ensures true;
+    public void receiverInvariantHeld() {
+        InvariantReceiver r = new InvariantReceiver(4);
+        r.setCounter(6);
+    }
+
+    // breaking the receiver's invariant between two calls falsifies the second
+    // call's pre-call check
+    //@ ensures true;
+    public void receiverInvariantBroken() {
+        InvariantReceiver r = new InvariantReceiver(4);
+        r.counter = -1;
+        r.setCounter(6);
+    }
 }
 
 // ---- \invariant_for fixtures: separate top-level types so the class-level
@@ -2133,6 +2153,78 @@ class InvariantExamples extends InvariantExamplesBase {
     //@ ensures true;
     public static void staticBreaksCount() {
         staticCount = -1;
+    }
+
+    // ---- P4.1: visible-state class invariants at method calls ----
+    // A call to a non-helper instance method is a *visible state*:
+    // `\invariant_for(this)` must hold before the call (pre-call check) and may
+    // be assumed again after it (post-call assume — the callee's own exit
+    // discipline re-establishes it, mirrored by `checkPostcondition`).
+
+    // a contract callee that keeps `counter` in bounds. `counter` is assignable,
+    // so the post-call state stays consistent even when the callee is invoked
+    // from a state that violates the invariant — the pre-call check, not a
+    // post-state ex-falso, is what catches such callers (`\nothing` here would
+    // make the unconditional `ensures` contradict the pre-state and poison every
+    // subsequent obligation).
+    //@ assignable this.counter;
+    //@ ensures this.counter >= 0 && this.counter <= 10;
+    public void resetCounter() {
+        this.counter = 3;
+    }
+
+    // a contract callee with an uninformative postcondition: `counter` is
+    // assignable, so after the call it is fresh — only the post-call assume of
+    // the class invariant re-establishes its bounds
+    //@ assignable this.counter;
+    //@ ensures true;
+    public void reassignCounter() {
+        this.counter = 3;
+    }
+
+    // the invariant holds at the call site (established by the body), so the
+    // pre-call check discharges and the method verifies
+    //@ ensures true;
+    public void callWithInvariantHeld() {
+        this.counter = 3;
+        this.resetCounter();
+        this.counter = 5;
+    }
+
+    // the guardrail: breaking the invariant mid-method and only restoring it
+    // *after* the call leaves the pre-call check falsifiable
+    //@ ensures true;
+    public void breakInvariantBeforeCall() {
+        this.counter = -1;
+        this.resetCounter();
+        this.counter = 0;
+    }
+
+    // the post-call assume is load-bearing: after `reassignCounter()` the callee's
+    // ensures says nothing about `counter`, yet the caller may still prove the
+    // explicit assert (and the exit obligation) from the re-assumed invariant
+    //@ ensures true;
+    public int relyOnInvariantAfterCall() {
+        this.counter = 5;
+        this.reassignCounter();
+        //@ assert this.counter <= 10 && this.counter >= 0;
+        return this.counter;
+    }
+
+    // a `\helper` callee (P4.1): exempt from the visible-state discipline at the
+    // call site, so the invariant may be broken across it and restored afterwards
+    //@ assignable this.counter;
+    //@ ensures true;
+    //@ helper
+    public void helperReassignCounter() {
+        this.counter = -1;
+    }
+
+    //@ ensures true;
+    public void helperCallExempt() {
+        this.counter = -1;
+        this.helperReassignCounter();
+        this.counter = 7;
     }
 }
 
@@ -2234,5 +2326,28 @@ class NonNullHolder {
     //@ ensures data[0] == 5;
     public void storeNonNullField() {
         this.data[0] = 5;
+    }
+}
+
+// P4.1: the visible-state invariant check extends to an explicit receiver: the
+// statically-visible invariants of the *receiver's* class must hold at a call
+// `o.m(...)` — checked before and re-assumed after, exactly like `this`.
+class InvariantReceiver {
+    public int counter;
+
+    //@ invariant counter >= 0;
+
+    //@ requires n >= 0;
+    //@ assignable this.counter;
+    //@ ensures this.counter == n;
+    public InvariantReceiver(int n) {
+        this.counter = n;
+    }
+
+    //@ requires n >= 0;
+    //@ assignable this.counter;
+    //@ ensures this.counter == n;
+    public void setCounter(int n) {
+        this.counter = n;
     }
 }

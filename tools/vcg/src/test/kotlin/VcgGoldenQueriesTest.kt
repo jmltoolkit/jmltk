@@ -105,6 +105,10 @@ class VcgGoldenQueriesTest {
             // same identity-keyed field map
             arrayOf("useCountedCtor", "U_CONTRACT", "UNBOUNDED_contract"),
             arrayOf("ctorInvariantUsable", "U", "UNBOUNDED"),
+            // constant field initializers (P2.2): the folded constants appear as
+            // entry-state equalities (`(= P22_TWO_BLOCKS 2048)`) instead of
+            // unconstrained slots
+            arrayOf("p22StaticFinalBlocks", "U", "UNBOUNDED"),
         ).map { Triple(it[0], it[1], it[2]) }
 
     private fun options(tag: String): VcgOptions = when (tag) {

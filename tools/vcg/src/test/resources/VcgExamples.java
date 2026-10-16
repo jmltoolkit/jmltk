@@ -1863,6 +1863,72 @@ public class VcgExamples {
         //@ assert c.count >= 0;
         return true;
     }
+
+    // ---- P2.2: constant field initializers ----
+    //
+    // `static final` constants fold into the entry state of every callable; the
+    // binder also folds arithmetic *through* the constants (BLOCK -> TWO_BLOCKS),
+    // so the ensures below was previously unprovable and now discharges
+
+    private static final int P22_BLOCK = 1024;
+    private static final int P22_TWO_BLOCKS = P22_BLOCK * 2;
+
+    //@ ensures \result == 2048;
+    public int p22StaticFinalBlocks() {
+        return P22_TWO_BLOCKS;
+    }
+
+    // boolean constant expressions (logical ops + comparisons on constants)
+    private static final boolean P22_DEBUG = true;
+
+    //@ ensures \result == true;
+    public boolean p22StaticFinalBool() {
+        //@ assert P22_DEBUG;
+        return true;
+    }
+
+    // deeper constant-expression shapes: unary minus, hex digits, char literals,
+    // long arithmetic and comparisons — all folded into the entry state
+    private static final int P22_NEG = -7;
+    private static final int P22_HEX = 0x400;
+    private static final char P22_CHAR = 'z';
+    private static final long P22_SMALL_LONG = 2L * 3L;
+    private static final boolean P22_CMP = P22_BLOCK > 512;
+
+    //@ ensures \result == true;
+    public boolean p22ConstantShapes() {
+        //@ assert P22_NEG == -7;
+        //@ assert P22_HEX == 1024;
+        //@ assert P22_CHAR == 'z';
+        //@ assert P22_SMALL_LONG == 6;
+        //@ assert P22_CMP == true;
+        return true;
+    }
+
+    // non-constant initializers stay unconstrained: `p22Dynamic` is initialized by
+    // a method call, which the folder refuses, so the postcondition remains
+    // falsifiable exactly like before P2.2 (the field is havoced, not pinned)
+    private static final int P22_DYNAMIC = p22Assign();
+
+    private static int p22Assign() {
+        return 7;
+    }
+
+    //@ ensures \result == 7;
+    public int p22NonConstInit() {
+        return P22_DYNAMIC;
+    }
+
+    // forward references (JLS 8.3.3 textual order) are NOT folded: when this
+    // initializer runs, the later field is still at its default. The folder only
+    // sees earlier-declared constants, so the field stays unconstrained (sound)
+    private final int p22FwdInstance = p22LaterField;
+    private final int p22LaterField = 3;
+
+    //@ ensures \result == 3;
+    public int p22ForwardRefInstance() {
+        return p22FwdInstance;
+    }
 }
 
 // ---- \invariant_for fixtures: separate top-level types so the class-level
@@ -1967,5 +2033,48 @@ class InvariantCtorBad {
     //@ ensures true;
     public InvariantCtorBad(int c) {
         this.counter = -1;
+    }
+}
+
+// P2.2: constant instance-field initializers meet constructors. The initializer
+// (`count = 0`) runs before the constructor body (JLS 12.5), so a constructor
+// that never writes `count` still establishes `count == 0` and the class
+// invariant purely through the folded initializer. A constructor that does write
+// the field overrides the entry binding through the normal SSA store. A `final`
+// instance constant (`cap`) can never be rewritten, so an instance method reads
+// its initializer value even though this class has a competing constructor.
+class ConstantInitCtor {
+    private int count = 0;
+    private final int cap = 5;
+
+    //@ invariant count >= 0;
+
+    //@ assignable this.count;
+    //@ ensures count == 0;
+    public ConstantInitCtor() {
+        // intentionally empty: the constant initializer establishes the state
+    }
+
+    //@ assignable this.count;
+    //@ requires n >= 0;
+    //@ ensures count == n;
+    public ConstantInitCtor(int n) {
+        this.count = n;
+    }
+
+    // a `final` instance constant can never be rewritten, so an instance method
+    // reads its initializer value even though a competing constructor exists
+    //@ ensures \result == 5;
+    public int capacity() {
+        return cap;
+    }
+
+    // soundness boundary: `count` is *mutable* instance state, so a method entry
+    // state may have been reached through a constructor that overwrote the field
+    // (`constInitCtor(int)` stores `count = n`). The initializer is NOT folded
+    // into methods here, so `\result == 0` stays unprovable (falsifiable).
+    //@ ensures \result == 0;
+    public int countAfterAnyCtor() {
+        return count;
     }
 }

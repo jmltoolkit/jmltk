@@ -20,6 +20,7 @@ import io.github.jmltoolkit.smt.Z3
 import io.github.jmltoolkit.smt.solver.Solver
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assumptions
@@ -459,6 +460,20 @@ class VcgSemanticsTest {
         // generation must reject it up front instead of emitting an ill-sorted query
         val ex = assertThrows(RuntimeException::class.java) { vcgFor("boxedIdentity", u) }
         assertTrue(ex.message!!.contains("boxed return type"), ex.message)
+    }
+
+    @Test
+    fun testMultiDimArrayGenerationRejected() {
+        // P3.1: `new int[n][n]` used to be silently encoded as a 1-D array of `int`
+        // (only the first dimension was modeled); generation must now refuse it
+        // with a structured, source-anchored diagnostic instead
+        for (name in listOf("multiDim", "multiDimJagged")) {
+            val ex = assertThrows(UnsupportedFeatureException::class.java) { vcgFor(name, u) }
+            assertTrue(ex.message!!.contains("multi-dimensional"), ex.message)
+            assertTrue(ex.message!!.contains("unsupported"), ex.message)
+            assertNotNull(ex.range, "diagnostic must carry the source range: ${ex.message}")
+            assertTrue(ex.range!!.begin.line > 0, ex.message)
+        }
     }
 
     @Test

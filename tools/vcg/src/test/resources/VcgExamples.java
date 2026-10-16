@@ -1929,6 +1929,20 @@ public class VcgExamples {
     public int p22ForwardRefInstance() {
         return p22FwdInstance;
     }
+
+    // ---- P3.1: multi-dimensional array creation would be silently mis-modeled
+    // ---- (only the first dimension is encoded), so it is rejected loudly ----
+
+    public int multiDim(int n) {
+        int[][] a = new int[n][n];
+        return a.length;
+    }
+
+    // a jagged multi-dim array (empty trailing dimension) hits the same rejection
+    public int multiDimJagged(int n) {
+        int[][] a = new int[n][];
+        return a.length;
+    }
 }
 
 // ---- \invariant_for fixtures: separate top-level types so the class-level

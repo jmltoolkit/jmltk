@@ -150,9 +150,24 @@ Effort: small–medium. Impact: medium.
 
 ## Phase 3 — Diagnostics & explicit-limiting (cheap wins)
 
-### P3.1 Multi-dimensional & reflective arrays: reject instead of mis-model
-Where: `ArrayCreationExpr` branch (`Vcg.kt`, 2084+) + `arraySmtType` (`Vcg.kt`, 2253).
-Steps: if `e.levels.size > 1`, emit "multi-dimensional arrays unsupported" (feature flag to widen later). Also reject reflective paths if not modelled.
+### P3.1 Multi-dimensional & reflective arrays: reject instead of mis-model — DONE
+Where: `ArrayCreationExpr` branch (`Vcg.kt`, 2523+).
+Implementation: `new int[n][m]` and `new int[n][]` (any `e.levels.size > 1`) now
+raise `UnsupportedFeatureException("unsupported: multi-dimensional array
+creation …")` carrying the node's source `Range`. Before, the model read only the
+first dimension off the levels and silently collapsed the element sort to a 1-D
+array of the base type.
+Reflective array construction (`java.lang.reflect.Array.newInstance`) needs no
+extra guard: it resolves to an external call without contract/body and is
+already rejected by P1.3 (or over-approximated under `--allow-unrefined-calls`).
+Also introduces `io.github.jmltoolkit.vcg.UnsupportedFeatureException`
+(extends `UnsupportedOperationException`, carries a `Range`) as the single
+diagnostic type for constructs the VCG cannot model (P3.2 routes the remaining
+ones through it).
+Tests: `testMultiDimArrayGenerationRejected` covers `multiDim`
+(`new int[n][n]`) and the jagged `multiDimJagged` (`new int[n][]`), asserting
+the message and the source range. Goldens unchanged — no existing fixture or
+golden case uses multi-dimensional arrays.
 Effort: tiny. Impact: silent mis-modelling becomes a clear error.
 
 ### P3.2 Unsupported constructs → structured diagnostics

@@ -12,6 +12,7 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.CompactConstructorDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.jml.JmlKeywordNode;
 import com.github.javaparser.ast.jml.body.*;
 import com.github.javaparser.ast.jml.clauses.*;
 import com.github.javaparser.ast.jml.doc.*;
@@ -193,6 +194,8 @@ public class MetaModelGenerator extends AbstractGenerator {
             add(JmlDocStmt.class);
             add(JmlDocType.class);
 
+            add(JmlKeywordNode.class);
+
             add(JmlExpression.class);
             add(JmlQuantifiedExpr.class);
             add(JmlTypeExpr.class);
@@ -226,10 +229,10 @@ public class MetaModelGenerator extends AbstractGenerator {
             add(JmlConditionalClause.class);
             add(JmlMethodSignature.class);
             add(JmlInfFlowClause.class);
-            add(com.github.javaparser.ast.jml.clauses.JmlContract.class);
-
-            // add(com.github.javaparser.ast.JmlBoundVariable.class);
-
+            add(JmlContract.class);
+            add(JmlContractBehavior.class);
+            add(JmlClauseKind.class);
+            add(JmlBodyClauseKind.class);
             add(JmlClassExprDeclaration.class);
             add(JmlRepresentsDeclaration.class);
             add(JmlClassAccessibleDeclaration.class);
@@ -250,14 +253,8 @@ public class MetaModelGenerator extends AbstractGenerator {
             add(KeyMethodBodyStatement.class);
             add(KeyMethodCallStmt.class);
             add(KeyMethodSignature.class);
-            // add(KeyRangeExpression.class);
             add(KeyTransactionStmt.class);
-            // add(JmlDoc.class);
-            // add(JmlDocsBodyDeclaration.class);
-            // add(JmlDocsTypeDeclaration.class);
-            // add(JmlDocsStatements.class);
             add(KeyMarkerStatement.class);
-            // add(KeyActiveCommentStatement.class);
 
             // KeY-Schema
             add(KeyContextStatementBlock.class);

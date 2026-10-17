@@ -2,9 +2,9 @@
  * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
  * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
  */
-package com.github.jmlparser.lint.rules
+package io.github.jmltoolkit.lint.rules
 
-import com.github.javaparser.ast.jml.clauses.JmlClauseKind
+import com.github.javaparser.ast.jml.clauses.JmlClauseKeyword
 import com.github.javaparser.ast.jml.clauses.JmlContract
 import io.github.jmltoolkit.lint.LintProblemReporter
 import io.github.jmltoolkit.lint.LintRuleVisitor
@@ -23,7 +23,7 @@ class ContextSensitiveForbiddenFunctionsValidator : LintRuleVisitor() {
 
     private fun reportMultipleSignalsOnlyClauses(n: JmlContract, arg: LintProblemReporter) {
         for (clause in n.clauses) {
-            if (clause.kind === JmlClauseKind.SIGNALS_ONLY) signalsOnlyCounter++
+            if (clause.kind.value === JmlClauseKeyword.SIGNALS_ONLY) signalsOnlyCounter++
 
             if (signalsOnlyCounter > 1) {
                 arg.warn(clause, "", "", MULTIPLE_SIGNALS_ONLY)

@@ -46,7 +46,8 @@ tasks.withType<JavaCompile> {
     options.compilerArgs.add("-parameters")
 
     // See: https://docs.oracle.com/en/java/javase/12/tools/javac.html
-    options.compilerArgs.add("-Xlint:all")
+    //options.compilerArgs.add("-Xlint:all")
+    options.compilerArgs.add("-Xlint:-dep-ann")
     //"-Werror", // Terminates compilation when warnings occur.
 }
 

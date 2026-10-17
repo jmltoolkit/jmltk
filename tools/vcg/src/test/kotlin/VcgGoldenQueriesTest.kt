@@ -134,12 +134,25 @@ class VcgGoldenQueriesTest {
             arrayOf("helperCallExempt", "U", "UNBOUNDED"),
             arrayOf("receiverInvariantHeld", "U", "UNBOUNDED"),
             arrayOf("receiverInvariantBroken", "U", "UNBOUNDED"),
+            // P4.3: the abstract-string model under `--check-string-index` —
+            // equals/charAt/concat/indexOf become steq/strval/strcat/strindex
+            // reads with explicit quantified axioms and quantifier patterns
+            arrayOf("stringSelfEquals", "U_STR", "UNBOUNDED_string_index"),
+            arrayOf("stringCharAtIndexOf", "U_STR", "UNBOUNDED_string_index"),
+            arrayOf("stringConcatLen", "U_STR", "UNBOUNDED_string_index"),
+            arrayOf("stringConcatLen", "B_STR", "BOUNDED_string_index"),
+            arrayOf("stringIndexOfAbsent", "U_STR", "UNBOUNDED_string_index"),
+            arrayOf("stringCharAtUnknown", "U_STR", "UNBOUNDED_string_index"),
         ).map { Triple(it[0], it[1], it[2]) }
 
     private fun options(tag: String): VcgOptions = when (tag) {
         "U" -> VcgOptions(mode = VerificationMode.UNBOUNDED)
 
         "B" -> VcgOptions(mode = VerificationMode.BOUNDED)
+
+        "U_STR" -> VcgOptions(mode = VerificationMode.UNBOUNDED, checkStringIndex = true)
+
+        "B_STR" -> VcgOptions(mode = VerificationMode.BOUNDED, checkStringIndex = true)
 
         "B_OVF_DIV" ->
             VcgOptions(mode = VerificationMode.BOUNDED, checkOverflow = true, checkDivision = true)

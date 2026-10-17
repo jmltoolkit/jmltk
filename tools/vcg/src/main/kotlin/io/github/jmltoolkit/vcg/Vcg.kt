@@ -121,6 +121,12 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
      *  (keyed by value so equal literals alias within one query). */
     private val stringLiteralConsts = HashMap<String, String>()
     private var stringLengthDeclared = false
+    /** Declared P4.3 string-model functions (`strval`/`steq`/`strcat`/`strindex`). */
+    private val stringFunsDeclared = HashSet<String>()
+    /** Model operations whose axioms are already in the query; declared lazily
+     *  per operation so a charAt-only query never pays for the steq/strcat/
+     *  strindex axioms (which would bloat every solver run). */
+    private val stringAxiomsDeclared = HashSet<String>()
 
     /**
      * Human-readable prefix shared by all verification-condition ids, e.g.
@@ -376,6 +382,291 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     private fun stringLengthOf(s: SExpr): SExpr {
         ensureStringLengthFn()
         return term.list(null, intSort, term.symbol("stringLength"), s)
+    }
+
+    /** The `String` methods modeled as abstract-string reads under the
+     *  string-index feature (P4.3); all other `String` methods (substring,
+     *  startsWith, replace, ...) stay on the unrefined/contract paths. */
+    private val stringModeledOps = setOf("equals", "charAt", "codePointAt", "concat", "indexOf")
+
+    /**
+     * P4.3 abstract-string model: a per-position character-code view `strval`,
+     * extensional equality `steq`, concatenation `strcat` and search `strindex`
+     * over the reference universe. Each modeled operation declares its function
+     * and its length-bounded axioms once, lazily, per operation, behind
+     * `--check-string-index` — a charAt-only query never pays for the
+     * steq/strcat/strindex axioms. The functions follow the mode's arithmetic
+     * sort (like `stringLength`), so `strval`/`strindex` are `U x int -> int`.
+     */
+    private fun ensureStringModel(op: String) {
+        if (!stringAxiomsDeclared.add(op)) return
+        ensureStringLengthFn()
+        val isort = term.type(intSort)
+        val u = term.symbol("U")
+        fun ensureFun(name: String, domain: List<SExpr>, range: SExpr) {
+            if (!stringFunsDeclared.add(name)) return
+            query.addCommand(term.command("declare-fun", term.symbol(name), SList(null, null, domain), range))
+        }
+        when (op) {
+            "charAt", "codePointAt" -> ensureFun("strval", listOf(u, isort), isort)
+
+            "equals" -> {
+                ensureFun("strval", listOf(u, isort), isort)
+                ensureFun("steq", listOf(u, u), term.type(SmtType.BOOL))
+                // `steq` is exactly extensional equality, cut by the runtime
+                // lengths (both directions, so equal results imply equal
+                // content and vice versa).
+                val p = stringAxiomParams(bindB = true)
+                val lenA = term.list(null, intSort, term.symbol("stringLength"), p.a)
+                val lenB = term.list(null, intSort, term.symbol("stringLength"), p.b)
+                val inRangeA: (SExpr) -> SExpr = { x ->
+                    term.and(term.lessOrEquals(p.zero, x, true), term.lessThan(x, lenA))
+                }
+                val contentEq: (SExpr, SExpr) -> SExpr = { x, y ->
+                    term.forall(
+                        listOf(p.binderI),
+                        term.impl(
+                            inRangeA(p.i),
+                            term.equality(
+                                term.list(null, intSort, term.symbol("strval"), x, p.i),
+                                term.list(null, intSort, term.symbol("strval"), y, p.i)
+                            )
+                        )
+                    )
+                }
+                val steq: (SExpr, SExpr) -> SExpr = { x, y ->
+                    term.list(null, SmtType.BOOL, term.symbol("steq"), x, y)
+                }
+                query.addAssert(
+                    p.outer(term.impl(term.and(term.equality(lenA, lenB), contentEq(p.a, p.b)), steq(p.a, p.b)))
+                )
+                query.addAssert(p.outer(term.impl(steq(p.a, p.b), term.and(term.equality(lenA, lenB), contentEq(p.a, p.b)))))
+            }
+
+            "concat" -> {
+                ensureFun("strval", listOf(u, isort), isort)
+                ensureFun("strcat", listOf(u, u), u)
+                // the concatenation's length is the sum of the parts; its content
+                // is the prefix of the first argument followed by the second
+                val p = stringAxiomParams(bindB = true)
+                val lenA = term.list(null, intSort, term.symbol("stringLength"), p.a)
+                val lenB = term.list(null, intSort, term.symbol("stringLength"), p.b)
+                val cat = term.list(null, SmtType.JAVA_OBJECT, term.symbol("strcat"), p.a, p.b)
+                val inRangeA: (SExpr) -> SExpr = { x ->
+                    term.and(term.lessOrEquals(p.zero, x, true), term.lessThan(x, lenA))
+                }
+                // the result is a proper non-null string, so dereferencing a
+                // chained result (`s.concat(t).length()`) discharges its nullcheck
+                query.addAssert(p.outer(term.nonNull(cat)))
+                query.addAssert(
+                    p.outer(
+                        term.equality(
+                            term.list(null, intSort, term.symbol("stringLength"), cat),
+                            term.add(lenA, lenB)
+                        )
+                    )
+                )
+                query.addAssert(
+                    p.outer(
+                        term.forall(
+                            listOf(p.binderI),
+                            term.impl(
+                                inRangeA(p.i),
+                                term.equality(
+                                    term.list(null, intSort, term.symbol("strval"), cat, p.i),
+                                    term.list(null, intSort, term.symbol("strval"), p.a, p.i)
+                                )
+                            )
+                        )
+                    )
+                )
+                query.addAssert(
+                    p.outer(
+                        term.forall(
+                            listOf(p.binderI),
+                            term.impl(
+                                term.and(
+                                    term.lessOrEquals(lenA, p.i, true),
+                                    term.lessThan(p.i, term.add(lenA, lenB))
+                                ),
+                                term.equality(
+                                    term.list(null, intSort, term.symbol("strval"), cat, p.i),
+                                    term.list(null, intSort, term.symbol("strval"), p.b, term.subtract(p.i, lenA))
+                                )
+                            )
+                        )
+                    )
+                )
+            }
+
+            "indexOf" -> {
+                ensureFun("strval", listOf(u, isort), isort)
+                ensureFun("strindex", listOf(u, isort), isort)
+                // a non-negative result is a content position holding the
+                // character; -1 means no position holds it; the result is the
+                // first such position (minimality), and every other result
+                // collapses to -1 (completeness). The axioms bind only the
+                // variables they read and carry explicit patterns, so Z3
+                // decides even near-trivial checks quickly.
+                val p = stringAxiomParams(bindC = true)
+                val lenA = term.list(null, intSort, term.symbol("stringLength"), p.a)
+                val k = term.list(null, intSort, term.symbol("strindex"), p.a, p.c)
+                val strvalOfA: (SExpr, SExpr) -> SExpr = { s, idx ->
+                    term.list(null, intSort, term.symbol("strval"), s, idx)
+                }
+                val inRangeA: (SExpr) -> SExpr = { x ->
+                    term.and(term.lessOrEquals(p.zero, x, true), term.lessThan(x, lenA))
+                }
+                val patK = term.list(null, intSort, term.symbol("strindex"), p.a, p.c)
+                val patV = strvalOfA(p.a, p.i)
+                // absence and minimality are flattened to a single universal
+                // level and carry a multi-pattern over `strindex` *and* `strval`:
+                // they fire only when a ground content term is present, so pure
+                // search queries (no ground `strval`) keep Z3's satisfiability
+                // check instant instead of churning in model-based instantiation
+                val flatOuter: (SExpr) -> SExpr = { body ->
+                    term.forall(
+                        listOf(
+                            term.binder(SmtType.JAVA_OBJECT, "s\$a"),
+                            term.binder(intSort, "s\$c"),
+                            p.binderI
+                        ),
+                        body
+                    )
+                }
+                val patKV = listOf(patK, patV)
+                query.addAssert(
+                    p.outer(
+                        withPattern(
+                            term.or(term.lessOrEquals(p.zero, k, true), term.equality(k, p.minus1)),
+                            listOf(patK)
+                        )
+                    )
+                )
+                query.addAssert(
+                    p.outer(
+                        withPattern(
+                            term.impl(
+                                term.lessOrEquals(p.zero, k, true),
+                                term.and(
+                                    term.lessThan(k, lenA),
+                                    term.equality(strvalOfA(p.a, k), p.c)
+                                )
+                            ),
+                            listOf(patK)
+                        )
+                    )
+                )
+                query.addAssert(
+                    flatOuter(
+                        withPattern(
+                            // -1 means no in-range position holds the character
+                            term.impl(
+                                term.and(term.equality(k, p.minus1), inRangeA(p.i)),
+                                term.not(term.equality(strvalOfA(p.a, p.i), p.c))
+                            ),
+                            patKV
+                        )
+                    )
+                )
+                query.addAssert(
+                    flatOuter(
+                        withPattern(
+                            // minimality: everything strictly before the reported
+                            // index holds a different character
+                            term.impl(
+                                term.and(term.lessOrEquals(p.zero, p.i, true), term.lessThan(p.i, k)),
+                                term.not(term.equality(strvalOfA(p.a, p.i), p.c))
+                            ),
+                            patKV
+                        )
+                    )
+                )
+            }
+        }
+    }
+
+    /** Shared scaffolding for the quantified model axioms: the `s$...` parameter
+     *  terms (bound by the outer universal schema) and the inner index binder. */
+    private class StringAxiomParams(
+        val a: SExpr,
+        val b: SExpr,
+        val c: SExpr,
+        val binderI: SExpr,
+        val i: SExpr,
+        val zero: SExpr,
+        val minus1: SExpr,
+        val outer: (SExpr) -> SExpr,
+    )
+
+    /** Builds [StringAxiomParams]. The fixed names `s$a`/`s$b`/`s$c`/`s$i`
+     *  cannot collide with program symbols: `$` cannot occur in Java identifiers
+     *  and the internal `\$...` temporaries carry digits. [bindB]/[bindC]
+     *  select which parameters the outer universal schema actually binds —
+     *  patterns must cover exactly the bound variables, so axioms that never
+     *  read a parameter (the character search reads only `a` and `c`) must not
+     *  bind it, or Z3's E-matching gives up. Each axiom is an explicit
+     *  universal schema over the parameters, since free constants would only
+     *  constrain witness values. */
+    private fun stringAxiomParams(bindB: Boolean = false, bindC: Boolean = false): StringAxiomParams {
+        val outer: (SExpr) -> SExpr = { body ->
+            val binders = mutableListOf<SExpr>(term.binder(SmtType.JAVA_OBJECT, "s\$a"))
+            if (bindB) binders += term.binder(SmtType.JAVA_OBJECT, "s\$b")
+            if (bindC) binders += term.binder(intSort, "s\$c")
+            term.forall(binders, body)
+        }
+        return StringAxiomParams(
+            term.variable(SmtType.JAVA_OBJECT, null, "s\$a"),
+            term.variable(SmtType.JAVA_OBJECT, null, "s\$b"),
+            term.variable(intSort, null, "s\$c"),
+            term.binder(intSort, "s\$i"),
+            term.variable(intSort, null, "s\$i"),
+            translator.makeInt(java.math.BigInteger.ZERO),
+            translator.makeInt(-1L),
+            outer,
+        )
+    }
+
+    /** SMT `(! term :pattern (...))` — an explicit quantifier pattern so Z3's
+     *  E-matching (not the slower model-based instantiation) drives the model
+     *  axioms; without it the nested quantified axioms can make even trivial
+     *  satisfiability checks time out. [patterns] may hold several terms (a
+     *  multi-pattern that triggers only when all terms have ground instances —
+     *  used to keep absence/minimality inert for searches without content
+     *  terms). */
+    private fun withPattern(formula: SExpr, patterns: List<SExpr>): SExpr =
+        SList(
+            SmtType.BOOL, null,
+            listOf(
+                term.symbol("!"), formula,
+                term.symbol(":pattern"), SList(null, null, patterns)
+            )
+        )
+
+    /** `(strval s i)`: the character code of `s` at position `i` (P4.3). */
+    private fun strvalOf(s: SExpr, i: SExpr): SExpr {
+        ensureStringModel("charAt")
+        return term.list(null, intSort, term.symbol("strval"), s, i)
+    }
+
+    /** `(steq s t)`: extensional string equality (P4.3). */
+    private fun steqOf(s: SExpr, t: SExpr): SExpr {
+        ensureStringModel("equals")
+        return term.list(null, SmtType.BOOL, term.symbol("steq"), s, t)
+    }
+
+    /** `(strcat s t)`: the concatenation of `s` and `t` (P4.3); [jret] is the
+     *  call's resolved return type (`java.lang.String`). */
+    private fun strcatOf(s: SExpr, t: SExpr, jret: ResolvedType?): SExpr {
+        ensureStringModel("concat")
+        return term.list(jret, SmtType.JAVA_OBJECT, term.symbol("strcat"), s, t)
+    }
+
+    /** `(strindex s c)`: the first position of character code `c` in `s`, or
+     *  `-1` if absent (P4.3). */
+    private fun strindexOf(s: SExpr, c: SExpr): SExpr {
+        ensureStringModel("indexOf")
+        return term.list(null, intSort, term.symbol("strindex"), s, c)
     }
 
     /**
@@ -3157,6 +3448,67 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                     )
                 }
                 return stringLengthOf(recv)
+            }
+        }
+        // P4.3: the abstract-string model handles common `String` operations under
+        // the string-index feature — equals / charAt / codePointAt / concat /
+        // indexOf become model reads (`steq`/`strval`/`strcat`/`strindex`) instead
+        // of opaque unrefined library calls, so String-heavy methods verify. Other
+        // String methods and methods without `--check-string-index` keep the
+        // unrefined/contract behavior.
+        if (options.checkStringIndex && call.arguments.size == 1 && call.nameAsString in stringModeledOps) {
+            val scope = call.scope.orElse(null)
+            val isStringMethod = try {
+                call.resolve().declaringType().qualifiedName == "java.lang.String"
+            } catch (e: Exception) {
+                false
+            }
+            if (isStringMethod) {
+                val recv = if (scope is ThisExpr) term.makeThis() else atom(scope, guard, mode)
+                if (options.checkNull && recv.smtType === SmtType.JAVA_OBJECT) {
+                    addObligation(
+                        "nullcheck", "dereference ${describe(call)}",
+                        term.impl(guard, term.nonNull(recv)), mode, call
+                    )
+                }
+                val arg = atom(call.arguments[0], guard, mode)
+                when (call.nameAsString) {
+                    "charAt", "codePointAt" -> {
+                        stringIndexChecker(call, listOf(arg), recv, guard, mode)
+                        return strvalOf(recv, arg)
+                    }
+
+                    "equals" ->
+                        // String.equals(null) is false: the argument is always a
+                        // reference (null-guarded), never a primitive
+                        return term.and(term.nonNull(arg), steqOf(recv, arg))
+
+                    "concat" -> {
+                        if (options.checkNull && arg.smtType === SmtType.JAVA_OBJECT) {
+                            addObligation(
+                                "nullcheck", "null argument to ${describe(call)}",
+                                term.impl(guard, term.nonNull(arg)), mode, call
+                            )
+                        }
+                        return strcatOf(recv, arg, tryExprType(call))
+                    }
+
+                    "indexOf" -> {
+                        // only the int(char) search fits the char-code model;
+                        // `indexOf(String)` needs substring search and stays unrefined
+                        val p0 = try {
+                            call.resolve().getParam(0).getType().describe()
+                        } catch (e: Exception) {
+                            null
+                        }
+                        if (p0 == "int" || p0 == "char") {
+                            // a char literal/search value is a 16-bit bit-vector in
+                            // BOUNDED mode; the model's codepoint parameter is the
+                            // (32-bit) int sort
+                            return strindexOf(recv, if (arg.smtType === SmtType.BV16) convertTo(arg, intSort) else arg)
+                        }
+                    }
+                }
             }
         }
         val strategy = options.callStrategy(call)

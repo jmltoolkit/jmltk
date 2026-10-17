@@ -786,6 +786,27 @@ class VcgSemanticsTest {
         assertTrue(res.query.toString().contains("stringLength"), "expected a stringLength model read")
     }
 
+    @Test
+    fun testStringModeledOperations() {
+        // P4.3: equals/charAt/concat/indexOf become abstract-string model reads
+        // (steq/strval/strcat/strindex) under the string-index feature instead of
+        // opaque unrefined library calls, so String-heavy methods verify
+        val so = u.copy(checkStringIndex = true)
+        expectAllProven(vcgFor("stringSelfEquals", so))
+        expectAllProven(vcgFor("stringCharAtIndexOf", so))
+        expectAllProven(vcgFor("stringConcatLen", so))
+        expectAllProven(vcgFor("stringConcatLen", b.copy(checkStringIndex = true)))
+        expectAllProven(vcgFor("stringIndexOfAbsent", so))
+        // without a length guard even a first-position content claim stays
+        // unprovable: the bounds obligation and the charAt content are both
+        // falsifiable
+        expectSomeFalsifiable(vcgFor("stringCharAtUnknown", so))
+        // the model must not be needed when the feature is off: the same
+        // methods then stay on the unrefined path (rejected without the flag)
+        val off = u.copy(checkStringIndex = false, allowUnrefinedCalls = false)
+        assertThrows(IllegalStateException::class.java) { vcgFor("stringConcatLen", off) }
+    }
+
     //endregion
 
     //region constructor contracts at creation sites (P2.1)

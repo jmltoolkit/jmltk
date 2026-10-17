@@ -1885,6 +1885,62 @@ public class VcgExamples {
         return "ab".substring(i, j);
     }
 
+    // ---- P4.3: the abstract-string model (equals/charAt/concat/indexOf) ----
+
+    // reflexivity and the null contract: s.equals(s) is provable and
+    // s.equals(null) is false — both from the modeled extensional equality
+    //@ requires s != null;
+    //@ ensures true;
+    public boolean stringSelfEquals(String s) {
+        //@ assert s.equals(s);
+        //@ assert !s.equals(null);
+        return true;
+    }
+
+    // a non-negative indexOf result pinpoints a content position holding the
+    // character, so s.charAt(k) (and its bounds obligation) discharges
+    //@ requires s != null;
+    //@ ensures true;
+    public boolean stringCharAtIndexOf(String s) {
+        int k = s.indexOf('x');
+        if (k >= 0) {
+            char c = s.charAt(k);
+            //@ assert c == 'x';
+            return true;
+        }
+        return true;
+    }
+
+    // the concatenation's runtime length is the sum of the parts, so the
+    // chained length reads compose
+    //@ requires s != null && t != null;
+    //@ ensures \result == s.length() + t.length();
+    public int stringConcatLen(String s, String t) {
+        return s.concat(t).length();
+    }
+
+    // a search report of -1 means no position holds the character: the absent
+    // axiom discharges a concrete charAt read against the reported index
+    //@ requires s != null && s.indexOf('q') == -1;
+    //@ ensures true;
+    public boolean stringIndexOfAbsent(String s) {
+        if (s.length() > 0) {
+            char c = s.charAt(0);
+            //@ assert c != 'q';
+            return true;
+        }
+        return true;
+    }
+
+    // without a length guard even a first-position read is unprovable: the
+    // bounds obligation and the content claim both stay falsifiable
+    //@ requires s != null;
+    //@ ensures true;
+    public boolean stringCharAtUnknown(String s) {
+        //@ assert s.charAt(0) == 'x';
+        return true;
+    }
+
     // ---- P2.1: constructor contracts at creation sites ----
     // note: named Counted (not Counter), because `Counter` is already a distinct
     // nested fixture type used by readCounter/writeReadCounter/... — a same-name

@@ -7,11 +7,8 @@ package com.github.jmlparser.lint.rules
 import com.github.javaparser.ast.NodeList
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.jml.NodeWithContracts
-import com.github.javaparser.ast.jml.clauses.ContractType
-import com.github.javaparser.ast.jml.clauses.JmlClause
-import com.github.javaparser.ast.jml.clauses.JmlClauseKind
-import com.github.javaparser.ast.jml.clauses.JmlClauseKind.*
-import com.github.javaparser.ast.jml.clauses.JmlContract
+import com.github.javaparser.ast.jml.clauses.*
+import com.github.javaparser.ast.jml.clauses.JmlClauseKeyword.*
 import com.github.javaparser.ast.stmt.*
 import io.github.jmltoolkit.lint.LintProblemReporter
 import io.github.jmltoolkit.lint.LintRuleVisitor
@@ -22,7 +19,7 @@ import java.util.*
  * @version 1 (13.10.22)
  */
 class AllowedJmlClauses : LintRuleVisitor() {
-    private val LOOP_INVARIANT_CLAUSES: EnumSet<JmlClauseKind> = EnumSet.of<JmlClauseKind>(
+    private val LOOP_INVARIANT_CLAUSES: EnumSet<JmlClauseKeyword> = EnumSet.of(
         DECREASES,
         MODIFIES,
         MODIFIABLE,
@@ -37,7 +34,7 @@ class AllowedJmlClauses : LintRuleVisitor() {
         LOOP_INVARIANT_REDUNDANTLY
     )
 
-    private val LOOP_CONTRACT_CLAUSES: EnumSet<JmlClauseKind> = EnumSet.of<JmlClauseKind>(
+    private val LOOP_CONTRACT_CLAUSES: EnumSet<JmlClauseKeyword> = EnumSet.of(
         ENSURES,
         ENSURES_FREE,
         ENSURES_REDUNDANTLY,
@@ -91,7 +88,7 @@ class AllowedJmlClauses : LintRuleVisitor() {
         DURATION_REDUNDANTLY
     )
 
-    private val BLOCK_CONTRACT_CLAUSES: EnumSet<JmlClauseKind> = EnumSet.of<JmlClauseKind>(
+    private val BLOCK_CONTRACT_CLAUSES: EnumSet<JmlClauseKeyword> = EnumSet.of(
         ENSURES,
         ENSURES_FREE,
         ENSURES_REDUNDANTLY,
@@ -176,17 +173,17 @@ class AllowedJmlClauses : LintRuleVisitor() {
 
     private fun checkClauses(
         arg: LintProblemReporter, clauses: NodeList<JmlClause>,
-        allowed: EnumSet<JmlClauseKind>, type: String
+        allowed: EnumSet<JmlClauseKeyword>, type: String
     ) {
         for (clause in clauses) {
-            if (!allowed.contains(clause.kind)) {
+            if (!allowed.contains(clause.kind.value)) {
                 arg.warn(clause, "", "", "%s clause not allowed in a %s contract", clause.kind, type)
             }
         }
     }
 
     companion object {
-        val METHOD_CONTRACT_CLAUSES: EnumSet<JmlClauseKind> = EnumSet.of<JmlClauseKind>(
+        val METHOD_CONTRACT_CLAUSES: EnumSet<JmlClauseKeyword> = EnumSet.of(
             ENSURES,
             ENSURES_FREE,
             ENSURES_REDUNDANTLY,

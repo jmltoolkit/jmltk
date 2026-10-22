@@ -61,7 +61,7 @@ public class Issue2620Test extends AbstractLexicalPreservingTest {
 
         // create a new field declaration
         VariableDeclarator variable = new VariableDeclarator(new ClassOrInterfaceType("String"), "newField");
-        FieldDeclaration fd = new FieldDeclaration(new NodeList(Modifier.privateModifier()), variable);
+        FieldDeclaration fd = new FieldDeclaration(new NodeList<>(Modifier.privateModifier()), variable);
         Optional<ClassOrInterfaceDeclaration> cd = cu.findFirst(ClassOrInterfaceDeclaration.class);
 
         // add the new variable

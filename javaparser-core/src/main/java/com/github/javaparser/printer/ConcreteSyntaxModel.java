@@ -12,8 +12,6 @@ import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.jml.body.*;
 import com.github.javaparser.ast.jml.clauses.*;
 import com.github.javaparser.ast.jml.doc.*;
-import com.github.javaparser.ast.jml.doc.JmlDoc;
-import com.github.javaparser.ast.jml.doc.JmlDocModifier;
 import com.github.javaparser.ast.jml.expr.*;
 import com.github.javaparser.ast.jml.stmt.*;
 import com.github.javaparser.ast.key.*;
@@ -1354,6 +1352,9 @@ public class ConcreteSyntaxModel {
                         attribute(ObservableProperty.NEW_OBJECTS),
                         semicolon(),
                         newline()));
+        concreteSyntaxModelByClass.put(JmlBodyClauseKind.class, attribute(VALUE));
+        concreteSyntaxModelByClass.put(JmlClauseKind.class, attribute(VALUE));
+        concreteSyntaxModelByClass.put(JmlContractBehavior.class, attribute(VALUE));
         // endregion
         // region KEY
         // TODO weigl maybe one day someone will complete this, but currently we do not need

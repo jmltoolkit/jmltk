@@ -164,12 +164,6 @@ public abstract class Node
     @OptionalProperty
     private Comment comment;
 
-    /**
-     * for KeY, holds JML comments
-     */
-    @OptionalProperty
-    private NodeList<Comment> associatedSpecificationComments;
-
     @InternalProperty
     private ArrayList<AstObserver> observers = new ArrayList<>(0);
 
@@ -734,14 +728,6 @@ public abstract class Node
         if (node == null) {
             return false;
         }
-        if (associatedSpecificationComments != null) {
-            for (int i = 0; i < associatedSpecificationComments.size(); i++) {
-                if (associatedSpecificationComments.get(i) == node) {
-                    associatedSpecificationComments.remove(i);
-                    return true;
-                }
-            }
-        }
         if (comment != null) {
             if (node == comment) {
                 removeComment();
@@ -790,14 +776,6 @@ public abstract class Node
     public boolean replace(Node node, Node replacementNode) {
         if (node == null) {
             return false;
-        }
-        if (associatedSpecificationComments != null) {
-            for (int i = 0; i < associatedSpecificationComments.size(); i++) {
-                if (associatedSpecificationComments.get(i) == node) {
-                    associatedSpecificationComments.set(i, (Comment) replacementNode);
-                    return true;
-                }
-            }
         }
         if (comment != null) {
             if (node == comment) {
@@ -885,7 +863,7 @@ public abstract class Node
         DIRECT_CHILDREN
     }
 
-    private Iterator<Node> treeIterator(TreeTraversal traversal) {
+    public Iterator<Node> treeIterator(TreeTraversal traversal) {
         switch (traversal) {
             case BREADTHFIRST:
                 return new BreadthFirstIterator(this);
@@ -1311,36 +1289,6 @@ public abstract class Node
         return node.getParentNode().isPresent()
                 && (isPhantom(node.getParentNode().get())
                         || inPhantomNode(node.getParentNode().get(), levels - 1));
-    }
-
-    /**
-     * This field is used by key to associated (JML) comments to this node.
-     */
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Optional<NodeList<Comment>> getAssociatedSpecificationComments() {
-        return Optional.ofNullable(associatedSpecificationComments);
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Node setAssociatedSpecificationComments(
-            final @Nullable() NodeList<Comment> associatedSpecificationComments) {
-        if (associatedSpecificationComments == this.associatedSpecificationComments) {
-            return this;
-        }
-        notifyPropertyChange(
-                ObservableProperty.ASSOCIATED_SPECIFICATION_COMMENTS,
-                this.associatedSpecificationComments,
-                associatedSpecificationComments);
-        if (this.associatedSpecificationComments != null) this.associatedSpecificationComments.setParentNode(null);
-        this.associatedSpecificationComments = associatedSpecificationComments;
-        setAsParentNodeOf(associatedSpecificationComments);
-        return this;
-    }
-
-    @com.github.javaparser.ast.key.IgnoreLexPrinting()
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @Nullable() NodeList<Comment> associatedSpecificationComments() {
-        return associatedSpecificationComments;
     }
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()

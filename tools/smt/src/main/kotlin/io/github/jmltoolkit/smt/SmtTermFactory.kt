@@ -73,7 +73,7 @@ object SmtTermFactory {
     }
 
     // TODO weigl correct?
-    fun list(variables: List<SExpr>): SExpr = SList(null, null, listOf())
+    fun list(variables: List<SExpr>): SExpr = SList(null, null, variables)
 
     //region polymorphic operators
     fun bor(left: SExpr, right: SExpr): SExpr {
@@ -201,7 +201,7 @@ object SmtTermFactory {
 
     fun imodulo(left: SExpr, right: SExpr): SExpr = fnApplyToInt("mod", left, right)
 
-    fun idivide(left: SExpr, right: SExpr): SExpr = fnApplyToInt("/", left, right)
+    fun idivide(left: SExpr, right: SExpr): SExpr = fnApplyToInt("div", left, right)
 
     //endregion
     //region bit vectors
@@ -253,6 +253,73 @@ object SmtTermFactory {
 
     fun bvType(width: Int): SExpr =
         SList(SmtType.TYPE, null, listOf(symbol("_"), symbol("BitVec"), intValue(width.toLong())))
+
+    /**
+     * Sign-extends [expr] to [toWidth] bits using SMT-LIB's `(_ sign_extend k)`.
+     *
+     * The overflow predicates `bvsaddo`/`bvssubo`/`bvsmulo` only exist in newer
+     * Z3 releases (Ubuntu noble ships Z3 4.8.12, which rejects them with
+     * `unknown constant`). Overflow checks therefore compare the widened exact
+     * operation against the sign-extended wrap-around result instead, which only
+     * needs portable bit-vector operations.
+     */
+    fun signExtend(expr: SExpr, toWidth: Int): SExpr {
+        val fromWidth = (expr.smtType as? BitVec)?.width
+            ?: throw RuntimeException("signExtend requires a bit-vector operand, got ${expr.smtType}")
+        val bits = toWidth - fromWidth
+        require(bits >= 0) { "signExtend: target width $toWidth must be at least the operand width $fromWidth" }
+        if (bits == 0) return expr
+        val type = SmtType.getBitVec(toWidth)
+        return SList(
+            type, null,
+            listOf(
+                SList(null, null, listOf(symbol("_"), symbol("sign_extend"), intValue(bits.toLong()))),
+                expr
+            )
+        )
+    }
+
+    /**
+     * Zero-extends [expr] to [toWidth] bits using SMT-LIB's `(_ zero_extend k)`.
+     * This is the Java widening conversion of a `char` (JLS 5.1.2), whose value is
+     * unsigned — a sign-extension would turn `\\uFFFF` into a negative int.
+     */
+    fun zeroExtend(expr: SExpr, toWidth: Int): SExpr {
+        val fromWidth = (expr.smtType as? BitVec)?.width
+            ?: throw RuntimeException("zeroExtend requires a bit-vector operand, got ${expr.smtType}")
+        val bits = toWidth - fromWidth
+        require(bits >= 0) { "zeroExtend: target width $toWidth must be at least the operand width $fromWidth" }
+        if (bits == 0) return expr
+        val type = SmtType.getBitVec(toWidth)
+        return SList(
+            type, null,
+            listOf(
+                SList(null, null, listOf(symbol("_"), symbol("zero_extend"), intValue(bits.toLong()))),
+                expr
+            )
+        )
+    }
+
+    /**
+     * Extracts the low [width] bits of [expr] (`(_ extract width-1 0)`): the Java
+     * narrowing primitive conversion (JLS 5.1.3) keeps the low-order bits, which is
+     * exactly the `(byte)`/`(short)`/`(char)` wrap-around semantics.
+     */
+    fun extractLow(expr: SExpr, width: Int): SExpr {
+        val fromWidth = (expr.smtType as? BitVec)?.width
+            ?: throw RuntimeException("extractLow requires a bit-vector operand, got ${expr.smtType}")
+        require(width in 1 until fromWidth) {
+            "extractLow: target width $width must be in (0, $fromWidth), got ${expr.smtType}"
+        }
+        val type = SmtType.getBitVec(width)
+        return SList(
+            type, null,
+            listOf(
+                SList(null, null, listOf(symbol("_"), symbol("extract"), intValue((width - 1).toLong()), intValue(0L))),
+                expr
+            )
+        )
+    }
 
     //endregion
     private fun isBool(sexpr: SExpr): Boolean = sexpr.smtType == SmtType.BOOL
@@ -314,7 +381,11 @@ object SmtTermFactory {
 
     fun boolType(): SExpr = symbol("Bool")
 
-    fun javaObjectType(): SExpr = symbol("Object")
+    // The reference universe is the `U` sort declared by the type hierarchy
+    // (`declare-sort U`); the historic `Object` placeholder was never a declared
+    // sort, so any query that printed it (e.g. an object-array element sort) was
+    // ill-formed. See Vcg.setupTypeHierarchy.
+    fun javaObjectType(): SExpr = symbol("U")
 
     fun type(type: SmtType): SExpr {
         if (type === SmtType.JAVA_OBJECT) return javaObjectType()

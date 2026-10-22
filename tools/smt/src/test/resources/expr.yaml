@@ -11,8 +11,8 @@
 - expr: |
     a != null && b != null ==> a == b
   result: |
-    (declare-const a Object)
-    (declare-const b Object)
+    (declare-const a U)
+    (declare-const b U)
     (=> (and (not (= a null)) (not (= b null))) (= a b))
 
 - expr: |

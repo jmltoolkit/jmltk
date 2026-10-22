@@ -23,48 +23,101 @@ import java.math.BigInteger
 open class BitVectorArithmeticTranslator(val smtLog: SmtQuery) : ArithmeticTranslator {
     var cnt: Int = 0
 
-    override fun binary(operator: BinaryExpr.Operator, left: SExpr, right: SExpr): SExpr =
-        when (operator) {
-            IMPLICATION -> term.impl(left, right)
+    override fun binary(operator: BinaryExpr.Operator, left: SExpr, right: SExpr): SExpr {
+        // Java binary numeric promotion (JLS 5.6.2) / unary promotion for shifts
+        // (JLS 5.6.1): byte/short/char operands are widened to int (long wins)
+        // *before* the operation, so `bv8 + bv32` and `bvadd` on BV8 — which would
+        // wrap where Java cannot — are impossible. Equality/boolean/array operands
+        // are not bit-vectors and pass through unchanged.
+        val (l, r) = promote(operator, left, right)
+        return when (operator) {
+            IMPLICATION -> term.impl(l, r)
             SUBTYPE -> error("")
             RANGE -> error("")
             SUB_LOCK -> error("")
             SUB_LOCKE -> error("")
-            RIMPLICATION -> term.impl(right, left)
-            EQUIVALENCE -> term.equiv(left, right)
-            ANTIVALENCE -> term.not(term.equiv(left, right))
-            OR -> term.or(left, right)
-            AND -> term.and(left, right)
-            BINARY_OR -> term.bor(left, right)
-            BINARY_AND -> term.band(left, right)
-            XOR -> term.xor(left, right)
-            EQUALS -> term.equality(left, right)
-            NOT_EQUALS -> term.not(term.equality(left, right))
-            LESS -> term.lessThan(left, right)
-            GREATER -> term.greaterThan(left, right)
-            LESS_EQUALS -> term.lessOrEquals(left, right, true)
-            GREATER_EQUALS -> term.greaterOrEquals(left, right, true)
-            LEFT_SHIFT -> term.shiftLeft(left, right)
-            SIGNED_RIGHT_SHIFT -> term.shiftRight(left, right, true)
-            UNSIGNED_RIGHT_SHIFT -> term.shiftRight(left, right, true)
-            BinaryExpr.Operator.PLUS -> term.add(left, right)
-            BinaryExpr.Operator.MINUS -> term.subtract(left, right)
-            MULTIPLY -> term.multiply(left, right)
-            DIVIDE -> term.divide(left, right, true)
-            REMAINDER -> term.modulo(left, right, true)
+            RIMPLICATION -> term.impl(r, l)
+            EQUIVALENCE -> term.equiv(l, r)
+            ANTIVALENCE -> term.not(term.equiv(l, r))
+            OR -> term.or(l, r)
+            AND -> term.and(l, r)
+            BINARY_OR -> term.bor(l, r)
+            BINARY_AND -> term.band(l, r)
+            XOR -> term.xor(l, r)
+            EQUALS -> term.equality(l, r)
+            NOT_EQUALS -> term.not(term.equality(l, r))
+            LESS -> term.lessThan(l, r)
+            GREATER -> term.greaterThan(l, r)
+            LESS_EQUALS -> term.lessOrEquals(l, r, true)
+            GREATER_EQUALS -> term.greaterOrEquals(l, r, true)
+            LEFT_SHIFT -> term.shiftLeft(l, r)
+            SIGNED_RIGHT_SHIFT -> term.shiftRight(l, r, true)
+            UNSIGNED_RIGHT_SHIFT -> term.shiftRight(l, r, true)
+            BinaryExpr.Operator.PLUS -> term.add(l, r)
+            BinaryExpr.Operator.MINUS -> term.subtract(l, r)
+            MULTIPLY -> term.multiply(l, r)
+            DIVIDE -> term.divide(l, r, true)
+            REMAINDER -> term.modulo(l, r, true)
         }
+    }
 
-    override fun makeChar(n: CharLiteralExpr): SExpr = term.makeBitvector(16, n.value!![0].code.toLong())
-
-    override fun unary(operator: UnaryExpr.Operator, accept: SExpr) =
-        when (operator) {
-            UnaryExpr.Operator.PLUS, POSTFIX_INCREMENT, POSTFIX_DECREMENT -> accept
-            UnaryExpr.Operator.MINUS -> term.negate(accept)
-            PREFIX_INCREMENT -> term.add(accept, term.makeBitvector(32, 1))
-            PREFIX_DECREMENT -> term.subtract(accept, term.makeBitvector(32, 1))
-            LOGICAL_COMPLEMENT -> term.not(accept)
-            BITWISE_COMPLEMENT -> term.not(accept)
+    override fun promote(operator: BinaryExpr.Operator, left: SExpr, right: SExpr): Pair<SExpr, SExpr> {
+        val lw = (left.smtType as? SmtType.BitVec)?.width ?: return left to right
+        val rw = (right.smtType as? SmtType.BitVec)?.width ?: return left to right
+        // Shifts (JLS 15.19): only the *left* operand is unary-promoted (int or
+        // long); the distance is widened to the same width so the bit-vector shift
+        // stays well-sorted (Z3's bvshl/bvashr/bvshr require equal sorts). This is
+        // exactly SMT-LIB's masking of the shift amount.
+        if (operator in SHIFT_OPS) {
+            val w = if (lw >= 64) 64 else 32
+            val promoted = widenTo(left, w)
+            return promoted to widenTo(right, w)
         }
+        // binary numeric promotion: long wins over int/narrow; otherwise int.
+        val w = if (lw >= 64 || rw >= 64) 64 else 32
+        return widenTo(left, w) to widenTo(right, w)
+    }
+
+    override fun makeChar(n: CharLiteralExpr): SExpr {
+        // `asChar()` evaluates escapes properly — `n.value[0]` would yield the
+        // backslash of a '\uFFFF' literal.
+        val v = term.makeBitvector(16, n.asChar().code.toLong())
+        // carry the char-ness: `char` values are unsigned, so their widening to
+        // int must zero-extend (`\uFFFF` is 65535, not -1).
+        v.javaType = ResolvedPrimitiveType.CHAR
+        return v
+    }
+
+    override fun unary(operator: UnaryExpr.Operator, accept: SExpr): SExpr {
+        val operand = when (operator) {
+            // JLS 15.15.1/15.15.2/15.15.4: unary plus/minus and the pre-increment/
+            // decrement in expression position promote byte/short/char to int.
+            UnaryExpr.Operator.MINUS, PREFIX_INCREMENT, PREFIX_DECREMENT -> widenTo(accept, 32)
+
+            else -> accept
+        }
+        return when (operator) {
+            UnaryExpr.Operator.PLUS, POSTFIX_INCREMENT, POSTFIX_DECREMENT -> operand
+            UnaryExpr.Operator.MINUS -> term.negate(operand)
+            PREFIX_INCREMENT -> term.add(operand, term.makeBitvector(widthOf(operand, 32), 1))
+            PREFIX_DECREMENT -> term.subtract(operand, term.makeBitvector(widthOf(operand, 32), 1))
+            LOGICAL_COMPLEMENT -> term.not(operand)
+            BITWISE_COMPLEMENT -> term.not(operand)
+        }
+    }
+
+    /** Widens [x] to [w] bits (no-op when already wide enough): `char` zero-extends
+     *  because it is unsigned; byte/short and everything else sign-extend
+     *  (JLS 5.1.2 / 5.6.2). */
+    private fun widenTo(x: SExpr, w: Int): SExpr {
+        val width = (x.smtType as? SmtType.BitVec)?.width ?: return x
+        if (width >= w) return x
+        val isChar = (x.javaType as? ResolvedPrimitiveType) === ResolvedPrimitiveType.CHAR
+        return if (isChar) term.zeroExtend(x, w) else term.signExtend(x, w)
+    }
+
+    private fun widthOf(x: SExpr, fallback: Int): Int =
+        (x.smtType as? SmtType.BitVec)?.width ?: fallback
 
     override fun makeLong(n: LongLiteralExpr) = term.makeBitvector(64, n.value.toBigInteger())
 
@@ -127,5 +180,9 @@ open class BitVectorArithmeticTranslator(val smtLog: SmtQuery) : ArithmeticTrans
 
     companion object {
         private val term: SmtTermFactory = SmtTermFactory
+
+        /** Shift operators use the *left* operand's promoted width only (JLS 15.19). */
+        private val SHIFT_OPS: Set<BinaryExpr.Operator> =
+            setOf(LEFT_SHIFT, SIGNED_RIGHT_SHIFT, UNSIGNED_RIGHT_SHIFT)
     }
 }

@@ -86,7 +86,9 @@ jobs:
           ./gradlew --continue --parallel :tools:cli:installDist
 
       - name: Run shell scripts
-        run: python3 scripts/shelltester.py tools/cli/shell-tests/**
+        # Pass the directory, not a glob: pwsh on Windows does not expand '**' and
+        # the script already recurses over the test files itself.
+        run: python3 scripts/shelltester.py tools/cli/shell-tests
 
   gradle_test_on_branch:
     strategy:

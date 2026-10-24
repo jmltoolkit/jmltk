@@ -15,7 +15,39 @@ import subprocess
 import sys
 import tempfile
 import os
+import shutil
 from pathlib import Path
+
+
+def setup_utf8_stdio() -> None:
+    """Accept Unicode on stdout/stderr regardless of the console encoding.
+
+    The Windows console (and piped output) defaults to the ANSI codepage
+    (e.g. cp1252), which cannot encode the emoji/checkmark markers used in
+    the output and would raise UnicodeEncodeError.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding='utf-8', errors='replace')
+        except (AttributeError, OSError, ValueError):
+            pass
+
+
+def resolve_windows_executable(command: str) -> str:
+    """Give cmd.exe the explicit executable name on Windows.
+
+    The test files invoke the installed CLI as ``bin/jmltk`` (the POSIX start
+    script name). On Windows, installDist only produces ``bin/jmltk.bat``, so
+    resolve the first token to the platform start script like cmd does via
+    PATHEXT, avoiding any ambiguity in the cmd.exe command parser.
+    """
+    if os.name != 'nt':
+        return command
+    head, sep, tail = command.partition(' ')
+    resolved = shutil.which(head)
+    if resolved is not None:
+        return resolved + tail if sep else resolved
+    return command
 
 
 def parse_test_file(filepath: str) -> tuple[list[str], str, bool]:
@@ -25,7 +57,7 @@ def parse_test_file(filepath: str) -> tuple[list[str], str, bool]:
     Returns:
         Tuple of (command_lines, expected_output, ignore_stderr)
     """
-    with open(filepath, 'r') as f:
+    with open(filepath, 'r', encoding='utf-8') as f:
         content = f.read()
     
     # Find the frontmatter between --- markers
@@ -72,13 +104,17 @@ def run_command(command_lines: list[str], ignore_stderr: bool = False) -> str:
     """Execute the command and return stdout."""
     # Join command lines - each line after 'run:' could be arguments or continuation
     full_command = '\n'.join(command_lines)
-    
-    # Execute using shell
+
+    # Execute using shell (cmd.exe /c on Windows, /bin/sh elsewhere). Decode the
+    # output as UTF-8: the CLI is a Java 21 process and the expected fixtures are
+    # UTF-8, while the locale codec on Windows would be cp1252.
     result = subprocess.run(
-        full_command,
+        resolve_windows_executable(full_command),
         shell=True,
         capture_output=True,
-        text=True
+        text=True,
+        encoding='utf-8',
+        errors='replace'
     )
     
     # Return stdout (and optionally stderr) for comparison
@@ -132,13 +168,13 @@ def run_single_test(filepath: Path) -> tuple[bool, str]:
     else:
         # Write actual output to file beside the test file
         actual_path = filepath.with_suffix(filepath.suffix + ".actual")
-        actual_path.write_text(actual)
+        actual_path.write_text(actual, encoding='utf-8')
         
         # Use diff for better output visualization
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.expected', delete=False) as exp_file:
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.expected', encoding='utf-8', delete=False) as exp_file:
             exp_file.write(expected)
             exp_path = exp_file.name
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.actual', delete=False) as act_file:
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.actual', encoding='utf-8', delete=False) as act_file:
             act_file.write(actual)
             act_path = act_file.name
         
@@ -147,7 +183,9 @@ def run_single_test(filepath: Path) -> tuple[bool, str]:
             diff_result = subprocess.run(
                 ['diff', '-u', exp_path, act_path],
                 capture_output=True,
-                text=True
+                text=True,
+                encoding='utf-8',
+                errors='replace'
             )
             diff_output = diff_result.stdout
         finally:
@@ -158,6 +196,7 @@ def run_single_test(filepath: Path) -> tuple[bool, str]:
 
 
 def main():
+    setup_utf8_stdio()
     if len(sys.argv) < 2:
         print("Usage: shelltester.py <test_file|directory> [test_file|directory ...]")
         print("\nTest file format:")
@@ -181,7 +220,7 @@ def main():
     for filepath in test_files:
         # Skip files that don't look like test files (no --- header)
         try:
-            with open(filepath, 'r') as f:
+            with open(filepath, 'r', encoding='utf-8') as f:
                 first_line = f.readline().strip()
                 if not first_line.startswith('---'):
                     continue

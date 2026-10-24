@@ -7073,7 +7073,7 @@ JmlStatement JmlStatement():
 	Statement stmt;
 	SimpleName label;
     JmlStatement ret;
-    JmlProofScript script;
+    JmlProofScript script = null;
 }
 {
   (

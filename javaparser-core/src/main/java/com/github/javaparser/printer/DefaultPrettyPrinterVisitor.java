@@ -16,6 +16,7 @@ import com.github.javaparser.ast.jml.doc.JmlDocDeclaration;
 import com.github.javaparser.ast.jml.doc.JmlDocStmt;
 import com.github.javaparser.ast.jml.doc.JmlDocType;
 import com.github.javaparser.ast.jml.expr.*;
+import com.github.javaparser.ast.jml.proof.*;
 import com.github.javaparser.ast.jml.stmt.*;
 import com.github.javaparser.ast.key.*;
 import com.github.javaparser.ast.key.sv.*;
@@ -956,8 +957,83 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
             printer.print(n.getKind().jmlSymbol());
             printer.print(" ");
             n.getExpression().accept(this, arg);
+            n.getScript().ifPresent(it -> {
+                printer.print(" \\by ");
+                it.accept(this, arg);
+            });
             printer.print(";");
         });
+    }
+
+    @Override
+    public void visit(JmlProofScript n, Void arg) {
+        printOrphanCommentsBeforeThisChildNode(n);
+        // a single command without cases is printed bare:  \by oss;   (see grammar note on ";;")
+        if (n.getCases().isEmpty() && n.getCmds().size() == 1) {
+            n.getCmds().get(0).accept(this, arg);
+            return;
+        }
+        printer.print("{ ");
+        printList(n.getCmds(), " ");
+        if (!n.getCases().isEmpty()) {
+            if (!n.getCmds().isEmpty()) {
+                printer.print(" ");
+            }
+            printList(n.getCases(), " ");
+        }
+        printer.print(" }");
+    }
+
+    @Override
+    public void visit(JmlProofCmd n, Void arg) {
+        printOrphanCommentsBeforeThisChildNode(n);
+        if (n.getName().isPresent()) {
+            n.getName().get().accept(this, arg);
+            if (!n.getArgs().isEmpty()) {
+                printer.print(" ");
+                printList(n.getArgs(), " ");
+            }
+        } else {
+            printer.print("obtain ");
+            n.getType().ifPresent(it -> {
+                it.accept(this, arg);
+                printer.print(" ");
+            });
+            n.getVar().ifPresent(it -> it.accept(this, arg));
+            n.getKind().ifPresent(kind -> {
+                printer.print(" ");
+                printer.print(kind.jmlSymbol());
+                n.getValue().ifPresent(it -> {
+                    printer.print(" ");
+                    it.accept(this, arg);
+                });
+            });
+        }
+        n.getSuffix().ifPresentOrElse(suffix -> {
+            printer.print(" \\by ");
+            suffix.accept(this, arg);
+        }, () -> printer.print(";"));
+    }
+
+    @Override
+    public void visit(JmlProofArg n, Void arg) {
+        printOrphanCommentsBeforeThisChildNode(n);
+        n.getLabel().ifPresent(it -> {
+            it.accept(this, arg);
+            printer.print(": ");
+        });
+        n.getExpr().accept(this, arg);
+    }
+
+    @Override
+    public void visit(JmlProofCmdCase n, Void arg) {
+        printOrphanCommentsBeforeThisChildNode(n);
+        n.getLabel().ifPresentOrElse(label -> {
+            printer.print("case ");
+            label.accept(this, arg);
+            printer.print(": ");
+        }, () -> printer.print("case: "));
+        printList(n.getCmds(), " ");
     }
 
     @Override

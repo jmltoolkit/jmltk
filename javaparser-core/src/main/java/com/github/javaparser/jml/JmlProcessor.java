@@ -213,11 +213,19 @@ public class JmlProcessor extends Processor {
                 NodeList<TypeDeclaration<?>> members = parent.getTypes();
                 int pos = members.indexOf(n);
                 assert pos >= 0;
-                TypeDeclaration<?> next = members.get(pos + 1);
+                // Modifiers parsed from a type-level JML comment (e.g. math-mode pragmas like
+                // `/*@ spec_bigint_math @*/`) apply to the following type declaration.
+                TypeDeclaration<?> next = pos + 1 < members.size() ? members.get(pos + 1) : null;
                 members.remove(pos);
                 for (Node child : t.getChildren()) {
                     if (child instanceof ImportDeclaration) {
                         parent.addImport((ImportDeclaration) child);
+                    } else if (child instanceof Modifier) {
+                        if (next != null) {
+                            next.getModifiers().add((Modifier) child);
+                        } else {
+                            reporter.report(child, "JML modifier does not refer to any construct.");
+                        }
                     } else {
                         reporter.report(child, "Not JML construct supported");
                     }

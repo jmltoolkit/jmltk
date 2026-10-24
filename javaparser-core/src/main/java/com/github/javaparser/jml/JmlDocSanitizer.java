@@ -123,6 +123,12 @@ public record JmlDocSanitizer(Set<String> enabledKeys) {
             if (endPos >= 0) {
                 s.setCharAt(endPos, ' ');
                 s.setCharAt(endPos + 1, ' ');
+                // JML block comments close with "@*/": blank the leading '@' unconditionally.
+                // (cleanAtSigns only handles it when the '@' follows a newline, which breaks
+                // single-line comments at the start of a file or on the same line as a declaration.)
+                if (endPos > 0 && s.charAt(endPos - 1) == '@') {
+                    s.setCharAt(endPos - 1, ' ');
+                }
             }
         }
         for (int i = pos; i < s.length(); i++) {

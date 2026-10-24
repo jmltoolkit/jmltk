@@ -7597,6 +7597,9 @@ void jmlModifiersInner(NodeList<Modifier> modifiers):
   | <CODE_BIGINT_MATH> { add(modifiers, new Modifier(tokenRange(), Modifier.DefaultKeyword.JML_CODE_BIGINT_MATH));  begin = orIfInvalid(begin, token()); }
   | <CODE_JAVA_MATH> { add(modifiers, new Modifier(tokenRange(), Modifier.DefaultKeyword.JML_CODE_JAVA_MATH));  begin = orIfInvalid(begin, token()); }
   | <CODE_SAFE_MATH> { add(modifiers, new Modifier(tokenRange(), Modifier.DefaultKeyword.JML_CODE_SAFE_MATH));  begin = orIfInvalid(begin, token()); }
+  | <SPEC_BIGINT_MATH> { add(modifiers, new Modifier(tokenRange(), Modifier.DefaultKeyword.JML_SPEC_BIGINT_MATH));  begin = orIfInvalid(begin, token()); }
+  | <SPEC_JAVA_MATH> { add(modifiers, new Modifier(tokenRange(), Modifier.DefaultKeyword.JML_SPEC_JAVA_MATH));  begin = orIfInvalid(begin, token()); }
+  | <SPEC_SAFE_MATH> { add(modifiers, new Modifier(tokenRange(), Modifier.DefaultKeyword.JML_SPEC_SAFE_MATH));  begin = orIfInvalid(begin, token()); }
   | <CODE> { add(modifiers, new Modifier(tokenRange(), Modifier.DefaultKeyword.JML_CODE));  begin = orIfInvalid(begin, token()); }
   | <PEER> { add(modifiers, new Modifier(tokenRange(), Modifier.DefaultKeyword.JML_OT_PEER));  begin = orIfInvalid(begin, token()); }
   | <REP> { add(modifiers, new Modifier(tokenRange(), Modifier.DefaultKeyword.JML_OT_REP));  begin = orIfInvalid(begin, token()); }

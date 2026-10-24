@@ -48,7 +48,13 @@ public class ModifierValidator extends VisitorValidator {
         JML_SPEC_PACKAGE,
         JML_SPEC_PRIVATE,
         JML_SPEC_PUBLIC,
-        JML_SPEC_PRIVATE
+        JML_SPEC_PRIVATE,
+        JML_CODE_BIGINT_MATH,
+        JML_CODE_JAVA_MATH,
+        JML_CODE_SAFE_MATH,
+        JML_SPEC_BIGINT_MATH,
+        JML_SPEC_JAVA_MATH,
+        JML_SPEC_SAFE_MATH
     };
 
     private final Modifier.DefaultKeyword[] interfaceWithStaticAndDefault = new Modifier.DefaultKeyword[] {
@@ -73,7 +79,13 @@ public class ModifierValidator extends VisitorValidator {
         JML_SPEC_PACKAGE,
         JML_SPEC_PRIVATE,
         JML_SPEC_PUBLIC,
-        JML_SPEC_PRIVATE
+        JML_SPEC_PRIVATE,
+        JML_CODE_BIGINT_MATH,
+        JML_CODE_JAVA_MATH,
+        JML_CODE_SAFE_MATH,
+        JML_SPEC_BIGINT_MATH,
+        JML_SPEC_JAVA_MATH,
+        JML_SPEC_SAFE_MATH
     };
 
     private final Modifier.DefaultKeyword[] interfaceWithStaticAndDefaultAndPrivate = new Modifier.DefaultKeyword[] {
@@ -99,7 +111,13 @@ public class ModifierValidator extends VisitorValidator {
         JML_SPEC_PACKAGE,
         JML_SPEC_PRIVATE,
         JML_SPEC_PUBLIC,
-        JML_SPEC_PRIVATE
+        JML_SPEC_PRIVATE,
+        JML_CODE_BIGINT_MATH,
+        JML_CODE_JAVA_MATH,
+        JML_CODE_SAFE_MATH,
+        JML_SPEC_BIGINT_MATH,
+        JML_SPEC_JAVA_MATH,
+        JML_SPEC_SAFE_MATH
     };
 
     private final boolean hasStrictfp;
@@ -148,7 +166,13 @@ public class ModifierValidator extends VisitorValidator {
                     JML_SPEC_PACKAGE,
                     JML_SPEC_PRIVATE,
                     JML_SPEC_PUBLIC,
-                    JML_SPEC_PRIVATE);
+                    JML_SPEC_PRIVATE,
+                    JML_CODE_BIGINT_MATH,
+                    JML_CODE_JAVA_MATH,
+                    JML_CODE_SAFE_MATH,
+                    JML_SPEC_BIGINT_MATH,
+                    JML_SPEC_JAVA_MATH,
+                    JML_SPEC_SAFE_MATH);
         } else if (n.isNestedType()) {
             validateModifiers(
                     n,
@@ -174,7 +198,13 @@ public class ModifierValidator extends VisitorValidator {
                     JML_SPEC_PACKAGE,
                     JML_SPEC_PRIVATE,
                     JML_SPEC_PUBLIC,
-                    JML_SPEC_PRIVATE);
+                    JML_SPEC_PRIVATE,
+                    JML_CODE_BIGINT_MATH,
+                    JML_CODE_JAVA_MATH,
+                    JML_CODE_SAFE_MATH,
+                    JML_SPEC_BIGINT_MATH,
+                    JML_SPEC_JAVA_MATH,
+                    JML_SPEC_SAFE_MATH);
         } else if (n.isLocalClassDeclaration()) {
             validateModifiers(
                     n,
@@ -196,7 +226,13 @@ public class ModifierValidator extends VisitorValidator {
                     JML_SPEC_PACKAGE,
                     JML_SPEC_PRIVATE,
                     JML_SPEC_PUBLIC,
-                    JML_SPEC_PRIVATE);
+                    JML_SPEC_PRIVATE,
+                    JML_CODE_BIGINT_MATH,
+                    JML_CODE_JAVA_MATH,
+                    JML_CODE_SAFE_MATH,
+                    JML_SPEC_BIGINT_MATH,
+                    JML_SPEC_JAVA_MATH,
+                    JML_SPEC_SAFE_MATH);
         }
     }
 
@@ -250,7 +286,13 @@ public class ModifierValidator extends VisitorValidator {
                 JML_SPEC_PACKAGE,
                 JML_SPEC_PRIVATE,
                 JML_SPEC_PUBLIC,
-                JML_SPEC_PRIVATE);
+                JML_SPEC_PRIVATE,
+                JML_CODE_BIGINT_MATH,
+                JML_CODE_JAVA_MATH,
+                JML_CODE_SAFE_MATH,
+                JML_SPEC_BIGINT_MATH,
+                JML_SPEC_JAVA_MATH,
+                JML_SPEC_SAFE_MATH);
         n.getParameters()
                 .forEach(p -> validateModifiers(
                         p,
@@ -282,7 +324,13 @@ public class ModifierValidator extends VisitorValidator {
                 JML_NON_NULL_ELEMENTS,
                 JML_GHOST,
                 JML_MODEL,
-                JML_INSTANCE);
+                JML_INSTANCE,
+                JML_CODE_BIGINT_MATH,
+                JML_CODE_JAVA_MATH,
+                JML_CODE_SAFE_MATH,
+                JML_SPEC_BIGINT_MATH,
+                JML_SPEC_JAVA_MATH,
+                JML_SPEC_SAFE_MATH);
         super.visit(n.getDecl(), reporter);
     }
 
@@ -305,7 +353,13 @@ public class ModifierValidator extends VisitorValidator {
                 JML_SPEC_PACKAGE,
                 JML_SPEC_PRIVATE,
                 JML_SPEC_PUBLIC,
-                JML_SPEC_PRIVATE);
+                JML_SPEC_PRIVATE,
+                JML_CODE_BIGINT_MATH,
+                JML_CODE_JAVA_MATH,
+                JML_CODE_SAFE_MATH,
+                JML_SPEC_BIGINT_MATH,
+                JML_SPEC_JAVA_MATH,
+                JML_SPEC_SAFE_MATH);
         super.visit(n, reporter);
     }
 
@@ -360,7 +414,13 @@ public class ModifierValidator extends VisitorValidator {
                             JML_SPEC_PACKAGE,
                             JML_SPEC_PRIVATE,
                             JML_SPEC_PUBLIC,
-                            JML_SPEC_PRIVATE);
+                            JML_SPEC_PRIVATE,
+                            JML_CODE_BIGINT_MATH,
+                            JML_CODE_JAVA_MATH,
+                            JML_CODE_SAFE_MATH,
+                            JML_SPEC_BIGINT_MATH,
+                            JML_SPEC_JAVA_MATH,
+                            JML_SPEC_SAFE_MATH);
                 }
             }
         }

@@ -17,6 +17,7 @@ import com.github.javaparser.ast.jml.clauses.*;
 import com.github.javaparser.ast.jml.doc.*;
 import com.github.javaparser.ast.jml.doc.JmlDoc;
 import com.github.javaparser.ast.jml.expr.*;
+import com.github.javaparser.ast.jml.proof.*;
 import com.github.javaparser.ast.jml.stmt.*;
 import com.github.javaparser.ast.key.*;
 import com.github.javaparser.ast.key.sv.*;
@@ -201,6 +202,11 @@ public class MetaModelGenerator extends AbstractGenerator {
             add(JmlMultiCompareExpr.class);
             add(JmlLabelExpr.class);
             add(JmlSetComprehensionExpr.class);
+
+            add(JmlProofScript.class);
+            add(JmlProofCmd.class);
+            add(JmlProofArg.class);
+            add(JmlProofCmdCase.class);
 
             add(JmlStatement.class);
             add(JmlGhostStmt.class);

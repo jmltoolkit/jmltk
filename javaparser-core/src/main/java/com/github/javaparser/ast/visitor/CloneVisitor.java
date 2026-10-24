@@ -21,6 +21,7 @@ import com.github.javaparser.ast.jml.clauses.JmlSimpleExprClause;
 import com.github.javaparser.ast.jml.doc.*;
 import com.github.javaparser.ast.jml.doc.JmlDoc;
 import com.github.javaparser.ast.jml.expr.*;
+import com.github.javaparser.ast.jml.proof.*;
 import com.github.javaparser.ast.jml.stmt.*;
 import com.github.javaparser.ast.key.*;
 import com.github.javaparser.ast.key.sv.*;
@@ -1548,10 +1549,12 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
     public Visitable visit(final JmlExpressionStmt n, final Object arg) {
         Expression expression = cloneNode(n.getExpression(), arg);
         NodeList<SimpleName> jmlTags = cloneList(n.getJmlTags(), arg);
+        JmlProofScript script = cloneNode(n.getScript(), arg);
         NodeList<Comment> associatedSpecificationComments =
                 cloneList(n.getAssociatedSpecificationComments().orElse(null), arg);
         Comment comment = cloneNode(n.getComment(), arg);
-        JmlExpressionStmt r = new JmlExpressionStmt(n.getTokenRange().orElse(null), jmlTags, n.getKind(), expression);
+        JmlExpressionStmt r =
+                new JmlExpressionStmt(n.getTokenRange().orElse(null), jmlTags, n.getKind(), expression, script);
         r.setComment(comment);
         n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
         copyData(n, r);
@@ -1817,6 +1820,74 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
                 cloneList(n.getAssociatedSpecificationComments().orElse(null), arg);
         Comment comment = cloneNode(n.getComment(), arg);
         JmlGhostStmt r = new JmlGhostStmt(n.getTokenRange().orElse(null), jmlTags, statement);
+        r.setComment(comment);
+        n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
+        copyData(n, r);
+        return r;
+    }
+
+    @Override
+    public Visitable visit(final JmlProofScript n, final Object arg) {
+        NodeList<JmlProofCmdCase> cases = cloneList(n.getCases(), arg);
+        NodeList<JmlProofCmd> cmds = cloneList(n.getCmds(), arg);
+        NodeList<Comment> associatedSpecificationComments =
+                cloneList(n.getAssociatedSpecificationComments().orElse(null), arg);
+        Comment comment = cloneNode(n.getComment(), arg);
+        JmlProofScript r = new JmlProofScript(n.getTokenRange().orElse(null), cmds, cases);
+        r.setComment(comment);
+        n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
+        copyData(n, r);
+        return r;
+    }
+
+    @Override
+    public Visitable visit(final JmlProofCmd n, final Object arg) {
+        NodeList<JmlProofArg> args = cloneList(n.getArgs(), arg);
+        SimpleName name = cloneNode(n.getName(), arg);
+        JmlProofScript suffix = cloneNode(n.getSuffix(), arg);
+        Type type = cloneNode(n.getType(), arg);
+        Expression value = cloneNode(n.getValue(), arg);
+        SimpleName var = cloneNode(n.getVar(), arg);
+        NodeList<Comment> associatedSpecificationComments =
+                cloneList(n.getAssociatedSpecificationComments().orElse(null), arg);
+        Comment comment = cloneNode(n.getComment(), arg);
+        JmlProofCmd r = new JmlProofCmd(
+                n.getTokenRange().orElse(null),
+                name,
+                args,
+                type,
+                var,
+                n.getKind().orElse(null),
+                value,
+                suffix);
+        r.setComment(comment);
+        n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
+        copyData(n, r);
+        return r;
+    }
+
+    @Override
+    public Visitable visit(final JmlProofArg n, final Object arg) {
+        Expression expr = cloneNode(n.getExpr(), arg);
+        SimpleName label = cloneNode(n.getLabel(), arg);
+        NodeList<Comment> associatedSpecificationComments =
+                cloneList(n.getAssociatedSpecificationComments().orElse(null), arg);
+        Comment comment = cloneNode(n.getComment(), arg);
+        JmlProofArg r = new JmlProofArg(n.getTokenRange().orElse(null), label, expr);
+        r.setComment(comment);
+        n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
+        copyData(n, r);
+        return r;
+    }
+
+    @Override
+    public Visitable visit(final JmlProofCmdCase n, final Object arg) {
+        NodeList<JmlProofCmd> cmds = cloneList(n.getCmds(), arg);
+        StringLiteralExpr label = cloneNode(n.getLabel(), arg);
+        NodeList<Comment> associatedSpecificationComments =
+                cloneList(n.getAssociatedSpecificationComments().orElse(null), arg);
+        Comment comment = cloneNode(n.getComment(), arg);
+        JmlProofCmdCase r = new JmlProofCmdCase(n.getTokenRange().orElse(null), label, cmds);
         r.setComment(comment);
         n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
         copyData(n, r);

@@ -238,6 +238,7 @@ public class TokenTypes {
             case LET:
             case FORALL:
             case FOR_EXAMPLE:
+            case FROM_GOAL:
             case PEER:
             case REP:
             case READ_ONLY:

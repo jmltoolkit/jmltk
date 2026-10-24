@@ -16,6 +16,7 @@ import com.github.javaparser.ast.stmt.Behavior
 import com.github.javaparser.ast.type.ClassOrInterfaceType
 import com.github.javaparser.ast.type.ReferenceType
 import java.lang.reflect.Constructor
+import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.lang.reflect.Parameter
 
@@ -26,6 +27,18 @@ private val Class<*>.toUsableName
     }
 
 class JREClassStubGenerator(private val clazz: Class<*>) {
+    // The reflection order of declared members is unspecified and varies between
+    // JDK patch releases, so sort explicitly for deterministic stub output.
+    private val fieldComparator: Comparator<Field> = compareBy { it.name }
+    private val constructorComparator: Comparator<Constructor<*>> =
+        compareBy<Constructor<*>> { it.parameterCount }
+            .thenBy { it.genericParameterTypes.joinToString(",") { t -> t.typeName } }
+    private val methodComparator: Comparator<Method> =
+        compareBy<Method> { it.name }
+            .thenBy { it.parameterCount }
+            .thenBy { it.genericParameterTypes.joinToString(",") { t -> t.typeName } }
+            .thenBy { it.genericReturnType.typeName }
+
     fun generate() = createCompilationUnit(clazz)
     private fun createCompilationUnit(clazz: Class<*>) = buildSourceFromClass(clazz)
     private fun buildSourceFromClass(clazz: Class<*>): CompilationUnit {
@@ -63,21 +76,26 @@ class JREClassStubGenerator(private val clazz: Class<*>) {
             }
         }
 
-        clazz.declaredFields.forEach { field ->
-            val fieldModifiers = getModifier(field.modifiers)
-            type.addField(field.type.toUsableName, field.name, *fieldModifiers.toTypedArray())
-        }
+        clazz.declaredFields
+            .sortedWith(fieldComparator)
+            .forEach { field ->
+                val fieldModifiers = getModifier(field.modifiers)
+                type.addField(field.type.toUsableName, field.name, *fieldModifiers.toTypedArray())
+            }
 
-        clazz.constructors.forEach { constructor ->
-            val mods = getModifier(constructor.modifiers)
-            val ctor = type.addConstructor(*mods.toTypedArray())
-            ctor.setBody(null)
-            ctor.parameters().addAll(getParameters(constructor))
-        }
+        clazz.constructors
+            .sortedWith(constructorComparator)
+            .forEach { constructor ->
+                val mods = getModifier(constructor.modifiers)
+                val ctor = type.addConstructor(*mods.toTypedArray())
+                ctor.setBody(null)
+                ctor.parameters().addAll(getParameters(constructor))
+            }
 
         clazz.declaredMethods
             .filterNot { isClinitOrInit(it.name) }
             .filter { !it.isSynthetic }
+            .sortedWith(methodComparator)
             .forEach { method ->
                 val methodModifiers = getModifier(method.modifiers)
                 val met = type.addMethod(method.name, *methodModifiers.toTypedArray())

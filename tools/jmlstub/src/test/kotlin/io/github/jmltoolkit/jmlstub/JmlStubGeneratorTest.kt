@@ -234,11 +234,12 @@ class JmlStubGeneratorTest {
         val name = it.fileName.toString()
         val clazz = Class.forName(name)
         val cu = JREClassStubGenerator(clazz).generate()
-        val actual = printer.print(cu)
+        // Normalize line endings: the pretty printer uses the system separator (CRLF on Windows)
+        val actual = printer.print(cu).replace("\r\n", "\n")
         target.resolve(name).writeText(actual)
 
         assertThat(actual).isEqualTo(
-            it.readText()
+            it.readText().replace("\r\n", "\n")
         )
     }
 }

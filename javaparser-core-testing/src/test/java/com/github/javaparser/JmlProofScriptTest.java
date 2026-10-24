@@ -41,15 +41,19 @@ public class JmlProofScriptTest {
 
         JmlProofCmd obtain = script.getCmds().get(1);
         Assertions.assertTrue(obtain.getName().isEmpty());
-        Assertions.assertEquals("x", obtain.getVar().orElseThrow(AssertionError::new).asString());
+        Assertions.assertEquals(
+                "x", obtain.getVar().orElseThrow(AssertionError::new).asString());
         Assertions.assertEquals(
                 JmlProofCmd.ObtainKind.FROM_GOAL, obtain.getKind().orElseThrow(AssertionError::new));
 
         JmlProofCmd instantiate = script.getCmds().get(4);
-        Assertions.assertEquals("instantiate", instantiate.getName().orElseThrow(AssertionError::new).asString());
+        Assertions.assertEquals(
+                "instantiate",
+                instantiate.getName().orElseThrow(AssertionError::new).asString());
         Assertions.assertEquals(2, instantiate.getArgs().size());
         JmlProofArg var = instantiate.getArgs().get(0);
-        Assertions.assertEquals("var", var.getLabel().orElseThrow(AssertionError::new).asString());
+        Assertions.assertEquals(
+                "var", var.getLabel().orElseThrow(AssertionError::new).asString());
     }
 
     @Test
@@ -68,16 +72,20 @@ public class JmlProofScriptTest {
                 + "        //@ assert true \\by { case \"a\": expand on: \"x\"; default: oss; case: auto; };\n"
                 + "    }\n"
                 + "}\n");
-        JmlProofScript script = cu.findAll(JmlExpressionStmt.class).get(0).getScript().orElseThrow(AssertionError::new);
+        JmlProofScript script =
+                cu.findAll(JmlExpressionStmt.class).get(0).getScript().orElseThrow(AssertionError::new);
         Assertions.assertTrue(script.getCmds().isEmpty());
         Assertions.assertEquals(3, script.getCases().size());
 
         JmlProofCmdCase a = script.getCases().get(0);
-        Assertions.assertEquals("a", a.getLabel().orElseThrow(AssertionError::new).getValue());
+        Assertions.assertEquals(
+                "a", a.getLabel().orElseThrow(AssertionError::new).getValue());
         JmlProofCmdCase def = script.getCases().get(1);
         Assertions.assertTrue(def.getLabel().isEmpty());
         Assertions.assertEquals(1, def.getCmds().size());
-        Assertions.assertEquals("oss", def.getCmds().get(0).getName().orElseThrow(AssertionError::new).asString());
+        Assertions.assertEquals(
+                "oss",
+                def.getCmds().get(0).getName().orElseThrow(AssertionError::new).asString());
 
         String printed = cu.toString();
         CompilationUnit cu2 = parse(printed);
@@ -92,10 +100,14 @@ public class JmlProofScriptTest {
                 + "        //@ assert true \\by { obtain int x \\such_that x > 0; };\n"
                 + "    }\n"
                 + "}\n");
-        JmlProofCmd obtain =
-                cu.findAll(JmlExpressionStmt.class).get(0).getScript().orElseThrow(AssertionError::new)
-                        .getCmds().get(0);
-        Assertions.assertEquals(JmlProofCmd.ObtainKind.SUCH_THAT, obtain.getKind().orElseThrow(AssertionError::new));
+        JmlProofCmd obtain = cu.findAll(JmlExpressionStmt.class)
+                .get(0)
+                .getScript()
+                .orElseThrow(AssertionError::new)
+                .getCmds()
+                .get(0);
+        Assertions.assertEquals(
+                JmlProofCmd.ObtainKind.SUCH_THAT, obtain.getKind().orElseThrow(AssertionError::new));
         CompilationUnit cu2 = parse(cu.toString());
         Assertions.assertEquals(cu, cu2);
     }

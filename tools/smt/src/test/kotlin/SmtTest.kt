@@ -98,7 +98,8 @@ class SmtTest {
         val pw = PrintWriter(sw)
         smtLog.appendTo(pw)
         actualExpr.appendTo(pw)
-        val actual = sw.toString()
+        // Normalize line endings: the writers use the system separator (CRLF on Windows)
+        val actual = sw.toString().replace("\r\n", "\n")
         Truth.assertThat(actual.trim { it <= ' ' }).isEqualTo(expected.trim { it <= ' ' })
     }
 }

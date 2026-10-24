@@ -117,7 +117,9 @@ public class MethodFrameTests {
                     target += " in "
                             + t.findCompilationUnit()
                                     .flatMap(CompilationUnit::getStorage)
-                                    .map(it -> base.relativize(it.getPath()).toString())
+                                    .map(it -> base.relativize(it.getPath())
+                                            .toString()
+                                            .replace(File.separatorChar, '/'))
                                     .orElse(null);
                 } catch (NoSuchElementException e) {
                     target = "_";

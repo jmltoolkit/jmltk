@@ -119,7 +119,8 @@ class JmlStubGeneratorTest {
     fun `test with compilation unit`() {
         val combiner = ClassStubGenerator(Path("build/classes/java/test/TestClass.class"))
         val result = combiner.generate()
-        val text = result.toString()
+        // Normalize line endings: the pretty printer uses the system separator (CRLF on Windows)
+        val text = result.toString().replace("\r\n", "\n")
         assertThat(text).isEqualTo(
             """
             public class TestClass {

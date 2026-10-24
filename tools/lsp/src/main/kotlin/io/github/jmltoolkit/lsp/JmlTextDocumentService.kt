@@ -199,8 +199,24 @@ value class Uri(val value: String) {
     val isKeyFile: Boolean
         get() = file.extension == "key"
 
+    /**
+     * Converts a `file://` URI into a local file system path.
+     *
+     * On Windows, well-formed file URIs for local files use the `file:///D:/a/b` form.
+     * Naively stripping the `file://` prefix leaves `/D:/a/b`, which `Paths.get` on
+     * Windows interprets relative to the current drive root, so the drive letter is
+     * dropped. Strip the leading slash when a drive letter follows.
+     */
     val localFilePath: String
-        get() = value.removePrefix("file://")
+        get() {
+            val p = value.removePrefix("file://")
+            return if (p.length >= 3 && p[0] == '/' && p[1].isLetter() && p[2] == ':') {
+                p.substring(1)
+            } else {
+                p
+            }
+        }
+
     val path: Path
         get() = Paths.get(localFilePath)
     val file: File

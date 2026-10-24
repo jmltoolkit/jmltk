@@ -18,7 +18,7 @@ import kotlin.test.assertTrue
 
 open class TestUtilities {
     internal val File.toUri: String
-        get() = "file://$absolutePath"
+        get() = toPath().toUri().toString()
 
     val workspace = File("workspace")
     val languageServer = JmlLanguageServer().also {
@@ -192,8 +192,9 @@ class DocumentSymbolTests : TestUtilities() {
         val params = DocumentSymbolParams(TextDocumentIdentifier(javaFile.toUri))
         val result = docService.documentSymbol(params).get()
         val sb = toCsv(result.map { it.right }, javaFile.name)
-        Truth.assertThat(sb.toString())
-            .isEqualTo(symbolsTruth.readText())
+        // Normalize line endings: expected fixtures may be checked out with CRLF on Windows
+        Truth.assertThat(sb.toString().replace("\r\n", "\n"))
+            .isEqualTo(symbolsTruth.readText().replace("\r\n", "\n"))
     }
 
     @TestFactory

@@ -17,6 +17,24 @@ application {
 tasks.named<CreateStartScripts>("startScripts") {
     applicationName = "jmltk"
     defaultJvmOpts = listOf("--enable-native-access=ALL-UNNAMED")
+    shortenWindowsClasspathLine()
+}
+
+/** Replace Gradle's explicit CLASSPATH jar enumeration in the Windows start
+ *  script with the Java classpath wildcard form. jmltk bundles 100+ jars, and
+ *  the generated `set CLASSPATH=...` line exceeds cmd.exe's 8191-character line
+ *  limit on Windows, making the launcher unusable (`The input line is too long`).
+ */
+fun CreateStartScripts.shortenWindowsClasspathLine() {
+    doLast {
+        val file = windowsScriptFile.get().asFile
+        val script = file.readText()
+        val fixed = script.replace(
+            Regex("(?m)^set CLASSPATH=.*\r?\n"),
+            "set CLASSPATH=%APP_HOME%\\\\lib\\\\*\r\n",
+        )
+        if (fixed != script) file.writeText(fixed)
+    }
 }
 
 fun createLauncher(name: String, mainClassName: String) =
@@ -28,6 +46,7 @@ fun createLauncher(name: String, mainClassName: String) =
         mainClass.set(mainClassName)
         classpath = files(tasks.named("jar"), configurations.runtimeClasspath)
         outputDir = layout.buildDirectory.dir("tmp/scripts").get().asFile
+        shortenWindowsClasspathLine()
     }
 
 val lspStart = createLauncher("jmltk-lsp", "io.github.jmltoolkit.lsp.Main")

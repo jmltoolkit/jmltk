@@ -1009,10 +1009,13 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
                 });
             });
         }
-        n.getSuffix().ifPresentOrElse(suffix -> {
-            printer.print(" \\by ");
-            suffix.accept(this, arg);
-        }, () -> printer.print(";"));
+        n.getSuffix()
+                .ifPresentOrElse(
+                        suffix -> {
+                            printer.print(" \\by ");
+                            suffix.accept(this, arg);
+                        },
+                        () -> printer.print(";"));
     }
 
     @Override
@@ -1028,11 +1031,14 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     @Override
     public void visit(JmlProofCmdCase n, Void arg) {
         printOrphanCommentsBeforeThisChildNode(n);
-        n.getLabel().ifPresentOrElse(label -> {
-            printer.print("case ");
-            label.accept(this, arg);
-            printer.print(": ");
-        }, () -> printer.print("case: "));
+        n.getLabel()
+                .ifPresentOrElse(
+                        label -> {
+                            printer.print("case ");
+                            label.accept(this, arg);
+                            printer.print(": ");
+                        },
+                        () -> printer.print("case: "));
         printList(n.getCmds(), " ");
     }
 

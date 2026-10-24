@@ -2303,6 +2303,10 @@ public abstract class GenericVisitorAdapter<R, A> implements GenericVisitor<R, A
             result = n.getJmlTags().accept(this, arg);
             if (result != null) return result;
         }
+        if (n.getScript().isPresent()) {
+            result = n.getScript().get().accept(this, arg);
+            if (result != null) return result;
+        }
         if (n.getAssociatedSpecificationComments().isPresent()) {
             result = n.getAssociatedSpecificationComments().get().accept(this, arg);
             if (result != null) return result;
@@ -2739,15 +2743,20 @@ public abstract class GenericVisitorAdapter<R, A> implements GenericVisitor<R, A
         }
         return null;
     }
+
     @Override
     public R visit(final JmlProofScript n, final A arg) {
         R result;
         {
-            result = n.getCmds().accept(this, arg);
+            result = n.getCases().accept(this, arg);
             if (result != null) return result;
         }
         {
-            result = n.getCases().accept(this, arg);
+            result = n.getCmds().accept(this, arg);
+            if (result != null) return result;
+        }
+        if (n.getAssociatedSpecificationComments().isPresent()) {
+            result = n.getAssociatedSpecificationComments().get().accept(this, arg);
             if (result != null) return result;
         }
         if (n.getComment().isPresent()) {
@@ -2756,65 +2765,80 @@ public abstract class GenericVisitorAdapter<R, A> implements GenericVisitor<R, A
         }
         return null;
     }
+
     @Override
     public R visit(final JmlProofCmd n, final A arg) {
         R result;
-        if (n.getName().isPresent()) {
-            result = n.getName().get().accept(this, arg);
-            if (result != null) return result;
-        }
         {
             result = n.getArgs().accept(this, arg);
             if (result != null) return result;
         }
-        if (n.getType().isPresent()) {
-            result = n.getType().get().accept(this, arg);
-            if (result != null) return result;
-        }
-        if (n.getVar().isPresent()) {
-            result = n.getVar().get().accept(this, arg);
-            if (result != null) return result;
-        }
-        if (n.getValue().isPresent()) {
-            result = n.getValue().get().accept(this, arg);
+        if (n.getName().isPresent()) {
+            result = n.getName().get().accept(this, arg);
             if (result != null) return result;
         }
         if (n.getSuffix().isPresent()) {
             result = n.getSuffix().get().accept(this, arg);
             if (result != null) return result;
         }
+        if (n.getType().isPresent()) {
+            result = n.getType().get().accept(this, arg);
+            if (result != null) return result;
+        }
+        if (n.getValue().isPresent()) {
+            result = n.getValue().get().accept(this, arg);
+            if (result != null) return result;
+        }
+        if (n.getVar().isPresent()) {
+            result = n.getVar().get().accept(this, arg);
+            if (result != null) return result;
+        }
+        if (n.getAssociatedSpecificationComments().isPresent()) {
+            result = n.getAssociatedSpecificationComments().get().accept(this, arg);
+            if (result != null) return result;
+        }
         if (n.getComment().isPresent()) {
             result = n.getComment().get().accept(this, arg);
             if (result != null) return result;
         }
         return null;
     }
+
     @Override
     public R visit(final JmlProofArg n, final A arg) {
         R result;
-        if (n.getLabel().isPresent()) {
-            result = n.getLabel().get().accept(this, arg);
-            if (result != null) return result;
-        }
         {
             result = n.getExpr().accept(this, arg);
             if (result != null) return result;
         }
+        if (n.getLabel().isPresent()) {
+            result = n.getLabel().get().accept(this, arg);
+            if (result != null) return result;
+        }
+        if (n.getAssociatedSpecificationComments().isPresent()) {
+            result = n.getAssociatedSpecificationComments().get().accept(this, arg);
+            if (result != null) return result;
+        }
         if (n.getComment().isPresent()) {
             result = n.getComment().get().accept(this, arg);
             if (result != null) return result;
         }
         return null;
     }
+
     @Override
     public R visit(final JmlProofCmdCase n, final A arg) {
         R result;
+        {
+            result = n.getCmds().accept(this, arg);
+            if (result != null) return result;
+        }
         if (n.getLabel().isPresent()) {
             result = n.getLabel().get().accept(this, arg);
             if (result != null) return result;
         }
-        {
-            result = n.getCmds().accept(this, arg);
+        if (n.getAssociatedSpecificationComments().isPresent()) {
+            result = n.getAssociatedSpecificationComments().get().accept(this, arg);
             if (result != null) return result;
         }
         if (n.getComment().isPresent()) {

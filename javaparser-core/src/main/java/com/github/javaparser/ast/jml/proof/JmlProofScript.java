@@ -101,15 +101,15 @@ public class JmlProofScript extends Node {
         if (node == null) {
             return false;
         }
-        for (int i = 0; i < cmds.size(); i++) {
-            if (cmds.get(i) == node) {
-                cmds.set(i, (JmlProofCmd) replacementNode);
-                return true;
-            }
-        }
         for (int i = 0; i < cases.size(); i++) {
             if (cases.get(i) == node) {
                 cases.set(i, (JmlProofCmdCase) replacementNode);
+                return true;
+            }
+        }
+        for (int i = 0; i < cmds.size(); i++) {
+            if (cmds.get(i) == node) {
+                cmds.set(i, (JmlProofCmd) replacementNode);
                 return true;
             }
         }
@@ -134,15 +134,15 @@ public class JmlProofScript extends Node {
         if (node == null) {
             return false;
         }
-        for (int i = 0; i < cmds.size(); i++) {
-            if (cmds.get(i) == node) {
-                cmds.remove(i);
-                return true;
-            }
-        }
         for (int i = 0; i < cases.size(); i++) {
             if (cases.get(i) == node) {
                 cases.remove(i);
+                return true;
+            }
+        }
+        for (int i = 0; i < cmds.size(); i++) {
+            if (cmds.get(i) == node) {
+                cmds.remove(i);
                 return true;
             }
         }

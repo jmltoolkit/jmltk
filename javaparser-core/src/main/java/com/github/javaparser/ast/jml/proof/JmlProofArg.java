@@ -104,15 +104,15 @@ public class JmlProofArg extends Node {
         if (node == null) {
             return false;
         }
+        if (node == expr) {
+            setExpr((Expression) replacementNode);
+            return true;
+        }
         if (label != null) {
             if (node == label) {
                 setLabel((SimpleName) replacementNode);
                 return true;
             }
-        }
-        if (node == expr) {
-            setExpr((Expression) replacementNode);
-            return true;
         }
         return super.replace(node, replacementNode);
     }

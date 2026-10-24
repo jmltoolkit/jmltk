@@ -842,6 +842,7 @@ public abstract class VoidVisitorAdapter<A> implements VoidVisitor<A> {
     public void visit(final JmlExpressionStmt n, final A arg) {
         n.getExpression().accept(this, arg);
         n.getJmlTags().forEach(p -> p.accept(this, arg));
+        n.getScript().ifPresent(l -> l.accept(this, arg));
         n.getAssociatedSpecificationComments().ifPresent(l -> l.forEach(v -> v.accept(this, arg)));
         n.getComment().ifPresent(l -> l.accept(this, arg));
     }
@@ -1002,32 +1003,40 @@ public abstract class VoidVisitorAdapter<A> implements VoidVisitor<A> {
         n.getAssociatedSpecificationComments().ifPresent(l -> l.forEach(v -> v.accept(this, arg)));
         n.getComment().ifPresent(l -> l.accept(this, arg));
     }
+
     @Override
     public void visit(final JmlProofScript n, final A arg) {
-        n.getCmds().forEach(p -> p.accept(this, arg));
         n.getCases().forEach(p -> p.accept(this, arg));
+        n.getCmds().forEach(p -> p.accept(this, arg));
+        n.getAssociatedSpecificationComments().ifPresent(l -> l.forEach(v -> v.accept(this, arg)));
         n.getComment().ifPresent(l -> l.accept(this, arg));
     }
+
     @Override
     public void visit(final JmlProofCmd n, final A arg) {
-        n.getName().ifPresent(l -> l.accept(this, arg));
         n.getArgs().forEach(p -> p.accept(this, arg));
-        n.getType().ifPresent(l -> l.accept(this, arg));
-        n.getVar().ifPresent(l -> l.accept(this, arg));
-        n.getValue().ifPresent(l -> l.accept(this, arg));
+        n.getName().ifPresent(l -> l.accept(this, arg));
         n.getSuffix().ifPresent(l -> l.accept(this, arg));
+        n.getType().ifPresent(l -> l.accept(this, arg));
+        n.getValue().ifPresent(l -> l.accept(this, arg));
+        n.getVar().ifPresent(l -> l.accept(this, arg));
+        n.getAssociatedSpecificationComments().ifPresent(l -> l.forEach(v -> v.accept(this, arg)));
         n.getComment().ifPresent(l -> l.accept(this, arg));
     }
+
     @Override
     public void visit(final JmlProofArg n, final A arg) {
-        n.getLabel().ifPresent(l -> l.accept(this, arg));
         n.getExpr().accept(this, arg);
+        n.getLabel().ifPresent(l -> l.accept(this, arg));
+        n.getAssociatedSpecificationComments().ifPresent(l -> l.forEach(v -> v.accept(this, arg)));
         n.getComment().ifPresent(l -> l.accept(this, arg));
     }
+
     @Override
     public void visit(final JmlProofCmdCase n, final A arg) {
-        n.getLabel().ifPresent(l -> l.accept(this, arg));
         n.getCmds().forEach(p -> p.accept(this, arg));
+        n.getLabel().ifPresent(l -> l.accept(this, arg));
+        n.getAssociatedSpecificationComments().ifPresent(l -> l.forEach(v -> v.accept(this, arg)));
         n.getComment().ifPresent(l -> l.accept(this, arg));
     }
 

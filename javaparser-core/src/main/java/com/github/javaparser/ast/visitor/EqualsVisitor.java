@@ -1166,6 +1166,7 @@ public class EqualsVisitor implements GenericVisitor<Boolean, Visitable> {
         if (!nodeEquals(n.getExpression(), n2.getExpression())) return false;
         if (!nodesEquals(n.getJmlTags(), n2.getJmlTags())) return false;
         if (!objEquals(n.getKind(), n2.getKind())) return false;
+        if (!nodeEquals(n.getScript(), n2.getScript())) return false;
         if (!nodesEquals(n.getAssociatedSpecificationComments(), n2.getAssociatedSpecificationComments())) return false;
         if (!nodeEquals(n.getComment(), n2.getComment())) return false;
         return true;
@@ -1371,40 +1372,48 @@ public class EqualsVisitor implements GenericVisitor<Boolean, Visitable> {
         if (!nodeEquals(n.getComment(), n2.getComment())) return false;
         return true;
     }
+
     @Override
     public Boolean visit(final JmlProofScript n, final Visitable arg) {
         final JmlProofScript n2 = (JmlProofScript) arg;
-        if (!nodesEquals(n.getCmds(), n2.getCmds())) return false;
         if (!nodesEquals(n.getCases(), n2.getCases())) return false;
+        if (!nodesEquals(n.getCmds(), n2.getCmds())) return false;
+        if (!nodesEquals(n.getAssociatedSpecificationComments(), n2.getAssociatedSpecificationComments())) return false;
         if (!nodeEquals(n.getComment(), n2.getComment())) return false;
         return true;
     }
+
     @Override
     public Boolean visit(final JmlProofCmd n, final Visitable arg) {
         final JmlProofCmd n2 = (JmlProofCmd) arg;
-        if (!nodeEquals(n.getName(), n2.getName())) return false;
         if (!nodesEquals(n.getArgs(), n2.getArgs())) return false;
-        if (!nodeEquals(n.getType(), n2.getType())) return false;
-        if (!nodeEquals(n.getVar(), n2.getVar())) return false;
         if (!objEquals(n.getKind(), n2.getKind())) return false;
-        if (!nodeEquals(n.getValue(), n2.getValue())) return false;
+        if (!nodeEquals(n.getName(), n2.getName())) return false;
         if (!nodeEquals(n.getSuffix(), n2.getSuffix())) return false;
+        if (!nodeEquals(n.getType(), n2.getType())) return false;
+        if (!nodeEquals(n.getValue(), n2.getValue())) return false;
+        if (!nodeEquals(n.getVar(), n2.getVar())) return false;
+        if (!nodesEquals(n.getAssociatedSpecificationComments(), n2.getAssociatedSpecificationComments())) return false;
         if (!nodeEquals(n.getComment(), n2.getComment())) return false;
         return true;
     }
+
     @Override
     public Boolean visit(final JmlProofArg n, final Visitable arg) {
         final JmlProofArg n2 = (JmlProofArg) arg;
-        if (!nodeEquals(n.getLabel(), n2.getLabel())) return false;
         if (!nodeEquals(n.getExpr(), n2.getExpr())) return false;
+        if (!nodeEquals(n.getLabel(), n2.getLabel())) return false;
+        if (!nodesEquals(n.getAssociatedSpecificationComments(), n2.getAssociatedSpecificationComments())) return false;
         if (!nodeEquals(n.getComment(), n2.getComment())) return false;
         return true;
     }
+
     @Override
     public Boolean visit(final JmlProofCmdCase n, final Visitable arg) {
         final JmlProofCmdCase n2 = (JmlProofCmdCase) arg;
-        if (!nodeEquals(n.getLabel(), n2.getLabel())) return false;
         if (!nodesEquals(n.getCmds(), n2.getCmds())) return false;
+        if (!nodeEquals(n.getLabel(), n2.getLabel())) return false;
+        if (!nodesEquals(n.getAssociatedSpecificationComments(), n2.getAssociatedSpecificationComments())) return false;
         if (!nodeEquals(n.getComment(), n2.getComment())) return false;
         return true;
     }

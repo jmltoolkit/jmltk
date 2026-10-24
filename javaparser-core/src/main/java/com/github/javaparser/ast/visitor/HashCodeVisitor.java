@@ -1120,6 +1120,7 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
         return (n.getExpression().accept(this, arg)) * 31
                 + (n.getJmlTags().accept(this, arg)) * 31
                 + (n.getKind().hashCode()) * 31
+                + (n.getScript().isPresent() ? n.getScript().get().accept(this, arg) : 0) * 31
                 + (n.getAssociatedSpecificationComments().isPresent()
                                 ? n.getAssociatedSpecificationComments().get().accept(this, arg)
                                 : 0)
@@ -1333,34 +1334,54 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                         * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
+
     @Override
     public Integer visit(final JmlProofScript n, final Void arg) {
-        return (n.getCmds().accept(this, arg)) * 31
-                + (n.getCases().accept(this, arg)) * 31
-                + (n.getComment().isPresent()? n.getComment().get().accept(this, arg):0);
+        return (n.getCases().accept(this, arg)) * 31
+                + (n.getCmds().accept(this, arg)) * 31
+                + (n.getAssociatedSpecificationComments().isPresent()
+                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
+                                : 0)
+                        * 31
+                + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
+
     @Override
     public Integer visit(final JmlProofCmd n, final Void arg) {
-        return (n.getName().isPresent()? n.getName().get().accept(this, arg):0) * 31
-                + (n.getArgs().accept(this, arg)) * 31
-                + (n.getType().isPresent()? n.getType().get().accept(this, arg):0) * 31
-                + (n.getVar().isPresent()? n.getVar().get().accept(this, arg):0) * 31
+        return (n.getArgs().accept(this, arg)) * 31
                 + (n.getKind().hashCode()) * 31
-                + (n.getValue().isPresent()? n.getValue().get().accept(this, arg):0) * 31
-                + (n.getSuffix().isPresent()? n.getSuffix().get().accept(this, arg):0) * 31
-                + (n.getComment().isPresent()? n.getComment().get().accept(this, arg):0);
+                + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0) * 31
+                + (n.getSuffix().isPresent() ? n.getSuffix().get().accept(this, arg) : 0) * 31
+                + (n.getType().isPresent() ? n.getType().get().accept(this, arg) : 0) * 31
+                + (n.getValue().isPresent() ? n.getValue().get().accept(this, arg) : 0) * 31
+                + (n.getVar().isPresent() ? n.getVar().get().accept(this, arg) : 0) * 31
+                + (n.getAssociatedSpecificationComments().isPresent()
+                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
+                                : 0)
+                        * 31
+                + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
+
     @Override
     public Integer visit(final JmlProofArg n, final Void arg) {
-        return (n.getLabel().isPresent()? n.getLabel().get().accept(this, arg):0) * 31
-                + (n.getExpr().accept(this, arg)) * 31
-                + (n.getComment().isPresent()? n.getComment().get().accept(this, arg):0);
+        return (n.getExpr().accept(this, arg)) * 31
+                + (n.getLabel().isPresent() ? n.getLabel().get().accept(this, arg) : 0) * 31
+                + (n.getAssociatedSpecificationComments().isPresent()
+                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
+                                : 0)
+                        * 31
+                + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
+
     @Override
     public Integer visit(final JmlProofCmdCase n, final Void arg) {
-        return (n.getLabel().isPresent()? n.getLabel().get().accept(this, arg):0) * 31
-                + (n.getCmds().accept(this, arg)) * 31
-                + (n.getComment().isPresent()? n.getComment().get().accept(this, arg):0);
+        return (n.getCmds().accept(this, arg)) * 31
+                + (n.getLabel().isPresent() ? n.getLabel().get().accept(this, arg) : 0) * 31
+                + (n.getAssociatedSpecificationComments().isPresent()
+                                ? n.getAssociatedSpecificationComments().get().accept(this, arg)
+                                : 0)
+                        * 31
+                + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
 
     @Override

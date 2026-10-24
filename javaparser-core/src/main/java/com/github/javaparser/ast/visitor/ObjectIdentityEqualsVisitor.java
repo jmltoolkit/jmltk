@@ -626,18 +626,22 @@ public class ObjectIdentityEqualsVisitor implements GenericVisitor<Boolean, Visi
     public Boolean visit(final JmlGhostStmt n, final Visitable arg) {
         return n == arg;
     }
+
     @Override
     public Boolean visit(final JmlProofScript n, final Visitable arg) {
         return n == arg;
     }
+
     @Override
     public Boolean visit(final JmlProofCmd n, final Visitable arg) {
         return n == arg;
     }
+
     @Override
     public Boolean visit(final JmlProofArg n, final Visitable arg) {
         return n == arg;
     }
+
     @Override
     public Boolean visit(final JmlProofCmdCase n, final Visitable arg) {
         return n == arg;

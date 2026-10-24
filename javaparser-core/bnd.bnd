@@ -15,6 +15,7 @@ Bundle-SymbolicName: com.github.javaparser.javaparser-core
     com.github.javaparser.ast.jml.clauses, \
     com.github.javaparser.ast.jml.doc, \
     com.github.javaparser.ast.jml.expr, \
+    com.github.javaparser.ast.jml.proof, \
     com.github.javaparser.ast.jml.stmt, \
     com.github.javaparser.ast.jml.type, \
     com.github.javaparser.ast.key, \

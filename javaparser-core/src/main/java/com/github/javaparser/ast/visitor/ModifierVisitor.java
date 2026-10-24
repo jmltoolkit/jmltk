@@ -1927,11 +1927,14 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
     public Visitable visit(final JmlExpressionStmt n, final A arg) {
         Expression expression = (Expression) n.getExpression().accept(this, arg);
         NodeList<SimpleName> jmlTags = modifyList(n.getJmlTags(), arg);
+        JmlProofScript script =
+                n.getScript().map(s -> (JmlProofScript) s.accept(this, arg)).orElse(null);
         NodeList<Comment> associatedSpecificationComments = modifyList(n.getAssociatedSpecificationComments(), arg);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
         if (expression == null) return null;
         n.setExpression(expression);
         n.setJmlTags(jmlTags);
+        n.setScript(script);
         n.setAssociatedSpecificationComments(associatedSpecificationComments);
         n.setComment(comment);
         return n;
@@ -2210,51 +2213,68 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
         n.setComment(comment);
         return n;
     }
+
     @Override
     public Visitable visit(final JmlProofScript n, final A arg) {
-        NodeList<JmlProofCmd> cmds = modifyList(n.getCmds(), arg);
         NodeList<JmlProofCmdCase> cases = modifyList(n.getCases(), arg);
+        NodeList<JmlProofCmd> cmds = modifyList(n.getCmds(), arg);
+        NodeList<Comment> associatedSpecificationComments = modifyList(n.getAssociatedSpecificationComments(), arg);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
-        n.setCmds(cmds);
         n.setCases(cases);
+        n.setCmds(cmds);
+        n.setAssociatedSpecificationComments(associatedSpecificationComments);
         n.setComment(comment);
         return n;
     }
+
     @Override
     public Visitable visit(final JmlProofCmd n, final A arg) {
-        SimpleName name = n.getName().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
         NodeList<JmlProofArg> args = modifyList(n.getArgs(), arg);
+        SimpleName name = n.getName().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
+        JmlProofScript suffix =
+                n.getSuffix().map(s -> (JmlProofScript) s.accept(this, arg)).orElse(null);
         Type type = n.getType().map(s -> (Type) s.accept(this, arg)).orElse(null);
+        Expression value =
+                n.getValue().map(s -> (Expression) s.accept(this, arg)).orElse(null);
         SimpleName var = n.getVar().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
-        Expression value = n.getValue().map(s -> (Expression) s.accept(this, arg)).orElse(null);
-        JmlProofScript suffix = n.getSuffix().map(s -> (JmlProofScript) s.accept(this, arg)).orElse(null);
+        NodeList<Comment> associatedSpecificationComments = modifyList(n.getAssociatedSpecificationComments(), arg);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
-        n.setName(name);
         n.setArgs(args);
-        n.setType(type);
-        n.setVar(var);
-        n.setValue(value);
+        n.setName(name);
         n.setSuffix(suffix);
+        n.setType(type);
+        n.setValue(value);
+        n.setVar(var);
+        n.setAssociatedSpecificationComments(associatedSpecificationComments);
         n.setComment(comment);
         return n;
     }
+
     @Override
     public Visitable visit(final JmlProofArg n, final A arg) {
-        SimpleName label = n.getLabel().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
         Expression expr = (Expression) n.getExpr().accept(this, arg);
+        SimpleName label =
+                n.getLabel().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
+        NodeList<Comment> associatedSpecificationComments = modifyList(n.getAssociatedSpecificationComments(), arg);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
-        n.setLabel(label);
+        if (expr == null) return null;
         n.setExpr(expr);
+        n.setLabel(label);
+        n.setAssociatedSpecificationComments(associatedSpecificationComments);
         n.setComment(comment);
         return n;
     }
+
     @Override
     public Visitable visit(final JmlProofCmdCase n, final A arg) {
-        StringLiteralExpr label = n.getLabel().map(s -> (StringLiteralExpr) s.accept(this, arg)).orElse(null);
         NodeList<JmlProofCmd> cmds = modifyList(n.getCmds(), arg);
+        StringLiteralExpr label =
+                n.getLabel().map(s -> (StringLiteralExpr) s.accept(this, arg)).orElse(null);
+        NodeList<Comment> associatedSpecificationComments = modifyList(n.getAssociatedSpecificationComments(), arg);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
-        n.setLabel(label);
         n.setCmds(cmds);
+        n.setLabel(label);
+        n.setAssociatedSpecificationComments(associatedSpecificationComments);
         n.setComment(comment);
         return n;
     }

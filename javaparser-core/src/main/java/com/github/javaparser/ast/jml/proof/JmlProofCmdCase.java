@@ -104,15 +104,15 @@ public class JmlProofCmdCase extends Node {
         if (node == null) {
             return false;
         }
-        if (label != null) {
-            if (node == label) {
-                setLabel((StringLiteralExpr) replacementNode);
-                return true;
-            }
-        }
         for (int i = 0; i < cmds.size(); i++) {
             if (cmds.get(i) == node) {
                 cmds.set(i, (JmlProofCmd) replacementNode);
+                return true;
+            }
+        }
+        if (label != null) {
+            if (node == label) {
+                setLabel((StringLiteralExpr) replacementNode);
                 return true;
             }
         }
@@ -137,15 +137,15 @@ public class JmlProofCmdCase extends Node {
         if (node == null) {
             return false;
         }
-        if (label != null) {
-            if (node == label) {
-                removeLabel();
-                return true;
-            }
-        }
         for (int i = 0; i < cmds.size(); i++) {
             if (cmds.get(i) == node) {
                 cmds.remove(i);
+                return true;
+            }
+        }
+        if (label != null) {
+            if (node == label) {
+                removeLabel();
                 return true;
             }
         }

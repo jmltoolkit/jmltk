@@ -555,16 +555,6 @@ public final class JavaParserMetaModel {
         jmlSetComprehensionExprMetaModel
                 .getConstructorParameters()
                 .add(jmlSetComprehensionExprMetaModel.predicatePropertyMetaModel);
-        jmlGhostStmtMetaModel.getConstructorParameters().add(jmlGhostStmtMetaModel.jmlTagsPropertyMetaModel);
-        jmlGhostStmtMetaModel.getConstructorParameters().add(jmlGhostStmtMetaModel.statementPropertyMetaModel);
-        jmlExpressionStmtMetaModel.getConstructorParameters().add(jmlExpressionStmtMetaModel.jmlTagsPropertyMetaModel);
-        jmlExpressionStmtMetaModel.getConstructorParameters().add(jmlExpressionStmtMetaModel.kindPropertyMetaModel);
-        jmlExpressionStmtMetaModel
-                .getConstructorParameters()
-                .add(jmlExpressionStmtMetaModel.expressionPropertyMetaModel);
-        jmlExpressionStmtMetaModel
-                .getConstructorParameters()
-                .add(jmlExpressionStmtMetaModel.scriptPropertyMetaModel);
         jmlProofScriptMetaModel.getConstructorParameters().add(jmlProofScriptMetaModel.cmdsPropertyMetaModel);
         jmlProofScriptMetaModel.getConstructorParameters().add(jmlProofScriptMetaModel.casesPropertyMetaModel);
         jmlProofCmdMetaModel.getConstructorParameters().add(jmlProofCmdMetaModel.namePropertyMetaModel);
@@ -578,6 +568,14 @@ public final class JavaParserMetaModel {
         jmlProofArgMetaModel.getConstructorParameters().add(jmlProofArgMetaModel.exprPropertyMetaModel);
         jmlProofCmdCaseMetaModel.getConstructorParameters().add(jmlProofCmdCaseMetaModel.labelPropertyMetaModel);
         jmlProofCmdCaseMetaModel.getConstructorParameters().add(jmlProofCmdCaseMetaModel.cmdsPropertyMetaModel);
+        jmlGhostStmtMetaModel.getConstructorParameters().add(jmlGhostStmtMetaModel.jmlTagsPropertyMetaModel);
+        jmlGhostStmtMetaModel.getConstructorParameters().add(jmlGhostStmtMetaModel.statementPropertyMetaModel);
+        jmlExpressionStmtMetaModel.getConstructorParameters().add(jmlExpressionStmtMetaModel.jmlTagsPropertyMetaModel);
+        jmlExpressionStmtMetaModel.getConstructorParameters().add(jmlExpressionStmtMetaModel.kindPropertyMetaModel);
+        jmlExpressionStmtMetaModel
+                .getConstructorParameters()
+                .add(jmlExpressionStmtMetaModel.expressionPropertyMetaModel);
+        jmlExpressionStmtMetaModel.getConstructorParameters().add(jmlExpressionStmtMetaModel.scriptPropertyMetaModel);
         jmlRefiningStmtMetaModel.getConstructorParameters().add(jmlRefiningStmtMetaModel.jmlTagsPropertyMetaModel);
         jmlUnreachableStmtMetaModel
                 .getConstructorParameters()
@@ -3705,6 +3703,136 @@ public final class JavaParserMetaModel {
         jmlSetComprehensionExprMetaModel
                 .getDeclaredPropertyMetaModels()
                 .add(jmlSetComprehensionExprMetaModel.predicatePropertyMetaModel);
+        jmlProofScriptMetaModel.casesPropertyMetaModel = new PropertyMetaModel(
+                jmlProofScriptMetaModel,
+                "cases",
+                com.github.javaparser.ast.jml.proof.JmlProofCmdCase.class,
+                Optional.of(jmlProofCmdCaseMetaModel),
+                false,
+                false,
+                true,
+                false);
+        jmlProofScriptMetaModel.getDeclaredPropertyMetaModels().add(jmlProofScriptMetaModel.casesPropertyMetaModel);
+        jmlProofScriptMetaModel.cmdsPropertyMetaModel = new PropertyMetaModel(
+                jmlProofScriptMetaModel,
+                "cmds",
+                com.github.javaparser.ast.jml.proof.JmlProofCmd.class,
+                Optional.of(jmlProofCmdMetaModel),
+                false,
+                false,
+                true,
+                false);
+        jmlProofScriptMetaModel.getDeclaredPropertyMetaModels().add(jmlProofScriptMetaModel.cmdsPropertyMetaModel);
+        jmlProofCmdMetaModel.argsPropertyMetaModel = new PropertyMetaModel(
+                jmlProofCmdMetaModel,
+                "args",
+                com.github.javaparser.ast.jml.proof.JmlProofArg.class,
+                Optional.of(jmlProofArgMetaModel),
+                false,
+                false,
+                true,
+                false);
+        jmlProofCmdMetaModel.getDeclaredPropertyMetaModels().add(jmlProofCmdMetaModel.argsPropertyMetaModel);
+        jmlProofCmdMetaModel.kindPropertyMetaModel = new PropertyMetaModel(
+                jmlProofCmdMetaModel,
+                "kind",
+                com.github.javaparser.ast.jml.proof.JmlProofCmd.ObtainKind.class,
+                Optional.empty(),
+                true,
+                false,
+                false,
+                false);
+        jmlProofCmdMetaModel.getDeclaredPropertyMetaModels().add(jmlProofCmdMetaModel.kindPropertyMetaModel);
+        jmlProofCmdMetaModel.namePropertyMetaModel = new PropertyMetaModel(
+                jmlProofCmdMetaModel,
+                "name",
+                com.github.javaparser.ast.expr.SimpleName.class,
+                Optional.of(simpleNameMetaModel),
+                true,
+                false,
+                false,
+                false);
+        jmlProofCmdMetaModel.getDeclaredPropertyMetaModels().add(jmlProofCmdMetaModel.namePropertyMetaModel);
+        jmlProofCmdMetaModel.suffixPropertyMetaModel = new PropertyMetaModel(
+                jmlProofCmdMetaModel,
+                "suffix",
+                com.github.javaparser.ast.jml.proof.JmlProofScript.class,
+                Optional.of(jmlProofScriptMetaModel),
+                true,
+                false,
+                false,
+                false);
+        jmlProofCmdMetaModel.getDeclaredPropertyMetaModels().add(jmlProofCmdMetaModel.suffixPropertyMetaModel);
+        jmlProofCmdMetaModel.typePropertyMetaModel = new PropertyMetaModel(
+                jmlProofCmdMetaModel,
+                "type",
+                com.github.javaparser.ast.type.Type.class,
+                Optional.of(typeMetaModel),
+                true,
+                false,
+                false,
+                false);
+        jmlProofCmdMetaModel.getDeclaredPropertyMetaModels().add(jmlProofCmdMetaModel.typePropertyMetaModel);
+        jmlProofCmdMetaModel.valuePropertyMetaModel = new PropertyMetaModel(
+                jmlProofCmdMetaModel,
+                "value",
+                com.github.javaparser.ast.expr.Expression.class,
+                Optional.of(expressionMetaModel),
+                true,
+                false,
+                false,
+                false);
+        jmlProofCmdMetaModel.getDeclaredPropertyMetaModels().add(jmlProofCmdMetaModel.valuePropertyMetaModel);
+        jmlProofCmdMetaModel.varPropertyMetaModel = new PropertyMetaModel(
+                jmlProofCmdMetaModel,
+                "var",
+                com.github.javaparser.ast.expr.SimpleName.class,
+                Optional.of(simpleNameMetaModel),
+                true,
+                false,
+                false,
+                false);
+        jmlProofCmdMetaModel.getDeclaredPropertyMetaModels().add(jmlProofCmdMetaModel.varPropertyMetaModel);
+        jmlProofArgMetaModel.exprPropertyMetaModel = new PropertyMetaModel(
+                jmlProofArgMetaModel,
+                "expr",
+                com.github.javaparser.ast.expr.Expression.class,
+                Optional.of(expressionMetaModel),
+                false,
+                false,
+                false,
+                false);
+        jmlProofArgMetaModel.getDeclaredPropertyMetaModels().add(jmlProofArgMetaModel.exprPropertyMetaModel);
+        jmlProofArgMetaModel.labelPropertyMetaModel = new PropertyMetaModel(
+                jmlProofArgMetaModel,
+                "label",
+                com.github.javaparser.ast.expr.SimpleName.class,
+                Optional.of(simpleNameMetaModel),
+                true,
+                false,
+                false,
+                false);
+        jmlProofArgMetaModel.getDeclaredPropertyMetaModels().add(jmlProofArgMetaModel.labelPropertyMetaModel);
+        jmlProofCmdCaseMetaModel.cmdsPropertyMetaModel = new PropertyMetaModel(
+                jmlProofCmdCaseMetaModel,
+                "cmds",
+                com.github.javaparser.ast.jml.proof.JmlProofCmd.class,
+                Optional.of(jmlProofCmdMetaModel),
+                false,
+                false,
+                true,
+                false);
+        jmlProofCmdCaseMetaModel.getDeclaredPropertyMetaModels().add(jmlProofCmdCaseMetaModel.cmdsPropertyMetaModel);
+        jmlProofCmdCaseMetaModel.labelPropertyMetaModel = new PropertyMetaModel(
+                jmlProofCmdCaseMetaModel,
+                "label",
+                com.github.javaparser.ast.expr.StringLiteralExpr.class,
+                Optional.of(stringLiteralExprMetaModel),
+                true,
+                false,
+                false,
+                false);
+        jmlProofCmdCaseMetaModel.getDeclaredPropertyMetaModels().add(jmlProofCmdCaseMetaModel.labelPropertyMetaModel);
         jmlGhostStmtMetaModel.jmlTagsPropertyMetaModel = new PropertyMetaModel(
                 jmlGhostStmtMetaModel,
                 "jmlTags",
@@ -3773,136 +3901,6 @@ public final class JavaParserMetaModel {
         jmlExpressionStmtMetaModel
                 .getDeclaredPropertyMetaModels()
                 .add(jmlExpressionStmtMetaModel.scriptPropertyMetaModel);
-        jmlProofScriptMetaModel.cmdsPropertyMetaModel = new PropertyMetaModel(
-                jmlProofScriptMetaModel,
-                "cmds",
-                com.github.javaparser.ast.jml.proof.JmlProofCmd.class,
-                Optional.of(jmlProofCmdMetaModel),
-                false,
-                false,
-                true,
-                false);
-        jmlProofScriptMetaModel.getDeclaredPropertyMetaModels().add(jmlProofScriptMetaModel.cmdsPropertyMetaModel);
-        jmlProofScriptMetaModel.casesPropertyMetaModel = new PropertyMetaModel(
-                jmlProofScriptMetaModel,
-                "cases",
-                com.github.javaparser.ast.jml.proof.JmlProofCmdCase.class,
-                Optional.of(jmlProofCmdCaseMetaModel),
-                false,
-                false,
-                true,
-                false);
-        jmlProofScriptMetaModel.getDeclaredPropertyMetaModels().add(jmlProofScriptMetaModel.casesPropertyMetaModel);
-        jmlProofCmdMetaModel.namePropertyMetaModel = new PropertyMetaModel(
-                jmlProofCmdMetaModel,
-                "name",
-                com.github.javaparser.ast.expr.SimpleName.class,
-                Optional.of(simpleNameMetaModel),
-                true,
-                false,
-                false,
-                false);
-        jmlProofCmdMetaModel.getDeclaredPropertyMetaModels().add(jmlProofCmdMetaModel.namePropertyMetaModel);
-        jmlProofCmdMetaModel.argsPropertyMetaModel = new PropertyMetaModel(
-                jmlProofCmdMetaModel,
-                "args",
-                com.github.javaparser.ast.jml.proof.JmlProofArg.class,
-                Optional.of(jmlProofArgMetaModel),
-                false,
-                false,
-                true,
-                false);
-        jmlProofCmdMetaModel.getDeclaredPropertyMetaModels().add(jmlProofCmdMetaModel.argsPropertyMetaModel);
-        jmlProofCmdMetaModel.typePropertyMetaModel = new PropertyMetaModel(
-                jmlProofCmdMetaModel,
-                "type",
-                com.github.javaparser.ast.type.Type.class,
-                Optional.of(typeMetaModel),
-                true,
-                false,
-                false,
-                false);
-        jmlProofCmdMetaModel.getDeclaredPropertyMetaModels().add(jmlProofCmdMetaModel.typePropertyMetaModel);
-        jmlProofCmdMetaModel.varPropertyMetaModel = new PropertyMetaModel(
-                jmlProofCmdMetaModel,
-                "var",
-                com.github.javaparser.ast.expr.SimpleName.class,
-                Optional.of(simpleNameMetaModel),
-                true,
-                false,
-                false,
-                false);
-        jmlProofCmdMetaModel.getDeclaredPropertyMetaModels().add(jmlProofCmdMetaModel.varPropertyMetaModel);
-        jmlProofCmdMetaModel.valuePropertyMetaModel = new PropertyMetaModel(
-                jmlProofCmdMetaModel,
-                "value",
-                com.github.javaparser.ast.expr.Expression.class,
-                Optional.of(expressionMetaModel),
-                true,
-                false,
-                false,
-                false);
-        jmlProofCmdMetaModel.getDeclaredPropertyMetaModels().add(jmlProofCmdMetaModel.valuePropertyMetaModel);
-        jmlProofCmdMetaModel.kindPropertyMetaModel = new PropertyMetaModel(
-                jmlProofCmdMetaModel,
-                "kind",
-                com.github.javaparser.ast.jml.proof.JmlProofCmd.ObtainKind.class,
-                Optional.empty(),
-                true,
-                false,
-                false,
-                false);
-        jmlProofCmdMetaModel.getDeclaredPropertyMetaModels().add(jmlProofCmdMetaModel.kindPropertyMetaModel);
-        jmlProofCmdMetaModel.suffixPropertyMetaModel = new PropertyMetaModel(
-                jmlProofCmdMetaModel,
-                "suffix",
-                com.github.javaparser.ast.jml.proof.JmlProofScript.class,
-                Optional.of(jmlProofScriptMetaModel),
-                true,
-                false,
-                false,
-                false);
-        jmlProofCmdMetaModel.getDeclaredPropertyMetaModels().add(jmlProofCmdMetaModel.suffixPropertyMetaModel);
-        jmlProofArgMetaModel.labelPropertyMetaModel = new PropertyMetaModel(
-                jmlProofArgMetaModel,
-                "label",
-                com.github.javaparser.ast.expr.SimpleName.class,
-                Optional.of(simpleNameMetaModel),
-                true,
-                false,
-                false,
-                false);
-        jmlProofArgMetaModel.getDeclaredPropertyMetaModels().add(jmlProofArgMetaModel.labelPropertyMetaModel);
-        jmlProofArgMetaModel.exprPropertyMetaModel = new PropertyMetaModel(
-                jmlProofArgMetaModel,
-                "expr",
-                com.github.javaparser.ast.expr.Expression.class,
-                Optional.of(expressionMetaModel),
-                false,
-                false,
-                false,
-                false);
-        jmlProofArgMetaModel.getDeclaredPropertyMetaModels().add(jmlProofArgMetaModel.exprPropertyMetaModel);
-        jmlProofCmdCaseMetaModel.labelPropertyMetaModel = new PropertyMetaModel(
-                jmlProofCmdCaseMetaModel,
-                "label",
-                com.github.javaparser.ast.expr.StringLiteralExpr.class,
-                Optional.of(stringLiteralExprMetaModel),
-                true,
-                false,
-                false,
-                false);
-        jmlProofCmdCaseMetaModel.getDeclaredPropertyMetaModels().add(jmlProofCmdCaseMetaModel.labelPropertyMetaModel);
-        jmlProofCmdCaseMetaModel.cmdsPropertyMetaModel = new PropertyMetaModel(
-                jmlProofCmdCaseMetaModel,
-                "cmds",
-                com.github.javaparser.ast.jml.proof.JmlProofCmd.class,
-                Optional.of(jmlProofCmdMetaModel),
-                false,
-                false,
-                true,
-                false);
-        jmlProofCmdCaseMetaModel.getDeclaredPropertyMetaModels().add(jmlProofCmdCaseMetaModel.cmdsPropertyMetaModel);
         jmlRefiningStmtMetaModel.jmlTagsPropertyMetaModel = new PropertyMetaModel(
                 jmlRefiningStmtMetaModel,
                 "jmlTags",
@@ -5637,20 +5635,20 @@ public final class JavaParserMetaModel {
             new JmlSetComprehensionExprMetaModel(Optional.of(jmlExpressionMetaModel));
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
-    public static final JmlProofArgMetaModel jmlProofArgMetaModel =
-            new JmlProofArgMetaModel(Optional.of(nodeMetaModel));
-
-    @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
-    public static final JmlProofCmdCaseMetaModel jmlProofCmdCaseMetaModel =
-            new JmlProofCmdCaseMetaModel(Optional.of(nodeMetaModel));
+    public static final JmlProofScriptMetaModel jmlProofScriptMetaModel =
+            new JmlProofScriptMetaModel(Optional.of(nodeMetaModel));
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     public static final JmlProofCmdMetaModel jmlProofCmdMetaModel =
             new JmlProofCmdMetaModel(Optional.of(nodeMetaModel));
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
-    public static final JmlProofScriptMetaModel jmlProofScriptMetaModel =
-            new JmlProofScriptMetaModel(Optional.of(nodeMetaModel));
+    public static final JmlProofArgMetaModel jmlProofArgMetaModel =
+            new JmlProofArgMetaModel(Optional.of(nodeMetaModel));
+
+    @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
+    public static final JmlProofCmdCaseMetaModel jmlProofCmdCaseMetaModel =
+            new JmlProofCmdCaseMetaModel(Optional.of(nodeMetaModel));
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     public static final JmlStatementMetaModel jmlStatementMetaModel =

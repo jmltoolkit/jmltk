@@ -243,15 +243,21 @@ public class JmlProofCmd extends Node {
         if (node == null) {
             return false;
         }
+        for (int i = 0; i < args.size(); i++) {
+            if (args.get(i) == node) {
+                args.set(i, (JmlProofArg) replacementNode);
+                return true;
+            }
+        }
         if (name != null) {
             if (node == name) {
                 setName((SimpleName) replacementNode);
                 return true;
             }
         }
-        for (int i = 0; i < args.size(); i++) {
-            if (args.get(i) == node) {
-                args.set(i, (JmlProofArg) replacementNode);
+        if (suffix != null) {
+            if (node == suffix) {
+                setSuffix((JmlProofScript) replacementNode);
                 return true;
             }
         }
@@ -261,21 +267,15 @@ public class JmlProofCmd extends Node {
                 return true;
             }
         }
-        if (var != null) {
-            if (node == var) {
-                setVar((SimpleName) replacementNode);
-                return true;
-            }
-        }
         if (value != null) {
             if (node == value) {
                 setValue((Expression) replacementNode);
                 return true;
             }
         }
-        if (suffix != null) {
-            if (node == suffix) {
-                setSuffix((JmlProofScript) replacementNode);
+        if (var != null) {
+            if (node == var) {
+                setVar((SimpleName) replacementNode);
                 return true;
             }
         }
@@ -300,15 +300,21 @@ public class JmlProofCmd extends Node {
         if (node == null) {
             return false;
         }
+        for (int i = 0; i < args.size(); i++) {
+            if (args.get(i) == node) {
+                args.remove(i);
+                return true;
+            }
+        }
         if (name != null) {
             if (node == name) {
                 removeName();
                 return true;
             }
         }
-        for (int i = 0; i < args.size(); i++) {
-            if (args.get(i) == node) {
-                args.remove(i);
+        if (suffix != null) {
+            if (node == suffix) {
+                removeSuffix();
                 return true;
             }
         }
@@ -318,21 +324,15 @@ public class JmlProofCmd extends Node {
                 return true;
             }
         }
-        if (var != null) {
-            if (node == var) {
-                removeVar();
-                return true;
-            }
-        }
         if (value != null) {
             if (node == value) {
                 removeValue();
                 return true;
             }
         }
-        if (suffix != null) {
-            if (node == suffix) {
-                removeSuffix();
+        if (var != null) {
+            if (node == var) {
+                removeVar();
                 return true;
             }
         }

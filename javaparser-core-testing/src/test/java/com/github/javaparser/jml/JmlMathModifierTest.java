@@ -62,17 +62,18 @@ public class JmlMathModifierTest {
         long count = r.getResult().orElseThrow().findAll(Modifier.class).stream()
                 .filter(m -> m.getKeyword() == expected)
                 .count();
-        Assertions.assertEquals(expectedCount, count,
-                reason + ": expected " + expectedCount + "x " + expected + " in:\n" + r.getResult().orElseThrow());
+        Assertions.assertEquals(
+                expectedCount,
+                count,
+                reason + ": expected " + expectedCount + "x " + expected + " in:\n"
+                        + r.getResult().orElseThrow());
     }
 
     /** The KeY speclang test class declares the math mode on the class: {@code public /*@ spec_java_math @*&#47; class}. */
     @Test
     void keYTestClassWithSpecJavaMathModifierParses() throws IOException {
         assertMathModifier(
-                "KeY speclang TestClass.java",
-                read("TestClass.java"),
-                Modifier.DefaultKeyword.JML_SPEC_JAVA_MATH, 1);
+                "KeY speclang TestClass.java", read("TestClass.java"), Modifier.DefaultKeyword.JML_SPEC_JAVA_MATH, 1);
     }
 
     /** The KeY specMath/bigint test: class pragma spec_bigint_math, model-method + method spec_java_math. */
@@ -88,7 +89,9 @@ public class JmlMathModifierTest {
                         || k == Modifier.DefaultKeyword.JML_SPEC_JAVA_MATH
                         || k == Modifier.DefaultKeyword.JML_SPEC_SAFE_MATH)
                 .toList();
-        Assertions.assertEquals(3, mathMods.size(),
+        Assertions.assertEquals(
+                3,
+                mathMods.size(),
                 "expected 3 spec_*_math modifiers (class pragma + model method + method), got: " + mathMods);
     }
 
@@ -97,9 +100,11 @@ public class JmlMathModifierTest {
     void specMathPragmasParsed() {
         for (String mode : List.of("bigint", "java", "safe")) {
             Modifier.DefaultKeyword expected = specKeyword(mode);
-            assertMathModifier("standalone spec_" + mode + "_math pragma",
+            assertMathModifier(
+                    "standalone spec_" + mode + "_math pragma",
                     "/*@ spec_" + mode + "_math @*/ class A {}",
-                    expected, 1);
+                    expected,
+                    1);
         }
     }
 
@@ -108,9 +113,11 @@ public class JmlMathModifierTest {
     void specMathAsClassLevelClauseParsed() {
         for (String mode : List.of("bigint", "java", "safe")) {
             Modifier.DefaultKeyword expected = specKeyword(mode);
-            assertMathModifier("class-level spec_" + mode + "_math clause",
+            assertMathModifier(
+                    "class-level spec_" + mode + "_math clause",
                     "class A { /*@ spec_" + mode + "_math\n  @ model public int m();\n  @*/ int i; }",
-                    expected, 1);
+                    expected,
+                    1);
         }
     }
 
@@ -128,11 +135,14 @@ public class JmlMathModifierTest {
                         .filter(m -> m.getKeyword() == Modifier.DefaultKeyword.JML_CODE_JAVA_MATH
                                 || m.getKeyword() == Modifier.DefaultKeyword.JML_SPEC_JAVA_MATH)
                         .count(),
-                "expected code_java_math + spec_java_math on the class:\n" + r.getResult().orElseThrow());
+                "expected code_java_math + spec_java_math on the class:\n"
+                        + r.getResult().orElseThrow());
 
-        assertMathModifier("single-line inline method modifier",
+        assertMathModifier(
+                "single-line inline method modifier",
                 "class A { /*@ spec_java_math */public void m() {} }",
-                Modifier.DefaultKeyword.JML_SPEC_JAVA_MATH, 1);
+                Modifier.DefaultKeyword.JML_SPEC_JAVA_MATH,
+                1);
     }
 
     /**
@@ -144,9 +154,9 @@ public class JmlMathModifierTest {
     @Test
     void specMathAsMethodLevelCommentBeforeStatementRejected() {
         for (String mode : List.of("bigint", "java", "safe")) {
-            ParseResult<CompilationUnit> r = parse(
-                    "class A { void m() { //@ spec_" + mode + "_math\n int x = 1; } }");
-            Assertions.assertFalse(r.isSuccessful(),
+            ParseResult<CompilationUnit> r = parse("class A { void m() { //@ spec_" + mode + "_math\n int x = 1; } }");
+            Assertions.assertFalse(
+                    r.isSuccessful(),
                     "method-level spec_" + mode + "_math before a statement must not parse:\n" + problems(r));
         }
     }
@@ -155,14 +165,17 @@ public class JmlMathModifierTest {
     @Test
     void codeMathModifiersAccepted() {
         for (String mode : List.of("bigint", "java", "safe")) {
-            Modifier.DefaultKeyword expected = switch (mode) {
-                case "bigint" -> Modifier.DefaultKeyword.JML_CODE_BIGINT_MATH;
-                case "java" -> Modifier.DefaultKeyword.JML_CODE_JAVA_MATH;
-                default -> Modifier.DefaultKeyword.JML_CODE_SAFE_MATH;
-            };
-            assertMathModifier("class-level code_" + mode + "_math clause",
+            Modifier.DefaultKeyword expected =
+                    switch (mode) {
+                        case "bigint" -> Modifier.DefaultKeyword.JML_CODE_BIGINT_MATH;
+                        case "java" -> Modifier.DefaultKeyword.JML_CODE_JAVA_MATH;
+                        default -> Modifier.DefaultKeyword.JML_CODE_SAFE_MATH;
+                    };
+            assertMathModifier(
+                    "class-level code_" + mode + "_math clause",
                     "class A { /*@ code_" + mode + "_math\n  @ model public int m();\n  @*/ int i; }",
-                    expected, 1);
+                    expected,
+                    1);
         }
     }
 

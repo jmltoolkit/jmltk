@@ -15,6 +15,7 @@ import com.github.javaparser.ast.jml.clauses.*;
 import com.github.javaparser.ast.jml.doc.*;
 import com.github.javaparser.ast.jml.doc.JmlDoc;
 import com.github.javaparser.ast.jml.expr.*;
+import com.github.javaparser.ast.jml.proof.*;
 import com.github.javaparser.ast.jml.stmt.*;
 import com.github.javaparser.ast.key.*;
 import com.github.javaparser.ast.key.sv.*;
@@ -335,6 +336,14 @@ public interface GenericVisitor<R, A> {
     R visit(JmlSetComprehensionExpr n, A arg);
 
     R visit(JmlGhostStmt n, A arg);
+
+    R visit(JmlProofScript n, A arg);
+
+    R visit(JmlProofCmd n, A arg);
+
+    R visit(JmlProofArg n, A arg);
+
+    R visit(JmlProofCmdCase n, A arg);
 
     R visit(JmlMethodDeclaration n, A arg);
 

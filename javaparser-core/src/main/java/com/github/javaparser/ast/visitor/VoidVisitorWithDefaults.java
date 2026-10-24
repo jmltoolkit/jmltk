@@ -13,6 +13,7 @@ import com.github.javaparser.ast.jml.clauses.*;
 import com.github.javaparser.ast.jml.doc.*;
 import com.github.javaparser.ast.jml.doc.JmlDoc;
 import com.github.javaparser.ast.jml.expr.*;
+import com.github.javaparser.ast.jml.proof.*;
 import com.github.javaparser.ast.jml.stmt.*;
 import com.github.javaparser.ast.key.*;
 import com.github.javaparser.ast.key.sv.*;
@@ -621,6 +622,26 @@ public abstract class VoidVisitorWithDefaults<A> implements VoidVisitor<A> {
 
     @Override
     public void visit(final JmlGhostStmt n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final JmlProofScript n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final JmlProofCmd n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final JmlProofArg n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final JmlProofCmdCase n, final A arg) {
         defaultAction(n, arg);
     }
 

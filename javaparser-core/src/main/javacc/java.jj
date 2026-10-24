@@ -88,6 +88,7 @@ import com.github.javaparser.ast.jml.clauses.*;
 import com.github.javaparser.ast.jml.expr.*;
 import com.github.javaparser.ast.jml.body.*;
 import com.github.javaparser.ast.jml.stmt.*;
+import com.github.javaparser.ast.jml.proof.*;
 import com.github.javaparser.ast.jml.doc.*;
 import com.github.javaparser.ast.jml.doc.JmlDoc;
 import com.github.javaparser.ast.jml.doc.JmlDocModifier;
@@ -418,6 +419,7 @@ TOKEN : {
 | <STRICTLY_PURE : "strictly_pure">
 | <SUBTYPE: "<:">
 | <SUCH_THAT: "\\such_that">
+| <FROM_GOAL: "\\from_goal">
 | <SUM: "\\sum">
 | <TYPE: "\\TYPE" | "\\type">
 //| <TYPEOF: "\\typeof">
@@ -7071,14 +7073,18 @@ JmlStatement JmlStatement():
 	Statement stmt;
 	SimpleName label;
     JmlStatement ret;
+    JmlProofScript script = null;
 }
 {
   (
     ( <JML_ASSERT> | <ASSUME> | <HENCE_BY> | <HENCE_BY_REDUNDANTLY> | <SET> | <ASSERT_REDUNDANTLY> )
     { begin = token(); }
     expr=Expression()
+    ( <BY> script=JmlProofScript()
+    | {}
+    )
     ";"
-    { ret =  new JmlExpressionStmt(range(begin, token()), new NodeList<>(), expr); }
+    { ret =  new JmlExpressionStmt(range(begin, token()), new NodeList<>(), expr, script); }
   | <GHOST> { begin = token(); }
     stmt=BlockStatement()
     { ret =  new JmlGhostStmt(range(begin, token()), new NodeList<>(), stmt); }
@@ -7106,6 +7112,126 @@ JmlStatement JmlSpecialStatement():
     { ret =  new JmlBeginStmt(range(token(), token()), new NodeList<>()); }
   )
   { return ret; }
+}
+
+/*
+ * Proof scripts in JML assert statements, mirroring KeY's JmlParser.g4:
+ * assertionProof / proofCmd / proofCmdSuffix / proofArg / proofCmdCase.
+ * `obtain` is not a reserved word here: like in KeY it is recognised contextually
+ * by the following semantic lookahead on the token image.
+ */
+JmlProofScript JmlProofScript():
+{
+    NodeList<JmlProofCmd> cmds = new NodeList<>();
+    NodeList<JmlProofCmdCase> cases = new NodeList<>();
+    JmlProofCmd cmd;
+    JmlProofCmdCase c;
+    JavaToken begin = INVALID;
+}
+{
+  (
+    "{"
+    (
+      (
+        LOOKAHEAD({ getToken(1).kind == CASE || getToken(1).kind == _DEFAULT })
+        c=JmlProofCmdCase() { begin = orIfInvalid(begin, c); cases.add(c); }
+      |
+        cmd=JmlProofCmd() { begin = orIfInvalid(begin, cmd); cmds.add(cmd); }
+      )*
+    )
+    "}"
+  |
+    (
+      LOOKAHEAD({ getToken(1).kind == CASE || getToken(1).kind == _DEFAULT })
+      c=JmlProofCmdCase() { begin = orIfInvalid(begin, c); cases.add(c); }
+    |
+      cmd=JmlProofCmd() { begin = orIfInvalid(begin, cmd); cmds.add(cmd); }
+    )
+  )
+  { return new JmlProofScript(range(begin, token()), cmds, cases); }
+}
+
+JmlProofCmd JmlProofCmd():
+{
+    JavaToken begin = INVALID;
+    JmlProofCmd.ObtainKind kind = null;
+    NodeList<JmlProofArg> args;
+    JmlProofScript suffix = null;
+    Type type = null;
+    SimpleName var = null, name = null;
+    Expression value = null;
+}
+{
+  (
+    LOOKAHEAD({ getToken(1).kind == IDENTIFIER && "obtain".equals(getToken(1).image) })
+    <IDENTIFIER> { begin = token(); }
+    type=Type(emptyNodeList()) { begin = orIfInvalid(begin, type); }
+    var=SimpleName() { begin = orIfInvalid(begin, var); }
+    (
+        "=" value=Expression() { kind = JmlProofCmd.ObtainKind.EQUAL; }
+      | <SUCH_THAT> value=Expression() { kind = JmlProofCmd.ObtainKind.SUCH_THAT; }
+      | <FROM_GOAL> { kind = JmlProofCmd.ObtainKind.FROM_GOAL; }
+    )
+    suffix=JmlProofCmdSuffix()
+    { return new JmlProofCmd(range(begin, token()), null, emptyNodeList(), type, var, kind, value, suffix); }
+  |
+    name=SimpleName() { begin = token(); }
+    args=JmlProofArgList()
+    suffix=JmlProofCmdSuffix()
+    { return new JmlProofCmd(range(begin, token()), name, args, null, null, null, null, suffix); }
+  )
+}
+
+JmlProofScript JmlProofCmdSuffix():
+{
+    JmlProofScript ret = null;
+}
+{
+    ";" { return ret; }
+  | <BY> ret=JmlProofScript() { return ret; }
+}
+
+NodeList<JmlProofArg> JmlProofArgList():
+{
+    NodeList<JmlProofArg> ret = new NodeList<>();
+    JmlProofArg arg;
+}
+{
+  ( arg=JmlProofArg() { ret.add(arg); } )*
+  { return ret; }
+}
+
+JmlProofArg JmlProofArg():
+{
+    JavaToken begin = INVALID;
+    SimpleName label = null;
+    Expression expr;
+}
+{
+  [ LOOKAHEAD(2) label=SimpleName() ":" { begin = orIfInvalid(begin, label); } ]
+  expr=Expression() { begin = orIfInvalid(begin, expr); }
+  { return new JmlProofArg(range(begin, token()), label, expr); }
+}
+
+JmlProofCmdCase JmlProofCmdCase():
+{
+    JavaToken begin = INVALID;
+    StringLiteralExpr label = null;
+    JmlProofCmd cmd;
+    NodeList<JmlProofCmd> cmds = new NodeList<>();
+}
+{
+  (
+    <CASE> { begin = token(); }
+    [ <STRING_LITERAL> { label = new StringLiteralExpr(tokenRange(), unquote(token.image)); } ]
+    ":"
+    ( cmd=JmlProofCmd() { cmds.add(cmd); } )*
+  |
+    <_DEFAULT> { begin = token(); }
+    ":"
+    ( cmd=JmlProofCmd() { cmds.add(cmd); } )*
+  )
+  { return new JmlProofCmdCase(range(begin, token()), label, cmds); }
 }
 
 JmlClause JmlLoopInvClause():

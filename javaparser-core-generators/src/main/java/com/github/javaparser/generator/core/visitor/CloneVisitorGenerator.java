@@ -59,6 +59,8 @@ public class CloneVisitorGenerator extends VisitorGenerator {
             }
             if (field.getNodeReference().isPresent()) {
                 builder.append(field.getName());
+            } else if (field.isOptional()) {
+                builder.append(f("n.%s().orElse(null)", field.getGetterMethodName()));
             } else {
                 builder.append(f("n.%s()", field.getGetterMethodName()));
             }

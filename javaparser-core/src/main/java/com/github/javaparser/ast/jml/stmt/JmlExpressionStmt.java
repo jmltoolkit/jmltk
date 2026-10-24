@@ -14,13 +14,16 @@ import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.jml.JmlKeyword;
 import com.github.javaparser.ast.jml.NodeWithJmlTags;
+import com.github.javaparser.ast.jml.proof.JmlProofScript;
 import com.github.javaparser.ast.observer.ObservableProperty;
 import com.github.javaparser.ast.visitor.CloneVisitor;
 import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlExpressionStmtMetaModel;
+import com.github.javaparser.metamodel.OptionalProperty;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -62,13 +65,26 @@ public class JmlExpressionStmt extends JmlStatement implements NodeWithJmlTags<J
 
     private NodeList<SimpleName> jmlTags;
 
+    @OptionalProperty
+    private JmlProofScript script;
+
     @AllFieldsConstructor
+    public JmlExpressionStmt(
+            NodeList<SimpleName> jmlTags, final JmlStmtKind kind, final Expression expression, JmlProofScript script) {
+        this(null, jmlTags, kind, expression, script);
+    }
+
     public JmlExpressionStmt(NodeList<SimpleName> jmlTags, final JmlStmtKind kind, final Expression expression) {
-        this(null, jmlTags, kind, expression);
+        this(jmlTags, kind, expression, null);
     }
 
     public JmlExpressionStmt(TokenRange range, NodeList<SimpleName> jmlTags, final Expression expression) {
-        this(range, jmlTags, JmlStmtKind.ASSERT, expression);
+        this(range, jmlTags, expression, null);
+    }
+
+    public JmlExpressionStmt(
+            TokenRange range, NodeList<SimpleName> jmlTags, final Expression expression, JmlProofScript script) {
+        this(range, jmlTags, JmlStmtKind.ASSERT, expression, script);
         int tt = range.getBegin().getKind();
         Optional<JmlStmtKind> k = Arrays.stream(JmlStmtKind.values())
                 .filter(i -> i.tokenType == tt)
@@ -104,6 +120,12 @@ public class JmlExpressionStmt extends JmlStatement implements NodeWithJmlTags<J
         for (int i = 0; i < jmlTags.size(); i++) {
             if (jmlTags.get(i) == node) {
                 jmlTags.set(i, (SimpleName) replacementNode);
+                return true;
+            }
+        }
+        if (script != null) {
+            if (node == script) {
+                setScript((JmlProofScript) replacementNode);
                 return true;
             }
         }
@@ -154,11 +176,16 @@ public class JmlExpressionStmt extends JmlStatement implements NodeWithJmlTags<J
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
     public JmlExpressionStmt(
-            TokenRange tokenRange, NodeList<SimpleName> jmlTags, JmlStmtKind kind, Expression expression) {
+            TokenRange tokenRange,
+            NodeList<SimpleName> jmlTags,
+            JmlStmtKind kind,
+            Expression expression,
+            JmlProofScript script) {
         super(tokenRange);
         setJmlTags(jmlTags);
         setKind(kind);
         setExpression(expression);
+        setScript(script);
         customInitialization();
     }
 
@@ -208,7 +235,18 @@ public class JmlExpressionStmt extends JmlStatement implements NodeWithJmlTags<J
                 return true;
             }
         }
+        if (script != null) {
+            if (node == script) {
+                removeScript();
+                return true;
+            }
+        }
         return super.remove(node);
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
+    public JmlExpressionStmt removeScript() {
+        return setScript((JmlProofScript) null);
     }
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
@@ -227,6 +265,29 @@ public class JmlExpressionStmt extends JmlStatement implements NodeWithJmlTags<J
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
     public @NonNull() JmlStmtKind kind() {
         return Objects.requireNonNull(kind);
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public Optional<JmlProofScript> getScript() {
+        return Optional.ofNullable(script);
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public JmlExpressionStmt setScript(final @Nullable() JmlProofScript script) {
+        if (script == this.script) {
+            return this;
+        }
+        notifyPropertyChange(ObservableProperty.SCRIPT, this.script, script);
+        if (this.script != null) this.script.setParentNode(null);
+        this.script = script;
+        setAsParentNodeOf(script);
+        return this;
+    }
+
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public @Nullable() JmlProofScript script() {
+        return script;
     }
 
     @Override

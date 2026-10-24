@@ -37,16 +37,19 @@ def resolve_windows_executable(command: str) -> str:
     """Give cmd.exe the explicit executable name on Windows.
 
     The test files invoke the installed CLI as ``bin/jmltk`` (the POSIX start
-    script name). On Windows, installDist only produces ``bin/jmltk.bat``, so
-    resolve the first token to the platform start script like cmd does via
-    PATHEXT, avoiding any ambiguity in the cmd.exe command parser.
+    script name). installDist also generates ``bin/jmltk.bat`` on Windows, and
+    that is the variant cmd.exe can execute. A plain ``shutil.which`` lookup is
+    not enough here: it returns the bare ``bin/jmltk`` file because that file
+    exists too, after which cmd.exe fails to run a shell script without stdout.
     """
     if os.name != 'nt':
         return command
     head, sep, tail = command.partition(' ')
-    resolved = shutil.which(head)
-    if resolved is not None:
-        return resolved + tail if sep else resolved
+    # Prefer the platform start scripts over the bare POSIX script.
+    for ext in ('.bat', '.cmd', '.exe'):
+        resolved = shutil.which(os.path.normpath(head + ext))
+        if resolved is not None:
+            return resolved + (tail if sep else '')
     return command
 
 
@@ -100,8 +103,8 @@ def parse_test_file(filepath: str) -> tuple[list[str], str, bool]:
     return command_lines, expected_output, ignore_stderr
 
 
-def run_command(command_lines: list[str], ignore_stderr: bool = False) -> str:
-    """Execute the command and return stdout."""
+def run_command(command_lines: list[str], ignore_stderr: bool = False) -> tuple[str, int, str]:
+    """Execute the command and return (stdout, exit code, raw stderr)."""
     # Join command lines - each line after 'run:' could be arguments or continuation
     full_command = '\n'.join(command_lines)
 
@@ -116,13 +119,13 @@ def run_command(command_lines: list[str], ignore_stderr: bool = False) -> str:
         encoding='utf-8',
         errors='replace'
     )
-    
+
     # Return stdout (and optionally stderr) for comparison
     output = result.stdout
     if not ignore_stderr and result.stderr:
         output += result.stderr
-    
-    return output.strip()
+
+    return output.strip(), result.returncode, result.stderr.strip()
 
 
 def collect_test_files(args: list[str]) -> list[Path]:
@@ -159,7 +162,7 @@ def run_single_test(filepath: Path) -> tuple[bool, str]:
         return False, str(e)
     
     try:
-        actual = run_command(command_lines, ignore_stderr)
+        actual, returncode, stderr = run_command(command_lines, ignore_stderr)
     except Exception as e:
         return False, f"Command execution failed: {e}"
     
@@ -192,7 +195,11 @@ def run_single_test(filepath: Path) -> tuple[bool, str]:
             os.unlink(exp_path)
             os.unlink(act_path)
         
-        return False, f"FAILED\n   Actual output written to: {actual_path}\n   Diff:\n" + '\n'.join(f"   {line}" for line in diff_output.split('\n'))
+        message = f"FAILED (exit code {returncode})"
+        if stderr:
+            message += "\n" + '\n'.join(f"   stderr: {line}" for line in stderr.split('\n'))
+        message += f"\n   Actual output written to: {actual_path}\n   Diff:\n" + '\n'.join(f"   {line}" for line in diff_output.split('\n'))
+        return False, message
 
 
 def main():

@@ -49,7 +49,7 @@ def resolve_windows_executable(command: str) -> str:
     for ext in ('.bat', '.cmd', '.exe'):
         resolved = shutil.which(os.path.normpath(head + ext))
         if resolved is not None:
-            return resolved + (tail if sep else '')
+            return resolved + (sep + tail if sep else '')
     return command
 
 

@@ -7080,7 +7080,9 @@ JmlStatement JmlStatement():
     ( <JML_ASSERT> | <ASSUME> | <HENCE_BY> | <HENCE_BY_REDUNDANTLY> | <SET> | <ASSERT_REDUNDANTLY> )
     { begin = token(); }
     expr=Expression()
-    [ LOOKAHEAD(<BY>) script=JmlProofScript() ]
+    ( <BY> script=JmlProofScript()
+    | {}
+    )
     ";"
     { ret =  new JmlExpressionStmt(range(begin, token()), new NodeList<>(), expr, script); }
   | <GHOST> { begin = token(); }
@@ -7135,7 +7137,7 @@ JmlProofScript JmlProofScript():
         c=JmlProofCmdCase() { begin = orIfInvalid(begin, c); cases.add(c); }
       |
         cmd=JmlProofCmd() { begin = orIfInvalid(begin, cmd); cmds.add(cmd); }
-      )+
+      )*
     )
     "}"
   |

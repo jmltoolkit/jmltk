@@ -16,6 +16,7 @@ import com.github.javaparser.ast.jml.clauses.*;
 import com.github.javaparser.ast.jml.doc.*;
 import com.github.javaparser.ast.jml.doc.JmlDoc;
 import com.github.javaparser.ast.jml.expr.*;
+import com.github.javaparser.ast.jml.proof.*;
 import com.github.javaparser.ast.jml.stmt.*;
 import com.github.javaparser.ast.key.*;
 import com.github.javaparser.ast.key.sv.*;
@@ -999,6 +1000,34 @@ public abstract class VoidVisitorAdapter<A> implements VoidVisitor<A> {
         n.getJmlTags().forEach(p -> p.accept(this, arg));
         n.getStatement().accept(this, arg);
         n.getAssociatedSpecificationComments().ifPresent(l -> l.forEach(v -> v.accept(this, arg)));
+        n.getComment().ifPresent(l -> l.accept(this, arg));
+    }
+    @Override
+    public void visit(final JmlProofScript n, final A arg) {
+        n.getCmds().forEach(p -> p.accept(this, arg));
+        n.getCases().forEach(p -> p.accept(this, arg));
+        n.getComment().ifPresent(l -> l.accept(this, arg));
+    }
+    @Override
+    public void visit(final JmlProofCmd n, final A arg) {
+        n.getName().ifPresent(l -> l.accept(this, arg));
+        n.getArgs().forEach(p -> p.accept(this, arg));
+        n.getType().ifPresent(l -> l.accept(this, arg));
+        n.getVar().ifPresent(l -> l.accept(this, arg));
+        n.getValue().ifPresent(l -> l.accept(this, arg));
+        n.getSuffix().ifPresent(l -> l.accept(this, arg));
+        n.getComment().ifPresent(l -> l.accept(this, arg));
+    }
+    @Override
+    public void visit(final JmlProofArg n, final A arg) {
+        n.getLabel().ifPresent(l -> l.accept(this, arg));
+        n.getExpr().accept(this, arg);
+        n.getComment().ifPresent(l -> l.accept(this, arg));
+    }
+    @Override
+    public void visit(final JmlProofCmdCase n, final A arg) {
+        n.getLabel().ifPresent(l -> l.accept(this, arg));
+        n.getCmds().forEach(p -> p.accept(this, arg));
         n.getComment().ifPresent(l -> l.accept(this, arg));
     }
 

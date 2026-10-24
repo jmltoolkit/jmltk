@@ -15,6 +15,7 @@ import com.github.javaparser.ast.jml.clauses.*;
 import com.github.javaparser.ast.jml.doc.*;
 import com.github.javaparser.ast.jml.doc.JmlDoc;
 import com.github.javaparser.ast.jml.expr.*;
+import com.github.javaparser.ast.jml.proof.*;
 import com.github.javaparser.ast.jml.stmt.*;
 import com.github.javaparser.ast.key.*;
 import com.github.javaparser.ast.key.sv.*;
@@ -536,6 +537,22 @@ public class ObjectIdentityHashCodeVisitor implements GenericVisitor<Integer, Vo
 
     @Override
     public Integer visit(final JmlGhostStmt n, final Void arg) {
+        return n.hashCode();
+    }
+    @Override
+    public Integer visit(final JmlProofScript n, final Void arg) {
+        return n.hashCode();
+    }
+    @Override
+    public Integer visit(final JmlProofCmd n, final Void arg) {
+        return n.hashCode();
+    }
+    @Override
+    public Integer visit(final JmlProofArg n, final Void arg) {
+        return n.hashCode();
+    }
+    @Override
+    public Integer visit(final JmlProofCmdCase n, final Void arg) {
         return n.hashCode();
     }
 

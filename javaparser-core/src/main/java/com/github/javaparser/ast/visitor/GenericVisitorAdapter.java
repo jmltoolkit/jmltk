@@ -18,6 +18,7 @@ import com.github.javaparser.ast.jml.doc.JmlDocDeclaration;
 import com.github.javaparser.ast.jml.doc.JmlDocStmt;
 import com.github.javaparser.ast.jml.doc.JmlDocType;
 import com.github.javaparser.ast.jml.expr.*;
+import com.github.javaparser.ast.jml.proof.*;
 import com.github.javaparser.ast.jml.stmt.*;
 import com.github.javaparser.ast.key.*;
 import com.github.javaparser.ast.key.sv.*;
@@ -2730,6 +2731,90 @@ public abstract class GenericVisitorAdapter<R, A> implements GenericVisitor<R, A
         }
         if (n.getAssociatedSpecificationComments().isPresent()) {
             result = n.getAssociatedSpecificationComments().get().accept(this, arg);
+            if (result != null) return result;
+        }
+        if (n.getComment().isPresent()) {
+            result = n.getComment().get().accept(this, arg);
+            if (result != null) return result;
+        }
+        return null;
+    }
+    @Override
+    public R visit(final JmlProofScript n, final A arg) {
+        R result;
+        {
+            result = n.getCmds().accept(this, arg);
+            if (result != null) return result;
+        }
+        {
+            result = n.getCases().accept(this, arg);
+            if (result != null) return result;
+        }
+        if (n.getComment().isPresent()) {
+            result = n.getComment().get().accept(this, arg);
+            if (result != null) return result;
+        }
+        return null;
+    }
+    @Override
+    public R visit(final JmlProofCmd n, final A arg) {
+        R result;
+        if (n.getName().isPresent()) {
+            result = n.getName().get().accept(this, arg);
+            if (result != null) return result;
+        }
+        {
+            result = n.getArgs().accept(this, arg);
+            if (result != null) return result;
+        }
+        if (n.getType().isPresent()) {
+            result = n.getType().get().accept(this, arg);
+            if (result != null) return result;
+        }
+        if (n.getVar().isPresent()) {
+            result = n.getVar().get().accept(this, arg);
+            if (result != null) return result;
+        }
+        if (n.getValue().isPresent()) {
+            result = n.getValue().get().accept(this, arg);
+            if (result != null) return result;
+        }
+        if (n.getSuffix().isPresent()) {
+            result = n.getSuffix().get().accept(this, arg);
+            if (result != null) return result;
+        }
+        if (n.getComment().isPresent()) {
+            result = n.getComment().get().accept(this, arg);
+            if (result != null) return result;
+        }
+        return null;
+    }
+    @Override
+    public R visit(final JmlProofArg n, final A arg) {
+        R result;
+        if (n.getLabel().isPresent()) {
+            result = n.getLabel().get().accept(this, arg);
+            if (result != null) return result;
+        }
+        {
+            result = n.getExpr().accept(this, arg);
+            if (result != null) return result;
+        }
+        if (n.getComment().isPresent()) {
+            result = n.getComment().get().accept(this, arg);
+            if (result != null) return result;
+        }
+        return null;
+    }
+    @Override
+    public R visit(final JmlProofCmdCase n, final A arg) {
+        R result;
+        if (n.getLabel().isPresent()) {
+            result = n.getLabel().get().accept(this, arg);
+            if (result != null) return result;
+        }
+        {
+            result = n.getCmds().accept(this, arg);
             if (result != null) return result;
         }
         if (n.getComment().isPresent()) {

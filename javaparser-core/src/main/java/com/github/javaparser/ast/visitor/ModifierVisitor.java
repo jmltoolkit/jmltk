@@ -17,6 +17,7 @@ import com.github.javaparser.ast.jml.clauses.*;
 import com.github.javaparser.ast.jml.doc.*;
 import com.github.javaparser.ast.jml.doc.JmlDoc;
 import com.github.javaparser.ast.jml.expr.*;
+import com.github.javaparser.ast.jml.proof.*;
 import com.github.javaparser.ast.jml.stmt.*;
 import com.github.javaparser.ast.key.*;
 import com.github.javaparser.ast.key.sv.*;
@@ -2206,6 +2207,54 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
         n.setJmlTags(jmlTags);
         n.setStatement(statement);
         n.setAssociatedSpecificationComments(associatedSpecificationComments);
+        n.setComment(comment);
+        return n;
+    }
+    @Override
+    public Visitable visit(final JmlProofScript n, final A arg) {
+        NodeList<JmlProofCmd> cmds = modifyList(n.getCmds(), arg);
+        NodeList<JmlProofCmdCase> cases = modifyList(n.getCases(), arg);
+        Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
+        n.setCmds(cmds);
+        n.setCases(cases);
+        n.setComment(comment);
+        return n;
+    }
+    @Override
+    public Visitable visit(final JmlProofCmd n, final A arg) {
+        SimpleName name = n.getName().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
+        NodeList<JmlProofArg> args = modifyList(n.getArgs(), arg);
+        Type type = n.getType().map(s -> (Type) s.accept(this, arg)).orElse(null);
+        SimpleName var = n.getVar().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
+        Expression value = n.getValue().map(s -> (Expression) s.accept(this, arg)).orElse(null);
+        JmlProofScript suffix = n.getSuffix().map(s -> (JmlProofScript) s.accept(this, arg)).orElse(null);
+        Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
+        n.setName(name);
+        n.setArgs(args);
+        n.setType(type);
+        n.setVar(var);
+        n.setValue(value);
+        n.setSuffix(suffix);
+        n.setComment(comment);
+        return n;
+    }
+    @Override
+    public Visitable visit(final JmlProofArg n, final A arg) {
+        SimpleName label = n.getLabel().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
+        Expression expr = (Expression) n.getExpr().accept(this, arg);
+        Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
+        n.setLabel(label);
+        n.setExpr(expr);
+        n.setComment(comment);
+        return n;
+    }
+    @Override
+    public Visitable visit(final JmlProofCmdCase n, final A arg) {
+        StringLiteralExpr label = n.getLabel().map(s -> (StringLiteralExpr) s.accept(this, arg)).orElse(null);
+        NodeList<JmlProofCmd> cmds = modifyList(n.getCmds(), arg);
+        Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
+        n.setLabel(label);
+        n.setCmds(cmds);
         n.setComment(comment);
         return n;
     }

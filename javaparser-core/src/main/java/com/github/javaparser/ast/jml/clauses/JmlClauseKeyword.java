@@ -34,7 +34,8 @@ public enum JmlClauseKeyword implements JmlKeyword {
     POST_REDUNDANTLY(GeneratedJavaParserConstants.POST_REDUNDANTLY),
     MAINTAINING(GeneratedJavaParserConstants.MAINTAINING),
     MAINTAINING_REDUNDANTLY(GeneratedJavaParserConstants.MAINTAINING_REDUNDANTLY),
-    DECREASING(GeneratedJavaParserConstants.DECREASES),
+    DECREASING(GeneratedJavaParserConstants.DECREASING),
+    DECREASING_REDUNDANTLY(GeneratedJavaParserConstants.DECREASING_REDUNDANTLY),
     DECREASES_REDUNDANTLY(GeneratedJavaParserConstants.DECREASES_REDUNDANTLY),
     LOOP_INVARIANT(GeneratedJavaParserConstants.LOOP_INVARIANT),
     LOOP_INVARIANT_FREE(GeneratedJavaParserConstants.LOOP_INVARIANT_FREE),
@@ -69,10 +70,10 @@ public enum JmlClauseKeyword implements JmlKeyword {
     DURATION(GeneratedJavaParserConstants.DURATION),
     DURATION_REDUNDANTLY(GeneratedJavaParserConstants.DURATION_REDUNDANTLY),
     // Information Flow
-    DETERMINES(GeneratedJavaParserConstants.DURATION_REDUNDANTLY),
-    LOOP_DETERMINES(GeneratedJavaParserConstants.DURATION_REDUNDANTLY),
-    SEPARATES(GeneratedJavaParserConstants.DURATION_REDUNDANTLY),
-    LOOP_SEPARATES(GeneratedJavaParserConstants.DURATION_REDUNDANTLY),
+    DETERMINES(GeneratedJavaParserConstants.DETERMINES),
+    LOOP_DETERMINES(GeneratedJavaParserConstants.LOOP_DETERMINES),
+    SEPARATES(GeneratedJavaParserConstants.SEPARATES),
+    LOOP_SEPARATES(GeneratedJavaParserConstants.LOOP_SEPARATES),
     NONE(-1);
 
     public final String jmlSymbol;

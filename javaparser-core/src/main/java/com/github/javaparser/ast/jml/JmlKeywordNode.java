@@ -15,7 +15,7 @@ import com.github.javaparser.metamodel.JmlKeywordNodeMetaModel;
 
 /**
  * Base class for AST nodes that represent a single JML keyword, where the keyword itself is
- * modelled by a {@link JmlKeyword} value (type parameter {@code T}).
+ * modelled by a {@link JmlKeyword} value.
  *
  * @author Alexander Weigl
  * @version 1 (20.09.26)

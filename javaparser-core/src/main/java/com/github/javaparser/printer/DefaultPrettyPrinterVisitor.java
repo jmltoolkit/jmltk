@@ -1186,7 +1186,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
         printOrphanCommentsBeforeThisChildNode(n);
         wrapInJmlIfNeededBlock(() -> {
             printModifiers(n.getModifiers());
-            printer.print(n.getBehavior().get().toString());
+            n.getBehavior().ifPresent(it -> it.accept(this, null));
             printer.indent();
             printer.println();
             printList(n.getClauses(), "");
@@ -1693,16 +1693,18 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
 
     @Override
     public void visit(JmlBodyClauseKind n, Void arg) {
-        printer.println(n.value().jmlSymbol);
+        printer.print(n.value().jmlSymbol());
     }
 
     @Override
     public void visit(JmlClauseKind jmlClauseKind, Void arg) {
-        printer.println(jmlClauseKind.value().jmlSymbol);
+        printer.print(jmlClauseKind.value().jmlSymbol());
     }
 
     @Override
-    public void visit(JmlContractBehavior n, Void arg) {}
+    public void visit(JmlContractBehavior n, Void arg) {
+        printer.print(n.value().jmlSymbol());
+    }
 
     private void printSuffix(NodeList<JmlProofStmt> suffix) {
         printSuffix(suffix, true);

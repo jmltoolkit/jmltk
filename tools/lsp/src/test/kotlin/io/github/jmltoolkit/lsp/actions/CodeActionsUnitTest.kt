@@ -14,11 +14,7 @@ import com.github.javaparser.ast.jml.clauses.JmlContract
 import com.google.common.truth.Truth.assertThat
 import io.github.jmltoolkit.lsp.JmlLanguageServer
 import io.github.jmltoolkit.lsp.JmlTestSupport
-import io.github.jmltoolkit.lsp.asRange
-import io.github.jmltoolkit.lsp.asLeft
-import io.github.jmltoolkit.lsp.asRight
 import io.github.jmltoolkit.utils.JMLUtils.isInJML
-import org.eclipse.lsp4j.CodeActionKind
 import org.eclipse.lsp4j.InitializeParams
 import org.eclipse.lsp4j.MessageActionItem
 import org.eclipse.lsp4j.MessageParams
@@ -261,29 +257,17 @@ class AddQuantificationTest {
 class AddStubsTest {
 
     @Test
-    fun `creates code lens for type declarations`() {
+    fun `does not advertise code lens before it is implemented`() {
         val cu = JmlTestSupport.parse("public class A { }")
         val type = cu.types.first() as TypeDeclaration<*>
         val lens = AddStubs().createCodeLens("file:///A.java", type)
-        assertThat(lens).isNotNull()
-        assertThat(lens!!.range).isEqualTo(type.name.asRange)
-        assertThat(lens.command.title).isEqualTo("Add stub contracts to type if missing")
-        assertThat(lens.command.arguments).containsExactly("file:///A.java", type.name.range.get().asRange)
+        assertThat(lens).isNull()
     }
 
     @Test
     fun `no code lens for non type declarations`() {
         val name = JmlTestSupport.parse("class A { int size; }").findAll(FieldDeclaration::class.java).first()
         assertThat(AddStubs().createCodeLens("file:///A.java", name)).isNull()
-    }
-
-    @Test
-    fun `command references the target's range`() {
-        val cu = JmlTestSupport.parse("package foo.bar; public class A { }")
-        val pkg = cu.packageDeclaration.orElseThrow()
-        val command = AddStubs().command("file:///A.java", pkg)
-        assertThat(command.command).isEqualTo(AddStubs::class.java.name)
-        assertThat(command.arguments).containsExactly("file:///A.java", pkg.name.range.get().asRange)
     }
 
     @Test
@@ -326,7 +310,7 @@ class WellDefinednessCheckTest {
     }
 
     @Test
-    fun `creates quick fix command`() {
+    fun `does not advertise itself before it is implemented`() {
         val clause = JmlTestSupport.parse(
             """
             class A {
@@ -337,12 +321,7 @@ class WellDefinednessCheckTest {
             """.trimIndent()
         ).findAll(com.github.javaparser.ast.jml.clauses.JmlSimpleExprClause::class.java).first()
 
-        val action = WellDefinednessCheck().createCodeAction("file:///A.java", clause)
-        assertThat(action.right.kind).isEqualTo(CodeActionKind.QuickFix)
-        assertThat(action.right.command.command).isEqualTo("jml.welldefinedness-check")
-        val args = action.right.command.arguments
-        assertThat(args).hasSize(2)
-        assertThat(args[0]).isEqualTo("file:///A.java")
+        assertThat(WellDefinednessCheck().createCodeAction("file:///A.java", clause)).isNull()
     }
 
     @Test

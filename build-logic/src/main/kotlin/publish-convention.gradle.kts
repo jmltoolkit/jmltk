@@ -53,6 +53,20 @@ mavenPublishing {
     )
 
     pom {
+        // Defaults; modules override name/description in their own build files.
+        // A module without a description fails at publication time.
+        name.set(project.name!!)
+        description.set(
+            provider {
+                val d = project.description
+                check(!d.isNullOrBlank()) {
+                    "Module '${project.name}' has no description. Set 'description = \"...\"' in ${project.buildFile} before publishing."
+                }
+                d
+            },
+        )
+        url.set("https://github.com/jmltoolkit/jmltk")
+        properties.put("jmltk.upstreamJavaParser", providers.gradleProperty("upstreamBase").getOrElse("unknown"))
         licenses {
             license {
                 name = "The GNU General Public License 3"

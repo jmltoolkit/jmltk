@@ -29,6 +29,7 @@ public class JmlTkBuild {
     public static final String PROJECT_NAME = "${name}";
     public static final String GROUP_ID = "${groupId}";
     public static final String ARTIFACT_ID = "${artifactId}";
+    public static final String UPSTREAM_JAVAPARSER_VERSION = "${upstreamBase}";
     
     /**
      * Returns the full Maven/Gradle coordinate string for this artifact.

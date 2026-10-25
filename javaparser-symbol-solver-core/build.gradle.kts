@@ -3,6 +3,8 @@ plugins {
     id("publish-convention")
 }
 
+description = "Symbol solving for the JMLtk JavaParser AST."
+
 dependencies {
     api(project(":jmlparser-core"))
     api(libs.org.javassist.javassist)
@@ -10,4 +12,4 @@ dependencies {
     api(libs.org.checkerframework.checker.qual)
 }
 
-description = "io.github.jmltoolkit:jmlparser-symbol-solver-core"
+

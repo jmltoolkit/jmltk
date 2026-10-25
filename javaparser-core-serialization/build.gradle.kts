@@ -3,6 +3,8 @@ plugins {
     id("publish-convention")
 }
 
+description = "Serialization support for the JMLtk JavaParser AST."
+
 dependencies {
     api(project(":jmlparser-core"))
     testImplementation(libs.bundles.testing)
@@ -12,4 +14,4 @@ dependencies {
     testImplementation(libs.org.eclipse.parsson.parsson)
 }
 
-description = "io.github.jmltoolkit:jmlparser-core-serialization"
+

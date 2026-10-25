@@ -14,10 +14,19 @@ on:
     paths-ignore:
       - '**.md'
 
-  # Trigger the workflow on any pull_request (ignoring .md only changes)
+  # Trigger the workflow on any pull_request, but only when relevant files changed
   pull_request:
-    paths-ignore:
-      - '**.md'
+    paths:
+      - '**/*.java'
+      - '**/*.kt'
+      - '**/*.jj'
+      - '**/*.kts'
+      - '**/*.sh'
+      - 'gradle.properties'
+      - 'gradle/**'
+      - 'dev-files/**'
+      - 'scripts/**'
+      - '.github/workflows/**'
 
   # Enable manual triggering (important for contributors to enable a check on their fork)
   workflow_dispatch:

@@ -5,6 +5,16 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+    paths:
+      - '**/*.java'
+      - '**/*.kt'
+      - '**/*.jj'
+      - '**/*.kts'
+      - '**/*.sh'
+      - 'gradle.properties'
+      - 'gradle/**'
+      - 'scripts/**'
+      - '.github/workflows/**'
   schedule:
     - cron: '43 14 * * 4'
   merge_group:

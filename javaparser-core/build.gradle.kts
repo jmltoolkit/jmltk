@@ -3,7 +3,7 @@ plugins {
     id("publish-convention")
 }
 
-description = "io.github.jmltoolkit:jmlparser-core"
+description = "JavaParser fork with Java Modeling Language (JML) support: parser, AST, and JML/KeY extensions."
 
 val javacc = configurations.create("javacc")
 
@@ -28,7 +28,8 @@ val javaBuildFile = tasks.register<Copy>("javaBuildFile") {
         "name" to project.name,
         "version" to project.version,
         "groupId" to project.group,
-        "artifactId" to "jmlparser-core"
+        "artifactId" to "jmlparser-core",
+        "upstreamBase" to providers.gradleProperty("upstreamBase").getOrElse("unknown")
     )
 }
 

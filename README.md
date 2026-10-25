@@ -21,7 +21,7 @@ Java 25.
 
 **Gradle**:
 ```kotlin
-implementation("com.github.javaparser:javaparser-symbol-solver-core:3.28.1-J8.0-K13.5-SNAPSHOT")
+implementation("com.github.javaparser:javaparser-symbol-solver-core:1.0.0")
 ```
 
 **Maven**:
@@ -30,7 +30,7 @@ implementation("com.github.javaparser:javaparser-symbol-solver-core:3.28.1-J8.0-
 <dependency>
     <groupId>io.github.jmltoolkit</groupId>
     <artifactId>jmlparser-core</artifactId>
-    <version>3.28.1-J8.0-K13.5-SNAPSHOT</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 

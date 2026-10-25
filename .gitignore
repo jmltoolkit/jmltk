@@ -27,3 +27,4 @@ build-*
 build
 out
 .java-version
+javaparser-core-testing/src/test/resources/com/github/javaparser/bulk_test_results/javaparser_test_results_javaparser_symbol_solver_testing_src_test_java.txt

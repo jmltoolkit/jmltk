@@ -4,9 +4,6 @@
  */
 package io.github.jmltoolkit.lint.rules
 
-import com.github.javaparser.ast.jml.clauses.JmlClauseKind
-import com.github.javaparser.ast.jml.clauses.JmlClauseKind0
-import com.github.javaparser.ast.jml.clauses.JmlClauseKind0
 import com.github.javaparser.ast.jml.clauses.JmlClauseKeyword
 import com.github.javaparser.ast.jml.clauses.JmlContract
 import com.github.javaparser.ast.jml.clauses.JmlSignalsOnlyClause
@@ -74,31 +71,33 @@ class ContextSensitiveForbiddenFunctionsValidator : LintRuleVisitor() {
 
     override val visitor: VoidVisitorAdapter<LintProblemReporter> =
         object : VoidVisitorAdapter<LintProblemReporter>() {
-        private var signalsOnlyCounter = 0
+            private var signalsOnlyCounter = 0
 
-        override fun visit(n: JmlSignalsOnlyClause, arg: LintProblemReporter) {
-            signalsOnlyCounter++
-            if (signalsOnlyCounter == 2) { // warn only once
-                arg.warn(n, "", "", MULTIPLE_SIGNALS_ONLY)
+            override fun visit(n: JmlSignalsOnlyClause, arg: LintProblemReporter) {
+                signalsOnlyCounter++
+                if (signalsOnlyCounter == 2) { // warn only once
+                    arg.warn(n, "", "", MULTIPLE_SIGNALS_ONLY)
+                }
+            }
+
+            override fun visit(n: JmlContract, arg: LintProblemReporter) {
+                if (n.parentNode.getOrNull() !is JmlContract) { // do not reset on nested contract
+                    signalsOnlyCounter = 0
+                    reportMultipleSignalsOnlyClauses(n, arg)
+                }
+            }
+
+            private fun reportMultipleSignalsOnlyClauses(n: JmlContract, arg: LintProblemReporter) {
+                for (clause in n.clauses) {
+                    if (clause.kind.value === JmlClauseKeyword.SIGNALS_ONLY) signalsOnlyCounter++
+
+                    if (signalsOnlyCounter > 1) {
+                        arg.warn(clause, "", "", MULTIPLE_SIGNALS_ONLY)
+                    }
+                    super.visit(n, arg)
+                }
             }
         }
-
-        override fun visit(n: JmlContract, arg: LintProblemReporter) {
-            if (n.parentNode.getOrNull() !is JmlContract) { // do not reset on nested contract
-                signalsOnlyCounter = 0
-        reportMultipleSignalsOnlyClauses(n, arg)
-    }
-
-    private fun reportMultipleSignalsOnlyClauses(n: JmlContract, arg: LintProblemReporter) {
-        for (clause in n.clauses) {
-            if (clause.kind.value === JmlClauseKeyword.SIGNALS_ONLY) signalsOnlyCounter++
-
-            if (signalsOnlyCounter > 1) {
-                arg.warn(clause, "", "", MULTIPLE_SIGNALS_ONLY)
-            }
-            super.visit(n, arg)
-        }
-    }
 
     companion object {
         const val MULTIPLE_SIGNALS_ONLY: String = "Use a single signals_only clause to avoid confusion"

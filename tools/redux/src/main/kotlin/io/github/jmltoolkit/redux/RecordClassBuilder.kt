@@ -4,8 +4,6 @@
  */
 package io.github.jmltoolkit.redux
 
-import com.github.javaparser.JavaToken
-import com.github.javaparser.JavaToken.Kind.INVARIANT_FREE
 import com.github.javaparser.StaticJavaParser.parseStatement
 import com.github.javaparser.StaticJavaParser.parseType
 import com.github.javaparser.ast.Modifier

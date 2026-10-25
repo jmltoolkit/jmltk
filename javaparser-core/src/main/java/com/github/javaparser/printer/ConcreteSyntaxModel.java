@@ -15,6 +15,7 @@ import com.github.javaparser.ast.jml.doc.*;
 import com.github.javaparser.ast.jml.doc.JmlDoc;
 import com.github.javaparser.ast.jml.doc.JmlDocModifier;
 import com.github.javaparser.ast.jml.expr.*;
+import com.github.javaparser.ast.jml.proof.*;
 import com.github.javaparser.ast.jml.stmt.*;
 import com.github.javaparser.ast.key.*;
 import com.github.javaparser.ast.key.sv.*;
@@ -85,6 +86,29 @@ public class ConcreteSyntaxModel {
                 sequence(comma(), space()),
                 token(GeneratedJavaParserConstants.LT),
                 sequence(token(GeneratedJavaParserConstants.GT)));
+    }
+
+    private static CsmElement proofCmdSuffix() {
+        return conditional(
+                SUFFIX,
+                IS_EMPTY,
+                semicolon(),
+                sequence(
+                        space(),
+                        token(GeneratedJavaParserConstants.BY),
+                        space(),
+                        token(LBRACE),
+                        list(SUFFIX, space()),
+                        token(RBRACE)));
+    }
+
+    private static CsmElement proofObtainKind() {
+        return (node, printer) ->
+                printer.print(((JmlProofObtainStmt) node).getKind().jmlSymbol());
+    }
+
+    private static CsmElement keyTransactionType() {
+        return (node, printer) -> printer.print(((KeyTransactionStmt) node).getType().symbol);
     }
 
     static {
@@ -1313,9 +1337,6 @@ public class ConcreteSyntaxModel {
         concreteSyntaxModelByClass.put(
                 JmlExpressionStmt.class, sequence(child(KIND), space(), child(EXPRESSION), semicolon()));
         concreteSyntaxModelByClass.put(JmlTypeExpr.class, sequence(child(ObservableProperty.TYPE)));
-        concreteSyntaxModelByClass.put(
-                JmlClassExprDeclaration.class,
-                sequence(modifiers(), attribute(KIND), attribute(NAME), child(EXPR), semicolon()));
         concreteSyntaxModelByClass.put(JmlUnreachableStmt.class, sequence(token(UNREACHABLE), semicolon()));
         concreteSyntaxModelByClass.put(
                 JmlBinaryInfixExpr.class,
@@ -1354,25 +1375,146 @@ public class ConcreteSyntaxModel {
                         attribute(ObservableProperty.NEW_OBJECTS),
                         semicolon(),
                         newline()));
+        concreteSyntaxModelByClass.put(
+                JmlProofArg.class,
+                sequence(conditional(LABEL, IS_PRESENT, sequence(child(LABEL), token(COLON), space())), child(EXPR)));
+        concreteSyntaxModelByClass.put(
+                JmlProofCmdStmt.class,
+                sequence(
+                        child(NAME),
+                        conditional(ARGS, IS_NOT_EMPTY, sequence(space(), list(ARGS, space()))),
+                        proofCmdSuffix()));
+        concreteSyntaxModelByClass.put(
+                JmlProofCaseStmt.class,
+                sequence(
+                        string(GeneratedJavaParserConstants.CASE, "case"),
+                        conditional(LABEL, IS_PRESENT, sequence(space(), child(LABEL))),
+                        token(COLON),
+                        space(),
+                        conditional(COMMANDS, IS_EMPTY, semicolon(), list(COMMANDS, space()))));
+        concreteSyntaxModelByClass.put(
+                JmlProofObtainStmt.class,
+                sequence(
+                        string(GeneratedJavaParserConstants.IDENTIFIER, "obtain"),
+                        space(),
+                        child(TYPE),
+                        space(),
+                        child(VAR),
+                        space(),
+                        proofObtainKind(),
+                        conditional(VALUE, IS_PRESENT, sequence(space(), child(VALUE))),
+                        proofCmdSuffix()));
         // endregion
         // region KEY
-        // TODO weigl maybe one day someone will complete this, but currently we do not need
-        // the support of concrete syntax model.
-        concreteSyntaxModelByClass.put(KeyCcatchBreak.class, sequence());
-        concreteSyntaxModelByClass.put(KeyCcatchContinue.class, sequence());
-        concreteSyntaxModelByClass.put(KeyCcatchParameter.class, sequence());
-        concreteSyntaxModelByClass.put(KeyCcatchReturn.class, sequence());
-        concreteSyntaxModelByClass.put(KeyCatchAllStmt.class, sequence());
+        concreteSyntaxModelByClass.put(
+                KeyCcatchReturn.class,
+                sequence(
+                        string(GeneratedJavaParserConstants.CCATCH, "ccatch"),
+                        token(LPAREN),
+                        string(GeneratedJavaParserConstants.RETURNTYPE, "\\Return"),
+                        conditional(PARAMETER, IS_PRESENT, sequence(space(), child(PARAMETER))),
+                        token(RPAREN),
+                        conditional(BLOCK, IS_PRESENT, child(BLOCK))));
+        concreteSyntaxModelByClass.put(
+                KeyCcatchBreak.class,
+                sequence(
+                        string(GeneratedJavaParserConstants.CCATCH, "ccatch"),
+                        token(LPAREN),
+                        string(GeneratedJavaParserConstants.BREAKTYPE, "\\Break"),
+                        conditional(LABEL, IS_PRESENT, sequence(space(), child(LABEL))),
+                        token(RPAREN),
+                        conditional(BLOCK, IS_PRESENT, child(BLOCK))));
+        concreteSyntaxModelByClass.put(
+                KeyCcatchContinue.class,
+                sequence(
+                        string(GeneratedJavaParserConstants.CCATCH, "ccatch"),
+                        token(LPAREN),
+                        string(GeneratedJavaParserConstants.CONTINUETYPE, "\\Continue"),
+                        conditional(LABEL, IS_PRESENT, sequence(space(), child(LABEL))),
+                        token(RPAREN),
+                        conditional(BLOCK, IS_PRESENT, child(BLOCK))));
+        concreteSyntaxModelByClass.put(
+                KeyCcatchParameter.class,
+                sequence(
+                        string(GeneratedJavaParserConstants.CCATCH, "ccatch"),
+                        token(LPAREN),
+                        child(PARAMETER),
+                        token(RPAREN),
+                        conditional(BLOCK, IS_PRESENT, child(BLOCK))));
+        concreteSyntaxModelByClass.put(
+                KeyCatchAllStmt.class,
+                sequence(
+                        string(GeneratedJavaParserConstants.CATCHALL, "#catchAll"),
+                        token(LPAREN),
+                        child(LABEL),
+                        token(RPAREN),
+                        child(BLOCK)));
         concreteSyntaxModelByClass.put(KeyCcatchSV.class, attribute(TEXT));
-        concreteSyntaxModelByClass.put(KeyContextStatementBlock.class, sequence());
-        concreteSyntaxModelByClass.put(KeyEscapeExpression.class, sequence());
+        concreteSyntaxModelByClass.put(
+                KeyContextStatementBlock.class,
+                sequence(
+                        token(LBRACE),
+                        newline(),
+                        conditional(
+                                CONTEXT,
+                                IS_PRESENT,
+                                sequence(token(DOT), child(CONTEXT)),
+                                conditional(
+                                        SIGNATURE,
+                                        IS_PRESENT,
+                                        sequence(
+                                                token(DOT),
+                                                child(SIGNATURE),
+                                                token(AT),
+                                                child(TR),
+                                                token(LPAREN),
+                                                conditional(EXPRESSION, IS_PRESENT, child(EXPRESSION)),
+                                                token(RPAREN)))),
+                        newline(),
+                        token(DOTDOT),
+                        list(STATEMENTS, newline()),
+                        token(ELLIPSIS),
+                        newline(),
+                        token(RBRACE)));
+        concreteSyntaxModelByClass.put(
+                KeyEscapeExpression.class,
+                sequence(
+                        child(CALLEE),
+                        token(LPAREN),
+                        conditional(ARGUMENTS, IS_PRESENT, list(ARGUMENTS, sequence(comma(), space()))),
+                        token(RPAREN)));
         concreteSyntaxModelByClass.put(KeyExecCtxtSV.class, attribute(TEXT));
-        concreteSyntaxModelByClass.put(KeyExecStmt.class, sequence());
-        concreteSyntaxModelByClass.put(KeyExecutionContext.class, sequence());
+        concreteSyntaxModelByClass.put(
+                KeyExecStmt.class,
+                sequence(
+                        token(EXEC),
+                        space(),
+                        child(EXEC_BLOCK),
+                        conditional(BRANCHES, IS_NOT_EMPTY, sequence(newline(), list(BRANCHES, newline())))));
+        concreteSyntaxModelByClass.put(
+                KeyExecutionContext.class,
+                sequence(
+                        string(GeneratedJavaParserConstants.SOURCE, "source"),
+                        space(),
+                        token(EQ),
+                        child(SIGNATURE),
+                        token(AT),
+                        child(CONTEXT),
+                        conditional(
+                                ObservableProperty.INSTANCE,
+                                IS_PRESENT,
+                                sequence(
+                                        comma(),
+                                        space(),
+                                        token(GeneratedJavaParserConstants.THIS),
+                                        space(),
+                                        token(EQ),
+                                        space(),
+                                        child(ObservableProperty.INSTANCE)))));
         concreteSyntaxModelByClass.put(KeyExecutionContextSV.class, attribute(TEXT));
         concreteSyntaxModelByClass.put(KeyExpressionSV.class, attribute(TEXT));
         concreteSyntaxModelByClass.put(KeyJumpLabelSV.class, attribute(TEXT));
-        concreteSyntaxModelByClass.put(KeyMarkerStatement.class, sequence());
+        concreteSyntaxModelByClass.put(KeyMarkerStatement.class, attribute(KIND));
         concreteSyntaxModelByClass.put(
                 KeyLoopScopeBlockStmt.class,
                 sequence(
@@ -1385,19 +1527,57 @@ public class ConcreteSyntaxModel {
                         attribute(BLOCK),
                         newline(),
                         token(RBRACE)));
-        concreteSyntaxModelByClass.put(KeyMergePointStmt.class, sequence());
-        concreteSyntaxModelByClass.put(KeyMetaConstructExpression.class, sequence());
-        concreteSyntaxModelByClass.put(KeyMetaConstruct.class, sequence());
-        concreteSyntaxModelByClass.put(KeyMetaConstructType.class, sequence());
-        concreteSyntaxModelByClass.put(KeyMethodBodyStatement.class, sequence());
-        concreteSyntaxModelByClass.put(KeyMethodCallStmt.class, sequence());
-        concreteSyntaxModelByClass.put(KeyMethodSignature.class, sequence());
+        concreteSyntaxModelByClass.put(
+                KeyMergePointStmt.class,
+                sequence(
+                        string(GeneratedJavaParserConstants.MERGE_POINT, "merge_point"),
+                        token(LPAREN),
+                        child(EXPR),
+                        token(RPAREN),
+                        semicolon()));
+        concreteSyntaxModelByClass.put(
+                KeyMetaConstructExpression.class,
+                sequence(attribute(TEXT), token(LPAREN), child(CHILD), token(RPAREN)));
+        concreteSyntaxModelByClass.put(
+                KeyMetaConstruct.class,
+                sequence(
+                        attribute(KIND),
+                        token(LPAREN),
+                        child(CHILD),
+                        conditional(
+                                SCHEMAS,
+                                IS_NOT_EMPTY,
+                                sequence(comma(), space(), list(SCHEMAS, sequence(comma(), space())))),
+                        token(RPAREN)));
+        concreteSyntaxModelByClass.put(
+                KeyMetaConstructType.class, sequence(token(TYPEOF), token(LPAREN), child(EXPR), token(RPAREN)));
+        concreteSyntaxModelByClass.put(
+                KeyMethodBodyStatement.class,
+                sequence(
+                        conditional(NAME, IS_PRESENT, sequence(child(NAME), space(), token(EQ), space())),
+                        child(EXPR),
+                        token(AT),
+                        child(ObservableProperty.SOURCE),
+                        semicolon()));
+        concreteSyntaxModelByClass.put(
+                KeyMethodCallStmt.class,
+                sequence(
+                        string(GeneratedJavaParserConstants.METHODFRAME, "method-frame"),
+                        token(LPAREN),
+                        conditional(NAME, IS_PRESENT, sequence(token(RESULTARROW), child(NAME), comma(), space())),
+                        child(CONTEXT),
+                        token(RPAREN),
+                        token(COLON),
+                        child(BLOCK)));
+        concreteSyntaxModelByClass.put(
+                KeyMethodSignature.class,
+                sequence(child(NAME), token(LPAREN), list(PARAM_TYPES, sequence(comma(), space())), token(RPAREN)));
         concreteSyntaxModelByClass.put(KeyMethodSignatureSV.class, attribute(TEXT));
         concreteSyntaxModelByClass.put(
                 KeyPassiveExpression.class, sequence(token(AT), token(LPAREN), attribute(EXPR), token(RPAREN)));
         concreteSyntaxModelByClass.put(KeyProgramVariableSV.class, attribute(TEXT));
         concreteSyntaxModelByClass.put(KeyStatementSV.class, attribute(TEXT));
-        concreteSyntaxModelByClass.put(KeyTransactionStmt.class, sequence());
+        concreteSyntaxModelByClass.put(KeyTransactionStmt.class, sequence(keyTransactionType(), semicolon()));
         concreteSyntaxModelByClass.put(KeyTypeSV.class, attribute(TEXT));
         // endregion
         List<String> unsupportedNodeClassNames = JavaParserMetaModel.getNodeMetaModels().stream()

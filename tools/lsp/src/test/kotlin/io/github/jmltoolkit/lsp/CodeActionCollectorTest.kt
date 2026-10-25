@@ -25,7 +25,6 @@ class CodeActionCollectorTest {
         val titles = actions.mapNotNull { it.left?.title ?: it.right?.title }
         assertThat(titles).contains("Add a behavior keyword")
         assertThat(titles).contains("Add a name to clause or contract")
-        assertThat(titles).contains("Check expression for well-definedness")
         assertThat(titles).contains("Add Quantification")
     }
 

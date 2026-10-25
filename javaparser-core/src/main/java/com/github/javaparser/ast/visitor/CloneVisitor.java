@@ -1338,9 +1338,10 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
     public Visitable visit(final JmlLabeledClause n, final Object arg) {
         Expression expression = cloneNode(n.getExpression(), arg);
         SimpleName label = cloneNode(n.getLabel(), arg);
+        JmlClauseKind kind = cloneNode(n.getKind(), arg);
         SimpleName name = cloneNode(n.getName(), arg);
         Comment comment = cloneNode(n.getComment(), arg);
-        JmlLabeledClause r = new JmlLabeledClause(n.getTokenRange().orElse(null), n.getKind(), label, expression);
+        JmlLabeledClause r = new JmlLabeledClause(n.getTokenRange().orElse(null), kind, label, expression);
         r.setComment(comment);
         n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
         copyData(n, r);
@@ -1400,10 +1401,10 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
     public Visitable visit(final JmlSimpleExprClause n, final Object arg) {
         Expression expression = cloneNode(n.getExpression(), arg);
         NodeList<SimpleName> heaps = cloneList(n.getHeaps(), arg);
+        JmlClauseKind kind = cloneNode(n.getKind(), arg);
         SimpleName name = cloneNode(n.getName(), arg);
         Comment comment = cloneNode(n.getComment(), arg);
-        JmlSimpleExprClause r =
-                new JmlSimpleExprClause(n.getTokenRange().orElse(null), n.getKind(), name, heaps, expression);
+        JmlSimpleExprClause r = new JmlSimpleExprClause(n.getTokenRange().orElse(null), kind, name, heaps, expression);
         r.setComment(comment);
         n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
         copyData(n, r);
@@ -1414,9 +1415,10 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
     public Visitable visit(final JmlSignalsClause n, final Object arg) {
         Expression expression = cloneNode(n.getExpression(), arg);
         Parameter parameter = cloneNode(n.getParameter(), arg);
+        JmlClauseKind kind = cloneNode(n.getKind(), arg);
         SimpleName name = cloneNode(n.getName(), arg);
         Comment comment = cloneNode(n.getComment(), arg);
-        JmlSignalsClause r = new JmlSignalsClause(n.getTokenRange().orElse(null), name, parameter, expression);
+        JmlSignalsClause r = new JmlSignalsClause(n.getTokenRange().orElse(null), kind, name, parameter, expression);
         r.setComment(comment);
         n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
         copyData(n, r);
@@ -1426,9 +1428,10 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
     @Override
     public Visitable visit(final JmlSignalsOnlyClause n, final Object arg) {
         NodeList<Type> types = cloneList(n.getTypes(), arg);
+        JmlClauseKind kind = cloneNode(n.getKind(), arg);
         SimpleName name = cloneNode(n.getName(), arg);
         Comment comment = cloneNode(n.getComment(), arg);
-        JmlSignalsOnlyClause r = new JmlSignalsOnlyClause(n.getTokenRange().orElse(null), types);
+        JmlSignalsOnlyClause r = new JmlSignalsOnlyClause(n.getTokenRange().orElse(null), kind, types);
         r.setComment(comment);
         n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
         copyData(n, r);
@@ -1449,9 +1452,10 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
     @Override
     public Visitable visit(final JmlCallableClause n, final Object arg) {
         NodeList<JmlMethodSignature> methodSignatures = cloneList(n.getMethodSignatures(), arg);
+        JmlClauseKind kind = cloneNode(n.getKind(), arg);
         SimpleName name = cloneNode(n.getName(), arg);
         Comment comment = cloneNode(n.getComment(), arg);
-        JmlCallableClause r = new JmlCallableClause(n.getTokenRange().orElse(null), name, methodSignatures);
+        JmlCallableClause r = new JmlCallableClause(n.getTokenRange().orElse(null), kind, name, methodSignatures);
         r.setComment(comment);
         n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
         copyData(n, r);
@@ -1461,9 +1465,10 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
     @Override
     public Visitable visit(final JmlForallClause n, final Object arg) {
         NodeList<Parameter> boundedVariables = cloneList(n.getBoundedVariables(), arg);
+        JmlClauseKind kind = cloneNode(n.getKind(), arg);
         SimpleName name = cloneNode(n.getName(), arg);
         Comment comment = cloneNode(n.getComment(), arg);
-        JmlForallClause r = new JmlForallClause(n.getTokenRange().orElse(null), boundedVariables);
+        JmlForallClause r = new JmlForallClause(n.getTokenRange().orElse(null), kind, boundedVariables);
         r.setComment(comment);
         n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
         copyData(n, r);
@@ -1485,10 +1490,11 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
     public Visitable visit(final JmlConditionalClause n, final Object arg) {
         Expression condition = cloneNode(n.getCondition(), arg);
         Expression expression = cloneNode(n.getExpression(), arg);
+        JmlClauseKind kind = cloneNode(n.getKind(), arg);
         SimpleName name = cloneNode(n.getName(), arg);
         Comment comment = cloneNode(n.getComment(), arg);
         JmlConditionalClause r =
-                new JmlConditionalClause(n.getTokenRange().orElse(null), name, condition, n.getKind(), expression);
+                new JmlConditionalClause(n.getTokenRange().orElse(null), kind, name, condition, expression);
         r.setComment(comment);
         n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
         copyData(n, r);
@@ -1499,12 +1505,13 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
     public Visitable visit(final JmlClassExprDeclaration n, final Object arg) {
         Expression invariant = cloneNode(n.getInvariant(), arg);
         NodeList<SimpleName> jmlTags = cloneList(n.getJmlTags(), arg);
+        JmlBodyClauseKind kind = cloneNode(n.getKind(), arg);
         NodeList<Modifier> modifiers = cloneList(n.getModifiers(), arg);
         SimpleName name = cloneNode(n.getName(), arg);
         NodeList<AnnotationExpr> annotations = cloneList(n.getAnnotations(), arg);
         Comment comment = cloneNode(n.getComment(), arg);
-        JmlClassExprDeclaration r = new JmlClassExprDeclaration(
-                n.getTokenRange().orElse(null), jmlTags, modifiers, n.getKind(), name, invariant);
+        JmlClassExprDeclaration r =
+                new JmlClassExprDeclaration(n.getTokenRange().orElse(null), jmlTags, modifiers, kind, name, invariant);
         r.setComment(comment);
         n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
         copyData(n, r);
@@ -1546,6 +1553,7 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
 
     @Override
     public Visitable visit(final JmlContract n, final Object arg) {
+        JmlContractBehavior behavior = cloneNode(n.getBehavior(), arg);
         NodeList<JmlClause> clauses = cloneList(n.getClauses(), arg);
         NodeList<SimpleName> jmlTags = cloneList(n.getJmlTags(), arg);
         NodeList<Modifier> modifiers = cloneList(n.getModifiers(), arg);
@@ -1553,14 +1561,7 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
         NodeList<JmlContract> subContracts = cloneList(n.getSubContracts(), arg);
         Comment comment = cloneNode(n.getComment(), arg);
         JmlContract r = new JmlContract(
-                n.getTokenRange().orElse(null),
-                jmlTags,
-                n.getType(),
-                n.getBehavior(),
-                name,
-                modifiers,
-                clauses,
-                subContracts);
+                n.getTokenRange().orElse(null), jmlTags, n.getType(), behavior, name, modifiers, clauses, subContracts);
         r.setComment(comment);
         n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
         copyData(n, r);
@@ -2121,6 +2122,7 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
     @Override
     public Visitable visit(final JmlOldClause n, final Object arg) {
         VariableDeclarationExpr declarations = cloneNode(n.getDeclarations(), arg);
+        JmlClauseKind kind = cloneNode(n.getKind(), arg);
         SimpleName name = cloneNode(n.getName(), arg);
         Comment comment = cloneNode(n.getComment(), arg);
         JmlOldClause r = new JmlOldClause(n.getTokenRange().orElse(null), declarations);
@@ -2145,10 +2147,10 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
     public Visitable visit(final JmlMultiExprClause n, final Object arg) {
         NodeList<Expression> expressions = cloneList(n.getExpressions(), arg);
         NodeList<SimpleName> heaps = cloneList(n.getHeaps().orElse(null), arg);
+        JmlClauseKind kind = cloneNode(n.getKind(), arg);
         SimpleName name = cloneNode(n.getName(), arg);
         Comment comment = cloneNode(n.getComment(), arg);
-        JmlMultiExprClause r =
-                new JmlMultiExprClause(n.getTokenRange().orElse(null), n.getKind(), name, heaps, expressions);
+        JmlMultiExprClause r = new JmlMultiExprClause(n.getTokenRange().orElse(null), kind, name, heaps, expressions);
         r.setComment(comment);
         n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
         copyData(n, r);
@@ -2229,10 +2231,11 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
         NodeList<Expression> erases = cloneList(n.getErases(), arg);
         NodeList<Expression> expressions = cloneList(n.getExpressions(), arg);
         NodeList<Expression> newObjects = cloneList(n.getNewObjects(), arg);
+        JmlClauseKind kind = cloneNode(n.getKind(), arg);
         SimpleName name = cloneNode(n.getName(), arg);
         Comment comment = cloneNode(n.getComment(), arg);
         JmlInfFlowClause r = new JmlInfFlowClause(
-                n.getTokenRange().orElse(null), n.getKind(), name, by, declassifies, erases, expressions, newObjects);
+                n.getTokenRange().orElse(null), kind, name, by, declassifies, erases, expressions, newObjects);
         r.setComment(comment);
         n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
         copyData(n, r);
@@ -2248,6 +2251,36 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
         Comment comment = cloneNode(n.getComment(), arg);
         JmlProofObtainStmt r =
                 new JmlProofObtainStmt(n.getTokenRange().orElse(null), type, var, n.getKind(), value, suffix);
+        r.setComment(comment);
+        n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
+        copyData(n, r);
+        return r;
+    }
+
+    @Override
+    public Visitable visit(final JmlBodyClauseKind n, final Object arg) {
+        Comment comment = cloneNode(n.getComment(), arg);
+        JmlBodyClauseKind r = new JmlBodyClauseKind(n.getTokenRange().orElse(null), n.getValue());
+        r.setComment(comment);
+        n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
+        copyData(n, r);
+        return r;
+    }
+
+    @Override
+    public Visitable visit(final JmlClauseKind n, final Object arg) {
+        Comment comment = cloneNode(n.getComment(), arg);
+        JmlClauseKind r = new JmlClauseKind(n.getTokenRange().orElse(null), n.getValue());
+        r.setComment(comment);
+        n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
+        copyData(n, r);
+        return r;
+    }
+
+    @Override
+    public Visitable visit(final JmlContractBehavior n, final Object arg) {
+        Comment comment = cloneNode(n.getComment(), arg);
+        JmlContractBehavior r = new JmlContractBehavior(n.getTokenRange().orElse(null), n.getValue());
         r.setComment(comment);
         n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
         copyData(n, r);

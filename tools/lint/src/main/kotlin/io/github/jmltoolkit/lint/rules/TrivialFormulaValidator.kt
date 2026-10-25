@@ -5,8 +5,8 @@
 package io.github.jmltoolkit.lint.rules
 
 import com.github.javaparser.ast.expr.Expression
-import com.github.javaparser.ast.jml.clauses.JmlClauseKind
-import com.github.javaparser.ast.jml.clauses.JmlClauseKind.*
+import com.github.javaparser.ast.jml.clauses.JmlClauseKeyword
+import com.github.javaparser.ast.jml.clauses.JmlClauseKeyword.*
 import com.github.javaparser.ast.jml.clauses.JmlSignalsClause
 import com.github.javaparser.ast.jml.clauses.JmlSimpleExprClause
 import com.github.javaparser.ast.jml.stmt.JmlExpressionStmt
@@ -73,7 +73,7 @@ import io.github.jmltoolkit.lint.LintRuleVisitor
  * ```java
  * //@ requires n >= 0;
  * //@ ensures \result == n;
- * public int id(int n) { ... }
+ * public int id(int n) { "..." }
  * ```
  *
  * Bad &mdash; trivially true (vacuous) clauses:
@@ -98,8 +98,8 @@ class TrivialFormulaValidator : LintRuleVisitor() {
     override val visitor: VoidVisitorAdapter<LintProblemReporter>
         get() = object : VoidVisitorAdapter<LintProblemReporter>() {
             override fun visit(n: JmlSimpleExprClause, arg: LintProblemReporter) {
-                if (n.kind in CHECKED_KINDS) {
-                    checkFormula(n.expression, n.kind.jmlSymbol(), arg)
+                if (n.kind.value in CHECKED_KINDS) {
+                    checkFormula(n.expression, n.kind.value.jmlSymbol(), arg)
                 }
                 super.visit(n, arg)
             }
@@ -143,7 +143,7 @@ class TrivialFormulaValidator : LintRuleVisitor() {
         const val ID = "trivial-formula"
 
         /** Clause kinds whose formula is a boolean predicate we reason about. */
-        val CHECKED_KINDS: Set<JmlClauseKind> = setOf(
+        val CHECKED_KINDS: Set<JmlClauseKeyword> = setOf(
             REQUIRES, REQUIRES_FREE, REQUIRES_REDUNDANTLY,
             ENSURES, ENSURES_FREE, ENSURES_REDUNDANTLY,
             PRE, PRE_REDUNDANTLY, POST, POST_REDUNDANTLY

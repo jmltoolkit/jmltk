@@ -591,8 +591,8 @@ public class NoCommentHashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final JmlLabeledClause n, final Void arg) {
         return (n.getExpression().accept(this, arg)) * 31
-                + (n.getKind().hashCode()) * 31
                 + (n.getLabel().isPresent() ? n.getLabel().get().accept(this, arg) : 0) * 31
+                + (n.getKind().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0);
     }
 
@@ -625,7 +625,7 @@ public class NoCommentHashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final JmlSimpleExprClause n, final Void arg) {
         return (n.getExpression().accept(this, arg)) * 31
                 + (n.getHeaps().accept(this, arg)) * 31
-                + (n.getKind().hashCode()) * 31
+                + (n.getKind().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0);
     }
 
@@ -633,12 +633,14 @@ public class NoCommentHashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final JmlSignalsClause n, final Void arg) {
         return (n.getExpression().accept(this, arg)) * 31
                 + (n.getParameter().accept(this, arg)) * 31
+                + (n.getKind().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0);
     }
 
     @Override
     public Integer visit(final JmlSignalsOnlyClause n, final Void arg) {
         return (n.getTypes().accept(this, arg)) * 31
+                + (n.getKind().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0);
     }
 
@@ -650,12 +652,14 @@ public class NoCommentHashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final JmlCallableClause n, final Void arg) {
         return (n.getMethodSignatures().accept(this, arg)) * 31
+                + (n.getKind().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0);
     }
 
     @Override
     public Integer visit(final JmlForallClause n, final Void arg) {
         return (n.getBoundedVariables().accept(this, arg)) * 31
+                + (n.getKind().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0);
     }
 
@@ -668,7 +672,7 @@ public class NoCommentHashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final JmlConditionalClause n, final Void arg) {
         return (n.getCondition().accept(this, arg)) * 31
                 + (n.getExpression().accept(this, arg)) * 31
-                + (n.getKind().hashCode()) * 31
+                + (n.getKind().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0);
     }
 
@@ -676,7 +680,7 @@ public class NoCommentHashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final JmlClassExprDeclaration n, final Void arg) {
         return (n.getInvariant().accept(this, arg)) * 31
                 + (n.getJmlTags().accept(this, arg)) * 31
-                + (n.getKind().hashCode()) * 31
+                + (n.getKind().accept(this, arg)) * 31
                 + (n.getModifiers().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0) * 31
                 + (n.getAnnotations().accept(this, arg));
@@ -703,7 +707,7 @@ public class NoCommentHashCodeVisitor implements GenericVisitor<Integer, Void> {
 
     @Override
     public Integer visit(final JmlContract n, final Void arg) {
-        return (n.getBehavior().hashCode()) * 31
+        return (n.getBehavior().isPresent() ? n.getBehavior().get().accept(this, arg) : 0) * 31
                 + (n.getClauses().accept(this, arg)) * 31
                 + (n.getJmlTags().accept(this, arg)) * 31
                 + (n.getModifiers().accept(this, arg)) * 31
@@ -986,6 +990,7 @@ public class NoCommentHashCodeVisitor implements GenericVisitor<Integer, Void> {
     @Override
     public Integer visit(final JmlOldClause n, final Void arg) {
         return (n.getDeclarations().accept(this, arg)) * 31
+                + (n.getKind().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0);
     }
 
@@ -998,7 +1003,7 @@ public class NoCommentHashCodeVisitor implements GenericVisitor<Integer, Void> {
     public Integer visit(final JmlMultiExprClause n, final Void arg) {
         return (n.getExpressions().accept(this, arg)) * 31
                 + (n.getHeaps().isPresent() ? n.getHeaps().get().accept(this, arg) : 0) * 31
-                + (n.getKind().hashCode()) * 31
+                + (n.getKind().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0);
     }
 
@@ -1040,8 +1045,8 @@ public class NoCommentHashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getDeclassifies().accept(this, arg)) * 31
                 + (n.getErases().accept(this, arg)) * 31
                 + (n.getExpressions().accept(this, arg)) * 31
-                + (n.getKind().hashCode()) * 31
                 + (n.getNewObjects().accept(this, arg)) * 31
+                + (n.getKind().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0);
     }
 
@@ -1052,5 +1057,20 @@ public class NoCommentHashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getType().accept(this, arg)) * 31
                 + (n.getValue().isPresent() ? n.getValue().get().accept(this, arg) : 0) * 31
                 + (n.getVar().accept(this, arg));
+    }
+
+    @Override
+    public Integer visit(final JmlBodyClauseKind n, final Void arg) {
+        return (n.getValue().hashCode());
+    }
+
+    @Override
+    public Integer visit(final JmlClauseKind n, final Void arg) {
+        return (n.getValue().hashCode());
+    }
+
+    @Override
+    public Integer visit(final JmlContractBehavior n, final Void arg) {
+        return (n.getValue().hashCode());
     }
 }

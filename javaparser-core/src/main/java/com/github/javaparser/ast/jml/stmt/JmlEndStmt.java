@@ -26,6 +26,9 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * A JML statement marking the end of a block of JML specification statements and carrying its JML
+ * tags.
+ *
  * @author Alexander Weigl
  * @version 1 (06.03.22)
  */

@@ -372,4 +372,10 @@ public interface VoidVisitor<A> {
     void visit(JmlInfFlowClause n, A arg);
 
     void visit(JmlProofObtainStmt n, A arg);
+
+    void visit(JmlBodyClauseKind n, A arg);
+
+    void visit(JmlClauseKind n, A arg);
+
+    void visit(JmlContractBehavior n, A arg);
 }

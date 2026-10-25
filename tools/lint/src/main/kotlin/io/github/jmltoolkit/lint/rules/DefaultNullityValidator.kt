@@ -113,17 +113,17 @@ class DefaultNullityValidator : LintRuleVisitor() {
             }
 
             override fun visit(n: EnumDeclaration, arg: LintProblemReporter) {
-                checkTypeDeclaration(n, arg, config!!)
+                checkTypeDeclaration(n, arg, config)
                 super.visit(n, arg)
             }
 
             override fun visit(n: RecordDeclaration, arg: LintProblemReporter) {
-                checkTypeDeclaration(n, arg, config!!)
+                checkTypeDeclaration(n, arg, config)
                 super.visit(n, arg)
             }
 
             override fun visit(n: AnnotationDeclaration, arg: LintProblemReporter) {
-                checkTypeDeclaration(n, arg, config!!)
+                checkTypeDeclaration(n, arg, config)
                 super.visit(n, arg)
             }
 

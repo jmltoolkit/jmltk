@@ -1,7 +1,10 @@
 ;(require 'eglot)
 
-(setq path
-      "/home/weigl/work/javaparser/tools/cli/build/install/jmltk/bin/jmltk-lsp")
+;; Path to the built JMLTK language server. Defaults to the installDist output
+;; relative to this file; override `jmltk-lsp-path' if your checkout differs.
+(defvar jmltk-lsp-path
+  (expand-file-name "../cli/build/install/jmltk/bin/jmltk-lsp"
+                    (file-name-directory (or load-file-name buffer-file-name default-directory))))
 
 (require 'cc-mode)
 (define-derived-mode key-mode prog-mode "KEY"
@@ -14,7 +17,7 @@
 
 ;(add-hook 'key-mode-hook 'eglot-ensure)
 ;(add-to-list 'eglot-server-programs
-;             `(key-mode ,path "--stdio"))
+;             `(key-mode ,jmltk-lsp-path "--stdio"))
 
 (use-package lsp-mode
   :ensure t
@@ -24,7 +27,7 @@
 
 (lsp-register-client
  (make-lsp-client
-  :new-connection (lsp-stdio-connection (list path "--stdio"))
+  :new-connection (lsp-stdio-connection (list jmltk-lsp-path "--stdio"))
   :major-modes '(java-mode)
   :server-id 'key-lsp))
 

@@ -69,8 +69,7 @@ public class JmlProofScriptTest {
                     //@ };
                 }
             }""");
-        var script =
-                cu.findAll(JmlExpressionStmt.class).getFirst().getScript().orElseThrow(AssertionError::new);
+        var script = cu.findAll(JmlExpressionStmt.class).getFirst().getScript().orElseThrow(AssertionError::new);
         Assertions.assertFalse(script.isEmpty());
         var cases = (JmlProofCaseStmt) script.getFirst();
 

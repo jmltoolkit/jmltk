@@ -9,6 +9,7 @@ import io.github.jmltoolkit.lsp.actions.LspAction
 import org.eclipse.lsp4j.CodeAction
 import org.eclipse.lsp4j.Command
 import org.eclipse.lsp4j.jsonrpc.messages.Either
+import org.tinylog.kotlin.Logger
 import java.util.*
 
 /**
@@ -33,9 +34,31 @@ object CodeActionCollector {
 
     fun createCodeAction(uri: String, node: Node): List<Either<Command, CodeAction>> {
         val actions = actionTable.computeIfAbsent(node.javaClass) {
-            actions.filter { it.isCallableForNode(node) }.toList()
+            actions.filter { action ->
+                try {
+                    action.isCallableForNode(node)
+                } catch (e: Exception) {
+                    Logger.error(e)
+                    Logger.error(
+                        "isCallableForNode failed for action '{}' on node {}",
+                        action.id, node.range.orElse(null)
+                    )
+                    false
+                }
+            }.toList()
         }
-        return actions.mapNotNull { it.createCodeAction(uri, node) }
+        return actions.mapNotNull { action ->
+            try {
+                action.createCodeAction(uri, node)
+            } catch (e: Exception) {
+                Logger.error(e)
+                Logger.error(
+                    "Failed to create code action '{}' on node {}",
+                    action.id, node.range.orElse(null)
+                )
+                null
+            }
+        }
     }
 
     @JvmName("collectN")

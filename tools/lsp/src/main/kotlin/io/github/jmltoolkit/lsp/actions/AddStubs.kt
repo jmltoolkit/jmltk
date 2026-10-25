@@ -5,26 +5,17 @@
 package io.github.jmltoolkit.lsp.actions
 
 import com.github.javaparser.ast.Node
-import com.github.javaparser.ast.body.CallableDeclaration
-import com.github.javaparser.ast.body.MethodDeclaration
-import com.github.javaparser.ast.body.TypeDeclaration
-import com.github.javaparser.ast.expr.LambdaExpr
-import com.github.javaparser.ast.nodeTypes.NodeWithName
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import io.github.jmltoolkit.lsp.JmlLanguageServer
-import io.github.jmltoolkit.lsp.Uri
-import io.github.jmltoolkit.lsp.asRange
-import io.github.jmltoolkit.utils.Helper.findAll
 import org.eclipse.lsp4j.CodeLens
-import org.eclipse.lsp4j.Command
-import org.eclipse.lsp4j.Range
+import org.eclipse.lsp4j.MessageParams
+import org.eclipse.lsp4j.MessageType
 import org.eclipse.lsp4j.jsonrpc.json.adapters.CollectionTypeAdapter
 import org.eclipse.lsp4j.jsonrpc.json.adapters.EitherTypeAdapter
 import org.eclipse.lsp4j.jsonrpc.json.adapters.EnumTypeAdapter
 import org.eclipse.lsp4j.jsonrpc.json.adapters.ThrowableTypeAdapter
 import org.eclipse.lsp4j.jsonrpc.json.adapters.TupleTypeAdapters.TwoTypeAdapterFactory
-import java.nio.charset.CharsetDecoder
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -35,43 +26,23 @@ import java.util.concurrent.CompletableFuture
 class AddStubs : LspAction {
     override val title: String = "Add stub contracts to type if missing"
 
-    fun command(uri: String, target: NodeWithName<*>): Command = super.command(listOf(uri, target.name.range.asRange()))
-
-    override fun createCodeLens(uri: String, node: Node) =
-        if (node is TypeDeclaration<*>) {
-            // TypeDeclaration is a NodeWithSimpleName, not a NodeWithName, so use the
-            // declaration's own name to compute the range for the command arguments.
-            CodeLens(node.name.asRange, super.command(listOf(uri, node.name.range.asRange())), null)
-        } else {
-            null
-        }
+    /**
+     * Stub generation is not implemented yet, so no code lens is offered.
+     * Re-enable once [execute] actually generates the stub contracts.
+     */
+    override fun createCodeLens(uri: String, node: Node): CodeLens? = null
 
     override fun execute(
         server: JmlLanguageServer,
         value: List<Any>?
     ): CompletableFuture<Any> {
-        val (a, b) = value ?: error("This command expect the uri and a range as parameter")
-
-        val uri: String = GsonHelper.unwrap(a)
-        val nameRange: Range = GsonHelper.unwrap(b)
-
-        val node = server.jmlTextDocumentService.repo[Uri(uri)]
-            .get()
-            .findAll<Node> { it is NodeWithName<*> && it.name.range == nameRange }
-            .firstOrNull()
-            ?: error("This node could not be found.")
-
-        when (node) {
-            is TypeDeclaration<*> -> {
-            }
-
-            is CallableDeclaration<*> -> {
-            }
-
-            is LambdaExpr -> {
-            }
+        if (value == null) {
+            error("This command expects the uri and a range as parameter")
         }
-        return TODO("Provide the return value")
+        server.client.showMessage(
+            MessageParams(MessageType.Info, "Adding stub contracts is not yet implemented.")
+        )
+        return CompletableFuture.completedFuture("")
     }
 }
 

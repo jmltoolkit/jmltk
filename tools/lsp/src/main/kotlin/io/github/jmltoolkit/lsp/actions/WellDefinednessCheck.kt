@@ -10,11 +10,10 @@ import com.github.javaparser.ast.jml.clauses.JmlSignalsClause
 import com.github.javaparser.ast.jml.clauses.JmlSimpleExprClause
 import com.github.javaparser.ast.jml.stmt.JmlExpressionStmt
 import io.github.jmltoolkit.lsp.JmlLanguageServer
-import io.github.jmltoolkit.lsp.asRange
-import io.github.jmltoolkit.lsp.asRight
 import org.eclipse.lsp4j.CodeAction
-import org.eclipse.lsp4j.CodeActionKind
 import org.eclipse.lsp4j.Command
+import org.eclipse.lsp4j.MessageParams
+import org.eclipse.lsp4j.MessageType
 import org.eclipse.lsp4j.Range
 import org.eclipse.lsp4j.jsonrpc.messages.Either
 import java.util.concurrent.CompletableFuture
@@ -46,11 +45,15 @@ class WellDefinednessCheck : LspAction {
     }
 
     fun execute(server: JmlLanguageServer, uri: String, range: Range) {
-        TODO("Not yet implemented")
+        server.client.showMessage(
+            MessageParams(MessageType.Info, "The well-definedness check is not yet implemented.")
+        )
     }
 
-    override fun createCodeAction(uri: String, node: Node): Either<Command, CodeAction> = CodeAction(title).also {
-        it.command = command(listOf(uri, node.range.get().asRange))
-        it.kind = CodeActionKind.QuickFix
-    }.asRight()
+    /**
+     * The well-definedness analysis is not implemented yet, so the action is not
+     * advertised. Re-enable once [execute] performs an actual analysis instead of
+     * reporting the missing implementation.
+     */
+    override fun createCodeAction(uri: String, node: Node): Either<Command, CodeAction>? = null
 }

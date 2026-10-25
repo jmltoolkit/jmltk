@@ -6,7 +6,6 @@ package io.github.jmltoolkit.lsp.actions
 
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.jml.body.JmlClassExprDeclaration
-import com.github.javaparser.ast.jml.body.JmlClassLevelDeclaration
 import com.github.javaparser.ast.jml.clauses.JmlClause
 import com.github.javaparser.ast.jml.clauses.JmlContract
 import io.github.jmltoolkit.lsp.JmlLanguageServer
@@ -31,7 +30,7 @@ class AddNameToClauseOrContract : LspAction {
     }
 
     override fun isCallableForNode(node: Node): Boolean =
-        (node is JmlContract || node is JmlClause || node is JmlClassLevelDeclaration<*>)
+        (node is JmlContract || node is JmlClause || node is JmlClassExprDeclaration)
 
     fun hasName(node: Node): Boolean =
         when (node) {

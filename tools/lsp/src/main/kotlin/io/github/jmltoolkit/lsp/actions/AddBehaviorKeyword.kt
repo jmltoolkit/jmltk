@@ -62,9 +62,11 @@ class AddBehaviorKeyword : LspAction {
 
         return SnippetTextEdit(
             Range(afterNode, afterNode),
-                StringValue(
+            StringValue(
                 StringValueKind.SNIPPET,
-                " \${1:${JmlBehaviorKeyword.entries.joinToString("|") { it.jmlSymbol() }}: "
+                " \${1|" + JmlBehaviorKeyword.entries
+                    .filter { it != JmlBehaviorKeyword.NONE }
+                    .joinToString(",") { it.jmlSymbol() } + "|}"
             )
         )
     }

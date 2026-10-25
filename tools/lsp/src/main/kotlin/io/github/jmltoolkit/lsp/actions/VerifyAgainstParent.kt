@@ -9,10 +9,7 @@ import com.github.javaparser.ast.jml.clauses.JmlContract
 import com.google.common.cache.CacheBuilder
 import io.github.jmltoolkit.lsp.JmlLanguageServer
 import io.github.jmltoolkit.lsp.asLeft
-import io.github.jmltoolkit.lsp.asRange
-import io.github.jmltoolkit.lsp.asRight
 import org.eclipse.lsp4j.CodeAction
-import org.eclipse.lsp4j.CodeLens
 import org.eclipse.lsp4j.Command
 import org.eclipse.lsp4j.MessageParams
 import org.eclipse.lsp4j.MessageType
@@ -42,6 +39,9 @@ class VerifyAgainstParent : LspAction {
         node: Node
     ): Either<Command, CodeAction>? =
         if (node is JmlContract) {
+            // Remember the contract instance under the hashCode passed as command
+            // argument, so execute() can find it again and report on it.
+            cache.put(node.hashCode(), node)
             command(listOf(node.hashCode())).asLeft()
         } else {
             null

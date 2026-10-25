@@ -1123,22 +1123,18 @@ public class PrettyPrintVisitor implements VoidVisitor<Void> {
         printer.print(";\n");
     }
 
-    @Override
     public void visit(JmlBodyClauseKind n, Void arg) {
         printer.print(n.value().jmlSymbol());
     }
 
-    @Override
     public void visit(JmlClauseKind n, Void arg) {
         printer.print(n.value().jmlSymbol());
     }
 
-    @Override
     public void visit(JmlContractBehavior n, Void arg) {
         printer.print(n.value().jmlSymbol());
     }
 
-    @Override
     public void visit(JmlProofObtainStmt n, Void arg) {}
 
     @Override

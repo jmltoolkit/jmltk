@@ -916,39 +916,18 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
         printer.print("(");
         printer.print(n.getBinder().jmlSymbol());
         printer.print(" ");
-        boolean boundBindings = !n.getVariables().isEmpty()
-                && n.getVariables().stream().anyMatch(v -> v instanceof JmlQuantifiedVariable);
-        if (boundBindings) {
-            // Bindings carry their own type and iterable (e.g. `int e : a`), so the
-            // classic "one common type, then names" scheme must not be used.
-            printList(n.getVariables(), ", ");
-        } else {
-            n.getVariables().getFirst().type().accept(this, arg);
-            printer.print(" ");
-            printList(n.getVariables(), ", ");
-        }
+        n.getVariables().getFirst().type().accept(this, arg);
+        printer.print(" ");
+        printList(n.getVariables(), ", ");
         printer.print("; ");
         printList(n.getExpressions(), "; ");
         printer.print(")");
     }
 
     @Override
-    public void visit(final JmlQuantifiedVariable n, final Void arg) {
-        printOrphanCommentsBeforeThisChildNode(n);
-        printComment(n.getComment(), arg);
-        n.getType().accept(this, arg);
-        printer.print(" ");
-        n.getName().accept(this, arg);
-        n.getIterable().ifPresent(iterable -> {
-            printer.print(" : ");
-            iterable.accept(this, arg);
-        });
-    }
-
-    @Override
     public void visit(JmlLabeledClause n, Void arg) {
         printOrphanCommentsBeforeThisChildNode(n);
-        printer.print(n.getKind().jmlSymbol);
+        printer.print(n.getKind().value().jmlSymbol);
         n.getLabel().ifPresent(it -> {
             printer.print(" (");
             it.accept(this, null);
@@ -960,7 +939,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     }
 
     private void printClause(JmlClauseKind kind, SimpleName label, Expression expr) {
-        printer.print(kind.jmlSymbol);
+        printer.print(kind.value().jmlSymbol);
         printer.print(" (");
         label.accept(this, null);
         printer.print(") ");
@@ -976,11 +955,6 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     public void visit(JmlExpressionStmt n, Void arg) {
         wrapInJmlIfNeededBlock(n.getJmlTags(), () -> {
             printer.print(n.getKind().jmlSymbol());
-            n.getLabel().ifPresent(it -> {
-                printer.print(" ");
-                it.accept(this, arg);
-                printer.print(":");
-            });
             printer.print(" ");
             n.getExpression().accept(this, arg);
             n.getScript().ifPresent(this::printSuffix);
@@ -1074,7 +1048,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     @Override
     public void visit(JmlSignalsClause n, Void arg) {
         printOrphanCommentsBeforeThisChildNode(n);
-        printer.print(n.getKind().jmlSymbol);
+        printer.print(n.getKind().value().jmlSymbol);
         printer.print(" (");
         n.getParameter().accept(this, arg);
         printer.print(") ");
@@ -1085,7 +1059,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     @Override
     public void visit(JmlSignalsOnlyClause n, Void arg) {
         printOrphanCommentsBeforeThisChildNode(n);
-        printer.print(n.getKind().jmlSymbol);
+        printer.print(n.getKind().value().jmlSymbol);
         printer.print(" ");
         printList(n.getTypes(), ", ");
         printer.print(";");
@@ -1135,7 +1109,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     @Override
     public void visit(JmlCallableClause n, Void arg) {
         printOrphanCommentsBeforeThisChildNode(n);
-        printer.print(n.getKind().jmlSymbol);
+        printer.print(n.getKind().value().jmlSymbol);
         printer.print(" TODO");
         printer.println(";");
     }
@@ -1143,7 +1117,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     @Override
     public void visit(JmlForallClause n, Void arg) {
         printOrphanCommentsBeforeThisChildNode(n);
-        printer.print(n.getKind().jmlSymbol);
+        printer.print(n.getKind().value().jmlSymbol);
         printer.print(" ");
         printList(n.getBoundedVariables(), ", ");
         printer.println(";");
@@ -1212,7 +1186,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
         printOrphanCommentsBeforeThisChildNode(n);
         wrapInJmlIfNeededBlock(() -> {
             printModifiers(n.getModifiers());
-            printer.print(n.getBehavior().jmlSymbol());
+            printer.print(n.getBehavior().get().toString());
             printer.indent();
             printer.println();
             printList(n.getClauses(), "");
@@ -1322,7 +1296,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     @Override
     public void visit(JmlOldClause n, Void arg) {
         printOrphanCommentsBeforeThisChildNode(n);
-        printer.print(n.getKind().jmlSymbol);
+        printer.print(n.getKind().value().jmlSymbol);
         printer.print(" ");
         printList(n.getDeclarations().getVariables(), ", ");
         printer.print(";");
@@ -1337,7 +1311,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     public void visit(JmlMultiExprClause n, Void arg) {
         printOrphanCommentsBeforeThisChildNode(n);
         printComment(n.getComment(), arg);
-        printer.print(n.getKind().jmlSymbol());
+        printer.print(n.getKind().value().jmlSymbol());
         if (n.getHeaps().isPresent()) {
             n.getHeaps().get().accept(this, arg);
         }
@@ -1676,7 +1650,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
         printer.print(n.kind().toString());
         printer.print(" ");
         printList(n.getExpressions(), ", ");
-        if (n.kind() == JmlClauseKind.DETERMINES || n.kind() == JmlClauseKind.LOOP_DETERMINES) {
+        if (n.kind().value() == JmlClauseKeyword.DETERMINES || n.kind().value() == JmlClauseKeyword.LOOP_DETERMINES) {
             printer.print(" \\by ");
             printList(n.getBy(), ", ");
         }
@@ -1718,27 +1692,17 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     }
 
     @Override
-    public void visit(JmlMergePointStmt n, Void arg) {
-        printOrphanCommentsBeforeThisChildNode(n);
-        wrapInJmlIfNeededBlock(n.getJmlTags(), () -> {
-            printer.print("merge_point");
-            n.getBy().ifPresent(b -> {
-                printer.print(" \\by ");
-                b.accept(this, arg);
-            });
-            n.getLattice().ifPresent(l -> {
-                printer.print(" \\lattice ");
-                l.accept(this, arg);
-            });
-            n.getPredicateVariable().ifPresent(p -> {
-                printer.print(" \\predicate (");
-                p.accept(this, arg);
-                printer.print(") : ");
-                printList(n.getPredicates().orElse(new NodeList<>()), ", ");
-            });
-            printer.print(";");
-        });
+    public void visit(JmlBodyClauseKind n, Void arg) {
+        printer.println(n.value().jmlSymbol);
     }
+
+    @Override
+    public void visit(JmlClauseKind jmlClauseKind, Void arg) {
+        printer.println(jmlClauseKind.value().jmlSymbol);
+    }
+
+    @Override
+    public void visit(JmlContractBehavior n, Void arg) {}
 
     private void printSuffix(NodeList<JmlProofStmt> suffix) {
         printSuffix(suffix, true);
@@ -2953,7 +2917,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
 
     private void printClause(JmlClauseKind name, NodeList<SimpleName> heaps, NodeList<Expression> expr) {
         if (name == null) printer.print("/*ERROR name not set*/");
-        else printer.print(name.jmlSymbol);
+        else printer.print(name.value().jmlSymbol);
         printer.print(" ");
         printList(heaps, "", "", "", "<", ">");
         printList(expr, ", ");

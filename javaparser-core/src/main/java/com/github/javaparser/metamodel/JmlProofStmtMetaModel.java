@@ -5,7 +5,8 @@
 package com.github.javaparser.metamodel;
 
 import com.github.javaparser.ast.Generated;
-import com.github.javaparser.ast.jml.proof.JmlProofScript;
+import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.jml.proof.JmlProofStmt;
 
 import java.util.Optional;
 
@@ -19,20 +20,27 @@ import java.util.Optional;
  * For this reason, any changes made directly to this file will be overwritten the next time generators are run.
  */
 @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
-public class JmlProofScriptMetaModel extends NodeMetaModel {
+public class JmlProofStmtMetaModel extends NodeMetaModel {
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
-    JmlProofScriptMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
+    JmlProofStmtMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
         super(
                 superBaseNodeMetaModel,
-                JmlProofScript.class,
-                "JmlProofScript",
+                JmlProofStmt.class,
+                "JmlProofStmt",
                 "com.github.javaparser.ast.jml.proof",
-                false,
+                true,
                 false);
     }
 
-    public PropertyMetaModel casesPropertyMetaModel;
-
-    public PropertyMetaModel cmdsPropertyMetaModel;
+    @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
+    protected JmlProofStmtMetaModel(
+            Optional<BaseNodeMetaModel> superNodeMetaModel,
+            Class<? extends Node> type,
+            String name,
+            String packageName,
+            boolean isAbstract,
+            boolean hasWildcard) {
+        super(superNodeMetaModel, type, name, packageName, isAbstract, hasWildcard);
+    }
 }

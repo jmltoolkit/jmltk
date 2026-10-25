@@ -26,7 +26,17 @@ import java.util.Optional;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
- * An argument of a proof command, optionally labeled: {@code label: expression}.
+ * An argument of a proof command, optionally labeled: {@code [label:] expression}.
+ *
+ * <p>Used for the named arguments of {@link JmlProofCmdStmt}, e.g.
+ * {@code expand on: "x"}, {@code instantiate var: "x" with: x} or
+ * {@code auto classAxioms: false}. {@link #getLabel()} is the optional argument name,
+ * {@link #getExpr()} the argument value.
+ *
+ * <p>For example:
+ * <pre>{@code
+ *     //@ assert f() \by { instantiate var:"x" with: x; auto classAxioms:false; };
+ * }</pre>
  */
 public class JmlProofArg extends Node {
 

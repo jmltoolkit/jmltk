@@ -5,7 +5,7 @@
 package com.github.javaparser.metamodel;
 
 import com.github.javaparser.ast.Generated;
-import com.github.javaparser.ast.jml.proof.JmlProofCmd;
+import com.github.javaparser.ast.jml.proof.JmlProofCmdStmt;
 
 import java.util.Optional;
 
@@ -25,8 +25,8 @@ public class JmlProofCmdMetaModel extends NodeMetaModel {
     JmlProofCmdMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
         super(
                 superBaseNodeMetaModel,
-                JmlProofCmd.class,
-                "JmlProofCmd",
+                JmlProofCmdStmt.class,
+                "JmlProofCmdStmt",
                 "com.github.javaparser.ast.jml.proof",
                 false,
                 false);

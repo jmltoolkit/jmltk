@@ -337,13 +337,11 @@ public interface GenericVisitor<R, A> {
 
     R visit(JmlGhostStmt n, A arg);
 
-    R visit(JmlProofScript n, A arg);
-
-    R visit(JmlProofCmd n, A arg);
+    R visit(JmlProofCmdStmt n, A arg);
 
     R visit(JmlProofArg n, A arg);
 
-    R visit(JmlProofCmdCase n, A arg);
+    R visit(JmlProofCaseStmt n, A arg);
 
     R visit(JmlMethodDeclaration n, A arg);
 
@@ -376,4 +374,6 @@ public interface GenericVisitor<R, A> {
     R visit(KeyMarkerStatement n, A arg);
 
     R visit(JmlInfFlowClause n, A arg);
+
+    R visit(JmlProofObtainStmt n, A arg);
 }

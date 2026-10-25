@@ -9,41 +9,55 @@ import com.github.javaparser.ast.AllFieldsConstructor;
 import com.github.javaparser.ast.Generated;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.observer.ObservableProperty;
 import com.github.javaparser.ast.visitor.CloneVisitor;
 import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
-import com.github.javaparser.metamodel.JmlProofScriptMetaModel;
+import com.github.javaparser.metamodel.JmlProofCaseStmtMetaModel;
+import com.github.javaparser.metamodel.OptionalProperty;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
- * A proof script attached to a JML assert/assume statement via {@code \by}.
- * Holds the proof commands ({@code cmds}) and the proof command cases ({@code cases}).
+ * A {@code case}/{@code default} branch inside a proof script, e.g.
+ * {@code case "a": ...}, {@code default: ...} or {@code case: ...}.
+ *
+ * <p>{@link #getLabel()} is the (optional) case name; it is empty for the {@code default:}
+ * and the label-less {@code case:} form. {@link #getCommands()} holds the statements of
+ * the branch.
+ *
+ * <p>For example:
+ * <pre>{@code
+ *     //@ assert f() \by { case "a": expand on: "x"; default: auto; };
+ * }</pre>
  */
-public class JmlProofScript extends Node {
+public class JmlProofCaseStmt extends JmlProofStmt {
 
-    private NodeList<JmlProofCmd> cmds;
+    @OptionalProperty
+    private StringLiteralExpr label;
 
-    private NodeList<JmlProofCmdCase> cases;
+    private NodeList<JmlProofStmt> commands;
 
     @AllFieldsConstructor
-    public JmlProofScript(NodeList<JmlProofCmd> cmds, NodeList<JmlProofCmdCase> cases) {
-        this(null, cmds, cases);
+    public JmlProofCaseStmt(StringLiteralExpr label, NodeList<JmlProofStmt> commands) {
+        this(null, label, commands);
     }
 
     /**
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlProofScript(TokenRange tokenRange, NodeList<JmlProofCmd> cmds, NodeList<JmlProofCmdCase> cases) {
+    public JmlProofCaseStmt(TokenRange tokenRange, StringLiteralExpr label, NodeList<JmlProofStmt> commands) {
         super(tokenRange);
-        setCmds(cmds);
-        setCases(cases);
+        setLabel(label);
+        setCommands(commands);
         customInitialization();
     }
 
@@ -60,38 +74,37 @@ public class JmlProofScript extends Node {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<JmlProofCmd> getCmds() {
-        return cmds;
+    public Optional<StringLiteralExpr> getLabel() {
+        return Optional.ofNullable(label);
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlProofScript setCmds(final @NonNull() NodeList<JmlProofCmd> cmds) {
-        assertNotNull(cmds);
-        if (cmds == this.cmds) {
+    public NodeList<JmlProofStmt> getCommands() {
+        return commands;
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public JmlProofCaseStmt setLabel(final @Nullable() StringLiteralExpr label) {
+        if (label == this.label) {
             return this;
         }
-        notifyPropertyChange(ObservableProperty.CMDS, this.cmds, cmds);
-        if (this.cmds != null) this.cmds.setParentNode(null);
-        this.cmds = cmds;
-        setAsParentNodeOf(cmds);
+        notifyPropertyChange(ObservableProperty.LABEL, this.label, label);
+        if (this.label != null) this.label.setParentNode(null);
+        this.label = label;
+        setAsParentNodeOf(label);
         return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<JmlProofCmdCase> getCases() {
-        return cases;
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlProofScript setCases(final @NonNull() NodeList<JmlProofCmdCase> cases) {
-        assertNotNull(cases);
-        if (cases == this.cases) {
+    public JmlProofCaseStmt setCommands(final @NonNull() NodeList<JmlProofStmt> commands) {
+        assertNotNull(commands);
+        if (commands == this.commands) {
             return this;
         }
-        notifyPropertyChange(ObservableProperty.CASES, this.cases, cases);
-        if (this.cases != null) this.cases.setParentNode(null);
-        this.cases = cases;
-        setAsParentNodeOf(cases);
+        notifyPropertyChange(ObservableProperty.COMMANDS, this.commands, commands);
+        if (this.commands != null) this.commands.setParentNode(null);
+        this.commands = commands;
+        setAsParentNodeOf(commands);
         return this;
     }
 
@@ -101,15 +114,15 @@ public class JmlProofScript extends Node {
         if (node == null) {
             return false;
         }
-        for (int i = 0; i < cases.size(); i++) {
-            if (cases.get(i) == node) {
-                cases.set(i, (JmlProofCmdCase) replacementNode);
+        for (int i = 0; i < commands.size(); i++) {
+            if (commands.get(i) == node) {
+                commands.set(i, (JmlProofStmt) replacementNode);
                 return true;
             }
         }
-        for (int i = 0; i < cmds.size(); i++) {
-            if (cmds.get(i) == node) {
-                cmds.set(i, (JmlProofCmd) replacementNode);
+        if (label != null) {
+            if (node == label) {
+                setLabel((StringLiteralExpr) replacementNode);
                 return true;
             }
         }
@@ -118,14 +131,14 @@ public class JmlProofScript extends Node {
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.CloneGenerator")
-    public JmlProofScript clone() {
-        return (JmlProofScript) accept(new CloneVisitor(), null);
+    public JmlProofCaseStmt clone() {
+        return (JmlProofCaseStmt) accept(new CloneVisitor(), null);
     }
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.GetMetaModelGenerator")
-    public JmlProofScriptMetaModel getMetaModel() {
-        return JavaParserMetaModel.jmlProofScriptMetaModel;
+    public JmlProofCaseStmtMetaModel getMetaModel() {
+        return JavaParserMetaModel.jmlProofCaseStmtMetaModel;
     }
 
     @Override
@@ -134,30 +147,35 @@ public class JmlProofScript extends Node {
         if (node == null) {
             return false;
         }
-        for (int i = 0; i < cases.size(); i++) {
-            if (cases.get(i) == node) {
-                cases.remove(i);
+        for (int i = 0; i < commands.size(); i++) {
+            if (commands.get(i) == node) {
+                commands.remove(i);
                 return true;
             }
         }
-        for (int i = 0; i < cmds.size(); i++) {
-            if (cmds.get(i) == node) {
-                cmds.remove(i);
+        if (label != null) {
+            if (node == label) {
+                removeLabel();
                 return true;
             }
         }
         return super.remove(node);
     }
 
-    @com.github.javaparser.ast.key.IgnoreLexPrinting()
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @NonNull() NodeList<JmlProofCmd> cmds() {
-        return Objects.requireNonNull(cmds);
+    @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
+    public JmlProofCaseStmt removeLabel() {
+        return setLabel((StringLiteralExpr) null);
     }
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @NonNull() NodeList<JmlProofCmdCase> cases() {
-        return Objects.requireNonNull(cases);
+    public @Nullable() StringLiteralExpr label() {
+        return label;
+    }
+
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public @NonNull() NodeList<JmlProofStmt> commands() {
+        return Objects.requireNonNull(commands);
     }
 }

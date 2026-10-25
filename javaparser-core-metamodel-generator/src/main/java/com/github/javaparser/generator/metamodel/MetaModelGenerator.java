@@ -203,10 +203,11 @@ public class MetaModelGenerator extends AbstractGenerator {
             add(JmlLabelExpr.class);
             add(JmlSetComprehensionExpr.class);
 
-            add(JmlProofScript.class);
-            add(JmlProofCmd.class);
+            add(JmlProofStmt.class);
+            add(JmlProofCmdStmt.class);
+            add(JmlProofCaseStmt.class);
+            add(JmlProofObtainStmt.class);
             add(JmlProofArg.class);
-            add(JmlProofCmdCase.class);
 
             add(JmlStatement.class);
             add(JmlGhostStmt.class);

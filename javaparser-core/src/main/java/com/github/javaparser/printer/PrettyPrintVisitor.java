@@ -1121,6 +1121,9 @@ public class PrettyPrintVisitor implements VoidVisitor<Void> {
     }
 
     @Override
+    public void visit(JmlProofObtainStmt n, Void arg) {}
+
+    @Override
     public void visit(final RecordPatternExpr n, final Void arg) {
         printOrphanCommentsBeforeThisChildNode(n);
         printComment(n.getComment(), arg);
@@ -2341,16 +2344,13 @@ public class PrettyPrintVisitor implements VoidVisitor<Void> {
     public void visit(JmlLabelStmt n, Void arg) {}
 
     @Override
-    public void visit(JmlProofScript n, Void arg) {}
-
-    @Override
-    public void visit(JmlProofCmd n, Void arg) {}
+    public void visit(JmlProofCmdStmt n, Void arg) {}
 
     @Override
     public void visit(JmlProofArg n, Void arg) {}
 
     @Override
-    public void visit(JmlProofCmdCase n, Void arg) {}
+    public void visit(JmlProofCaseStmt n, Void arg) {}
 
     @Override
     public void visit(JmlMethodSignature n, Void arg) {}

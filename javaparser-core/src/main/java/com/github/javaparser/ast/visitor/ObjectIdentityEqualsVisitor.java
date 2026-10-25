@@ -628,12 +628,7 @@ public class ObjectIdentityEqualsVisitor implements GenericVisitor<Boolean, Visi
     }
 
     @Override
-    public Boolean visit(final JmlProofScript n, final Visitable arg) {
-        return n == arg;
-    }
-
-    @Override
-    public Boolean visit(final JmlProofCmd n, final Visitable arg) {
+    public Boolean visit(final JmlProofCmdStmt n, final Visitable arg) {
         return n == arg;
     }
 
@@ -643,7 +638,7 @@ public class ObjectIdentityEqualsVisitor implements GenericVisitor<Boolean, Visi
     }
 
     @Override
-    public Boolean visit(final JmlProofCmdCase n, final Visitable arg) {
+    public Boolean visit(final JmlProofCaseStmt n, final Visitable arg) {
         return n == arg;
     }
 
@@ -889,6 +884,11 @@ public class ObjectIdentityEqualsVisitor implements GenericVisitor<Boolean, Visi
 
     @Override
     public Boolean visit(final JmlInfFlowClause n, final Visitable arg) {
+        return n == arg;
+    }
+
+    @Override
+    public Boolean visit(final JmlProofObtainStmt n, final Visitable arg) {
         return n == arg;
     }
 }

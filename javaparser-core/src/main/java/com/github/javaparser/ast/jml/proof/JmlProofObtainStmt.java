@@ -11,13 +11,14 @@ import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.SimpleName;
+import com.github.javaparser.ast.jml.JmlKeyword;
 import com.github.javaparser.ast.observer.ObservableProperty;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.visitor.CloneVisitor;
 import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
-import com.github.javaparser.metamodel.JmlProofCmdMetaModel;
+import com.github.javaparser.metamodel.JmlProofObtainStmtMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -28,14 +29,32 @@ import java.util.Optional;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
- * A proof command inside a JML proof script ({@code \by}).
- * Either an {@code obtain} command (then {@link #getName()} is {@code null} and the fields
- * {@link #getType()}, {@link #getVar()}, {@link #getKind()} and {@link #getValue()} are set),
- * or a general proof command (then {@link #getName()} and {@link #getArgs()} are set).
+ * An {@code obtain} command inside a {@code \by} proof script, introducing an auxiliary
+ * variable used by the proof, e.g. {@code obtain int x \from_goal;},
+ * {@code obtain int y = foo();} or {@code obtain int z \such_that z > 0;}.
+ *
+ * <p>{@link #getType()} and {@link #getVar()} declare the variable, {@link #getKind()}
+ * the way its value is obtained:
+ *
+ * <ul>
+ *   <li>{@link ObtainKind#EQUAL} &mdash; the variable is bound to {@link #getValue()},
+ *   <li>{@link ObtainKind#SUCH_THAT} &mdash; the variable is constrained by {@link #getValue()}, and
+ *   <li>{@link ObtainKind#FROM_GOAL} &mdash; the value is read off from the current proof goal.
+ * </ul>
+ *
+ * <p>{@link #getSuffix()} holds the statements of a nested {@code \by} script that follows
+ * the command (empty if the command is terminated by {@code ;}).
+ *
+ * <p>For example:
+ * <pre>{@code
+ *     //@ assert X \by { obtain int x \from_goal; };
+ *     //@ assert Y \by { obtain int y = y0; };
+ *     //@ assert Z \by { obtain int z \such_that z > 0; };
+ * }</pre>
  */
-public class JmlProofCmd extends Node {
+public class JmlProofObtainStmt extends JmlProofStmt {
 
-    public enum ObtainKind {
+    public enum ObtainKind implements JmlKeyword {
         EQUAL("="),
         SUCH_THAT("\\such_that"),
         FROM_GOAL("\\from_goal");
@@ -51,54 +70,35 @@ public class JmlProofCmd extends Node {
         }
     }
 
-    @OptionalProperty
-    private SimpleName name;
-
-    private NodeList<JmlProofArg> args;
-
-    @OptionalProperty
     private Type type;
 
-    @OptionalProperty
     private SimpleName var;
 
-    @OptionalProperty
     private ObtainKind kind;
 
     @OptionalProperty
     private Expression value;
 
-    @OptionalProperty
-    private JmlProofScript suffix;
+    private NodeList<JmlProofStmt> suffix;
 
     @AllFieldsConstructor
-    public JmlProofCmd(
-            SimpleName name,
-            NodeList<JmlProofArg> args,
-            Type type,
-            SimpleName var,
-            ObtainKind kind,
-            Expression value,
-            JmlProofScript suffix) {
-        this(null, name, args, type, var, kind, value, suffix);
+    public JmlProofObtainStmt(
+            Type type, SimpleName var, ObtainKind kind, Expression value, NodeList<JmlProofStmt> suffix) {
+        this(null, type, var, kind, value, suffix);
     }
 
     /**
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlProofCmd(
+    public JmlProofObtainStmt(
             TokenRange tokenRange,
-            SimpleName name,
-            NodeList<JmlProofArg> args,
             Type type,
             SimpleName var,
             ObtainKind kind,
             Expression value,
-            JmlProofScript suffix) {
+            NodeList<JmlProofStmt> suffix) {
         super(tokenRange);
-        setName(name);
-        setArgs(args);
         setType(type);
         setVar(var);
         setKind(kind);
@@ -120,28 +120,18 @@ public class JmlProofCmd extends Node {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Optional<SimpleName> getName() {
-        return Optional.ofNullable(name);
+    public Type getType() {
+        return type;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<JmlProofArg> getArgs() {
-        return args;
+    public SimpleName getVar() {
+        return var;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Optional<Type> getType() {
-        return Optional.ofNullable(type);
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Optional<SimpleName> getVar() {
-        return Optional.ofNullable(var);
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Optional<ObtainKind> getKind() {
-        return Optional.ofNullable(kind);
+    public ObtainKind getKind() {
+        return kind;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
@@ -150,37 +140,13 @@ public class JmlProofCmd extends Node {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Optional<JmlProofScript> getSuffix() {
-        return Optional.ofNullable(suffix);
+    public NodeList<JmlProofStmt> getSuffix() {
+        return suffix;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlProofCmd setName(final @Nullable() SimpleName name) {
-        if (name == this.name) {
-            return this;
-        }
-        notifyPropertyChange(ObservableProperty.NAME, this.name, name);
-        if (this.name != null) this.name.setParentNode(null);
-        this.name = name;
-        setAsParentNodeOf(name);
-        return this;
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlProofCmd setArgs(final @NonNull() NodeList<JmlProofArg> args) {
-        assertNotNull(args);
-        if (args == this.args) {
-            return this;
-        }
-        notifyPropertyChange(ObservableProperty.ARGS, this.args, args);
-        if (this.args != null) this.args.setParentNode(null);
-        this.args = args;
-        setAsParentNodeOf(args);
-        return this;
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlProofCmd setType(final @Nullable() Type type) {
+    public JmlProofObtainStmt setType(final @NonNull() Type type) {
+        assertNotNull(type);
         if (type == this.type) {
             return this;
         }
@@ -192,7 +158,8 @@ public class JmlProofCmd extends Node {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlProofCmd setVar(final @Nullable() SimpleName var) {
+    public JmlProofObtainStmt setVar(final @NonNull() SimpleName var) {
+        assertNotNull(var);
         if (var == this.var) {
             return this;
         }
@@ -204,7 +171,8 @@ public class JmlProofCmd extends Node {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlProofCmd setKind(final @Nullable() ObtainKind kind) {
+    public JmlProofObtainStmt setKind(final @NonNull() ObtainKind kind) {
+        assertNotNull(kind);
         if (kind == this.kind) {
             return this;
         }
@@ -214,7 +182,7 @@ public class JmlProofCmd extends Node {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlProofCmd setValue(final @Nullable() Expression value) {
+    public JmlProofObtainStmt setValue(final @Nullable() Expression value) {
         if (value == this.value) {
             return this;
         }
@@ -225,47 +193,21 @@ public class JmlProofCmd extends Node {
         return this;
     }
 
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlProofCmd setSuffix(final @Nullable() JmlProofScript suffix) {
-        if (suffix == this.suffix) {
-            return this;
-        }
-        notifyPropertyChange(ObservableProperty.SUFFIX, this.suffix, suffix);
-        if (this.suffix != null) this.suffix.setParentNode(null);
-        this.suffix = suffix;
-        setAsParentNodeOf(suffix);
-        return this;
-    }
-
     @Override
     @Generated("com.github.javaparser.generator.core.node.ReplaceMethodGenerator")
     public boolean replace(Node node, Node replacementNode) {
         if (node == null) {
             return false;
         }
-        for (int i = 0; i < args.size(); i++) {
-            if (args.get(i) == node) {
-                args.set(i, (JmlProofArg) replacementNode);
+        for (int i = 0; i < suffix.size(); i++) {
+            if (suffix.get(i) == node) {
+                suffix.set(i, (JmlProofStmt) replacementNode);
                 return true;
             }
         }
-        if (name != null) {
-            if (node == name) {
-                setName((SimpleName) replacementNode);
-                return true;
-            }
-        }
-        if (suffix != null) {
-            if (node == suffix) {
-                setSuffix((JmlProofScript) replacementNode);
-                return true;
-            }
-        }
-        if (type != null) {
-            if (node == type) {
-                setType((Type) replacementNode);
-                return true;
-            }
+        if (node == type) {
+            setType((Type) replacementNode);
+            return true;
         }
         if (value != null) {
             if (node == value) {
@@ -273,25 +215,23 @@ public class JmlProofCmd extends Node {
                 return true;
             }
         }
-        if (var != null) {
-            if (node == var) {
-                setVar((SimpleName) replacementNode);
-                return true;
-            }
+        if (node == var) {
+            setVar((SimpleName) replacementNode);
+            return true;
         }
         return super.replace(node, replacementNode);
     }
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.CloneGenerator")
-    public JmlProofCmd clone() {
-        return (JmlProofCmd) accept(new CloneVisitor(), null);
+    public JmlProofObtainStmt clone() {
+        return (JmlProofObtainStmt) accept(new CloneVisitor(), null);
     }
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.GetMetaModelGenerator")
-    public JmlProofCmdMetaModel getMetaModel() {
-        return JavaParserMetaModel.jmlProofCmdMetaModel;
+    public JmlProofObtainStmtMetaModel getMetaModel() {
+        return JavaParserMetaModel.jmlProofObtainStmtMetaModel;
     }
 
     @Override
@@ -300,27 +240,9 @@ public class JmlProofCmd extends Node {
         if (node == null) {
             return false;
         }
-        for (int i = 0; i < args.size(); i++) {
-            if (args.get(i) == node) {
-                args.remove(i);
-                return true;
-            }
-        }
-        if (name != null) {
-            if (node == name) {
-                removeName();
-                return true;
-            }
-        }
-        if (suffix != null) {
-            if (node == suffix) {
-                removeSuffix();
-                return true;
-            }
-        }
-        if (type != null) {
-            if (node == type) {
-                removeType();
+        for (int i = 0; i < suffix.size(); i++) {
+            if (suffix.get(i) == node) {
+                suffix.remove(i);
                 return true;
             }
         }
@@ -330,68 +252,40 @@ public class JmlProofCmd extends Node {
                 return true;
             }
         }
-        if (var != null) {
-            if (node == var) {
-                removeVar();
-                return true;
-            }
-        }
         return super.remove(node);
     }
 
     @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
-    public JmlProofCmd removeName() {
-        return setName((SimpleName) null);
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
-    public JmlProofCmd removeType() {
+    public JmlProofObtainStmt removeType() {
         return setType((Type) null);
     }
 
     @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
-    public JmlProofCmd removeVar() {
+    public JmlProofObtainStmt removeVar() {
         return setVar((SimpleName) null);
     }
 
     @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
-    public JmlProofCmd removeValue() {
+    public JmlProofObtainStmt removeValue() {
         return setValue((Expression) null);
     }
 
-    @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
-    public JmlProofCmd removeSuffix() {
-        return setSuffix((JmlProofScript) null);
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public @NonNull() Type type() {
+        return Objects.requireNonNull(type);
     }
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @Nullable() SimpleName name() {
-        return name;
+    public @NonNull() SimpleName var() {
+        return Objects.requireNonNull(var);
     }
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @NonNull() NodeList<JmlProofArg> args() {
-        return Objects.requireNonNull(args);
-    }
-
-    @com.github.javaparser.ast.key.IgnoreLexPrinting()
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @Nullable() Type type() {
-        return type;
-    }
-
-    @com.github.javaparser.ast.key.IgnoreLexPrinting()
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @Nullable() SimpleName var() {
-        return var;
-    }
-
-    @com.github.javaparser.ast.key.IgnoreLexPrinting()
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @Nullable() ObtainKind kind() {
-        return kind;
+    public @NonNull() ObtainKind kind() {
+        return Objects.requireNonNull(kind);
     }
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
@@ -402,7 +296,20 @@ public class JmlProofCmd extends Node {
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @Nullable() JmlProofScript suffix() {
-        return suffix;
+    public @NonNull() NodeList<JmlProofStmt> suffix() {
+        return Objects.requireNonNull(suffix);
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public JmlProofObtainStmt setSuffix(final @NonNull() NodeList<JmlProofStmt> suffix) {
+        assertNotNull(suffix);
+        if (suffix == this.suffix) {
+            return this;
+        }
+        notifyPropertyChange(ObservableProperty.SUFFIX, this.suffix, suffix);
+        if (this.suffix != null) this.suffix.setParentNode(null);
+        this.suffix = suffix;
+        setAsParentNodeOf(suffix);
+        return this;
     }
 }

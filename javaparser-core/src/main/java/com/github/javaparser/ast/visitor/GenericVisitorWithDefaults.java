@@ -637,12 +637,7 @@ public abstract class GenericVisitorWithDefaults<R, A> implements GenericVisitor
     }
 
     @Override
-    public R visit(final JmlProofScript n, final A arg) {
-        return defaultAction(n, arg);
-    }
-
-    @Override
-    public R visit(final JmlProofCmd n, final A arg) {
+    public R visit(final JmlProofCmdStmt n, final A arg) {
         return defaultAction(n, arg);
     }
 
@@ -652,7 +647,7 @@ public abstract class GenericVisitorWithDefaults<R, A> implements GenericVisitor
     }
 
     @Override
-    public R visit(final JmlProofCmdCase n, final A arg) {
+    public R visit(final JmlProofCaseStmt n, final A arg) {
         return defaultAction(n, arg);
     }
 
@@ -898,6 +893,11 @@ public abstract class GenericVisitorWithDefaults<R, A> implements GenericVisitor
 
     @Override
     public R visit(final JmlInfFlowClause n, final A arg) {
+        return defaultAction(n, arg);
+    }
+
+    @Override
+    public R visit(final JmlProofObtainStmt n, final A arg) {
         return defaultAction(n, arg);
     }
 }

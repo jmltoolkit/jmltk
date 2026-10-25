@@ -541,12 +541,7 @@ public class ObjectIdentityHashCodeVisitor implements GenericVisitor<Integer, Vo
     }
 
     @Override
-    public Integer visit(final JmlProofScript n, final Void arg) {
-        return n.hashCode();
-    }
-
-    @Override
-    public Integer visit(final JmlProofCmd n, final Void arg) {
+    public Integer visit(final JmlProofCmdStmt n, final Void arg) {
         return n.hashCode();
     }
 
@@ -556,7 +551,7 @@ public class ObjectIdentityHashCodeVisitor implements GenericVisitor<Integer, Vo
     }
 
     @Override
-    public Integer visit(final JmlProofCmdCase n, final Void arg) {
+    public Integer visit(final JmlProofCaseStmt n, final Void arg) {
         return n.hashCode();
     }
 
@@ -801,6 +796,11 @@ public class ObjectIdentityHashCodeVisitor implements GenericVisitor<Integer, Vo
 
     @Override
     public Integer visit(final JmlInfFlowClause n, final Void arg) {
+        return n.hashCode();
+    }
+
+    @Override
+    public Integer visit(final JmlProofObtainStmt n, final Void arg) {
         return n.hashCode();
     }
 }

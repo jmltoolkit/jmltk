@@ -1,6 +1,8 @@
 # Design: Quantifiers over arrays and collections (`weigl/quantarray`)
 
-Status: proposal, not yet implemented.
+Status: proposal **v2** (per-variable bindings), not yet implemented.
+v1 modeled the domain as a single `Expression domain` field on `JmlQuantifiedExpr`;
+that cannot express per-variable domains and is superseded by this design.
 Branch: `weigl/quantarray` (from `main`).
 
 ## 1. Problem
@@ -28,215 +30,210 @@ binder that JML does not support.
 - arrays `T[]` (any dimension; the element of `T[][]` is a `T[]`),
 - `java.lang.Iterable` / `Collection` / `java.util.SequencedCollection`
   (`List`, `Set`, `Deque`, …) — anything with an iterator,
-- integer index ranges `lo..hi` (bonus: the fork already has `RangeExpr`, see §5),
+- integer index ranges `lo..hi` (the fork already has `RangeExpr`, see §5),
 - uniformly for all generalized binders `\forall \exists \num_of \sum \product
   \min \max \choose` (and, for free, `\bsum`, `\infinite_union`, `\seq_def`).
 
-## 2. Syntax options
+## 2. Syntax
 
-### Option A — for-each binder with `:` (recommended)
-
-The colon starts the *domain* of quantification; everything after it is the
-element-domain expression:
-
-```java
-(\forall int e : a; e > 0)                       // all elements positive
-(\exists T e : c; e.isEmpty())                   // some element of collection c
-(\sum int e : a; e * e)                          // sum of squares
-(\num_of String s : words; s.length() > 3)       // count words longer than 3
-(\min int e : a; e)                              // minimum element
-(\forall var e : a; e != null)                   // 'var' = inferred element type
-(\forall int e : a; e != null; e.id > 0)         // filter clauses before the body
-(\forall int i : 0..a.length-1; a[i] <= a[i+1])  // relational: index via range domain
-(\forall int[] row : m; row.length == n)         // 2-D array: rows are elements
-(\forall int e : m; \forall int f : m; e != f ==> a[e] != a[f])   // nested
-```
-
-Properties:
-
-- **Java for-each analogy** (`for (T x : a)`) — the bound variable denotes the
-  *element*, never the index (see §4, "element vs. index").
-- **No new tokens.** `:` (COLON) already exists; no lexer rule, no `TokenTypes`
-  change. The parse decision after the declarator list is `;` (classic) vs `:`
-  (element) — LL(1), verified empirically (§5).
-- **Uniform** over all binders; comes as one grammar alternative.
-- **Range domains for free:** `lo..hi` (half-open, end-exclusive) covers the
-  relational cases (sortedness, monotonicity) that pure element binding cannot
-  express, reusing the existing `RangeExpr`.
-
-### Option B — membership binder `\in`
+Accepted: the **for-each binder with `:`** (Option A of v1). One quantifier takes a
+comma-separated list of *bindings*; each binding may carry its own iterable after
+`:`:
 
 ```java
-(\forall T e \in a; P(e))
+(\forall int e : a; e > 0)                        // elements of an array
+(\exists T e : c; e.isEmpty())                    // elements of an Iterable/SequencedCollection
+(\sum int e : a; e * e)                           // sum of squares
+(\num_of String s : words; s.length() > 3)        // count words longer than 3
+(\forall int i : 0..a.length-1; a[i] <= a[i+1])   // index iteration via range
+(\forall var e : a; e != null)                    // 'var' = inferred element type
+(\forall int e : a; e != null; e.id > 0)          // filter clauses before the body
 ```
 
-Mathematical style. Costs: new token `\\in` (lexer rule + `TokenTypes`
-classification, must not reorder existing rules), and it may collide with a future
-heap/set membership operator (KeY uses `\in`-like symbols). No benefit over `:`.
+### Index + element: per-variable bindings
 
-### Option C — wildcard element `a[*]`
+Because every variable carries its own iterable, "both the value and the index" is
+just two bindings — no magic, fully compositional:
 
 ```java
-(\forall a[*]; a[*] != null)     // or even bare: a[*] != null
+(\forall int i : 0..a.length-1, T e : a[i]; P(i, e))    // index + value binding
+(\forall int i : a[i], T e : a[i]; P(i, e))             // self-index sugar: i over indices of a
+(\forall int i : m[i], int j : m[i][j], T e : m[i][j]; P(i, j, e))  // 2-D, compositional
+(\forall int k : 0..n-1, T x : a[k], U y : b[k]; x <= y)            // zip over two arrays
 ```
 
-Each occurrence of `a[*]` would be an implicit binder. Rejected:
-
-- relational properties need *two different* elements (`a[i] <= a[i+1]`) — fresh
-  binders per occurrence cannot correlate them;
-- existential polarity is inexpressible without a quantifier anyway;
-- needs a new AST node + grammar special case for `LBRACKET * RBRACKET`, and
-  muddies write/LHS semantics.
-
-### Option D — implicit index domain
-
-```java
-(\forall int i; a[i] != null)    // range implicitly "valid indices of a"
-```
-
-The binder's domain is *inferred* from the body. Rejected: multiple arrays give an
-intersection domain, no array gives an infinite domain, and silent inference is
-fragile for tooling (bounds extraction, SMT encoding).
-
-### Option E — implicit element binder
-
-```java
-(\forall a; a[*] > 0)     // or (\forall a; \elem(a) > 0)
-```
-
-Ultra-compact, but a single implicit binder cannot express two distinct elements
-(monotonicity, distinctness) and repeated `\elem(a)` is ambiguous. Could later be
-added as *sugar* on top of Option A (desugars to A with a generated fresh name);
-not part of the core proposal.
-
-### Prior art
-
-| Language | Syntax |
-|---|---|
-| Dafny | `forall x in s :: P(x)` (sets/seqs); `forall i \| 0 <= i < a.Length :: a[i] >= 0` |
-| Spec# / Code Contracts | `forall int i in 0..a.Length: P(i)`; `Contract.ForAll<T>(c, pred)` |
-| Eiffel | `across a as c all P(c.item) end` |
-| SPARK Ada | `for all I in A'Range => P(A(I))` |
-| ACSL | index-style only (`\forall integer i; 0 <= i < n => …`) |
-| JML RefMan | variable binders only (status quo) |
+The *loose* mixed form `(\forall int i, T e : a[i]; P(i, e))` — `i` without an
+iterable, referenced by a later binding — is a **validator error** ("`i` is not
+bound to a domain; write `int i : a[i]` or `int i : 0..a.length-1`"). The AST must
+stay honest: an unbound declarator is unbound.
 
 ## 3. AST & grammar design
 
-**Decision: extend `JmlQuantifiedExpr` with an optional domain — no new node class.**
+Per-variable bindings as first-class AST nodes.
 
-The element form *is* a quantified expression (binder + variables + parts); only the
-way the variables are bound differs. A separate class would duplicate semantics and
-double the churn in every visitor and in the seven tools that switch on the binder.
+### Node hierarchy
 
 ```java
-public class JmlQuantifiedExpr extends JmlExpression implements NodeWithVariables<JmlQuantifiedExpr> {
+/** A variable binding in a quantifier: a plain declarator or a declarator with an iterable. */
+public abstract class VariableBinding extends Node {}                 // naming TBD, §7
+
+// reparented: VariableDeclarator extends VariableBinding   (was: extends Node)
+//   — every existing VariableDeclarator use keeps working unchanged
+
+/** For-each style binding: mirrors the enhanced-for part of JavaParser's ForStmt. */
+public class JmlQuantifiedForeachVariable extends VariableBinding {
+    private VariableDeclarationExpr var;     // the bound variable (type, name, [final])
+    private Expression iterable;             // array / Iterable / range / value expression
+}
+
+public class JmlQuantifiedExpr extends JmlExpression {
     private JmlBinder binder;
-    private NodeList<VariableDeclarator> variables;
-    @OptionalProperty
-    private Expression domain;          // NEW: null = classic form
-    private NodeList<Expression> expressions;   // filters + body/value, unchanged
+    private NodeList<VariableBinding> variables;    // was NodeList<VariableDeclarator>
+    private NodeList<Expression> expressions;       // filters + body/value, unchanged
 }
 ```
 
-- Classic form: `domain == null` — parses and prints exactly as today.
-- Element form: `variables` holds the element declarator(s) (type `VarType` for the
-  inferred variants), `domain` the domain expression.
+- Classic quantifiers keep plain `VariableDeclarator` entries; the element form adds
+  `JmlQuantifiedForeachVariable` entries. One list, heterogeneous, typed by the new
+  abstract parent.
+- The new node deliberately stores a `VariableDeclarationExpr` + `Expression`
+  — exactly the shape of JavaParser's enhanced-for (`ForStmt` initialization =
+  `[VariableDeclarationExpr, iterable]`) — so backends can build real for-each
+  statements directly.
+- `JmlQuantifiedExpr` **drops `NodeWithVariables`** (it is hard-typed to
+  `NodeList<VariableDeclarator>`, `nodeTypes/NodeWithVariables.java:21–25`) and gets
+  direct accessors; `VariableDeclarationExpr` keeps the interface unchanged.
 
-### Grammar (`javaparser-core/src/main/javacc/java.jj`, `JmlPrimaryPrefix()` ~line 4725)
+### Metamodel / generated code
+
+- Add the abstract and the concrete class to `ALL_NODE_CLASSES` in
+  `MetaModelGenerator`; `NodeMetaModelGenerator` derives a node's metamodel parent
+  from `getSuperclass()` (NodeMetaModelGenerator.java:72–74), so reparenting
+  `VariableDeclarator` automatically flips `VariableDeclaratorMetaModel` from
+  `extends NodeMetaModel` to the new parent metamodel.
+- Run `./scripts/run-generators.sh`: regenerates metamodels, `ObservableProperty`
+  (variables type, `VAR`, `ITERABLE`), and all visitors for the new node.
+- Consumers of `JmlQuantifiedExpr.getVariables()` must switch on the entry type:
+  symbol-solver `JmlQuantifiedExprContext`, `tools/jml2java`, `tools/smt`,
+  `tools/wd`, `tools/stat`, `tools/lsp`.
+
+### Grammar (`javaparser-core/src/main/javacc/java.jj`, `QuantifiedVariables()` ~4743)
+
+Per-binding types and iterables; classic shared-type lists preserved:
 
 ```java
-// today
-"(" {begin=token();}
- (<FORALLQ>|<EXISTS>|<NUM_OF>|<SUM>|<MIN>|<PRODUCT>|<MAX>|<JML_IDENTIFIER>)
- {quant=token();}
- vars=QuantifiedVariables()
- ";" expr=Expression() {exprs.add(expr);} (";" expr=Expression() {exprs.add(expr);})*
-")"
+// today: ONE type shared by the whole comma list
+Type partialType; val=VariableDeclarator(partialType) ("," val=VariableDeclarator(partialType))*
 
-// extended (LL(1) on ':' vs ';' after the declarators)
-"(" {begin=token();}
- binder-token {quant=token();}
- vars=QuantifiedVariables()
- [ ":" domain=Expression() ]          // NEW — element/domain form
- ( ";" expr=Expression() {exprs.add(expr);} )*
-")"
+// v2: each binding may carry its own type and its own iterable
+NodeList<VariableBinding> QuantifiedVariables():
+{
+    t = Type(...)
+    d = VariableDeclarator(t)  [ ":" iterable=Expression() ]       // first binding
+    ( "," ( LOOKAHEAD(2) t2=Type(...) d=VariableDeclarator(t2)     // own type:  ", T e : a[i]"
+         | d = VariableDeclarator(t) )                             // inherit:   ", j"
+      [ ":" iterable=Expression() ] )*
+}
 ```
 
-Optional stretch (untyped binder `(\forall e : a; P(e))`, represented with a
-`VarType` declarator; needs syntactic LOOKAHEAD `IDENTIFIER ":"`):
+- `(\forall int i, j; …)` parses exactly as today (inherited type, no iterables).
+- `(\forall int i, T e : a[i]; …)` — verified to fail today (§5) — becomes the typed
+  binding form; the `:` after a declarator always belongs to that declarator.
+- `var` parses as a `ClassOrInterfaceType("var")`; the grammar action normalizes it
+  to `VarType` ("infer from the binding kind").
+- No new tokens → no `TokenTypes` changes, no lexer-rule reordering (per
+  `AGENTS.md`). Optional stretch (untyped first binding `(\forall e : a; …)`) needs
+  syntactic LOOKAHEAD `IDENTIFIER ":"` — deferred.
 
-```java
-( LOOKAHEAD(<IDENTIFIER> ":") nm=<IDENTIFIER> ":" domain=Expression()
-| vars=QuantifiedVariables() [ ":" domain=Expression() ] )
-```
+### Printing
 
-No new tokens → no `TokenTypes` changes, no lexer-rule reordering (per `AGENTS.md`).
-
-### Regenerated / printing surfaces (run `./scripts/run-generators.sh`)
-
-- metamodel `JmlQuantifiedExprMetaModel` + property registration in
-  `JavaParserMetaModel`, `ObservableProperty.DOMAIN`, all generated visitors.
-- `printer/DefaultPrettyPrinterVisitor.visit(JmlQuantifiedExpr)` (~line 914): print
-  `" : " + domain` between the declarators and the first `;` part.
-- `printer/ConcreteSyntaxModel` entry for `JmlQuantifiedExpr` (~line 1318): add a
-  `conditional(DOMAIN, IS_NOT_EMPTY, sequence(token(COLON), space(), child(DOMAIN)))`
-  between the variable list and the `;` list.
+- `DefaultPrettyPrinterVisitor.visit(JmlQuantifiedExpr)` (~914) and
+  `ConcreteSyntaxModel` (~1318): print bindings comma-separated; a
+  `JmlQuantifiedForeachVariable` prints as `Type name : iterable` (the declarator's
+  own type; no more `MAXIMUM_COMMON_TYPE` — that derived property came from
+  `NodeWithVariables` and disappears with it).
 
 ### Validators
 
-- element form requires exactly one declarator (until multi-declarator semantics is
-  decided, §7); declarator must not have an initializer;
-- the domain expression must not reference the bound variables;
-- `var`/inferred type only resolvable if the domain type is known.
+- **all-or-nothing iterables** within one quantifier: either no binding has an
+  iterable (classic form) or every binding has one; `(\forall int i, j : 0..n; …)`
+  is an error with a fix-it;
+- a `JmlQuantifiedForeachVariable`'s `VariableDeclarationExpr` carries exactly one
+  declarator, without initializer;
+- **binding kinds** are decided by the iterable (§4) and re-checked:
+  - range iterable → declarator must be integer type (`var` → `int`);
+  - array/Iterable generator → declarator type must match the component/element
+    type (or `var`);
+  - self-index iterable `A[…x…]` (§4 kind 5) → the bound variable must occur as
+    exactly one index position of the access chain, be of integer type, and the
+    other index positions must reference *already bound* variables;
+  - value binding (§4 kind 6) → declared type must match the iterable's type (or
+    `var`);
+- earlier bindings cannot reference later ones (no forward references).
 
 ### Symbol solver
 
-`JmlQuantifiedExprContext` (javaparser-symbol-solver-core, `contexts/jml/`) already
-binds `getVariables()` as `JavaParserSymbolDeclaration.quantifiedVar`; with a domain
-present it additionally *infers the element type*:
+`JmlQuantifiedExprContext` (javaparser-symbol-solver-core, `contexts/jml/`) binds
+every declarator as `JavaParserSymbolDeclaration.quantifiedVar`; for
+`JmlQuantifiedForeachVariable` the resolution target is the inner declarator of
+`var` (so `JmlJavaParserQuantifiedVariableDeclaration` is reusable). Inferred types:
 
-| domain kind | element type |
+| binding kind (§4) | static type of the bound variable |
 |---|---|
-| `ArrayType` `T[]` (any dim) | component type (element of `T[][]` is `T[]`) |
-| `BinaryExpr(Operator.RANGE)` `lo..hi` | `int` |
-| reference type assignable to `Iterable<T>` (`SequencedCollection`, `List`, …) | first type argument `T` |
-| unresolved | leave unbound, report validation problem |
-
-`JmlJavaParserQuantifiedVariableDeclaration` stays as-is (it wraps the declarator).
+| 1 classic | declared type (as today) |
+| 2 range `lo..hi` | `int` |
+| 3 array generator `A` | component type (element of `T[][]` is `T[]`) |
+| 4 Iterable generator | first type argument of `Iterable<T>` |
+| 5 self-index `A[…x…]` | `int` |
+| 6 value binding `x : E` | declared type; must equal type of `E` |
 
 ## 4. Semantics
 
-**Element vs. index.** The bound variable denotes the **element** (Java for-each
-consistency, `for (T x : a)`). The Stack Overflow anecdote shows some users expect
-`i` to range over *indices*; that need is served by range domains
-(`(\forall int i : 0..a.length-1; a[i] <= a[i+1])`) — possibly with future sugar
-like `a.indices`.
+A quantifier `(\binder b1, …, bk; F1; …; Fn)` is interpreted left to right; each
+binding `Type x [: E]` gets one of six kinds:
 
-**Definitional equivalences** (all binders; parts before the last remain conjunctive
+1. **classic** (no `E`): unconstrained variable, restricted only by the filter
+   clauses `F1..Fn-1` — unchanged classic JML.
+2. **range generator** (`E` is `lo..hi`, `BinaryExpr(Operator.RANGE)`): `x` iterates
+   the half-open integer interval `[lo, hi)`.
+3. **array generator** (`E` array-typed, not an array access): `x` iterates the
+   elements of `E` (for `T[][]`, elements are `T[]`).
+4. **Iterable generator** (`E` assignable to `Iterable<T>`): `x` iterates the
+   elements in iteration order (specifications should be order-independent; the
+   order-dependent binders `\seq_def`/`\bsum` are defined over the iterator order).
+5. **self-index generator** (`E` is an array access `A[…x…]` mentioning `x` in an
+   index position): `x` iterates the valid indices `0..len-1` of the dimension where
+   `x` occurs (e.g. `int i : a[i]` → `[0, a.length)`; `int j : m[i][j]` →
+   `[0, m[i].length)` with `i` already bound). This preserves the intuition behind
+   the Stack Overflow anecdote in §1.
+6. **value binding** (otherwise, `E` scalar): `x = E` within each iteration — a
+   let-like binding (`T e : a[i]` binds `e` to the element at index `i`).
+
+Definitional equivalences (all binders; parts before the last remain conjunctive
 filters, the last part is the body/value):
 
-- array domain `a` of type `T[]`, fresh `_i`:
-  `(\binder T e : a; P1; …; Pn)` ≡ `(\binder int _i; 0 <= _i && _i < a.length; P1[e:=a[_i]]; …; Pn[e:=a[_i]])`
-  (pure substitution; alternatively bind via the existing `JmlLetExpr`).
-- range domain: `(\binder int e : lo..hi; P1; …; Pn)` ≡
-  `(\binder int e; lo <= e && e < hi; P1; …; Pn)` — half-open, end-exclusive.
-- `Iterable` domain: quantification over the (finite) element sequence in iteration
-  order. Specifications should not depend on the order, with the exception of
-  `\seq_def`/`\bsum` whose value is order-dependent (documented, defined over the
-  iterator order).
+- kind 2: `(\binder int x : lo..hi; P…)` ≡ `(\binder int x; lo <= x && x < hi; P…)`
+- kind 3 (array), fresh `_i`:
+  `(\binder T x : a; P…)` ≡ `(\binder int _i; 0 <= _i && _i < a.length; P[x := a[_i]])`
+  (pure substitution; alternatively bind via the existing `JmlLetExpr`)
+- kinds 4: quantification over the (finite) element sequence of the iterator;
+  formal model deferred until the KeY `\seq` machinery is revived (java.jj ~8002)
+- kind 5: `int x : A[…x…]` ≡ range generator over that dimension's length
+- kind 6: `T x : E` ≡ `(\let T x = E; …)` — no iteration, no quantifier over `x`
+- bindings compose: later bindings may reference earlier variables (dependent
+  domains, zip); the domain of an iteration kind is evaluated **once** per enclosing
+  iteration.
 
 **Well-definedness:**
 
-- the domain expression is evaluated **exactly once**, must be pure (side-effect
-  free) and **non-null**; `a == null` makes the quantifier undefined (WD violation)
-  — consistent with the classic form, whose range would dereference `a.length`.
-  (Vacuous-true was considered and rejected: it hides null bugs.)
-- empty domain: `\forall`→true, `\exists`→false, `\num_of`→0, `\sum`→0,
+- generator domains (kinds 2–5): the iterable must be pure (side-effect free) and,
+  for arrays/Iterables, non-null; a null domain makes the quantifier undefined (WD
+  violation — consistent with the classic form whose range would dereference
+  `a.length`; vacuous-true rejected: it hides null bugs);
+- value bindings (kind 6): `E` must be well-defined and pure;
+- empty iteration domain: `\forall`→true, `\exists`→false, `\num_of`→0, `\sum`→0,
   `\product`→1, `\min`/`\max`/`\choose`→undefined (same as classic JML on an empty
   range).
-
-**Scope rules:** the domain may not mention the bound variables; nested element
-quantifiers may shadow; the domain is not re-evaluated per element.
 
 ## 5. Facts verified against the current build (Oct 2026)
 
@@ -244,57 +241,69 @@ quantifiers may shadow; the domain is not re-evaluated per element.
   (note `JmlMultiCompareExpr` chained comparison already works).
 - `(\forall int e : a; e > 0)` fails with `Encountered unexpected token: ":"` right
   after the declarator list — the extension point is clean and LL(1).
+- `(\forall int i, j; true)` (shared type over a comma list) parses, but
+  `(\forall int i, T e : a[i]; …)` and `(\forall int i, var e : a[i]; …)` fail:
+  `QuantifiedVariables` (java.jj:4743–4754) binds one `Type` to the whole list —
+  per-binding types are required (§3 grammar).
 - `0..5`, `n..m`, `a[0..5]` all parse as `BinaryExpr(Operator.RANGE)` and print as
   `0 .. 5` etc. The feared float-literal tie (`0.` is a legal Java float) does not
   bite in this grammar; existing fragments already use `students[0..n]`
-  (`jmlparser-jml-tests/.../fragments/stmt_1132627598.txt`).
-- `RangeExpr` sits below `RelationalExpression` (java.jj:4202), so ranges are valid
-  in any `Expression()` position, including a quantifier domain.
+  (`jmlparser-jml-tests/.../fragments/stmt_1132627598.txt`). `RangeExpr` sits below
+  `RelationalExpression` (java.jj:4202), so ranges are valid in any `Expression()`
+  position, including a binding's iterable.
+- `VariableDeclarator extends Node` (ast/body/VariableDeclarator.java:48) and
+  `VariableDeclaratorMetaModel extends NodeMetaModel` — the metamodel parent is
+  derived from the superclass by the generator, so the reparenting is
+  generator-supported.
 
 ## 6. Implementation plan
 
-### M1 — core: parse, AST, print, round-trip
+### M1 — core: AST, grammar, print, round-trip
 
-1. `JmlQuantifiedExpr`: add `@OptionalProperty Expression domain` (+ accessors,
-   constructor overloads, update `@AllFieldsConstructor`); run
-   `./scripts/run-generators.sh`; fix tool compile errors.
-2. Grammar: extend the quantifier alternative in `JmlPrimaryPrefix()`; no new
-   tokens; `./gradlew :javaparser-core:compileJavacc`; resolve LOOKAHEAD warnings.
-3. Printing: `DefaultPrettyPrinterVisitor` + `ConcreteSyntaxModel`.
-4. Validators (structural ones above).
-5. Tests: round-trip cases in `jmlparser-jml-tests`
-   `resources/jml-exprs.txt` + `resources/csm_jml_expression.txt`
-   (`JmlExpressionTest`, `ConcreteSyntaxModelTest`), LexicalPreservingPrinter
-   round-trip, negative parses (initializer in declarator, domain referencing the
-   bound var, two declarators with domain until decided).
+1. New abstract `VariableBinding` (§7 naming) + `JmlQuantifiedForeachVariable`
+   (`VariableDeclarationExpr var`, `Expression iterable`); reparent
+   `VariableDeclarator`; change `JmlQuantifiedExpr.variables` to
+   `NodeList<VariableBinding>`, drop `NodeWithVariables` from it; run
+   `./scripts/run-generators.sh`; fix consumers that assume `VariableDeclarator`
+   entries.
+2. Grammar: per-binding production in `QuantifiedVariables()` (§3); no new tokens;
+   `./gradlew :javaparser-core:compileJavacc`; resolve LOOKAHEAD warnings.
+3. Printing: `DefaultPrettyPrinterVisitor` + `ConcreteSyntaxModel` (per-binding).
+4. Validators (§3 list).
+5. Tests: round-trips in `jmlparser-jml-tests` `resources/jml-exprs.txt` +
+   `resources/csm_jml_expression.txt` (classic unchanged, single binding, multi
+   binding, zip, self-index), LexicalPreservingPrinter round-trip, negative parses
+   (mixed bound/unbound bindings, initializer in binding, forward references).
 
 ### M2 — resolution & type inference
 
-- `JmlQuantifiedExprContext`: element-type inference per §3 table.
-- `var`/untyped binder support (`VarType` declarator type).
-- Resolution expectation tests: extend
-  `jmlparser-jml-tests/.../resolution/JmlQuantifiedExprResolutionTest.java` style
-  (`//?` expectations) for array, `Iterable`, `SequencedCollection`, range, and 2-D
-  domains; shadowing tests.
+- `JmlQuantifiedExprContext`: per-binding kind detection + type inference (§3
+  table); reuse `JmlJavaParserQuantifiedVariableDeclaration` on the inner
+  declarator.
+- `var` normalization (`VarType`) and inference.
+- Resolution expectation tests (extending
+  `jmlparser-jml-tests/.../resolution/JmlQuantifiedExprResolutionTest.java` style)
+  for array, `Iterable`, `SequencedCollection`, range, self-index, value binding,
+  zip; shadowing tests.
 
 ### M3 — backends
 
 - **Desugarer utility** (core, e.g. `com.github.javaparser.jml.JmlQuantifierDesugarer`):
-  element/range forms → classic form (§4 equivalences, array + range only). Lets the
-  KeY path and any consumer that only knows classic quantifiers keep working.
-- **`tools/jml2java`** (`Jml2JavaTranslator.visitForall`): element form maps directly
-  to Java enhanced-for (`for (T e : a) { if (!(P)) fail; }`) — *simpler* than the
-  current `findUpperBound`/`findLowerBound` pattern matching; range domain → classic
-  index loop; `\sum`/`\num_of`/`\product` accumulate.
-- **`tools/smt`** (`JmlExpr2Smt`): array + range domains → `forall ((i Int)) (=> (and (<= 0 i) (< i len)) P[a[i]])`;
-  Iterable domains raise a clear "not supported yet" (needs a `\seq` model of
-  collections — future work, cf. the commented-out KeY `\seq` machinery in java.jj
-  ~8002).
-- **`tools/wd`** (`WDVisitor`): domain WD conditions (non-null, purity), reusing the
-  existing binder switch.
-- **`tools/stat`**, **`tools/lsp`**: handle the new field (statistics: count element
-  quantifiers; LSP: no crash, optionally a quick-fix to expand into classic form via
-  the desugarer).
+  rewrite kinds 2/3/5 to classic quantifiers (§4 equivalences) and kind 6 to
+  substitution/`JmlLetExpr`, so KeY and any classic-only consumer keep working.
+- **`tools/jml2java`** (`Jml2JavaTranslator.visitForall`): kind 3/4 map directly to
+  Java enhanced-for — the AST stores exactly `ForStmt`'s
+  `[VariableDeclarationExpr, iterable]` pair; kind 2 → index loop; kind 5 → index
+  loop over the dimension; kind 6 → local variable; `\sum`/`\num_of`/`\product`
+  accumulate.
+- **`tools/smt`** (`JmlExpr2Smt`): kinds 2/3/5 → `forall ((i Int)) (=> (and (<= 0 i)
+  (< i len)) P[a[i]])`; kind 6 → substitution; kind 4 raises a clear "not supported
+  yet" (needs a `\seq` model of collections).
+- **`tools/wd`** (`WDVisitor`): per-kind WD conditions (§4), reusing the binder
+  switch.
+- **`tools/stat`**, **`tools/lsp`**: handle the new binding node (statistics: count
+  binding kinds; LSP: no crash, optionally a quick-fix expanding into classic form
+  via the desugarer).
 
 ### M4 — docs & release
 
@@ -305,22 +314,37 @@ quantifiers may shadow; the domain is not re-evaluated per element.
 
 ## 7. Open questions
 
-1. Untyped binder `(\forall e : a; …)` — grammar-ready in M1, inference in M2; keep?
-2. Multiple declarators with a domain (`(\forall T e, f : a; …)`, cartesian
-   semantics) — recommend restricting to one declarator initially.
-3. Range-domain element type: always `int`, or promote to `long` when operands are
-   `long`?
-4. Iterable domains in SMT/KeY: defer with a clear error — acceptable?
-5. Optional future sugar: `a.indices` (range over valid indices), implicit element
-   binder (Option E), `Map` key domains, `String` → `char` domains, `a.first`/`a.last`
-   for `SequencedCollection`.
+1. **Naming of the abstract parent** — `VariableDeclarator` is a core node used by
+   plain Java everywhere, so a core-neutral name is recommended (e.g.
+   `VariableBinding` in `ast.body`), with the new JML node in `ast.jml.expr`
+   extending it. Naming it `JmlQuantifiedVariable` in `ast.jml` would put a core
+   class below a JML class (inverted dependency) — needs a decision.
+2. Concrete node name: `JmlQuantifiedForeachVariable` vs. something shorter
+   (`JmlForeachVariable`) or role-based (`JmlQuantifiedElementVariable`).
+3. Kind 5 (self-index sugar `int i : a[i]`) — include in v1 or defer in favour of
+   `0..a.length-1` (and later `a.indices` sugar)?
+4. Untyped first binding `(\forall e : a; …)` — grammar-ready, inference in M2; or
+   require `var` only?
+5. Range generator element type: always `int`, or promote to `long` when operands
+   are `long`?
+6. Iterable generator domains in SMT/KeY: defer with a clear error — acceptable?
+7. Optional future sugar: `a.indices`, implicit element binder (v1 Option E),
+   `Map` key domains, `String` → `char` domains, `a.first`/`a.last` for
+   `SequencedCollection`.
 
 ## 8. Rejected alternatives (summary)
 
-- Option B `\in` — new token for no benefit.
+- **v1's single `Expression domain` field** — cannot express per-variable domains
+  (`(\forall int i : 0..n, T e : a[i]; …)`, zip); superseded by per-variable
+  binding nodes.
+- Option B `\in` membership binder — new token for no benefit.
 - Option C `a[*]` wildcards — no correlated binders, no existential polarity.
 - Option D implicit index inference — silent magic, fragile tooling.
 - Option E implicit element binder — cannot express distinct-element relations.
-- Separate `JmlElementQuantifiedExpr` AST node — duplicated semantics, doubled churn.
+- Separate `JmlElementQuantifiedExpr` quantifier node — duplicated semantics,
+  doubled churn; the new *variable* node is the right granularity.
+- Extending `VariableDeclarator` with an optional iterable field instead of the
+  abstract parent — would leak a JML-only property into a core node consumed by
+  every Java declaration.
 - Changing the float lexer to "fix" `0.` — not needed (verified, §5) and would break
   Java conformance (`1.` is a legal Java float literal).

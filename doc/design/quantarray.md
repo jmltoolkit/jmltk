@@ -265,6 +265,9 @@ filters, the last part is the body/value):
 
 ## 6. Implementation plan
 
+Executable step-by-step plan (Design F, v4 scope): **`doc/design/quantarray-impl.md`**.
+Milestones for orientation:
+
 ### M1 — core: AST, grammar, print, round-trip
 
 1. `JmlQuantifiedVariable extends VariableDeclarator` with `@OptionalProperty

@@ -223,16 +223,42 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
 
 ## Phase 6 — symbol solver
 
-- [ ] Lemma parameters resolvable inside `expression` and `script` (reuse
+- [x] Lemma parameters resolvable inside `expression` and `script` (reuse
       `MethodDeclaration`-style per-parameter resolution; `JmlLogicType` params
       like `\seq`/`\bigint` must not crash)
-- [ ] `NameResolutionTest`-style expectation (`//?`-file) for
+      (new `JmlLemmaDeclarationContext` in
+      `javaparser-symbol-solver-core/.../contexts/jml/`, registered in
+      `JavaParserFactory#getContext`; it exposes the lemma's `Parameter`s like
+      `MethodContext` does, but cannot reuse
+      `AbstractMethodLikeDeclarationContext` because `JmlLemmaDeclaration` is
+      not a `NodeWithParameters`/`NodeWithTypeParameters` — only parameters are
+      handled, everything else delegates to the enclosing class context.
+      `\seq`/`\bigint` parameter names resolve fine; their *type* computation
+      previously infinite-looped (`JmlLogicType.convertToUsage` → `resolve()` →
+      `toResolvedType()` → `convertToUsage()` → …) and crashed with
+      `StackOverflowError`. `convertToUsage` now throws a clean
+      `UnsolvedSymbolException` — JML logic types have no Java representation,
+      so an unresolved-type problem is the documented resolution failure.)
+- [x] `NameResolutionTest`-style expectation (`//?`-file) for
       `Pred(int i) = i > 0`: `i` resolves to `int` param, body to `boolean`
-- [ ] `use_lemma` proof-command args resolve as ordinary `JmlProofArg`
+      (new fixture `JmlLemmaResolutionTest.java` + `lemmaParameters` test:
+      `name: i@(line 3,col 29) to i@(line 3,col 20)` and `type: i@(line 3,col 29)`)
+- [x] `use_lemma` proof-command args resolve as ordinary `JmlProofArg`
       expressions (`nospace(\array2seq(a))` as a `MethodCallExpr`)
-  - [ ] optional: `JmlLemmaDeclaration` re-exported as a resolvable symbol if a
-        cheap hook exists (model-method symbols); otherwise defer and document
-- [ ] `:jmlparser-symbol-solver-testing:test` + `:jmlparser-jml-tests:test` green
+      (in the fixture: `use_lemma nospace(s, n)` — both `s` and `n` resolve to
+      the lemma's params from inside the `\by {…}` script, even though they sit
+      under a `JmlProofCmdStmt`/`JmlProofArg`/`MethodCallExpr` chain —
+      `AbstractJavaParserContext#getParent` walks through the unregistered
+      proof nodes to the lemma context)
+  - [x] ~~optional: `JmlLemmaDeclaration` re-exported as a resolvable symbol if a
+        cheap hook exists (model-method symbols); otherwise defer and document~~
+      (deferred: the symbol solver has no model-method/method-like declaration
+      adapter for JML (only `JmlJavaParserQuantifiedVariableDeclaration` for
+      bound vars), so there is no cheap hook to hang a lemma symbol re-export on;
+      documented here for a future JavaParser-mirroring design)
+- [x] `:jmlparser-symbol-solver-testing:test` + `:jmlparser-jml-tests:test` green
+      (also `:jmlparser-core:test` + `:jmlparser-core-testing:test` for the
+      `JmlLogicType` change)
 - [ ] commit
 
 ## Phase 7 — M3 backends (no-crash + minimal semantics)

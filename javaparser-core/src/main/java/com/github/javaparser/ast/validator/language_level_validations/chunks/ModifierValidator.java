@@ -9,6 +9,7 @@ import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.LambdaExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.jml.body.JmlFieldDeclaration;
+import com.github.javaparser.ast.jml.body.JmlLemmaDeclaration;
 import com.github.javaparser.ast.modules.ModuleRequiresDirective;
 import com.github.javaparser.ast.nodeTypes.NodeWithModifiers;
 import com.github.javaparser.ast.nodeTypes.NodeWithTokenRange;
@@ -332,6 +333,16 @@ public class ModifierValidator extends VisitorValidator {
                 JML_SPEC_JAVA_MATH,
                 JML_SPEC_SAFE_MATH);
         super.visit(n.getDecl(), reporter);
+    }
+
+    @Override
+    public void visit(JmlLemmaDeclaration n, ProblemReporter reporter) {
+        // Lemmas allow visibility and static/instance markers, and the KeY-style
+        // no_state modifier (e.g. "public static no_state lemma nospace(...)");
+        // the at-most-one-of checks inside validateModifiers also reject 'instance'
+        // together with 'static'.
+        validateModifiers(n, reporter, PUBLIC, PROTECTED, PRIVATE, STATIC, JML_INSTANCE, JML_NO_STATE);
+        super.visit(n, reporter);
     }
 
     @Override

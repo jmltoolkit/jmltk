@@ -345,6 +345,9 @@ keyword node is needed and none exists in the final tree.
     removed, symbol detail is `"Jml lemma (proof script)"`
   - committed as a single follow-up commit (no force-push) and documented in
     `jmltk-changelog.md`
+- [x] Commit: `5515047e3` (`feat(core): lemmas are \by proof-script only — drop
+      = expr and assert forms`), pushed to `weigl/lemmata`; PR #84 description
+      updated to the script-only scope
 
 ## Deferred / open
 

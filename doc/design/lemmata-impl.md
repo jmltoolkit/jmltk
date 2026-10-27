@@ -63,7 +63,9 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
     - `@OptionalProperty JmlLemmaKeyword kind` — the §1a keyword node
       (absent ⇔ `Kind.NONE`); **not** a bare enum
     - `@OptionalProperty Expression expression` (the `= e` / `assert e` definiens)
-    - `@OptionalProperty NodeList<JmlProofStmt> proofScript` (the `\by {…}`)
+    - `@OptionalProperty NodeList<JmlProofStmt> script` (the `\by {…}`;
+      field named `script` so the generator reuses `ObservableProperty.SCRIPT`,
+      mirroring `JmlExpressionStmt`)
   - accessors per the generated-property pattern (`notifyPropertyChange(
     ObservableProperty.…)` + `setAsParentNodeOf(…)`); reuse existing properties
     `KEYWORD`/`KIND`, `NAME`, `MODIFIERS`, `PARAMETERS`, `EXPRESSION`, `SCRIPT`
@@ -160,7 +162,7 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
 
 - [ ] `JmlProcessor.JmlReplaceVisitor` (or the language-level validators):
   - defensive: exactly one body form — kind node must be consistent with the
-    presence of `expression`/`proofScript` (`DEFINITION` ⇔ `=`, `ASSERTION` ⇔
+    presence of `expression`/`script` (`DEFINITION` ⇔ `=`, `ASSERTION` ⇔
     `assert`, `SCRIPT` ⇔ `\by`, `NONE` ⇔ no body); reports a problem on
     hand-built inconsistent trees
   - lemma parameters must be plain (`!parameter.isVarArgs()`, no receiver
@@ -198,7 +200,7 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
 
 ## Phase 6 — symbol solver
 
-- [ ] Lemma parameters resolvable inside `expression` and `proofScript` (reuse
+- [ ] Lemma parameters resolvable inside `expression` and `script` (reuse
       `MethodDeclaration`-style per-parameter resolution; `JmlLogicType` params
       like `\seq`/`\bigint` must not crash)
 - [ ] `NameResolutionTest`-style expectation (`//?`-file) for

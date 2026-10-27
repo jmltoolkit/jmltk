@@ -900,4 +900,14 @@ public abstract class GenericVisitorWithDefaults<R, A> implements GenericVisitor
     public R visit(final JmlProofObtainStmt n, final A arg) {
         return defaultAction(n, arg);
     }
+
+    @Override
+    public R visit(final JmlLemmaDeclaration n, final A arg) {
+        return defaultAction(n, arg);
+    }
+
+    @Override
+    public R visit(final JmlLemmaKeyword n, final A arg) {
+        return defaultAction(n, arg);
+    }
 }

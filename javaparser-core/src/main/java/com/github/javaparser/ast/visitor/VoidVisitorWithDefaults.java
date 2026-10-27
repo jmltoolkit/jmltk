@@ -889,4 +889,14 @@ public abstract class VoidVisitorWithDefaults<A> implements VoidVisitor<A> {
     public void visit(final JmlProofObtainStmt n, final A arg) {
         defaultAction(n, arg);
     }
+
+    @Override
+    public void visit(final JmlLemmaDeclaration n, final A arg) {
+        defaultAction(n, arg);
+    }
+
+    @Override
+    public void visit(final JmlLemmaKeyword n, final A arg) {
+        defaultAction(n, arg);
+    }
 }

@@ -2165,4 +2165,37 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
         n.setComment(comment);
         return n;
     }
+
+    @Override
+    public Visitable visit(final JmlLemmaDeclaration n, final A arg) {
+        NodeList<AnnotationExpr> annotations = modifyList(n.getAnnotations(), arg);
+        NodeList<Modifier> modifiers = modifyList(n.getModifiers(), arg);
+        Expression expression =
+                n.getExpression().map(s -> (Expression) s.accept(this, arg)).orElse(null);
+        NodeList<SimpleName> jmlTags = modifyList(n.getJmlTags(), arg);
+        JmlLemmaKeyword kind =
+                n.getKind().map(s -> (JmlLemmaKeyword) s.accept(this, arg)).orElse(null);
+        SimpleName name = (SimpleName) n.getName().accept(this, arg);
+        NodeList<Parameter> parameters = modifyList(n.getParameters(), arg);
+        NodeList<JmlProofStmt> script = modifyList(n.getScript(), arg);
+        Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
+        if (name == null) return null;
+        n.setAnnotations(annotations);
+        n.setModifiers(modifiers);
+        n.setExpression(expression);
+        n.setJmlTags(jmlTags);
+        n.setKind(kind);
+        n.setName(name);
+        n.setParameters(parameters);
+        n.setScript(script);
+        n.setComment(comment);
+        return n;
+    }
+
+    @Override
+    public Visitable visit(final JmlLemmaKeyword n, final A arg) {
+        Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
+        n.setComment(comment);
+        return n;
+    }
 }

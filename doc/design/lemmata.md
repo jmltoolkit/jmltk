@@ -212,7 +212,7 @@ public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclar
     private NodeList<Parameter> parameters;
     @OptionalProperty private JmlLemmaKeyword kind;               // §5.1
     @OptionalProperty private Expression expression;              // definition/assertion body
-    @OptionalProperty private NodeList<JmlProofStmt> proofScript; // \by {…}
+    @OptionalProperty private NodeList<JmlProofStmt> script; // \by {…}
 }
 ```
 

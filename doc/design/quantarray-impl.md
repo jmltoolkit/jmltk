@@ -239,7 +239,7 @@ Hook: `JmlProcessor.JmlReplaceVisitor` already carries a `ProblemReporter`
 - [x] `tools/wd` `WDVisitor.kt` (~137): domain WD conditions (non-null, purity)
 - [x] `tools/stat` `Statistics.kt`/`StatVisitor.kt`/`JmlStatisticsReporter.kt`:
       count element quantifiers per binder
-- [ ] `tools/lsp` `CodeActionCollector.kt`: no crash on the new node; optional
+- [x] `tools/lsp` `CodeActionCollector.kt`: no crash on the new node; optional
       quick-fix expanding to classic form via the desugarer
 - [ ] Run each tool's test suite
 

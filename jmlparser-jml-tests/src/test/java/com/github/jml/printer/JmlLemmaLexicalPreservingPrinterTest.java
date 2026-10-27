@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 class JmlLemmaLexicalPreservingPrinterTest {
 
     private static final String SOURCE = "class Foo {\n"
-            + "  //@ instance lemma Pred(int i) = i > 0;\n"
             + "  //@ lemma L(int x) \\by { use_lemma nospace(x); auto; };\n"
             + "  void m(int x) {\n"
             + "    //@ assert x > 0 \\by { auto; };\n"

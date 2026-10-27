@@ -1056,18 +1056,11 @@ public class NoCommentHashCodeVisitor implements GenericVisitor<Integer, Void> {
 
     @Override
     public Integer visit(final JmlLemmaDeclaration n, final Void arg) {
-        return (n.getExpression().isPresent() ? n.getExpression().get().accept(this, arg) : 0) * 31
-                + (n.getJmlTags().accept(this, arg)) * 31
-                + (n.getKind().isPresent() ? n.getKind().get().accept(this, arg) : 0) * 31
+        return (n.getJmlTags().accept(this, arg)) * 31
                 + (n.getModifiers().accept(this, arg)) * 31
                 + (n.getName().accept(this, arg)) * 31
                 + (n.getParameters().accept(this, arg)) * 31
-                + (n.getScript().isPresent() ? n.getScript().get().accept(this, arg) : 0) * 31
+                + (n.getScript().accept(this, arg)) * 31
                 + (n.getAnnotations().accept(this, arg));
-    }
-
-    @Override
-    public Integer visit(final JmlLemmaKeyword n, final Void arg) {
-        return (n.getKeyword().hashCode());
     }
 }

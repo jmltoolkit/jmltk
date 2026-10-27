@@ -3237,16 +3237,8 @@ public abstract class GenericVisitorAdapter<R, A> implements GenericVisitor<R, A
     @Override
     public R visit(final JmlLemmaDeclaration n, final A arg) {
         R result;
-        if (n.getExpression().isPresent()) {
-            result = n.getExpression().get().accept(this, arg);
-            if (result != null) return result;
-        }
         {
             result = n.getJmlTags().accept(this, arg);
-            if (result != null) return result;
-        }
-        if (n.getKind().isPresent()) {
-            result = n.getKind().get().accept(this, arg);
             if (result != null) return result;
         }
         {
@@ -3261,24 +3253,14 @@ public abstract class GenericVisitorAdapter<R, A> implements GenericVisitor<R, A
             result = n.getParameters().accept(this, arg);
             if (result != null) return result;
         }
-        if (n.getScript().isPresent()) {
-            result = n.getScript().get().accept(this, arg);
+        {
+            result = n.getScript().accept(this, arg);
             if (result != null) return result;
         }
         {
             result = n.getAnnotations().accept(this, arg);
             if (result != null) return result;
         }
-        if (n.getComment().isPresent()) {
-            result = n.getComment().get().accept(this, arg);
-            if (result != null) return result;
-        }
-        return null;
-    }
-
-    @Override
-    public R visit(final JmlLemmaKeyword n, final A arg) {
-        R result;
         if (n.getComment().isPresent()) {
             result = n.getComment().get().accept(this, arg);
             if (result != null) return result;

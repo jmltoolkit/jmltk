@@ -1182,12 +1182,6 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     }
 
     @Override
-    public void visit(JmlLemmaKeyword n, Void arg) {
-        printOrphanCommentsBeforeThisChildNode(n);
-        printer.print(n.jmlSymbol());
-    }
-
-    @Override
     public void visit(JmlLemmaDeclaration n, Void arg) {
         printOrphanCommentsBeforeThisChildNode(n);
         wrapInJmlIfNeeded(() -> {
@@ -1196,26 +1190,8 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
             n.getName().accept(this, arg);
             printer.print("(");
             printList(n.getParameters(), ", ");
-            printer.print(") ");
-            n.getKind().ifPresent(kind -> {
-                switch (kind.getKeyword()) {
-                    case DEFINITION:
-                        printer.print("= ");
-                        n.getExpression().ifPresent(expr -> expr.accept(this, arg));
-                        break;
-                    case ASSERTION:
-                        printer.print("assert ");
-                        n.getExpression().ifPresent(expr -> expr.accept(this, arg));
-                        n.getScript().ifPresent(this::printSuffix);
-                        break;
-                    case SCRIPT:
-                        n.getScript().ifPresent(this::printSuffix);
-                        break;
-                    default:
-                        throw new IllegalStateException("Unexpected lemma kind: " + kind.getKeyword());
-                }
-            });
-            printer.print(";");
+            printer.print(")");
+            printSuffix(n.getScript());
         });
     }
 

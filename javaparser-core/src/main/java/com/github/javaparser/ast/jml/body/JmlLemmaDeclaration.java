@@ -7,7 +7,6 @@ package com.github.javaparser.ast.jml.body;
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.Parameter;
-import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.jml.proof.JmlProofStmt;
 import com.github.javaparser.ast.nodeTypes.NodeWithModifiers;
@@ -18,9 +17,7 @@ import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlLemmaDeclarationMetaModel;
-import com.github.javaparser.metamodel.OptionalProperty;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -29,27 +26,17 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
- * A JML class-body {@code lemma} declaration, e.g.
+ * A JML class-body {@code lemma} declaration carrying a KeY-style proof script,
+ * e.g.
  *
  * <pre>{@code
- * //@ instance lemma Pred(int i) = i > 0;
  * //@ public static no_state lemma nospace(\seq s) \by { oss; auto; };
- * //@ lemma P(int i) assert i > 0 \by { auto; };
- * //@ lemma helper();
+ * //@ lemma L(int x) \by { use_lemma nospace(x); auto; };
  * }</pre>
  *
- * <p>The body form is captured by {@link #getKind()}: a {@link JmlLemmaKeyword}
- * node whose {@link JmlLemmaKeyword.Kind} discriminates
- * <ul>
- *   <li>{@link JmlLemmaKeyword.Kind#DEFINITION} &mdash; {@code = expr} (defines the
- *       lemma name as a shorthand for the predicate, also stored in
- *       {@link #getExpression()}),
- *   <li>{@link JmlLemmaKeyword.Kind#ASSERTION} &mdash; {@code assert expr [\by {…}]},
- *   <li>{@link JmlLemmaKeyword.Kind#SCRIPT} &mdash; {@code \by {…}} with no
- *       expression, and
- *   <li>no connector at all (axiom-style {@code lemma helper();}), in which case
- *       {@link #getKind()} is empty.
- * </ul>
+ * <p>The {@code \by {…}} script is mandatory (mirroring KeY's
+ * {@code assertionProof: BY (proofCmd | LBRACE (proofCmd)+ RBRACE)}); its
+ * statements are stored in {@link #getScript()}.
  *
  * <p>Note: {@code lemma} is also used on the KeY side as a modifier on method
  * declarations; here it is a grammar keyword of this declaration form, not a
@@ -66,13 +53,6 @@ public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclar
 
     private NodeList<Parameter> parameters;
 
-    @OptionalProperty
-    private JmlLemmaKeyword kind;
-
-    @OptionalProperty
-    private Expression expression;
-
-    @OptionalProperty
     private NodeList<JmlProofStmt> script;
 
     public JmlLemmaDeclaration() {
@@ -85,10 +65,8 @@ public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclar
             NodeList<Modifier> modifiers,
             SimpleName name,
             NodeList<Parameter> parameters,
-            JmlLemmaKeyword kind,
-            Expression expression,
             NodeList<JmlProofStmt> script) {
-        this(null, jmlTags, modifiers, name, parameters, kind, expression, script);
+        this(null, jmlTags, modifiers, name, parameters, script);
     }
 
     /**
@@ -101,16 +79,12 @@ public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclar
             NodeList<Modifier> modifiers,
             SimpleName name,
             NodeList<Parameter> parameters,
-            JmlLemmaKeyword kind,
-            Expression expression,
             NodeList<JmlProofStmt> script) {
         super(tokenRange);
         setJmlTags(jmlTags);
         setModifiers(modifiers);
         setName(name);
         setParameters(parameters);
-        setKind(kind);
-        setExpression(expression);
         setScript(script);
         customInitialization();
     }
@@ -133,21 +107,9 @@ public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclar
         if (node == null) {
             return false;
         }
-        if (expression != null) {
-            if (node == expression) {
-                removeExpression();
-                return true;
-            }
-        }
         for (int i = 0; i < jmlTags.size(); i++) {
             if (jmlTags.get(i) == node) {
                 jmlTags.remove(i);
-                return true;
-            }
-        }
-        if (kind != null) {
-            if (node == kind) {
-                removeKind();
                 return true;
             }
         }
@@ -163,12 +125,10 @@ public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclar
                 return true;
             }
         }
-        if (script != null) {
-            for (int i = 0; i < script.size(); i++) {
-                if (script.get(i) == node) {
-                    script.remove(i);
-                    return true;
-                }
+        for (int i = 0; i < script.size(); i++) {
+            if (script.get(i) == node) {
+                script.remove(i);
+                return true;
             }
         }
         return super.remove(node);
@@ -180,21 +140,9 @@ public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclar
         if (node == null) {
             return false;
         }
-        if (expression != null) {
-            if (node == expression) {
-                setExpression((Expression) replacementNode);
-                return true;
-            }
-        }
         for (int i = 0; i < jmlTags.size(); i++) {
             if (jmlTags.get(i) == node) {
                 jmlTags.set(i, (SimpleName) replacementNode);
-                return true;
-            }
-        }
-        if (kind != null) {
-            if (node == kind) {
-                setKind((JmlLemmaKeyword) replacementNode);
                 return true;
             }
         }
@@ -214,12 +162,10 @@ public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclar
                 return true;
             }
         }
-        if (script != null) {
-            for (int i = 0; i < script.size(); i++) {
-                if (script.get(i) == node) {
-                    script.set(i, (JmlProofStmt) replacementNode);
-                    return true;
-                }
+        for (int i = 0; i < script.size(); i++) {
+            if (script.get(i) == node) {
+                script.set(i, (JmlProofStmt) replacementNode);
+                return true;
             }
         }
         return super.replace(node, replacementNode);
@@ -305,56 +251,13 @@ public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclar
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Optional<JmlLemmaKeyword> getKind() {
-        return Optional.ofNullable(kind);
+    public NodeList<JmlProofStmt> getScript() {
+        return script;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlLemmaDeclaration setKind(final @Nullable() JmlLemmaKeyword kind) {
-        if (kind == this.kind) {
-            return this;
-        }
-        notifyPropertyChange(ObservableProperty.KIND, this.kind, kind);
-        if (this.kind != null) this.kind.setParentNode(null);
-        this.kind = kind;
-        setAsParentNodeOf(kind);
-        return this;
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
-    public JmlLemmaDeclaration removeKind() {
-        return setKind((JmlLemmaKeyword) null);
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Optional<Expression> getExpression() {
-        return Optional.ofNullable(expression);
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlLemmaDeclaration setExpression(final @Nullable() Expression expression) {
-        if (expression == this.expression) {
-            return this;
-        }
-        notifyPropertyChange(ObservableProperty.EXPRESSION, this.expression, expression);
-        if (this.expression != null) this.expression.setParentNode(null);
-        this.expression = expression;
-        setAsParentNodeOf(expression);
-        return this;
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
-    public JmlLemmaDeclaration removeExpression() {
-        return setExpression((Expression) null);
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Optional<NodeList<JmlProofStmt>> getScript() {
-        return Optional.ofNullable(script);
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlLemmaDeclaration setScript(final @Nullable() NodeList<JmlProofStmt> script) {
+    public JmlLemmaDeclaration setScript(final @NonNull() NodeList<JmlProofStmt> script) {
+        assertNotNull(script);
         if (script == this.script) {
             return this;
         }
@@ -363,11 +266,6 @@ public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclar
         this.script = script;
         setAsParentNodeOf(script);
         return this;
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
-    public JmlLemmaDeclaration removeScript() {
-        return setScript((NodeList<JmlProofStmt>) null);
     }
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
@@ -396,20 +294,8 @@ public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclar
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @Nullable() JmlLemmaKeyword kind() {
-        return kind;
-    }
-
-    @com.github.javaparser.ast.key.IgnoreLexPrinting()
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @Nullable() Expression expression() {
-        return expression;
-    }
-
-    @com.github.javaparser.ast.key.IgnoreLexPrinting()
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @Nullable() NodeList<JmlProofStmt> script() {
-        return script;
+    public @NonNull() NodeList<JmlProofStmt> script() {
+        return Objects.requireNonNull(script);
     }
 
     @Override

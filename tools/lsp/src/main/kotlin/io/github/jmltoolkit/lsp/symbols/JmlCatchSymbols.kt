@@ -177,7 +177,7 @@ class JmlCatchSymbols : GenericVisitorAdapter<MutableList<DocumentSymbol>?, Unit
                 n.name.asString(),
                 SymbolKind.Function,
                 n.asRange, n.asRange,
-                "Jml lemma (${n.kind.map { it.jmlSymbol() }.orElse("axiom")})",
+                "Jml lemma (proof script)",
                 listOf()
             )
         )

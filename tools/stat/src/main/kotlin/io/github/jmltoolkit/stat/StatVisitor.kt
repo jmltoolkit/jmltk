@@ -146,7 +146,6 @@ class StatVisitor(
             val e = newElement(arg, "jml-lemma")
             e.setAttribute("name", n.name.asString())
             setModifierAsAttributes(n, e)
-            n.expression.ifPresent { e.appendChild(getExpressionStat(it)) }
         }
         super.visit(n, arg)
     }

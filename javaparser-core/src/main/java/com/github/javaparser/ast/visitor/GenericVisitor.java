@@ -378,6 +378,4 @@ public interface GenericVisitor<R, A> {
     R visit(JmlProofObtainStmt n, A arg);
 
     R visit(JmlLemmaDeclaration n, A arg);
-
-    R visit(JmlLemmaKeyword n, A arg);
 }

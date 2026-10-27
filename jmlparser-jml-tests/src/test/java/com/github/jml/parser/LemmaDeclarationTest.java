@@ -11,7 +11,6 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.jml.body.JmlLemmaDeclaration;
-import com.github.javaparser.ast.jml.body.JmlLemmaKeyword;
 import com.github.javaparser.ast.jml.proof.JmlProofArg;
 import com.github.javaparser.ast.jml.proof.JmlProofCmdStmt;
 import org.junit.jupiter.api.Assertions;
@@ -24,10 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@code use_lemma} proof command, e.g.
  *
  * <pre>{@code
- * //@ instance lemma Pred(int i) = i > 0;
- * //@ lemma P(int i) assert i > 0 \by { auto; };
- * //@ lemma nospace(\seq s) \by { use_lemma nospace(x); auto; };
- * //@ lemma helper();
+ * //@ public static no_state lemma nospace(\seq s) \by { use_lemma nospace(x); auto; };
  * }</pre>
  */
 class LemmaDeclarationTest {
@@ -49,43 +45,10 @@ class LemmaDeclarationTest {
     }
 
     @Test
-    void definitionForm() {
-        JmlLemmaDeclaration d = parseLemma("instance lemma Pred(int i) = i > 0;");
-        assertThat(d.getName().asString()).isEqualTo("Pred");
-        assertThat(d.getKind()).isPresent();
-        assertThat(d.getKind().orElseThrow().getKeyword()).isEqualTo(JmlLemmaKeyword.Kind.DEFINITION);
-        // the kind node keeps the position of the '=' keyword
-        assertThat(d.getKind().orElseThrow().getRange()).isPresent();
-        assertThat(d.getExpression()).isPresent();
-        assertThat(d.getScript()).isEmpty();
-        assertThat(d.getModifiers())
-                .extracting(Modifier::getKeyword)
-                .containsExactly(Modifier.DefaultKeyword.JML_INSTANCE);
-    }
-
-    @Test
-    void assertionForm() {
-        JmlLemmaDeclaration d = parseLemma("lemma P(int i) assert i > 0 \\by { auto; };");
-        assertThat(d.getKind().orElseThrow().getKeyword()).isEqualTo(JmlLemmaKeyword.Kind.ASSERTION);
-        assertThat(d.getExpression()).isPresent();
-        assertThat(d.getScript()).isPresent();
-        assertThat(d.getScript().orElseThrow()).hasSize(1);
-    }
-
-    @Test
-    void assertionFormWithoutScript() {
-        JmlLemmaDeclaration d = parseLemma("lemma P(int i) assert i > 0;");
-        assertThat(d.getKind().orElseThrow().getKeyword()).isEqualTo(JmlLemmaKeyword.Kind.ASSERTION);
-        assertThat(d.getScript()).isEmpty();
-    }
-
-    @Test
     void scriptForm() {
         JmlLemmaDeclaration d = parseLemma("public static no_state lemma nospace(\\seq s) \\by { oss; auto; };");
         assertThat(d.getName().asString()).isEqualTo("nospace");
-        assertThat(d.getKind().orElseThrow().getKeyword()).isEqualTo(JmlLemmaKeyword.Kind.SCRIPT);
-        assertThat(d.getExpression()).isEmpty();
-        assertThat(d.getScript()).hasValueSatisfying(s -> assertThat(s).hasSize(2));
+        assertThat(d.getScript()).hasSize(2);
         assertThat(d.getModifiers())
                 .extracting(Modifier::getKeyword)
                 .containsExactly(
@@ -95,17 +58,16 @@ class LemmaDeclarationTest {
     }
 
     @Test
-    void bareAxiomForm() {
-        JmlLemmaDeclaration d = parseLemma("lemma helper();");
-        assertThat(d.getKind()).isEmpty();
-        assertThat(d.getExpression()).isEmpty();
-        assertThat(d.getScript()).isEmpty();
+    void singleProofScriptStatement() {
+        JmlLemmaDeclaration d = parseLemma("lemma L(int x) \\by { auto; };");
+        assertThat(d.getScript()).hasSize(1);
+        assertThat(d.getScript().getFirst()).isInstanceOf(JmlProofCmdStmt.class);
     }
 
     @Test
     void useLemmaInsideScriptIsProofCommand() {
         JmlLemmaDeclaration d = parseLemma("lemma L(int x) \\by { use_lemma nospace(x); auto; };");
-        JmlProofCmdStmt use = (JmlProofCmdStmt) d.getScript().orElseThrow().getFirst();
+        JmlProofCmdStmt use = (JmlProofCmdStmt) d.getScript().getFirst();
         assertThat(use.getName().asString()).isEqualTo("use_lemma");
         assertThat(use.getArgs()).hasSize(1);
         JmlProofArg arg = use.getArgs().getFirst();
@@ -115,17 +77,28 @@ class LemmaDeclarationTest {
     }
 
     @Test
-    void negativeDoubleEqualsIsNotADefinition() {
-        assertThat(parse("lemma P(int i) == i > 0;").isSuccessful()).isFalse();
+    void negativeDefinitionalFormIsRejected() {
+        assertThat(parse("lemma P(int i) = i > 0;").isSuccessful()).isFalse();
+    }
+
+    @Test
+    void negativeAssertedFormIsRejected() {
+        assertThat(parse("lemma P(int i) assert i > 0 \\by { auto; };").isSuccessful())
+                .isFalse();
+    }
+
+    @Test
+    void negativeMissingByScript() {
+        assertThat(parse("lemma helper();").isSuccessful()).isFalse();
     }
 
     @Test
     void negativeMissingSemicolon() {
-        assertThat(parse("lemma P(int i) = i > 0").isSuccessful()).isFalse();
+        assertThat(parse("lemma P(int i) \\by { auto; }").isSuccessful()).isFalse();
     }
 
     @Test
     void negativeLemmaWithoutName() {
-        assertThat(parse("lemma (int i) = i > 0;").isSuccessful()).isFalse();
+        assertThat(parse("lemma (int i) \\by { auto; };").isSuccessful()).isFalse();
     }
 }

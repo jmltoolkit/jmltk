@@ -7965,30 +7965,19 @@ JmlClassLevelDeclaration JmlClassExpr(ModifierHolder modifiers):
 JmlClassLevelDeclaration JmlLemmaDeclaration(ModifierHolder modifier):
 {
     JavaToken begin;
-    JavaToken kwToken;
     SimpleName name;
     Pair<NodeList<Parameter>, ReceiverParameter> params;
-    JmlLemmaKeyword kind = null;  // Node wrapping the Kind enum; absent for bare axiom-style lemmas
-    Expression expr = null;
-    NodeList<JmlProofStmt> script = null;
+    NodeList<JmlProofStmt> script;
 }
 {
     <LEMMA> { begin = orIfInvalid(modifier.begin, token()); }
     name = SimpleName()
     params = Parameters()
-    (
-      "=" { kwToken = token(); } expr = Expression()
-        { kind = new JmlLemmaKeyword(range(kwToken, kwToken), JmlLemmaKeyword.Kind.DEFINITION); }
-    | <JML_ASSERT> { kwToken = token(); } expr = Expression()
-      [ <BY> script = JmlProofBlock() ]
-        { kind = new JmlLemmaKeyword(range(kwToken, kwToken), JmlLemmaKeyword.Kind.ASSERTION); }
-    | <BY> { kwToken = token(); } script = JmlProofBlock()
-        { kind = new JmlLemmaKeyword(range(kwToken, kwToken), JmlLemmaKeyword.Kind.SCRIPT); }
-    )?  // bare axiom-style lemma: no body, kind stays null
+    <BY> script = JmlProofBlock()   // proof script is mandatory (KeY assertionProof: BY (...))
     ";"
     {
         return new JmlLemmaDeclaration(range(begin, token()),
-            new NodeList<>(), modifier.modifiers, name, params.a, kind, expr, script);
+            new NodeList<>(), modifier.modifiers, name, params.a, script);
     }
 }
 

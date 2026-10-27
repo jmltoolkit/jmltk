@@ -550,7 +550,7 @@ internal class JmlStatisticsReporterTest {
     fun testLemmaCounting() {
         val code = """
             class MyClass {
-                //@ lemma Pred(int i) = i > 0;
+                //@ lemma Pred(int i) \by { auto; };
                 //@ lemma nospace(\seq s) \by { use_lemma nospace(s); auto; };
             }
 

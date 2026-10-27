@@ -87,9 +87,12 @@ bodies use:
 
 In scope for JMLtk:
 
-1. `lemma` class-body declarations (`JmlLemmaDeclaration`) — including the
-   definitional form `lemma Pred(int i) = i > 0` requested independently, the
-   KeY script form `lemma nospace(\seq s) \by {…}`, and the `assert`-style form.
+1. `lemma` class-body declarations (`JmlLemmaDeclaration`) in the KeY proof-script form
+   `lemma Name(params) \by {…}`. Note: KeY's grammar is
+   `lemma_declaration: LEMMA IDENT param_list assertionProof SEMI_TOPLEVEL` with
+   `assertionProof: BY (proofCmd | LBRACE (proofCmd)+ RBRACE)` — the `\by` script
+   is **mandatory**. The definitional `lemma Pred(int i) = i > 0` and asserted
+   `lemma … assert e` forms are deliberately **not** ported in this PR.
 2. `use_lemma` **proof command** inside `\by {…}` scripts, parsed the way
    `obtain` is parsed (contextual keyword, no new lexer token), producing a
    `JmlProofCmdStmt`.
@@ -106,16 +109,12 @@ Out of scope *by decision*:
 - The KeY-internal machinery (use_lemma proof *rule*, script macros, KeY's own
   `UseLemmaStatement` AST, `ProgramMethod.isLemma()`, KeY pretty-printing).
 
-## 4. Syntax (JMLtk superset of the KeY rules)
+## 4. Syntax (KeY `lemma_declaration` — proof-script form only)
 
 ```java
-//@ instance lemma Pred(int i) = i > 0;                      // definitional
-//@ lemma Pred(int i) assert i > 0;                          // asserted, no script
-//@ lemma Pred(int i) assert i > 0 \by { auto; };            // asserted + proof
 //@ static no_state lemma nospace(\seq s) \by {
 //@   oss; use_lemma nospace(t); …                           // use_lemma proof command
 //@ };
-//@ lemma helper();                                          // bare (axiom-style)
 ```
 
 Grammar sketch (javacc):
@@ -127,26 +126,16 @@ Grammar sketch (javacc):
 JmlClassLevelDeclaration JmlLemmaDeclaration(ModifierHolder modifier):
 {
     SimpleName name; NodeList<Parameter> params;
-    JmlLemmaKeyword kind = null;                  // Node wrapping the Kind enum
-    Expression expr = null; NodeList<JmlProofStmt> script = null;
+    NodeList<JmlProofStmt> script;
 }
 {
     <LEMMA>
     name = SimpleName()
     params = Parameters()
-    (
-      "=" expr = Expression()
-        { kind = new JmlLemmaKeyword(range(token(), token()), JmlLemmaKeyword.Kind.DEFINITION); }
-    | <JML_ASSERT> expr = Expression()
-      [ <BY> script = JmlProofBlock() ]
-        { kind = new JmlLemmaKeyword(tokenRange(), JmlLemmaKeyword.Kind.ASSERTION); }
-    | <BY> script = JmlProofBlock()
-        { kind = new JmlLemmaKeyword(tokenRange(), JmlLemmaKeyword.Kind.SCRIPT); }
-    | {}                                          // bare axiom-style lemma
-    )
+    <BY> script = JmlProofBlock()     // mandatory (KeY assertionProof: BY (...))
     ";"
     { return new JmlLemmaDeclaration(range(modifier.begin, token()),
-          modifier.modifiers, name, params, kind, expr, script); }
+          modifier.modifiers, name, params, script); }
 }
 ```
 
@@ -169,36 +158,13 @@ Note: no `USE_LEMMA` lexer token, no `JmlStmtKind.USE_LEMMA`, no entry in
 
 ## 5. AST design
 
-### 5.1 `JmlLemmaKeyword` — keyword node with position (kind)
+### 5.1 No body-form keyword node
 
-New small AST node in `ast/jml/body`, mirroring `Modifier` (a node wrapping a
-keyword enum) rather than a bare enum like `JmlClauseKind`/`JmlBodyClauseKind`:
-
-```
-public class JmlLemmaKeyword extends Node implements Jmlish, JmlKeyword, NodeWithRange<JmlLemmaKeyword> {
-
-    public enum Kind implements JmlKeyword {
-        DEFINITION("="),          // lemma P(...) = e;
-        ASSERTION("assert"),      // lemma P(...) assert e [\by {...}];
-        SCRIPT("\\by"),           // lemma P(...) \by {...};
-        NONE;                     // bare axiom-style lemma P(...);
-    }
-
-    private Kind keyword;          // ObservableProperty.KEYWORD (as in Modifier)
-    // getKeyword()/setKeyword(); jmlSymbol() delegates to keyword
-}
-```
-
-- The node's `TokenRange` records the position of the body-form keyword
-  (`=`, `assert`, `\by`) — otherwise that position is lost, because the
-  declaration's own range starts at the *modifiers*, well before the connector.
-- `JmlLemmaDeclaration` holds `@OptionalProperty JmlLemmaKeyword kind;`
-  (absent ⇔ `Kind.NONE`).
-- Registered in `MetaModelGenerator.ALL_NODE_CLASSES` (parent `Node`),
-  generated accessors/visitors via `run-generators.sh`. Consumers read
-  `getKind()` (node) / `getKind().getKeyword()` (enum) / `getKind().getRange()`
-  (position). Naming mirrors `Modifier + DefaultKeyword` (user:
-  "JmlClauseKind-style keyword").
+Unlike `Modifier`/`DefaultKeyword`, no dedicated keyword node exists for the
+lemma body form: the grammar accepts only the Mandatory `\by {…}` script, so
+there is nothing to discriminate. (An earlier draft had a `JmlLemmaKeyword`
+node wrapping a `DEFINITION`/`ASSERTION`/`SCRIPT` enum — removed when the
+`= expr` and `assert e` forms were dropped.)
 
 ### 5.2 `JmlLemmaDeclaration` — `ast/jml/body`
 
@@ -210,16 +176,14 @@ public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclar
     private NodeList<Modifier> modifiers;
     private SimpleName name;
     private NodeList<Parameter> parameters;
-    @OptionalProperty private JmlLemmaKeyword kind;               // §5.1
-    @OptionalProperty private Expression expression;              // definition/assertion body
-    @OptionalProperty private NodeList<JmlProofStmt> script; // \by {…}
+    private NodeList<JmlProofStmt> script;       // \by {…} — mandatory
 }
 ```
 
-- Mirrors `JmlClassExprDeclaration` (modifiers + name + kind) plus the
-  `JmlExpressionStmt` shape (expression + optional script).
-- All observable properties already exist (`KEYWORD`/`KIND`, `NAME`,
-  `MODIFIERS`, `PARAMETERS`, `EXPRESSION`, `SCRIPT`) — none are new.
+- Mirrors `JmlClassExprDeclaration` (modifiers + name) plus the `JmlExpressionStmt`
+  shape; the `script` list is the sole body property.
+- All observable properties already exist (`NAME`, `MODIFIERS`, `PARAMETERS`,
+  `SCRIPT`) — none are new.
 - As learned in the quantarray port: no `TypeCastingGenerator` methods appear on
   `JmlClassLevelDeclaration` (only the six base nodes get casts) — consumers use
   `instanceof`.
@@ -242,14 +206,9 @@ unchanged.
 
 ## 6. Semantics
 
-- `lemma Name(params) = e;` asserts the JML predicate `e` and *defines* the name
-  `Name` as a shorthand for the predicate (params universally quantified over
-  the enclosing state). `instance` (non-static) reads the receiver's state.
-- `lemma Name(params) \by {s};` / `assert e \by {s};` — the script is the lemma's
-  proof; the lemma becomes available as an assumption when expanded
-  (`use_lemma …` inside a script cuts on the lemma call and runs its script).
-- Bare `lemma Name(params);` behaves like the existing `axiom evenSumLemma();`
-  pattern — a named, assumed lemma.
+- `lemma Name(params) \by {s};` — the script is the lemma's proof; the lemma
+  becomes available as an assumption when expanded (`use_lemma …` inside a
+  script cuts on the lemma call and runs its script).
 - `use_lemma f(args);` (proof command) expands to an assumption `f(args)`.
   Operand is a call expression (`MethodCallExpr`); validated at
   resolution/lint time, not parse time.
@@ -259,7 +218,7 @@ unchanged.
 | KeY PR change | JMLtk port |
 |---|---|
 | `LEMMA` token | new `<LEMMA: "lemma">` lexer rule (JML token region) + `TokenTypes` KEYWORD classification |
-| `lemma_declaration` | `JmlLemmaKeyword` node + `JmlLemmaDeclaration` (Phases 1) + `JmlLemmaDeclaration(ModifierHolder)` production (Phase 2) + CSM/printer (Phase 3) + validation (Phase 4) |
+| `lemma_declaration` | `JmlLemmaDeclaration` (Phases 1) + `JmlLemmaDeclaration(ModifierHolder)` production with mandatory `\by` (Phase 2) + CSM/printer (Phase 3) + validation (Phase 4) |
 | `USE_LEMMA` token | **none** — `use_lemma` stays an identifier, parsed contextually like `obtain` (§4) |
 | `use_lemma_statement` (method-level) | **deferred by decision** (§3); only the proof-command form is ported |
 | `use_lemma` proof command | contextual branch in the proof-command production → `JmlProofCmdStmt` (Phase 2) |
@@ -272,10 +231,11 @@ unchanged.
 
 - parse + CSM round-trip + `LexicalPreservingPrinter` round-trip tests;
 - corpus fixture `fullexamples/tested/Lemmas.java` (a miniature of the
-  VerifyThis 2025.1 `MinExcludant0` example): `instance lemma … = …`, a
-  `\by`-script lemma whose script *contains* `use_lemma`, an `assert … \by {…}`
-  with a proof script, inside declared methods (lemma + normal method);
-- negative parse/validation cases (e.g. `lemma P(int i) == i > 0;`);
+  VerifyThis 2025.1 `MinExcludant0` example): `\by`-script lemmas (one whose
+  script contains `use_lemma`), an `assert … \by {…}` with a proof script,
+  inside declared methods (lemma + normal method);
+- negative parse/validation cases (missing `\by`, `lemma … = expr;` /
+  `lemma … assert e;` rejected, `lemma P(int i) == i > 0;`);
 - `TokenTypesTest` (new `LEMMA` token classified), `ConcreteSyntaxModelTest`,
   full corpus (`FragmentTest`, `FullExamplesTest`) green;
 - backends: no-crash + minimal semantics (stat/LSP/wd), jml2java/smt no-op.

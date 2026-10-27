@@ -1,4 +1,2 @@
-lemma Pred(int i) = i > 0;
-lemma P(int i) assert i > 0 \by {auto;};
 lemma nospace(\seq s) \by {oss; use_lemma nospace(x); auto;};
-lemma helper();
+lemma L(int x) \by {auto;};

@@ -374,6 +374,4 @@ public interface VoidVisitor<A> {
     void visit(JmlProofObtainStmt n, A arg);
 
     void visit(JmlLemmaDeclaration n, A arg);
-
-    void visit(JmlLemmaKeyword n, A arg);
 }

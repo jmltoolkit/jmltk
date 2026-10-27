@@ -1,0 +1,3 @@
+// Origin: /home/weigl/work/javaparser/jmlparser-jml-tests/src/test/resources/fullexamples/tested/QuantArray.java@(line 6,col 5)
+requires a != null;
+ensures (\forall int e : a; e >= 0);

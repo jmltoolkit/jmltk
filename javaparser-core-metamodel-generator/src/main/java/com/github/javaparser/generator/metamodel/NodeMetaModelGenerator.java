@@ -55,7 +55,8 @@ public class NodeMetaModelGenerator extends AbstractGenerator {
             NodeList<Statement> initializeNodeMetaModelsStatements,
             NodeList<Statement> initializePropertyMetaModelsStatements,
             NodeList<Statement> initializeConstructorParametersStatements,
-            SourceRoot sourceRoot)
+            SourceRoot sourceRoot,
+            boolean hasSubclasses)
             throws NoSuchMethodException {
         metaModelCoid.setJavadocComment(GENERATED_JAVADOC_COMMENT);
 
@@ -117,7 +118,10 @@ public class NodeMetaModelGenerator extends AbstractGenerator {
         annotateGenerated(classMMConstructor);
 
         // ?Abstract protected constructor?
-        if (typeAnalysis.isAbstract) {
+        // Generated for abstract nodes always, and for concrete nodes that have subclasses
+        // (their subclasses' meta models need the "full" constructor to pass their own
+        // class/name/package up to BaseNodeMetaModel).
+        if (typeAnalysis.isAbstract || hasSubclasses) {
             classMetaModelJavaFile.addImport(Node.class);
             BodyDeclaration<?> bodyDeclaration = parseBodyDeclaration(f(
                     "protected %s(Optional<%s> superNodeMetaModel, Class<? extends Node> type, String name, String packageName, boolean isAbstract, boolean hasWildcard) {"

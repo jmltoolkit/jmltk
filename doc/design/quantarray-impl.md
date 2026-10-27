@@ -16,7 +16,7 @@ Rules that apply throughout:
 
 ## Phase 1 — AST node
 
-- [ ] Create `javaparser-core/src/main/java/com/github/javaparser/ast/jml/expr/JmlQuantifiedVariable.java`:
+- [x] Create `javaparser-core/src/main/java/com/github/javaparser/ast/jml/expr/JmlQuantifiedVariable.java`:
   - `public class JmlQuantifiedVariable extends VariableDeclarator` (ast.body)
   - `@OptionalProperty private Expression iterable;`
   - accessors following the generated-property pattern:
@@ -28,15 +28,44 @@ Rules that apply throughout:
     tell you if an inherited property is missing/extra)
   - Javadoc with syntax examples (AGENTS.md requirement), e.g.
     `(\forall int e : a; e > 0)`
-- [ ] Register `JmlQuantifiedVariable.class` in `MetaModelGenerator.ALL_NODE_CLASSES`
+- [x] Register `JmlQuantifiedVariable.class` in `MetaModelGenerator.ALL_NODE_CLASSES`
       (after `VariableDeclarator.class`, which sits at line ~100; the JML block at
       ~197–204 is a valid position — parents must precede children)
-- [ ] `./scripts/run-generators.sh` → expect: `JmlQuantifiedVariableMetaModel`
+- [x] `./scripts/run-generators.sh` → expect: `JmlQuantifiedVariableMetaModel`
       (child of `VariableDeclaratorMetaModel`), `ObservableProperty.ITERABLE`,
       `visit(JmlQuantifiedVariable)` in all generated visitors,
       `isJmlQuantifiedVariable()` casting on `VariableDeclarator`
       (precedent: `Expression.isJmlQuantifiedExpr()`)
-- [ ] `./gradlew compileJava` green
+- [x] `./gradlew compileJava` green
+
+  Notes from the run (divergences from the plan, all positive):
+  - a **generator fix** was required first: `NodeMetaModelGenerator` only emits the
+    protected 6-arg metamodel constructor for *abstract* nodes; `VariableDeclarator`
+    is the first *concrete* node to gain a subclass, so `MetaModelGenerator` now
+    computes the set of direct superclasses in `ALL_NODE_CLASSES` and passes
+    `hasSubclasses` down (both generator files changed; `VariableDeclaratorMetaModel`
+    gains the 6-arg constructor, `JmlQuantifiedVariableMetaModel` inherits it);
+  - **no casting methods** are generated onto `VariableDeclarator`: the
+    `TypeCastingGenerator` only targets the six base nodes
+    (statement/expression/type/moduleDirective/bodyDeclaration/comment), so the
+    design-doc prediction `VariableDeclarator.isJmlQuantifiedVariable()` does not
+    hold — consumers use `instanceof JmlQuantifiedVariable` (already the design's
+    operating rule: "instanceof only where iterables matter");
+  - the printers were pulled forward: `visit(JmlQuantifiedVariable)` had to be added
+    to `DefaultPrettyPrinterVisitor` (real per-binding implementation:
+    `type name : iterable`; bound lists skip the common-type scheme) and
+    `PrettyPrintVisitor` (legacy JML-less stub) to fix the post-generation compile
+    (CONTRIBUTING step 3→4); `DefaultVisitorAdapter` (symbol-solver) got the
+    throwing stub too;
+  - `customInitialization()` is overridden to a no-op: the inherited observer kept
+    `MAXIMUM_COMMON_TYPE` of the parent `NodeWithVariables` in sync (irrelevant for
+    iterable-bound bindings) and would have been registered twice since both
+    constructor chains call `customInitialization()`;
+  - environment note: the build must run on **JDK 21** (CI's version); on JDK 27 the
+    palantir-java-format lint inside `spotlessApply` fails
+    (`JCCompilationUnit.endPositions` NoSuchFieldError). Use
+    `JAVA_HOME=$HOME/.gradle/jdks/eclipse_adoptium-21-amd64-linux.2` (provisioned
+    toolchain) for the generator/spotless/build commands.
 
 ## Phase 2 — grammar
 

@@ -69,7 +69,7 @@ Rules that apply throughout:
 
 ## Phase 2 — grammar
 
-- [ ] `javaparser-core/src/main/javacc/java.jj`, quantifier alternative in
+- [x] `javaparser-core/src/main/javacc/java.jj`, quantifier alternative in
       `JmlPrimaryPrefix()` (~4725):
       ```java
       vars=QuantifiedVariables()
@@ -77,18 +77,33 @@ Rules that apply throughout:
         { if (vars.size() != 1) throw new ParseException(
               "an iterable domain binds exactly one variable; nest quantifiers for more");
           VariableDeclarator d = vars.get(0);
-          vars = new NodeList<>(new JmlQuantifiedVariable(d.getType(), d.getName(), iterable)); } ]
+          Type t = d.getType();
+          if (t instanceof ClassOrInterfaceType && ((ClassOrInterfaceType) t).getNameAsString().equals("var")
+                  && !((ClassOrInterfaceType) t).getTypeArguments().isPresent() && t.getArrayLevel() == 0) {
+              t = new VarType(t.getTokenRange().orElse(null));
+          }
+          vars = new NodeList<>(new JmlQuantifiedVariable(t, d.getName(), iterable)); } ]
       ";" expr=Expression() …
       ```
   - `JmlQuantifiedExpr` itself is **not changed** (iterable lives on the binding)
   - `var` type: normalize `ClassOrInterfaceType("var")` (no args/dims) to `VarType`
-    in the same action
-- [ ] No new tokens → `TokenTypes` untouched; no lexer-rule reordering
-- [ ] `./gradlew :javaparser-core:compileJavacc`; check LOOKAHEAD warnings in output
-- [ ] Smoke test (jshell against `javaparser-core/build/classes/java/main`):
-      - classic `(\forall int i; 0 <= i < 5; a[i])` unchanged
-      - `(\forall int e : a; e > 0)` parses; `(\forall var e : a; e != null)` parses
-      - `(\forall int i, j : 0..n; …)` → ParseException (fix-it message)
+    in the same action (uses `getTokenRange()`, not `getRange()` — the latter is
+    the source-position `Range`, not the trace `TokenRange`)
+- [x] No new tokens → `TokenTypes` untouched; no lexer-rule reordering
+- [x] `./gradlew :jmlparser-core:compileJavacc` (0 errors); no new LOOKAHEAD
+      conflicts near the quantifier
+- [x] Smoke test (jshell against `javaparser-core/build/classes/java/main`):
+      - classic `(\forall int i; 0 <= i < 5; a[i])` unchanged (`VariableDeclarator`)
+      - `(\forall int e : a; e > 0)` parses → `JmlQuantifiedVariable`, iterable `a`;
+        `(\forall var e : a; e != null)` parses → type is `VarType`
+      - `(\forall int i, j : 0..n; …)` → ParseException with the fix-it message
+      - `(\forall int i : 0..n; a[i])` → iterable `0 .. n` (range kept)
+
+  Divergent from the plan: `VarValidator` (Java11 language level) rejected `var` in
+  the quantifier binding (`"var" is not allowed here.`, since a `JmlQuantifiedVariable`
+  is not a `VariableDeclarationExpr`). Added a targeted exemption: `var` is legal in a
+  `JmlQuantifiedVariable` (the concrete type checks arrive with the symbol-solver
+  phases).
 
 ## Phase 3 — printing
 
@@ -98,24 +113,34 @@ only `name` (+ initializer) — the enclosing node prints the type once via
 its own type, so the "print common type once" scheme must be bypassed for bound
 lists.
 
-- [ ] `DefaultPrettyPrinterVisitor.visit(JmlQuantifiedExpr)` (~914): branch — if
+- [x] `DefaultPrettyPrinterVisitor.visit(JmlQuantifiedExpr)` (~914): branch — if
       `variables` contains a `JmlQuantifiedVariable`, skip the common-type print and
       let each binding print itself (`printList` already dispatches per node); else
       unchanged classic path
-- [ ] New `DefaultPrettyPrinterVisitor.visit(JmlQuantifiedVariable)`:
+- [x] New `DefaultPrettyPrinterVisitor.visit(JmlQuantifiedVariable)`:
       `type` + space + `name` + (if iterable) `" : "` + iterable
       (note: unlike `visit(VariableDeclarator)` at :672, the binding prints its type)
-- [ ] `ConcreteSyntaxModel`:
+- [x] `ConcreteSyntaxModel`:
       - new entry for `JmlQuantifiedVariable`: `child(TYPE), space(), child(NAME),
-        conditional(ITERABLE, IS_PRESENT, sequence(token(COLON), space(), child(ITERABLE)))`
-      - `JmlQuantifiedExpr` entry (~1322): suppress the `MAXIMUM_COMMON_TYPE` child
-        when a bound binding is present — via a custom `CsmCondition` (it is an
-        interface) or by overriding the derived `getMaximumCommonType()` to return
-        `null` for bound lists (verify CSM skips null children); decide during
-        implementation, `ConcreteSyntaxModelTest` is the referee
-- [ ] Known API wart (fix if trivial, else document): `NodeWithType<VariableDeclarator, Type>`
+        conditional(ITERABLE, IS_PRESENT, sequence(space(), token(COLON), space(), child(ITERABLE)))`
+        (spaces round the colon to match the printer's `" : "`)
+      - `JmlQuantifiedExpr` entry (~1322): the `MAXIMUM_COMMON_TYPE` child is wrapped
+        in `conditional(…, IS_PRESENT, …)` — for bound lists the derived
+        `getMaximumCommonType()` override in `JmlQuantifiedExpr` reports
+        `Optional.empty()`, so the common-type print is suppressed and no double
+        space remains
+- [x] Known API wart (fix if trivial, else document): `NodeWithType<VariableDeclarator, Type>`
       fixes the self-type — `setType` on a `JmlQuantifiedVariable` returns
-      `VariableDeclarator`
+      `VariableDeclarator`. **Documented, not fixed**: the same wart already exists
+      for the inherited `setInitializer`/`setName` (interface N is fixed at
+      `VariableDeclarator`); fixing it means changing `NodeWithType`'s self-type to
+      a second type parameter, which the upstream uses everywhere as the only
+      parameter. Consumers use the generated `setType` via the `VariableDeclarator`
+      reference and rely on `instanceof JmlQuantifiedVariable` for the iterable part.
+
+  Note: done as part of the Phase 1 commit; the CSM work was pulled forward and
+  committed separately (`ConcreteSyntaxModelTest` demands a CSM entry for every
+  metamodel node).
 
 ## Phase 4 — validation (syntactic, M1 scope)
 

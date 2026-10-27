@@ -11,12 +11,15 @@ import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.comments.CommentsCollection;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.LambdaExpr;
+import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.jml.ArbitraryNodeContainer;
 import com.github.javaparser.ast.jml.NodeWithContracts;
 import com.github.javaparser.ast.jml.NodeWithJmlTags;
 import com.github.javaparser.ast.jml.clauses.JmlContract;
 import com.github.javaparser.ast.jml.doc.*;
+import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr;
+import com.github.javaparser.ast.jml.expr.JmlQuantifiedVariable;
 import com.github.javaparser.ast.jml.stmt.JmlStatement;
 import com.github.javaparser.ast.nodeTypes.NodeWithAnnotations;
 import com.github.javaparser.ast.nodeTypes.NodeWithModifiers;
@@ -232,6 +235,42 @@ public class JmlProcessor extends Processor {
                 }
             }
             return n;
+        }
+
+        @Override
+        public Visitable visit(JmlQuantifiedExpr n, Void arg) {
+            // Defensive: the grammar already rejects `(\forall int i, j : a; ...)` with a
+            // ParseException, but an iterable-bound binding coexisting with further
+            // bindings can also be assembled programmatically.
+            boolean hasBoundBinding = false;
+            for (var v : n.getVariables()) {
+                if (v instanceof JmlQuantifiedVariable) {
+                    hasBoundBinding = true;
+                    break;
+                }
+            }
+            if (hasBoundBinding && n.getVariables().size() != 1) {
+                reporter.report(n, "An iterable domain binds exactly one variable; nest quantifiers for more.");
+            }
+            return super.visit(n, arg);
+        }
+
+        @Override
+        public Visitable visit(JmlQuantifiedVariable n, Void arg) {
+            n.getInitializer()
+                    .ifPresent(init -> reporter.report(
+                            n, "A quantified binding with an iterable domain must not have an initializer."));
+            n.getIterable().ifPresent(iterable -> {
+                String boundName = n.getName().asString();
+                for (NameExpr nameExpr : iterable.findAll(NameExpr.class)) {
+                    if (nameExpr.getName().asString().equals(boundName)) {
+                        reporter.report(
+                                iterable, "The iterable domain must not reference the bound variable '%s'.", boundName);
+                        break;
+                    }
+                }
+            });
+            return super.visit(n, arg);
         }
 
         @Override

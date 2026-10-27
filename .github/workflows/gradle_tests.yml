@@ -75,14 +75,18 @@ jobs:
 
       ## Install the Z3 SMT solver; without it the solver-backed tests in
       ## :tools:smt and :tools:vcg are skipped via `assumeTrue(Z3.z3Installed())`.
-      ## The test matrix currently only uses ubuntu-latest; other OSes would
-      ## need a different installation method (e.g. the Z3Setup/setup-z3 action).
+      ## Download the platform binary from the official Z3 releases and add it
+      ## to `PATH` via the KeYProject/setup-smt action, which works on every OS
+      ## of the matrix (no apt/brew dependency).
       - &setupz3
         name: Install Z3 SMT solver
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y z3
-          z3 --version
+        uses: KeYProject/setup-smt@f4ecc2ef28ca8af8a9ae72ece0dbaa00d217943d  # v0.3.1
+        with:
+          z3Version: '4.13.3'
+          cvc5Version: 'false'
+
+      - name: Check z3 is on PATH
+        run: z3 --version
 
       - &gradletest
         name: Test with Gradle and generate coverage
@@ -123,6 +127,9 @@ jobs:
       - *setupjava
       - *checkjava
       - *setupz3
+
+      - name: Check z3 is on PATH
+        run: z3 --version
 
       - name: Test with Gradle and generate coverage
         env:

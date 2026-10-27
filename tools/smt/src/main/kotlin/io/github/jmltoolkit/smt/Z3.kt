@@ -13,10 +13,17 @@ object Z3 {
     private var z3Installed: Boolean? = null
     fun z3Installed(): Boolean {
         if (z3Installed != null) return z3Installed!!
-        try {
-            return (ProcessBuilder("sh", "-c", "which z3").start().waitFor() == 0).also { z3Installed = it }
+        z3Installed = try {
+            // `sh`/`which` do not exist on Windows; probe the platform PATH
+            // directly (`where z3`) instead of going through a shell.
+            val probe = if (isWindows()) listOf("where", "z3") else listOf("sh", "-c", "which z3")
+            ProcessBuilder(probe).start().waitFor() == 0
         } catch (e: Exception) {
+            false
         }
-        return false.also { z3Installed = it }
+        return z3Installed!!
     }
+
+    private fun isWindows(): Boolean =
+        System.getProperty("os.name", "").lowercase().contains("win")
 }

@@ -6,7 +6,6 @@ package com.github.javaparser.ast.validator.language_level_validations.chunks;
 
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.jml.body.JmlLemmaDeclaration;
-import com.github.javaparser.ast.jml.body.JmlLemmaKeyword;
 import com.github.javaparser.ast.jml.proof.JmlProofArg;
 import com.github.javaparser.ast.jml.proof.JmlProofCmdStmt;
 import com.github.javaparser.ast.validator.ProblemReporter;
@@ -17,53 +16,21 @@ import com.github.javaparser.ast.validator.VisitorValidator;
  * proof command, e.g.
  *
  * <pre>{@code
- * //@ instance lemma Pred(int i) = i > 0;
- * //@ lemma P(int i) assert i > 0 \by { auto; };
- * //@ lemma P(\seq s) \by { use_lemma nospace(s); auto; };
+ * //@ lemma nospace(\seq s) \by { use_lemma nospace(s); auto; };
  * }</pre>
  *
- * <p>The checks are defensive: the grammar only builds consistent trees, so a
- * violation here means the tree was assembled by hand or by an earlier version
- * of the parser. All violations are reported as {@link ProblemReporter}
- * problems &mdash; never thrown.
+ * <p>Only the KeY-style proof-script form ({@code lemma Name(params) \by {…};})
+ * exists; the {@code \by} script is mandatory. The checks are defensive: the
+ * grammar only builds consistent trees, so a violation here means the tree was
+ * assembled by hand or by an earlier version of the parser. All violations are
+ * reported as {@link ProblemReporter} problems &mdash; never thrown.
  */
 public class JmlLemmaValidator extends VisitorValidator {
 
     @Override
     public void visit(JmlLemmaDeclaration n, ProblemReporter reporter) {
-        JmlLemmaKeyword.Kind kind = n.getKind().map(JmlLemmaKeyword::getKeyword).orElse(JmlLemmaKeyword.Kind.NONE);
-        boolean hasExpression = n.getExpression().isPresent();
-        boolean hasScript = n.getScript().isPresent();
-        switch (kind) {
-            case DEFINITION -> {
-                if (!hasExpression) {
-                    reporter.report(n, "A lemma of kind '=' requires an expression.");
-                }
-                if (hasScript) {
-                    reporter.report(n, "A lemma of kind '=' must not carry a proof script.");
-                }
-            }
-            case ASSERTION -> {
-                if (!hasExpression) {
-                    reporter.report(n, "A lemma of kind 'assert' requires an expression.");
-                }
-            }
-            case SCRIPT -> {
-                if (hasExpression) {
-                    reporter.report(n, "A lemma of kind '\\by' must not have an expression.");
-                }
-                if (!hasScript) {
-                    reporter.report(n, "A lemma of kind '\\by' requires a proof script.");
-                }
-            }
-            case NONE -> {
-                if (hasExpression) {
-                    reporter.report(n, "A lemma without a connector must not have an expression.");
-                }
-                if (hasScript) {
-                    reporter.report(n, "A lemma without a connector must not have a proof script.");
-                }
-            }
+        if (n.getScript().isEmpty()) {
+            reporter.report(n, "A lemma requires a non-empty proof script after '\\by'.");
         }
         n.getParameters().forEach(p -> {
             if (p.isVarArgs()) {

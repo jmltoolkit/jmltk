@@ -4,11 +4,9 @@ package VerifyThis2025;
 
 public class Lemmas {
 
-    //@ instance lemma Pred(int i) = i > 0;
+    //@ public static no_state lemma nospace(\seq s) \by { oss; auto; };
 
-    //@ public static no_state lemma nospace(\seq s) \by { oss; use_lemma nospace(\array2seq(a)); auto; };
-
-    //@ lemma intEq(int a, int b) = a == b;
+    //@ lemma intEq(int a, int b) \by { use_lemma intEq(a, b); auto; };
 
     /*@
       @ ensures \result >= 0;

@@ -244,7 +244,6 @@ public class MetaModelGenerator extends AbstractGenerator {
             add(JmlClassExprDeclaration.class);
             add(JmlRepresentsDeclaration.class);
             add(JmlClassAccessibleDeclaration.class);
-            add(JmlLemmaKeyword.class);
             add(JmlLemmaDeclaration.class);
 
             // KEY

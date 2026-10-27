@@ -726,7 +726,6 @@ public final class JavaParserMetaModel {
         jmlClassAccessibleDeclarationMetaModel
                 .getConstructorParameters()
                 .add(jmlClassAccessibleDeclarationMetaModel.measuredByPropertyMetaModel);
-        jmlLemmaKeywordMetaModel.getConstructorParameters().add(jmlLemmaKeywordMetaModel.keywordPropertyMetaModel);
         jmlLemmaDeclarationMetaModel
                 .getConstructorParameters()
                 .add(jmlLemmaDeclarationMetaModel.jmlTagsPropertyMetaModel);
@@ -737,10 +736,6 @@ public final class JavaParserMetaModel {
         jmlLemmaDeclarationMetaModel
                 .getConstructorParameters()
                 .add(jmlLemmaDeclarationMetaModel.parametersPropertyMetaModel);
-        jmlLemmaDeclarationMetaModel.getConstructorParameters().add(jmlLemmaDeclarationMetaModel.kindPropertyMetaModel);
-        jmlLemmaDeclarationMetaModel
-                .getConstructorParameters()
-                .add(jmlLemmaDeclarationMetaModel.expressionPropertyMetaModel);
         jmlLemmaDeclarationMetaModel
                 .getConstructorParameters()
                 .add(jmlLemmaDeclarationMetaModel.scriptPropertyMetaModel);
@@ -929,7 +924,6 @@ public final class JavaParserMetaModel {
         nodeMetaModels.add(jmlLabelStmtMetaModel);
         nodeMetaModels.add(jmlLabeledClauseMetaModel);
         nodeMetaModels.add(jmlLemmaDeclarationMetaModel);
-        nodeMetaModels.add(jmlLemmaKeywordMetaModel);
         nodeMetaModels.add(jmlLetExprMetaModel);
         nodeMetaModels.add(jmlMergePointStmtMetaModel);
         nodeMetaModels.add(jmlMethodDeclarationMetaModel);
@@ -4700,28 +4694,6 @@ public final class JavaParserMetaModel {
         jmlClassAccessibleDeclarationMetaModel
                 .getDeclaredPropertyMetaModels()
                 .add(jmlClassAccessibleDeclarationMetaModel.variablePropertyMetaModel);
-        jmlLemmaKeywordMetaModel.keywordPropertyMetaModel = new PropertyMetaModel(
-                jmlLemmaKeywordMetaModel,
-                "keyword",
-                com.github.javaparser.ast.jml.body.JmlLemmaKeyword.Kind.class,
-                Optional.empty(),
-                false,
-                false,
-                false,
-                false);
-        jmlLemmaKeywordMetaModel.getDeclaredPropertyMetaModels().add(jmlLemmaKeywordMetaModel.keywordPropertyMetaModel);
-        jmlLemmaDeclarationMetaModel.expressionPropertyMetaModel = new PropertyMetaModel(
-                jmlLemmaDeclarationMetaModel,
-                "expression",
-                com.github.javaparser.ast.expr.Expression.class,
-                Optional.of(expressionMetaModel),
-                true,
-                false,
-                false,
-                false);
-        jmlLemmaDeclarationMetaModel
-                .getDeclaredPropertyMetaModels()
-                .add(jmlLemmaDeclarationMetaModel.expressionPropertyMetaModel);
         jmlLemmaDeclarationMetaModel.jmlTagsPropertyMetaModel = new PropertyMetaModel(
                 jmlLemmaDeclarationMetaModel,
                 "jmlTags",
@@ -4734,18 +4706,6 @@ public final class JavaParserMetaModel {
         jmlLemmaDeclarationMetaModel
                 .getDeclaredPropertyMetaModels()
                 .add(jmlLemmaDeclarationMetaModel.jmlTagsPropertyMetaModel);
-        jmlLemmaDeclarationMetaModel.kindPropertyMetaModel = new PropertyMetaModel(
-                jmlLemmaDeclarationMetaModel,
-                "kind",
-                com.github.javaparser.ast.jml.body.JmlLemmaKeyword.class,
-                Optional.of(jmlLemmaKeywordMetaModel),
-                true,
-                false,
-                false,
-                false);
-        jmlLemmaDeclarationMetaModel
-                .getDeclaredPropertyMetaModels()
-                .add(jmlLemmaDeclarationMetaModel.kindPropertyMetaModel);
         jmlLemmaDeclarationMetaModel.modifiersPropertyMetaModel = new PropertyMetaModel(
                 jmlLemmaDeclarationMetaModel,
                 "modifiers",
@@ -4787,7 +4747,7 @@ public final class JavaParserMetaModel {
                 "script",
                 com.github.javaparser.ast.jml.proof.JmlProofStmt.class,
                 Optional.of(jmlProofStmtMetaModel),
-                true,
+                false,
                 false,
                 true,
                 false);
@@ -5977,10 +5937,6 @@ public final class JavaParserMetaModel {
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     public static final JmlClassAccessibleDeclarationMetaModel jmlClassAccessibleDeclarationMetaModel =
             new JmlClassAccessibleDeclarationMetaModel(Optional.of(jmlClassLevelDeclarationMetaModel));
-
-    @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
-    public static final JmlLemmaKeywordMetaModel jmlLemmaKeywordMetaModel =
-            new JmlLemmaKeywordMetaModel(Optional.of(nodeMetaModel));
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     public static final JmlLemmaDeclarationMetaModel jmlLemmaDeclarationMetaModel =

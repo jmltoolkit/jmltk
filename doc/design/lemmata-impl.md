@@ -1,11 +1,18 @@
 # Implementation Plan — JML lemmas & `use_lemma` proof commands (port of KeY PR #3971)
 
 Executable checklist for the design in `lemmata.md`: a class-body `lemma`
-declaration (`//@ instance lemma Pred(int i) = i > 0`, the KeY `\by {…}` script
-form, the `assert e \by {…}` form) and the proof-script command `use_lemma
+declaration in the KeY proof-script form only (`//@ lemma nospace(\seq s) \by {…}`;
+KeY's `assertionProof: BY (proofCmd | LBRACE (proofCmd)+ RBRACE)` is mandatory, so
+the `\by` script is required) and the proof-script command `use_lemma
 <call>;` — parsed the way `obtain` is (contextual keyword, **no** new lexer
 token), producing a `JmlProofCmdStmt`. The KeY method-level `use_lemma`
 statement form is **deferred by decision** (see `lemmata.md` §3).
+
+> **Scope note (follow-up commit):** the initial port also implemented a
+> JMLtk-superset `lemma Pred(int i) = i > 0` *definitional* form and an
+> `assert e` form (`JmlLemmaKeyword` kind node). Per decision both forms are
+> dropped — the PR ships only the pure `\by {…}` script form, exactly matching
+> KeY #3971's `lemma_declaration`. This file describes the final state.
 
 Rules that apply throughout (identical to `quantarray-impl.md`):
 
@@ -31,24 +38,16 @@ Rules that apply throughout (identical to `quantarray-impl.md`):
 - [x] `doc/design/lemmata.md` (design + port mapping) — this phase's plan doc
 - [x] `doc/design/lemmata-impl.md` (this file)
 
-## Phase 1 — AST nodes
+## Phase 1 — AST node
 
-Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
+One node, registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
 
-### 1a. `JmlLemmaKeyword` — keyword-with-position node (kind)
+### 1a. ~~`JmlLemmaKeyword`~~ — dropped
 
-- [x] Create `javaparser-core/src/main/java/com/github/javaparser/ast/jml/body/JmlLemmaKeyword.java`
-      (model: `Modifier` — a **node** wrapping a keyword enum, not a bare enum):
-  - `public class JmlLemmaKeyword extends Node implements Jmlish, JmlKeyword`
-  - nested `public enum Kind implements JmlKeyword { DEFINITION("="), ASSERTION("assert"),
-    SCRIPT("\\by"), NONE }`
-  - `private Kind keyword;` with generated-property accessors over
-    `ObservableProperty.KEYWORD` (like `Modifier`), plus `jmlSymbol()` delegating
-    to `keyword.jmlSymbol()`
-  - constructors: `(Kind)` and TokenRange-carrying `(TokenRange, Kind)` for the
-    parser; Javadoc with syntax examples
-- [x] Register `JmlLemmaKeyword.class` in `ALL_NODE_CLASSES` (parents before
-      children; parent `Node` already present)
+An initial draft added a `JmlLemmaKeyword` keyword-with-position node (model:
+`Modifier`, a node wrapping a `DEFINITION`/`ASSERTION`/`SCRIPT`/`NONE` kind
+enum). The definitional/asserted forms are out of scope (see scope note), so no
+keyword node is needed and none exists in the final tree.
 
 ### 1b. `JmlLemmaDeclaration`
 
@@ -60,36 +59,31 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
     - `NodeList<Modifier> modifiers`
     - `SimpleName name`
     - `NodeList<Parameter> parameters`
-    - `@OptionalProperty JmlLemmaKeyword kind` — the §1a keyword node
-      (absent ⇔ `Kind.NONE`); **not** a bare enum
-    - `@OptionalProperty Expression expression` (the `= e` / `assert e` definiens)
-    - `@OptionalProperty NodeList<JmlProofStmt> script` (the `\by {…}`;
-      field named `script` so the generator reuses `ObservableProperty.SCRIPT`,
-      mirroring `JmlExpressionStmt`)
+    - `NodeList<JmlProofStmt> script` — the mandatory `\by {…}`; the **sole**
+      body property (field named `script` so the generator reuses
+      `ObservableProperty.SCRIPT`, mirroring `JmlExpressionStmt`)
   - accessors per the generated-property pattern (`notifyPropertyChange(
     ObservableProperty.…)` + `setAsParentNodeOf(…)`); reuse existing properties
-    `KEYWORD`/`KIND`, `NAME`, `MODIFIERS`, `PARAMETERS`, `EXPRESSION`, `SCRIPT`
-    — none are new
+    `NAME`, `MODIFIERS`, `PARAMETERS`, `SCRIPT` — none are new
   - constructors mirroring `JmlClassExprDeclaration`; full one
     `@AllFieldsConstructor`; keep the parser `TokenRange`-based one
   - Javadoc with syntax examples (AGENTS.md), e.g.
-    `//@ instance lemma Pred(int i) = i > 0;` and the `\by { auto; }` form
+    `//@ public static no_state lemma nospace(\seq s) \by { oss; auto; };`
 - [x] Register `JmlLemmaDeclaration.class` in `ALL_NODE_CLASSES` (after
       `JmlClassExprDeclaration`; `JmlClassLevelDeclaration` is already in the list)
-- [x] `./scripts/run-generators.sh` → expect: `JmlLemmaKeywordMetaModel`,
-      `JmlLemmaDeclarationMetaModel` (child of
-      `JmlClassLevelDeclarationMetaModel`), `visit(JmlLemmaKeyword)` +
+- [x] `./scripts/run-generators.sh` → expect: `JmlLemmaDeclarationMetaModel`
+      (child of `JmlClassLevelDeclarationMetaModel`),
       `visit(JmlLemmaDeclaration)` in generated visitors, `ObservableProperty`
       reuse. Cast methods **on the six base nodes only** (NOT on
       `JmlClassLevelDeclaration` — quantarray lesson: consumers use `instanceof`)
 - [x] Post-generation compile fixes (CONTRIBUTING steps 3→4, pulled forward like
       quantarray):
-  - `DefaultPrettyPrinterVisitor.visit(JmlLemmaKeyword)` + `.visit(JmlLemmaDeclaration)`
-    — real implementations (Phase 3 spec)
-  - `PrettyPrintVisitor` (legacy JML-less printer) — stubs
-  - symbol-solver `DefaultVisitorAdapter` — throwing stubs
+  - `DefaultPrettyPrinterVisitor.visit(JmlLemmaDeclaration)`
+    — real implementation (Phase 3 spec)
+  - `PrettyPrintVisitor` (legacy JML-less printer) — stub
+  - symbol-solver `DefaultVisitorAdapter` — throwing stub
 - [x] `./gradlew compileJava` green
-- [x] commit (e.g. `feat(core): Phase 1 — JmlLemmaKeyword + JmlLemmaDeclaration nodes`)
+- [x] commit (e.g. `feat(core): Phase 1 — JmlLemmaDeclaration node`)
 
 ## Phase 2 — grammar
 
@@ -102,10 +96,10 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
       classify — no such token.)
 - [x] Class level: new production
       `JmlClassLevelDeclaration JmlLemmaDeclaration(ModifierHolder modifier):`
-      per `lemmata.md` §4 (`<LEMMA> SimpleName() Parameters() ( "=" Expression()
-      | <JML_ASSERT> Expression() [ <BY> JmlProofBlock() ]
-      | <BY> JmlProofBlock() | {} ) ";"` → `JmlLemmaDeclaration`, kind wrapped in
-      `new JmlLemmaKeyword(tokenRange(), Kind.…)`), plus an alternative in
+      per `lemmata.md` §4
+      (`<LEMMA> SimpleName() Parameters() <BY> JmlProofBlock() ";"` →
+      `JmlLemmaDeclaration(modifier.modifiers, name, params, script)`; the
+      `\by` script is mandatory), plus an alternative in
       `JmlClassLevelInner` (`java.jj:7747`):
       `| LOOKAHEAD(1) element = JmlLemmaDeclaration(modifiers) { ret.add(element); }`
 - [x] Proof command: in the proof-command production (`java.jj:7156`, inside
@@ -132,40 +126,37 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
 - [x] `./gradlew :javaparser-core:compileJavacc` — 0 errors; no new LOOKAHEAD
       conflicts in `JmlClassLevelInner` / proof-command production
 - [x] Smoke (jshell against `javaparser-core/build/classes/java/main`):
-  - `//@ instance lemma Pred(int i) = i > 0;` via `JavaParser.parseJmlClassLevel(...)`
-    → `JmlLemmaDeclaration`, modifiers `[JML_INSTANCE]`,
-    kind node `Kind.DEFINITION` with the `=` token range, expr `i > 0`
   - `//@ static no_state lemma nospace(\seq s) \by { oss; use_lemma nospace(t); };`
-    → kind `SCRIPT`, script length 2, second element a
+    via `JavaParser.parseJmlClassLevel(...)` → `JmlLemmaDeclaration`, modifiers
+    `[STATIC, JML_NO_STATE]`, script length 3, second element a
     `JmlProofCmdStmt` named `use_lemma`
-  - `//@ lemma P(int i) assert i > 0 \by { auto; };` → kind `ASSERTION`
-  - negative: `//@ lemma P(int i) == i > 0;` → parse problem
+  - negative: `//@ lemma P(int i) == i > 0;`, `//@ lemma helper();` (missing
+    `\by`) and the dropped `= expr` / `assert e` forms → parse problems
   - no method-level `use_lemma` statement parses (expected — deferred)
   (All of the above covered by `LemmaParseSmokeTest` in `jmlparser-core-testing`.)
 - [x] commit
 
 ## Phase 3 — printing
 
-- [x] `ConcreteSyntaxModel`: entries for `JmlLemmaKeyword` and
-      `JmlLemmaDeclaration` — modifiers, `lemma`, `name`, `( params )`, per kind
-      `= expr` / `assert expr [\by {…}]` / `\by {…}`, `;`
+- [x] `ConcreteSyntaxModel`: entry for `JmlLemmaDeclaration` — modifiers,
+      `lemma`, `name`, `( params )`, mandatory `\by { … }` suffix, `;`
       (`ConcreteSyntaxModelTest` requires an entry for every metamodel node)
 - [x] `DefaultPrettyPrinterVisitor.visit(JmlLemmaDeclaration)`:
-      `printModifiers(...); "lemma"; name; (params); kind.jmlSymbol() (from the
-      kind node) + expr; JmlProofPrint(script) if present; ";"`
+      `printModifiers(...); "lemma"; name; (params);` then `printSuffix(script)`
+      (the existing proof-script suffix printer emits ` \by {…}` / ` \by …;`)
 - [x] `JmlProofCmdStmt` printing: `name args suffix` — already generic; `use_lemma`
       prints via the `"use_lemma"` SimpleName (no change expected)
 - [x] `./scripts/run-generators.sh` drift check; `./gradlew :javaparser-core-testing:test`
       green
-- [ ] commit
+- [x] commit
 
 ## Phase 4 — validation
 
 - [x] `JmlProcessor.JmlReplaceVisitor` (or the language-level validators):
-  - defensive: exactly one body form — kind node must be consistent with the
-    presence of `expression`/`script` (`DEFINITION` ⇔ `=`, `ASSERTION` ⇔
-    `assert`, `SCRIPT` ⇔ `\by`, `NONE` ⇔ no body); reports a problem on
-    hand-built inconsistent trees
+  - defensive: the `\by` script is mandatory and must be non-empty (a
+    hand-built/older-parser `JmlLemmaDeclaration` with an empty script is
+    reported); no kind/expression consistency checks exist anymore — the
+    grammar only builds script-form lemmas
     (done in the language-level validators — a new `JmlLemmaValidator` chunk
     wired into `CommonValidators`, since `JmlReplaceVisitor` cannot reliably
     reach attached lemma nodes: `ModifierVisitor.visit(NodeList)` iterates a
@@ -185,45 +176,45 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
     `ModifierValidator.visit(JmlLemmaDeclaration)` with
     `PUBLIC/PROTECTED/PRIVATE/STATIC/JML_INSTANCE/JML_NO_STATE` — the
     at-most-one-of check inside `validateModifiers` rejects `instance`+`static`)
-- [x] jshell smoke: hand-built `JmlLemmaDeclaration` with kind `DEFINITION` but no
-      expression reports; `instance lemma Pred(int i) = i > 0;` is clean
+- [x] jshell smoke: hand-built `JmlLemmaDeclaration` with an empty script
+      reports; `lemma nospace(\seq s) \by { oss; auto; };` is clean
 - [x] `:jmlparser-core-testing:test` + `:jmlparser-jml-tests:test` green
-- [ ] commit
+- [x] commit
 
 ## Phase 5 — M1 tests
 
 - [x] Parser tests (`jmlparser-jml-tests`, new class e.g.
       `LemmaDeclarationTest` in `.../jml/parser`):
-  - all four body forms parse; AST assertions on kind node (enum + token range),
-    expr, script, modifiers
-  - `use_lemma` inside `\by {…}` → `JmlProofCmdStmt` name `use_lemma`
-  - negative: `==`-form, missing `;`, `lemma (…)` (no name)
+  - the `\by {…}` script form parses; AST assertions on the script list,
+    modifiers; `use_lemma` inside `\by {…}` → `JmlProofCmdStmt` name `use_lemma`
+  - negative: `= expr` / `assert e` forms, missing `\by`
+    (`lemma helper();`), missing `;`, `lemma (…)` (no name)
   (9 tests in `jmlparser-jml-tests/.../parser/LemmaDeclarationTest.java`)
 - [x] CSM round-trip: new resource `csm_jml_classlevel.txt` + a loop wired into
       `ConcreteSyntaxModelTest` (mirror quantarray's `csm_jml_expression.txt`)
-      with the four lemma forms round-tripping verbatim
-  (round-trips the four *unmodified* lemma forms; JML-modifier'd forms
+      with the script lemma forms round-tripping verbatim
+  (round-trips the *unmodified* lemma forms; JML-modifier'd forms
   normalize to `jml_…` in CSM by design and are covered by the parser + LPP
   tests instead. Required a CSM bugfix first: `token(BY)` printed the
-  JavaCC-escaped `\\by` (doubled backslash); both `proofCmdSuffix()` and the
-  new `lemmaScriptSuffix()` now use `string(BY, "\\by")`)
+  JavaCC-escaped `\\by` (doubled backslash); the lemma suffix uses
+  `string(BY, "\\by")`)
 - [x] `LexicalPreservingPrinterTest`: a class with a `lemma` and a method whose
       `\by {…}` script contains `use_lemma` round-trips byte-for-byte
       (`JmlLemmaLexicalPreservingPrinterTest` in `.../jml/printer`)
 - [x] Corpus fixture `fullexamples/tested/Lemmas.java` (like `QuantArray.java`):
-      `instance lemma Pred(int i) = i > 0`, a `\by`-script lemma whose script
-      calls `use_lemma nospace(t)`, and a method with `//@ assert … \by {…}`
+      `\by`-script lemmas (one whose script calls `use_lemma`), and a method
+      with `//@ assert … \by {…}`
       (miniature of the VerifyThis 2025.1 `MinExcludant0` example, with the
       method-level `use_lemma` moved *into* the scripts per §3)
       (picked up by `FullExamplesTest.createTestedJmlTests`)
 - [x] new fragment fixtures `fragments/decl_*.txt` / `stmt_*.txt` if the corpus
       harness picks them up; `FragmentTest` + `FullExamplesTest` green
       (`fragments/decl_jml_lemma.txt`, picked up by `FragmentTest.testClassLevel`)
-- [ ] commit
+- [x] commit
 
 ## Phase 6 — symbol solver
 
-- [x] Lemma parameters resolvable inside `expression` and `script` (reuse
+- [x] Lemma parameters resolvable inside `script` (reuse
       `MethodDeclaration`-style per-parameter resolution; `JmlLogicType` params
       like `\seq`/`\bigint` must not crash)
       (new `JmlLemmaDeclarationContext` in
@@ -239,17 +230,15 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
       `StackOverflowError`. `convertToUsage` now throws a clean
       `UnsolvedSymbolException` — JML logic types have no Java representation,
       so an unresolved-type problem is the documented resolution failure.)
-- [x] `NameResolutionTest`-style expectation (`//?`-file) for
-      `Pred(int i) = i > 0`: `i` resolves to `int` param, body to `boolean`
-      (new fixture `JmlLemmaResolutionTest.java` + `lemmaParameters` test:
-      `name: i@(line 3,col 29) to i@(line 3,col 20)` and `type: i@(line 3,col 29)`)
-- [x] `use_lemma` proof-command args resolve as ordinary `JmlProofArg`
-      expressions (`nospace(\array2seq(a))` as a `MethodCallExpr`)
-      (in the fixture: `use_lemma nospace(s, n)` — both `s` and `n` resolve to
-      the lemma's params from inside the `\by {…}` script, even though they sit
-      under a `JmlProofCmdStmt`/`JmlProofArg`/`MethodCallExpr` chain —
+- [x] `NameResolutionTest`-style expectation (`//?`-file) for the script-form
+      lemma `seqLemma(\seq s, \bigint n) \by { use_lemma nospace(s, n); auto; };`:
+      `s`/`n` resolve to their parameters from inside the `\by {…}` script
+      (fixture `JmlLemmaResolutionTest.java` + `lemmaParameters` test — the
+      args sit under a `JmlProofCmdStmt`/`JmlProofArg`/`MethodCallExpr` chain;
       `AbstractJavaParserContext#getParent` walks through the unregistered
-      proof nodes to the lemma context)
+      proof nodes to the lemma context; `\seq`/`\bigint` parameter *types*
+      raise a clean `UnsolvedSymbolException`, so the fixture carries
+      `e type:`/`type:` expectations)
   - [x] ~~optional: `JmlLemmaDeclaration` re-exported as a resolvable symbol if a
         cheap hook exists (model-method symbols); otherwise defer and document~~
       (deferred: the symbol solver has no model-method/method-like declaration
@@ -279,7 +268,7 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
       (next to `visit(JmlClassExprDeclaration)` at `WDVisitor.kt`; a lemma is a
       proof obligation for KeY, not an assertion, so it contributes `⊤` to the
       well-definedness VC). The optional stronger body WD
-      (`wd(params) ∧ wd(expr) ∧ wd(script)`) is deferred: WD generation is
+      (`wd(params) ∧ wd(script)`) is deferred: WD generation is
       expression-driven and no lemma-body fixture exists yet. `:tools:wd:test`
       green.
 - [x] `tools/stat` (`StatVisitor`, `StatisticKey`): `totalLemmas` plus per-name
@@ -289,25 +278,23 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
       `StatisticKeys.lemma(name)` → `LEMMA_<name>` (normalized uppercase);
       `JmlStatisticsReporter.visit(JmlLemmaDeclaration)` and
       `visit(JmlProofCmdStmt)`; `StatVisitor.visit(JmlLemmaDeclaration)` emits a
-      `<jml-lemma name=…>` element with modifiers and an `<expr>` child if the
-      lemma has a body; `testLemmaCounting` in `JmlStatisticsReporterTest`. CLI
+      `<jml-lemma name=…>` element with modifiers (no expression child — lemmas
+      are script-only); `testLemmaCounting` in `JmlStatisticsReporterTest`. CLI
       end-to-end on `fullexamples/tested/Lemmas.java`:
-      `jml-lemma name="Pred|nospace|intEq"` with `hasinstance`/`hasno_state`
-      modifiers present.)
+      `jml-lemma name="nospace|intEq"` with `hasno_state` modifiers present.)
 - [x] `tools/lsp`:
   - `JmlCatchSymbols`: document symbol for `JmlLemmaDeclaration`
     (`SymbolKind.Function`, name, `asRange`, detail
-    `"Jml lemma ($kind jmlSymbol | axiom)"` for the definitions/scripts kinds)
-  - `CodeActionCollector`: `visit(JmlLemmaDeclaration)` offers the
-    well-definedness check on the lemma's expression (mirrors
-    `JmlClassExprDeclaration`)
+    `"Jml lemma (proof script)"`)
+  - `CodeActionCollector`: no lemma override — there is no lemma expression to
+    offer a well-definedness check on (mirrors `JmlClassExprDeclaration`)
   - JML keyword highlighting: **no change needed** — `TokenTypes#getCategory`
     classifies `LEMMA` as `Keyword` (it already did in Phase 1), so
     `JmlDocumentHighlighter`'s token-category lookup highlights `lemma`
     automatically; `use_lemma` stays an `Identifier`. The `LEMMA` entry at
     `KeyDocumentHighlighter.kt:195` is for `.key` syntax and was left alone.
-- [x] `tools/lint` visitors: no-crash verified for `JmlLemmaDeclaration`,
-      `JmlLemmaKeyword`, and `JmlProofCmdStmt(name="use_lemma")`
+- [x] `tools/lint` visitors: no-crash verified for `JmlLemmaDeclaration` and
+      `JmlProofCmdStmt(name="use_lemma")`
       (`JmlDuplicateNamesValidator.checkType` dispatches over members with a
       non-exhaustive `when`, so lemmas are simply skipped; all other rules visit
       clause/expression node types; `JmlLintingFacade.lint` also wraps every
@@ -332,9 +319,32 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
       (jml-tests forced rerun incl. `decl_jml_lemma.txt` fragment +
       `fullexamples/tested/Lemmas.java`; checkstyle reports only pre-existing
       warnings — none in the new/changed files)
-- [ ] commit; then open PR against `main` on `jmltoolkit/jmltk` (base `main`,
+- [x] commit; then open PR against `main` on `jmltoolkit/jmltk` (base `main`,
       head `weigl/lemmata`, title like
       `feat(core,tools): JML lemma declarations and use_lemma proof commands (port of KeY #3971)`)
+
+## Follow-up — drop `= expr` and `assert e` (script-only port)
+
+- [x] Per decision, the PR now ships **only** the KeY proof-script form
+      `[modifiers] lemma Name(params) \by { … };` (see `lemmata.md` §3/§4):
+  - grammar: `<LEMMA> SimpleName() Parameters() <BY> JmlProofBlock() ";"` —
+    no `= expr` / `assert e` alternatives, no `kind`/`expr` locals
+  - `JmlLemmaKeyword` node + its `MetaModel` file deleted; `JmlLemmaDeclaration`
+    loses `kind`/`expression`, `script` becomes the **sole** (mandatory) body
+    property; `ALL_NODE_CLASSES` updated; regenerated visitors/metamodel
+  - `ConcreteSyntaxModel` drops the keyword entry and the kind-dependent
+    connector; the lemma CSM is `modifiers lemma name ( params ) \by { script };`
+  - `JmlLemmaValidator` enforces a non-empty script (+ unchanged varargs and
+    `use_lemma` operand checks)
+  - fixtures/corpus (`LemmaParseSmokeTest`, `LemmaDeclarationTest`,
+    `JmlLemmaLexicalPreservingPrinterTest`, `decl_jml_lemma.txt`,
+    `csm_jml_classlevel.txt`, `fullexamples/tested/Lemmas.java`,
+    `JmlLemmaResolutionTest.java`, `JmlStatisticsReporterTest`) reworked to
+    script-only lemmas, with negative tests for the dropped forms
+  - tools: `stat` element loses the expression child, `lsp` code-action override
+    removed, symbol detail is `"Jml lemma (proof script)"`
+  - committed as a single follow-up commit (no force-push) and documented in
+    `jmltk-changelog.md`
 
 ## Deferred / open
 

@@ -32,11 +32,7 @@ public class JmlLemmaDeclarationMetaModel extends JmlClassLevelDeclarationMetaMo
                 false);
     }
 
-    public PropertyMetaModel expressionPropertyMetaModel;
-
     public PropertyMetaModel jmlTagsPropertyMetaModel;
-
-    public PropertyMetaModel kindPropertyMetaModel;
 
     public PropertyMetaModel modifiersPropertyMetaModel;
 

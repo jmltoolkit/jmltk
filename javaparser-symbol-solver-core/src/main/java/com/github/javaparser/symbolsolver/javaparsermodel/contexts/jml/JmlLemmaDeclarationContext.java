@@ -20,7 +20,6 @@ import java.util.Optional;
  * parameters are visible inside the body, e.g.
  *
  * <pre>{@code
- * //@ lemma Pred(int i) = i > 0;
  * //@ lemma nospace(\seq s) \by { use_lemma nospace(s); auto; };
  * }</pre>
  *

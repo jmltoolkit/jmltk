@@ -246,21 +246,22 @@ Hook: `JmlProcessor.JmlReplaceVisitor` already carries a `ProblemReporter`
 
 ## Phase 8 — M4 docs & release
 
-- [ ] `jmltk-changelog.md`: Unreleased entry (fork-local SemVer; feature ⇒ minor
+- [x] `jmltk-changelog.md`: Unreleased entry (fork-local SemVer; feature ⇒ minor
       bump — `gradle.properties` `version=1.2.0-SNAPSHOT` at merge, keep `-SNAPSHOT`)
-- [ ] `doc/readme.md`: add the syntax to the JML showcase if one exists (do **not**
-      touch the generated root `README.md`)
-- [ ] Full corpus green: `FragmentTest`, `FullExamplesTest` (openjml/key/tested)
-- [ ] Final QA: `./gradlew spotlessCheck checkstyleMain` and the AGENTS.md test
+- [x] `doc/readme.md`: add the syntax to the JML showcase if one exists (do **not**
+      touch the generated root `README.md`) — no showcase section exists in
+      `doc/readme.md`; the syntax is documented in `doc/design/quantarray.md` §2
+- [x] Full corpus green: `FragmentTest`, `FullExamplesTest` (openjml/key/tested)
+- [x] Final QA: `./gradlew spotlessCheck checkstyleMain` and the AGENTS.md test
       commands for the touched modules
 
 ## Definition of done
 
-- [ ] classic quantifier AST/print/round-trip byte-identical to `main` (regression
+- [x] classic quantifier AST/print/round-trip byte-identical to `main` (regression
       guard: existing `jml-exprs.txt`, `csm_jml_expression.txt`, fragments, corpus)
-- [ ] single-binding element quantifiers parse, print, round-trip (default printer,
+- [x] single-binding element quantifiers parse, print, round-trip (default printer,
       CSM, LexicalPreservingPrinter)
-- [ ] name/type resolution with inferred element types
-- [ ] jml2java emits enhanced-for; smt encodes array/range domains; wd checks domain
+- [x] name/type resolution with inferred element types
+- [x] jml2java emits enhanced-for; smt encodes array/range domains; wd checks domain
       well-definedness; stat/lsp aware
-- [ ] changelog + version bumped; all module test suites green
+- [x] changelog + version bumped; all module test suites green

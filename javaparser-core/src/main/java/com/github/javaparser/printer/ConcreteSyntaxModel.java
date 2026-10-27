@@ -1324,8 +1324,7 @@ public class ConcreteSyntaxModel {
                 sequence(
                         token(LPAREN),
                         attribute(BINDER),
-                        space(),
-                        // Classic bindings share one leading type printed once; iterable-bound
+                        space(), // Classic bindings share one leading type printed once; iterable-bound
                         // bindings (JmlQuantifiedVariable) carry their own type and iterable, in
                         // which case getMaximumCommonType() reports the derived type as absent.
                         conditional(

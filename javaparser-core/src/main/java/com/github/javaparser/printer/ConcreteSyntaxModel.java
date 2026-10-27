@@ -1325,13 +1325,26 @@ public class ConcreteSyntaxModel {
                         token(LPAREN),
                         attribute(BINDER),
                         space(),
-                        conditional(VARIABLES, IS_NOT_EMPTY, child(ObservableProperty.MAXIMUM_COMMON_TYPE)),
-                        space(),
+                        // Classic bindings share one leading type printed once; iterable-bound
+                        // bindings (JmlQuantifiedVariable) carry their own type and iterable, in
+                        // which case getMaximumCommonType() reports the derived type as absent.
+                        conditional(
+                                ObservableProperty.MAXIMUM_COMMON_TYPE,
+                                IS_PRESENT,
+                                sequence(child(ObservableProperty.MAXIMUM_COMMON_TYPE), space())),
                         list(VARIABLES, sequence(comma(), space())),
                         token(SEMICOLON),
                         space(),
                         list(EXPRESSIONS, sequence(semicolon(), space())),
                         token(RPAREN)));
+        concreteSyntaxModelByClass.put(
+                JmlQuantifiedVariable.class,
+                sequence(
+                        comment(),
+                        child(TYPE),
+                        space(),
+                        child(NAME),
+                        conditional(ITERABLE, IS_PRESENT, sequence(space(), token(COLON), space(), child(ITERABLE)))));
         concreteSyntaxModelByClass.put(JmlRefiningStmt.class, sequence());
         concreteSyntaxModelByClass.put(JmlRepresentsDeclaration.class, sequence());
         concreteSyntaxModelByClass.put(

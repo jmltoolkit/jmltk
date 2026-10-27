@@ -4740,7 +4740,8 @@ Expression JmlPrimaryPrefix():
                        && t.getArrayLevel() == 0) {
                    t = new VarType(t.getTokenRange().orElse(null));
                }
-               vars = new NodeList<>(new JmlQuantifiedVariable(t, d.getName(), iterable));
+               vars = new NodeList<>(new JmlQuantifiedVariable(
+                       t, d.getName(), d.getInitializer().orElse(null), iterable));
            }
        ]
        ";"

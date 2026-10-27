@@ -231,9 +231,11 @@ Hook: `JmlProcessor.JmlReplaceVisitor` already carries a `ProblemReporter`
       `initialization = [VariableDeclarationExpr(declarator), iterable]`); range →
       index loop; `\sum`/`\num_of`/`\product` accumulate; update
       `tools/jml2java/src/test/resources/expr.yaml` + translator tests
-- [ ] `tools/smt` `JmlExpr2Smt.kt` (~218): kinds 2/3 →
+- [x] `tools/smt` `JmlExpr2Smt.kt` (~218): kinds 2/3 →
       `forall ((i Int)) (=> (and (<= 0 i) (< i len)) P[a[i]])`; kind 4 → clear
       "not supported yet" error; update `tools/smt/src/test/resources/expr.yaml`
+      (also fixed the `SmtTermFactory.list(List<SExpr>)` stub that dropped the
+      `forall` binder variables)
 - [ ] `tools/wd` `WDVisitor.kt` (~137): domain WD conditions (non-null, purity)
 - [ ] `tools/stat` `Statistics.kt`/`StatVisitor.kt`/`JmlStatisticsReporter.kt`:
       count element quantifiers per binder

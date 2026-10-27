@@ -13,6 +13,7 @@ import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.resolution.Context;
+import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
 import com.github.javaparser.resolution.types.ResolvedType;
 
@@ -87,6 +88,11 @@ public class JmlLogicType extends Type implements Jmlish {
 
     @Override
     public ResolvedType convertToUsage(Context context) {
-        return resolve();
+        // JML logic types have no Java counterpart, so they cannot be converted
+        // into a Java resolved type. In particular, do not delegate to resolve():
+        // it must not be reached, because it would round-trip through the symbol
+        // resolver (toResolvedType -> convertToUsage -> resolve -> ...). A clean,
+        // catchable UnsolvedSymbolException is the documented resolution failure.
+        throw new UnsolvedSymbolException(asString());
     }
 }

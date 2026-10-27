@@ -197,20 +197,28 @@ Hook: `JmlProcessor.JmlReplaceVisitor` already carries a `ProblemReporter`
 
 ## Phase 6 — M2 resolution & type inference
 
-- [ ] `JmlQuantifiedExprContext.solveSymbol` (symbol-solver-core,
+- [x] `JmlQuantifiedExprContext.solveSymbol` (symbol-solver-core,
       `contexts/jml/JmlQuantifiedExprContext.java:34–40`) — the classic loop keeps
-      working; add type inference for bound bindings in
-      `JmlJavaParserQuantifiedVariableDeclaration` (declared `VarType` or kind
-      demands it):
+      working (unchanged: it already hands every binding to
+      `JavaParserSymbolDeclaration.quantifiedVar`); type inference added for bound
+      bindings in `JmlJavaParserQuantifiedVariableDeclaration.getType()`:
       - `BinaryExpr(Operator.RANGE)` → `int`
       - resolved iterable type `isArray` → component type (element of `T[][]` is `T[]`)
-      - assignable to `Iterable` → first type argument
-      - else → declared type / report problem
-- [ ] Resolution expectation tests: extend the
-      `jmlparser-jml-tests/.../resolution/JmlQuantifiedExprResolutionTest.java`
-      pattern (`//?` annotations) with array / `Iterable` / `SequencedCollection` /
-      range domains and shadowing
-- [ ] `./gradlew :javaparser-symbol-solver-testing:test` green
+      - generic reference type (incl. `Iterable`/`SequencedCollection`) → first type
+        argument; raw domain → `java.lang.Object`
+      - domain unresolvable in context → declared type as fallback
+      - unifies `(\forall var e : a; …)` (declared `VarType` is never converted) and
+        explicit declared types; mirrors the enhanced-for rule in
+        `VarType.convertToUsage`
+- [x] Resolution expectation tests:
+      - `NameResolutionTest.jmlBinderExpressionIterable` — new
+        `JmlQuantifiedExprIterableResolutionTest.java` (`//?` annotations): array,
+        `int[][]`, `List<String>`, `var`, range domain, and nested-shadowing
+        (`\forall int x : a; (\exists int y : a; y > x)`)
+      - `QuantifiedVariableTypeInferenceTest` — asserts the inferred element-type
+        **values** (`int`, `int[]`, `java.lang.String` ×2, `var`→`int`, range→`int`)
+- [x] `./gradlew :javaparser-symbol-solver-testing:test` green (full suite), plus
+      `:jmlparser-jml-tests:test` green
 
 ## Phase 7 — M3 backends
 

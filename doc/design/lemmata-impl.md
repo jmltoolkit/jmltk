@@ -161,20 +161,33 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
 
 ## Phase 4 — validation
 
-- [ ] `JmlProcessor.JmlReplaceVisitor` (or the language-level validators):
+- [x] `JmlProcessor.JmlReplaceVisitor` (or the language-level validators):
   - defensive: exactly one body form — kind node must be consistent with the
     presence of `expression`/`script` (`DEFINITION` ⇔ `=`, `ASSERTION` ⇔
     `assert`, `SCRIPT` ⇔ `\by`, `NONE` ⇔ no body); reports a problem on
     hand-built inconsistent trees
+    (done in the language-level validators — a new `JmlLemmaValidator` chunk
+    wired into `CommonValidators`, since `JmlReplaceVisitor` cannot reliably
+    reach attached lemma nodes: `ModifierVisitor.visit(NodeList)` iterates a
+    snapshot and the inner `parseJmlClassLevel` results are validated under an
+    `ArbitraryNodeContainer` whose `accept(VoidVisitor)` is a no-op)
   - lemma parameters must be plain (`!parameter.isVarArgs()`, no receiver
     parameter)
+    (varargs is checked on the AST; a receiver parameter is not representable
+    in `NodeList<Parameter>` — the grammar's `Parameters()` silently drops one,
+    to be addressed when the grammar is next touched)
   - `use_lemma` proof command: operand args should be a `MethodCallExpr` — report
     a *problem*, not a crash (lint/type level)
+    (checked in `JmlLemmaValidator.visit(JmlProofCmdStmt)`)
   - `instance`+`static` mutual exclusion (if the generic modifier validator does
     not already cover JML_INSTANCE on this node)
-- [ ] jshell smoke: hand-built `JmlLemmaDeclaration` with kind `DEFINITION` but no
+    (the generic validator did not cover the node; added
+    `ModifierValidator.visit(JmlLemmaDeclaration)` with
+    `PUBLIC/PROTECTED/PRIVATE/STATIC/JML_INSTANCE/JML_NO_STATE` — the
+    at-most-one-of check inside `validateModifiers` rejects `instance`+`static`)
+- [x] jshell smoke: hand-built `JmlLemmaDeclaration` with kind `DEFINITION` but no
       expression reports; `instance lemma Pred(int i) = i > 0;` is clean
-- [ ] `:jmlparser-core-testing:test` + `:jmlparser-jml-tests:test` green
+- [x] `:jmlparser-core-testing:test` + `:jmlparser-jml-tests:test` green
 - [ ] commit
 
 ## Phase 5 — M1 tests

@@ -181,6 +181,7 @@ public class TokenTypes {
             case ASSUME:
             case ASSUME_REDUNDANTLY:
             case AXIOM:
+            case LEMMA:
             case BEHAVIOR:
             case BEHAVIOUR:
             case BIGINT:

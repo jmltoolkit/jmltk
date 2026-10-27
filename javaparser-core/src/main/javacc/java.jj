@@ -241,6 +241,7 @@ TOKEN : {
 | <ASSUME: "assume">
 | <ASSUME_REDUNDANTLY: "assume_redundantly">
 | <AXIOM: "axiom">
+| <LEMMA: "lemma">
 | <BEHAVIOR: "behavior">
 | <BEHAVIOUR: "behaviour">
 | <BIGINT: "\\BIGINT">
@@ -3558,7 +3559,7 @@ String Identifier():
         | <INVARIANT> | <ABRUPT_BEHAVIOR> | <ABRUPT_BEHAVIOUR> | <ACCESSIBLE> | <ACCESSIBLE_REDUNDANTLY>
         | <MODEL_BEHAVIOR> | <MODEL_BEHAVIOUR>
         | <ALSO> | <ASSERT_REDUNDANTLY> | <ASSIGNABLE> | <ASSIGNABLE_REDUNDANTLY> | <ASSUME>
-        | <ASSUME_REDUNDANTLY> | <AXIOM> | <BEHAVIOR> | <BEHAVIOUR> | <BREAKS> | <BREAKS_REDUNDANTLY>
+        | <ASSUME_REDUNDANTLY> | <AXIOM> | <LEMMA> | <BEHAVIOR> | <BEHAVIOUR> | <BREAKS> | <BREAKS_REDUNDANTLY>
         | <BREAK_BEHAVIOR> | <BREAK_BEHAVIOUR> | <CALLABLE> | <CALLABLE_REDUNDANTLY> | <CAPTURES>
         | <CAPTURES_REDUNDANTLY> | <CHOOSE> | <CHOOSE_IF> | <CODE> | <CODE_BIGINT_MATH>
         | <CODE_JAVA_MATH> | <CODE_SAFE_MATH> | <CONSTRAINT> | <CONSTRAINT_REDUNDANTLY>
@@ -7171,6 +7172,12 @@ JmlProofStmt JmlProofCmdStmt():
     suffix=JmlProofCmdSuffix()
     { return new JmlProofObtainStmt(range(begin, token()), type, var, kind, value, suffix); }
   |
+    LOOKAHEAD({ getToken(1).kind == IDENTIFIER && "use_lemma".equals(getToken(1).image) })
+    <IDENTIFIER> { begin = token(); name = new SimpleName(tokenRange(), "use_lemma"); }
+    args=JmlProofArgList()
+    suffix=JmlProofCmdSuffix()
+    { return new JmlProofCmdStmt(range(begin, token()), name, args, suffix); }
+  |
     name=SimpleName() { begin = token(); }
     args=JmlProofArgList()
     suffix=JmlProofCmdSuffix()
@@ -7737,6 +7744,7 @@ void JmlClassLevelInner(ModifierHolder modifiers,  NodeList<Node> ret):
 	  LOOKAHEAD(1) element = JmlClassExpr(modifiers)         { ret.add(element); }
 	| LOOKAHEAD(1) element = JmlClassAccessible(modifiers)   { ret.add(element); }
 	| LOOKAHEAD(1) element = JmlClassRepresents(modifiers)   { ret.add(element); }
+	| LOOKAHEAD(1) element = JmlLemmaDeclaration(modifiers)  { ret.add(element); }
 	| LOOKAHEAD(3) contracts = JmlContractsM(modifiers.modifiers)
 		[ LOOKAHEAD(10)
 			modifiers = Modifiers()
@@ -7951,6 +7959,37 @@ JmlClassLevelDeclaration JmlClassExpr(ModifierHolder modifiers):
     begin = orIfInvalid(modifiers.begin, kind);
     return new JmlClassExprDeclaration(range(begin, token()), kind, modifiers.modifiers, expr);
   }
+}
+
+
+JmlClassLevelDeclaration JmlLemmaDeclaration(ModifierHolder modifier):
+{
+    JavaToken begin;
+    JavaToken kwToken;
+    SimpleName name;
+    Pair<NodeList<Parameter>, ReceiverParameter> params;
+    JmlLemmaKeyword kind = null;  // Node wrapping the Kind enum; absent for bare axiom-style lemmas
+    Expression expr = null;
+    NodeList<JmlProofStmt> script = null;
+}
+{
+    <LEMMA> { begin = orIfInvalid(modifier.begin, token()); }
+    name = SimpleName()
+    params = Parameters()
+    (
+      "=" { kwToken = token(); } expr = Expression()
+        { kind = new JmlLemmaKeyword(range(kwToken, kwToken), JmlLemmaKeyword.Kind.DEFINITION); }
+    | <JML_ASSERT> { kwToken = token(); } expr = Expression()
+      [ <BY> script = JmlProofBlock() ]
+        { kind = new JmlLemmaKeyword(range(kwToken, kwToken), JmlLemmaKeyword.Kind.ASSERTION); }
+    | <BY> { kwToken = token(); } script = JmlProofBlock()
+        { kind = new JmlLemmaKeyword(range(kwToken, kwToken), JmlLemmaKeyword.Kind.SCRIPT); }
+    )?  // bare axiom-style lemma: no body, kind stays null
+    ";"
+    {
+        return new JmlLemmaDeclaration(range(begin, token()),
+            new NodeList<>(), modifier.modifiers, name, params.a, kind, expr, script);
+    }
 }
 
 

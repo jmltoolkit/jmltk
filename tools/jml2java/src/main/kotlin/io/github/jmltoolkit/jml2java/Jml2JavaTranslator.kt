@@ -144,9 +144,12 @@ class Jml2JavaTranslator {
             return when (n.binder) {
                 JmlQuantifiedExpr.JmlDefaultBinder.SUM ->
                     visitClassicAccumulate(n, arg, "0", AssignExpr.Operator.PLUS)
+
                 JmlQuantifiedExpr.JmlDefaultBinder.PRODUCT ->
                     visitClassicAccumulate(n, arg, "1", AssignExpr.Operator.MULTIPLY)
+
                 JmlQuantifiedExpr.JmlDefaultBinder.NUM_OF -> visitClassicCount(n, arg)
+
                 else -> throw IllegalArgumentException("Unsupport quantifier " + n.binder)
             }
         }
@@ -161,13 +164,18 @@ class Jml2JavaTranslator {
         private fun visitElementQuantified(n: JmlQuantifiedExpr, arg: BlockStmt): Expression =
             when (n.binder) {
                 JmlQuantifiedExpr.JmlDefaultBinder.FORALL -> visitElementForall(n, arg)
+
                 JmlQuantifiedExpr.JmlDefaultBinder.EXISTS ->
                     UnaryExpr(visitElementForall(n, arg), UnaryExpr.Operator.LOGICAL_COMPLEMENT)
+
                 JmlQuantifiedExpr.JmlDefaultBinder.SUM ->
                     visitElementAccumulate(n, arg, "0", AssignExpr.Operator.PLUS)
+
                 JmlQuantifiedExpr.JmlDefaultBinder.PRODUCT ->
                     visitElementAccumulate(n, arg, "1", AssignExpr.Operator.MULTIPLY)
+
                 JmlQuantifiedExpr.JmlDefaultBinder.NUM_OF -> visitElementCount(n, arg)
+
                 else -> throw IllegalArgumentException("Unsupport quantifier " + n.binder)
             }
 

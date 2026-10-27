@@ -241,7 +241,8 @@ Hook: `JmlProcessor.JmlReplaceVisitor` already carries a `ProblemReporter`
       count element quantifiers per binder
 - [x] `tools/lsp` `CodeActionCollector.kt`: no crash on the new node; optional
       quick-fix expanding to classic form via the desugarer
-- [ ] Run each tool's test suite
+- [x] Run each tool's test suite (jml2java, smt, wd, stat, lsp; plus the
+      desugarer suite in `jmlparser-jml-tests`)
 
 ## Phase 8 — M4 docs & release
 

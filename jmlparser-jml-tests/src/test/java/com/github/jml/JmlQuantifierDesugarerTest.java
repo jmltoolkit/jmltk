@@ -39,7 +39,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class JmlQuantifierDesugarerTest {
 
-    private static final String SOURCE = String.join("\n",
+    private static final String SOURCE = String.join(
+            "\n",
             "class Domains {",
             "    int n;",
             "    int[] a;",
@@ -56,9 +57,8 @@ class JmlQuantifierDesugarerTest {
             "}");
 
     private final TypeSolver typeSolver = new ReflectionTypeSolver(true);
-    private final JavaParser javaParser = new JavaParser(new ParserConfiguration()
-            .setProcessJml(true)
-            .setSymbolResolver(new JavaSymbolSolver(typeSolver)));
+    private final JavaParser javaParser = new JavaParser(
+            new ParserConfiguration().setProcessJml(true).setSymbolResolver(new JavaSymbolSolver(typeSolver)));
 
     private List<JmlQuantifiedExpr> elementQuantifiers() {
         ParseResult<CompilationUnit> r = javaParser.parse(SOURCE);
@@ -84,8 +84,8 @@ class JmlQuantifierDesugarerTest {
         // substitution applies to every occurrence
         assertThat(desugar(qs.get(2))).isEqualTo("(\\sum int _i; 0 <= _i && _i < a.length; a[_i] * a[_i])");
         // filters and body are rewritten too
-        assertThat(desugar(qs.get(6))).isEqualTo(
-                "(\\forall int _i; 0 <= _i && _i < objs.length; objs[_i] != null; objs[_i] + a[0] != null)");
+        assertThat(desugar(qs.get(6)))
+                .isEqualTo("(\\forall int _i; 0 <= _i && _i < objs.length; objs[_i] != null; objs[_i] + a[0] != null)");
     }
 
     @Test
@@ -95,14 +95,16 @@ class JmlQuantifierDesugarerTest {
         assertThat(JmlQuantifierDesugarer.desugar(qs.get(3))).isEmpty();
 
         ParseResult<Expression> classic = new JavaParser().parseJmlExpression("(\\forall int x; 0 <= x < 5; a[x])");
-        assertThat(JmlQuantifierDesugarer.desugar(classic.getResult().get().asJmlQuantifiedExpr())).isEmpty();
+        assertThat(JmlQuantifierDesugarer.desugar(classic.getResult().get().asJmlQuantifiedExpr()))
+                .isEmpty();
     }
 
     @Test
     void unresolvableDomainDegradesGracefully() {
         // no symbol resolver configured -> array domains cannot be classified
         ParseResult<Expression> r = new JavaParser().parseJmlExpression("(\\forall int e : a; e > 0)");
-        assertThat(JmlQuantifierDesugarer.desugar(r.getResult().get().asJmlQuantifiedExpr())).isEmpty();
+        assertThat(JmlQuantifierDesugarer.desugar(r.getResult().get().asJmlQuantifiedExpr()))
+                .isEmpty();
     }
 
     @Test

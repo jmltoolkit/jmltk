@@ -154,8 +154,8 @@ Rules that apply throughout (identical to the other fork implementation plans):
 - [x] root `spotlessCheck` + `checkstyleMain` green (pre-existing warnings only)
 - [x] `./scripts/run-generators.sh` drift check passes (committed regenerated state)
 - [x] all touched module suites re-run green
-- [ ] `git push -u origin weigl/predicate`
-- [ ] `gh pr create --base main --head weigl/predicate` with phase summary
+- [x] `git push -u origin weigl/predicate`
+- [x] `gh pr create --base main --head weigl/predicate` with phase summary
 
 ## Deviations & notes (recorded during implementation)
 

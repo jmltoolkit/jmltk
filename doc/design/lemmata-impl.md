@@ -192,24 +192,33 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
 
 ## Phase 5 — M1 tests
 
-- [ ] Parser tests (`jmlparser-jml-tests`, new class e.g.
+- [x] Parser tests (`jmlparser-jml-tests`, new class e.g.
       `LemmaDeclarationTest` in `.../jml/parser`):
   - all four body forms parse; AST assertions on kind node (enum + token range),
     expr, script, modifiers
   - `use_lemma` inside `\by {…}` → `JmlProofCmdStmt` name `use_lemma`
   - negative: `==`-form, missing `;`, `lemma (…)` (no name)
-- [ ] CSM round-trip: new resource `csm_jml_classlevel.txt` + a loop wired into
+  (9 tests in `jmlparser-jml-tests/.../parser/LemmaDeclarationTest.java`)
+- [x] CSM round-trip: new resource `csm_jml_classlevel.txt` + a loop wired into
       `ConcreteSyntaxModelTest` (mirror quantarray's `csm_jml_expression.txt`)
       with the four lemma forms round-tripping verbatim
-- [ ] `LexicalPreservingPrinterTest`: a class with a `lemma` and a method whose
+  (round-trips the four *unmodified* lemma forms; JML-modifier'd forms
+  normalize to `jml_…` in CSM by design and are covered by the parser + LPP
+  tests instead. Required a CSM bugfix first: `token(BY)` printed the
+  JavaCC-escaped `\\by` (doubled backslash); both `proofCmdSuffix()` and the
+  new `lemmaScriptSuffix()` now use `string(BY, "\\by")`)
+- [x] `LexicalPreservingPrinterTest`: a class with a `lemma` and a method whose
       `\by {…}` script contains `use_lemma` round-trips byte-for-byte
-- [ ] Corpus fixture `fullexamples/tested/Lemmas.java` (like `QuantArray.java`):
+      (`JmlLemmaLexicalPreservingPrinterTest` in `.../jml/printer`)
+- [x] Corpus fixture `fullexamples/tested/Lemmas.java` (like `QuantArray.java`):
       `instance lemma Pred(int i) = i > 0`, a `\by`-script lemma whose script
       calls `use_lemma nospace(t)`, and a method with `//@ assert … \by {…}`
       (miniature of the VerifyThis 2025.1 `MinExcludant0` example, with the
       method-level `use_lemma` moved *into* the scripts per §3)
-- [ ] new fragment fixtures `fragments/decl_*.txt` / `stmt_*.txt` if the corpus
+      (picked up by `FullExamplesTest.createTestedJmlTests`)
+- [x] new fragment fixtures `fragments/decl_*.txt` / `stmt_*.txt` if the corpus
       harness picks them up; `FragmentTest` + `FullExamplesTest` green
+      (`fragments/decl_jml_lemma.txt`, picked up by `FragmentTest.testClassLevel`)
 - [ ] commit
 
 ## Phase 6 — symbol solver

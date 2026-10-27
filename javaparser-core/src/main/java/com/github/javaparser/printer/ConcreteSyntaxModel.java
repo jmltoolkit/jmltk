@@ -89,13 +89,15 @@ public class ConcreteSyntaxModel {
     }
 
     private static CsmElement proofCmdSuffix() {
+        // tokenImage[BY] is JavaCC-escaped (doubled backslash); emit the plain
+        // single-backslash form so the printout can be re-parsed.
         return conditional(
                 SUFFIX,
                 IS_EMPTY,
                 semicolon(),
                 sequence(
                         space(),
-                        token(GeneratedJavaParserConstants.BY),
+                        string(GeneratedJavaParserConstants.BY, "\\by"),
                         space(),
                         token(LBRACE),
                         list(SUFFIX, space()),
@@ -144,7 +146,7 @@ public class ConcreteSyntaxModel {
     private static CsmElement lemmaScriptSuffix() {
         return sequence(
                 space(),
-                token(GeneratedJavaParserConstants.BY),
+                string(GeneratedJavaParserConstants.BY, "\\by"),
                 space(),
                 token(LBRACE),
                 list(SCRIPT, space()),

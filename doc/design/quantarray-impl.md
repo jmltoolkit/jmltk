@@ -158,7 +158,7 @@ Hook: `JmlProcessor.JmlReplaceVisitor` already carries a `ProblemReporter`
 
 ## Phase 5 — M1 test suite
 
-- [ ] `jmlparser-jml-tests/src/test/resources/jml-exprs.txt` — add (parsed by
+- [x] `jmlparser-jml-tests/src/test/resources/jml-exprs.txt` — added (parsed by
       `JmlExpressionTest` automatically):
       ```text
       (\forall int e : a; e > 0)
@@ -172,14 +172,28 @@ Hook: `JmlProcessor.JmlReplaceVisitor` already carries a `ProblemReporter`
       (\forall int[] row : m; row.length == n)
       (\forall int e : a; (\exists int f : a; f.equals(e)))
       ```
-- [ ] `src/test/resources/csm_jml_expression.txt` — same lines for the CSM
-      round-trip (`ConcreteSyntaxModelTest.printQuantifiedExpr`)
-- [ ] LexicalPreservingPrinter round-trip test for a contract containing
-      `(\forall int e : a; …)` (jmlparser-jml-tests)
-- [ ] Negative tests: `(\forall int i, j : 0..n; …)`; `(\forall int e : a[e]; …)`;
-      `(\forall int e = 3 : a; …)`
-- [ ] One new `FragmentTest` corpus fragment using the syntax inside a real contract
-- [ ] `./gradlew :jmlparser-jml-tests:test spotlessApply` green
+- [x] `src/test/resources/csm_jml_expression.txt` — same lines for the CSM
+      round-trip (`ConcreteSyntaxModelTest.printQuantifiedExpr`). The range
+      example is spaced to the CSM canonical form
+      (`0 .. a.length - 1`, `a[i] <= a[i + 1]`); the other nine round-trip
+      verbatim. 19/19 CSM round-trips pass.
+- [x] `LexicalPreservingPrinterTest` (jmlparser-jml-tests,
+      `com/github/jml/printer/`) — round-trips a contract containing both
+      `(\forall int e : a; …)` and a range-domain quantifier byte-for-byte.
+- [x] Negative tests in a new `QuantifiedExprValidationTest`
+      (parser with `setProcessJml(true)`, since the checks live in
+      `JmlProcessor`): `(\forall int i, j : 0..n; …)` (parse-level),
+      `(\forall int e : a[e]; …)` and `(\forall int e = 3 : a; …)`
+      (validator-level); plus a positive control asserting no problems on
+      valid forms.
+- [x] One new `FragmentTest` corpus fragment
+      (`fragments/decl_quantarray_iterable.txt`) derived from a real contract,
+      plus the source `fullexamples/tested/QuantArray.java` which is picked up
+      by `FullExamplesTest` and parsed through the whole `processJml=true`
+      pipeline.
+- [x] `./gradlew :jmlparser-jml-tests:test spotlessApply` green
+      (16 JmlExpressionTest, 4 QuantifiedExprValidationTest, 19 CSM,
+      1 LPP, fragments + full examples all pass).
 
 ## Phase 6 — M2 resolution & type inference
 

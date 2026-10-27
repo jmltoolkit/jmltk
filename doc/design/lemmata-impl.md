@@ -146,16 +146,16 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
 
 ## Phase 3 — printing
 
-- [ ] `ConcreteSyntaxModel`: entries for `JmlLemmaKeyword` and
+- [x] `ConcreteSyntaxModel`: entries for `JmlLemmaKeyword` and
       `JmlLemmaDeclaration` — modifiers, `lemma`, `name`, `( params )`, per kind
       `= expr` / `assert expr [\by {…}]` / `\by {…}`, `;`
       (`ConcreteSyntaxModelTest` requires an entry for every metamodel node)
-- [ ] `DefaultPrettyPrinterVisitor.visit(JmlLemmaDeclaration)`:
+- [x] `DefaultPrettyPrinterVisitor.visit(JmlLemmaDeclaration)`:
       `printModifiers(...); "lemma"; name; (params); kind.jmlSymbol() (from the
       kind node) + expr; JmlProofPrint(script) if present; ";"`
-- [ ] `JmlProofCmdStmt` printing: `name args suffix` — already generic; `use_lemma`
+- [x] `JmlProofCmdStmt` printing: `name args suffix` — already generic; `use_lemma`
       prints via the `"use_lemma"` SimpleName (no change expected)
-- [ ] `./scripts/run-generators.sh` drift check; `./gradlew :javaparser-core-testing:test`
+- [x] `./scripts/run-generators.sh` drift check; `./gradlew :javaparser-core-testing:test`
       green
 - [ ] commit
 

@@ -107,6 +107,50 @@ public class ConcreteSyntaxModel {
                 printer.print(((JmlProofObtainStmt) node).getKind().jmlSymbol());
     }
 
+    private static CsmElement lemmaKeyword() {
+        return (node, printer) -> printer.print(((JmlLemmaKeyword) node).jmlSymbol());
+    }
+
+    /**
+     * The kind-dependent connector of a {@link JmlLemmaDeclaration}. The decision
+     * depends on the {@link JmlLemmaKeyword.Kind} enum value, so it cannot be
+     * expressed with the declarative {@code conditional} elements — hence a lambda,
+     * the same idiom as {@link #proofObtainKind()}. For {@code DEFINITION} the
+     * connector is {@code = expr}, for {@code ASSERTION} {@code assert expr}; the
+     * {@code \by} of the {@code SCRIPT} form (and of {@code assert … \by …}) is
+     * emitted by {@link #lemmaScriptSuffix()}.
+     */
+    private static CsmElement lemmaConnector() {
+        return (node, printer) -> {
+            JmlLemmaDeclaration lemma = (JmlLemmaDeclaration) node;
+            if (!lemma.getKind().isPresent()) {
+                return;
+            }
+            switch (lemma.getKind().get().getKeyword()) {
+                case DEFINITION:
+                    printer.print(" = ");
+                    lemma.getExpression().ifPresent(expr -> ConcreteSyntaxModel.genericPrettyPrint(expr, printer));
+                    break;
+                case ASSERTION:
+                    printer.print(" assert ");
+                    lemma.getExpression().ifPresent(expr -> ConcreteSyntaxModel.genericPrettyPrint(expr, printer));
+                    break;
+                default:
+                    break;
+            }
+        };
+    }
+
+    private static CsmElement lemmaScriptSuffix() {
+        return sequence(
+                space(),
+                token(GeneratedJavaParserConstants.BY),
+                space(),
+                token(LBRACE),
+                list(SCRIPT, space()),
+                token(RBRACE));
+    }
+
     private static CsmElement keyTransactionType() {
         return (node, printer) -> printer.print(((KeyTransactionStmt) node).getType().symbol);
     }
@@ -1298,6 +1342,20 @@ public class ConcreteSyntaxModel {
                         newline()));
         concreteSyntaxModelByClass.put(
                 JmlCallableClause.class, sequence(child(MODIFIERS), token(CALLABLE), semicolon()));
+        concreteSyntaxModelByClass.put(JmlLemmaKeyword.class, lemmaKeyword());
+        concreteSyntaxModelByClass.put(
+                JmlLemmaDeclaration.class,
+                sequence(
+                        modifiers(),
+                        token(LEMMA),
+                        space(),
+                        child(NAME),
+                        token(LPAREN),
+                        list(PARAMETERS, sequence(comma(), space())),
+                        token(RPAREN),
+                        lemmaConnector(),
+                        conditional(SCRIPT, IS_NOT_EMPTY, lemmaScriptSuffix()),
+                        semicolon()));
         concreteSyntaxModelByClass.put(
                 JmlClassExprDeclaration.class,
                 sequence(child(MODIFIERS), space(), token(INVARIANT), space(), child(EXPRESSION), semicolon()));

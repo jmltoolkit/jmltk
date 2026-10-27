@@ -19,11 +19,19 @@ import java.util.concurrent.TimeUnit
 @Timeout(60)
 class SolverTest {
 
-    /** A "solver" that never finishes on its own, on every OS (`sleep` does not exist on Windows). */
+    /**
+     * A "solver" that never finishes on its own, on every OS.
+     *
+     * `sleep` does not exist on Windows. The Windows stand-in must also be
+     * *silent*: the Solver pipes the query into the process' stdin and parses its
+     * stdout incrementally, so a chatty stub (like `ping`, which prints headers
+     * and replies) makes the SMT parser throw before the watchdog kills it.
+     * `cmd /c "timeout /t 30 /nobreak >nul"` sleeps without writing to stdout.
+     */
     private fun neverFinishingProcess(): Process {
         val cmd =
             if (System.getProperty("os.name").lowercase().contains("win")) {
-                listOf("ping", "-n", "31", "127.0.0.1")
+                listOf("cmd", "/c", "timeout /t 30 /nobreak >nul")
             } else {
                 listOf("sleep", "30")
             }

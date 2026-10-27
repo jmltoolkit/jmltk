@@ -37,7 +37,7 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
 
 ### 1a. `JmlLemmaKeyword` — keyword-with-position node (kind)
 
-- [ ] Create `javaparser-core/src/main/java/com/github/javaparser/ast/jml/body/JmlLemmaKeyword.java`
+- [x] Create `javaparser-core/src/main/java/com/github/javaparser/ast/jml/body/JmlLemmaKeyword.java`
       (model: `Modifier` — a **node** wrapping a keyword enum, not a bare enum):
   - `public class JmlLemmaKeyword extends Node implements Jmlish, JmlKeyword`
   - nested `public enum Kind implements JmlKeyword { DEFINITION("="), ASSERTION("assert"),
@@ -47,12 +47,12 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
     to `keyword.jmlSymbol()`
   - constructors: `(Kind)` and TokenRange-carrying `(TokenRange, Kind)` for the
     parser; Javadoc with syntax examples
-- [ ] Register `JmlLemmaKeyword.class` in `ALL_NODE_CLASSES` (parents before
+- [x] Register `JmlLemmaKeyword.class` in `ALL_NODE_CLASSES` (parents before
       children; parent `Node` already present)
 
 ### 1b. `JmlLemmaDeclaration`
 
-- [ ] Create `javaparser-core/src/main/java/com/github/javaparser/ast/jml/body/JmlLemmaDeclaration.java`:
+- [x] Create `javaparser-core/src/main/java/com/github/javaparser/ast/jml/body/JmlLemmaDeclaration.java`:
   - `public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclaration>
          implements NodeWithModifiers<JmlLemmaDeclaration>, NodeWithAccessModifiers<JmlLemmaDeclaration>`
     (model file: `JmlClassExprDeclaration.java`)
@@ -74,33 +74,33 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
     `@AllFieldsConstructor`; keep the parser `TokenRange`-based one
   - Javadoc with syntax examples (AGENTS.md), e.g.
     `//@ instance lemma Pred(int i) = i > 0;` and the `\by { auto; }` form
-- [ ] Register `JmlLemmaDeclaration.class` in `ALL_NODE_CLASSES` (after
+- [x] Register `JmlLemmaDeclaration.class` in `ALL_NODE_CLASSES` (after
       `JmlClassExprDeclaration`; `JmlClassLevelDeclaration` is already in the list)
-- [ ] `./scripts/run-generators.sh` → expect: `JmlLemmaKeywordMetaModel`,
+- [x] `./scripts/run-generators.sh` → expect: `JmlLemmaKeywordMetaModel`,
       `JmlLemmaDeclarationMetaModel` (child of
       `JmlClassLevelDeclarationMetaModel`), `visit(JmlLemmaKeyword)` +
       `visit(JmlLemmaDeclaration)` in generated visitors, `ObservableProperty`
       reuse. Cast methods **on the six base nodes only** (NOT on
       `JmlClassLevelDeclaration` — quantarray lesson: consumers use `instanceof`)
-- [ ] Post-generation compile fixes (CONTRIBUTING steps 3→4, pulled forward like
+- [x] Post-generation compile fixes (CONTRIBUTING steps 3→4, pulled forward like
       quantarray):
   - `DefaultPrettyPrinterVisitor.visit(JmlLemmaKeyword)` + `.visit(JmlLemmaDeclaration)`
     — real implementations (Phase 3 spec)
   - `PrettyPrintVisitor` (legacy JML-less printer) — stubs
   - symbol-solver `DefaultVisitorAdapter` — throwing stubs
-- [ ] `./gradlew compileJava` green
-- [ ] commit (e.g. `feat(core): Phase 1 — JmlLemmaKeyword + JmlLemmaDeclaration nodes`)
+- [x] `./gradlew compileJava` green
+- [x] commit (e.g. `feat(core): Phase 1 — JmlLemmaKeyword + JmlLemmaDeclaration nodes`)
 
 ## Phase 2 — grammar
 
-- [ ] Lexer: add `<LEMMA: "lemma">` in the JML keyword token block next to
+- [x] Lexer: add `<LEMMA: "lemma">` in the JML keyword token block next to
       `<AXIOM: "axiom">` (`java.jj:~243`). Dedicated lexer rule, no reordering
       (AGENTS.md). **No `USE_LEMMA` token** — `use_lemma` must stay an identifier
       (otherwise the generic proof-command branch stops matching it).
-- [ ] `TokenTypes#getCategory(int)`: classify `LEMMA` as a keyword next to `AXIOM`
+- [x] `TokenTypes#getCategory(int)`: classify `LEMMA` as a keyword next to `AXIOM`
       (`TokenTypes.java:~183`) or `TokenTypesTest` breaks. (`USE_LEMMA`: nothing to
       classify — no such token.)
-- [ ] Class level: new production
+- [x] Class level: new production
       `JmlClassLevelDeclaration JmlLemmaDeclaration(ModifierHolder modifier):`
       per `lemmata.md` §4 (`<LEMMA> SimpleName() Parameters() ( "=" Expression()
       | <JML_ASSERT> Expression() [ <BY> JmlProofBlock() ]
@@ -108,7 +108,7 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
       `new JmlLemmaKeyword(tokenRange(), Kind.…)`), plus an alternative in
       `JmlClassLevelInner` (`java.jj:7747`):
       `| LOOKAHEAD(1) element = JmlLemmaDeclaration(modifiers) { ret.add(element); }`
-- [ ] Proof command: in the proof-command production (`java.jj:7156`, inside
+- [x] Proof command: in the proof-command production (`java.jj:7156`, inside
       `JmlProofStmt`), add the `obtain`-style contextual branch for `use_lemma`
       (`lemmata.md` §4):
       ```java
@@ -121,17 +121,17 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
       ```
       Mirror the existing `obtain` lookahead at `java.jj:7162`. Place it before
       the generic `name=SimpleName() …` alternative.
-  - [ ] **Nice-to-have check:** since the generic command alternative already
+  - [x] **Nice-to-have check:** since the generic command alternative already
         matches `use_lemma nospace(t);`, verify why the explicit branch matters —
         it upgrades `use_lemma` from "any command named identically" to a
         recognized command (future dedicated node/stat handling) and keeps the
         option to reject a non-call operand later. If it turns out redundant for
         the corpus, keep the branch anyway (explicitness, cheap).
-- [ ] **No changes** to `JmlStatement()` / `JmlExpressionStmt` / `JmlStmtKind`
+- [x] **No changes** to `JmlStatement()` / `JmlExpressionStmt` / `JmlStmtKind`
       (`use_lemma` is a proof command, not a method-body statement)
-- [ ] `./gradlew :javaparser-core:compileJavacc` — 0 errors; no new LOOKAHEAD
+- [x] `./gradlew :javaparser-core:compileJavacc` — 0 errors; no new LOOKAHEAD
       conflicts in `JmlClassLevelInner` / proof-command production
-- [ ] Smoke (jshell against `javaparser-core/build/classes/java/main`):
+- [x] Smoke (jshell against `javaparser-core/build/classes/java/main`):
   - `//@ instance lemma Pred(int i) = i > 0;` via `JavaParser.parseJmlClassLevel(...)`
     → `JmlLemmaDeclaration`, modifiers `[JML_INSTANCE]`,
     kind node `Kind.DEFINITION` with the `=` token range, expr `i > 0`
@@ -141,7 +141,8 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
   - `//@ lemma P(int i) assert i > 0 \by { auto; };` → kind `ASSERTION`
   - negative: `//@ lemma P(int i) == i > 0;` → parse problem
   - no method-level `use_lemma` statement parses (expected — deferred)
-- [ ] commit
+  (All of the above covered by `LemmaParseSmokeTest` in `jmlparser-core-testing`.)
+- [x] commit
 
 ## Phase 3 — printing
 

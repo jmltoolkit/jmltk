@@ -10,6 +10,7 @@ import com.github.javaparser.ast.body.Parameter
 import com.github.javaparser.ast.body.VariableDeclarator
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.jml.NodeWithContracts
+import com.github.javaparser.ast.jml.body.JmlLemmaDeclaration
 import com.github.javaparser.ast.jml.expr.*
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr.JmlDefaultBinder
 import com.github.javaparser.ast.type.Type
@@ -287,6 +288,13 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
     }
 
     override fun visit(n: JmlTypeExpr?, arg: Any?): SExpr = super.visit(n, arg)
+
+    override fun visit(n: JmlLemmaDeclaration, arg: Any?): SExpr? {
+        // Lemmas are spec-only declarations for the KeY prover; a formula tree
+        // never contains one. Returning null (like GenericVisitorAdapter's
+        // default) documents that lemmas produce no SMT term.
+        return null
+    }
 
     companion object {
         private val termFactory: SmtTermFactory = SmtTermFactory

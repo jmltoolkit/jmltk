@@ -7,6 +7,7 @@ package io.github.jmltoolkit.jml2java
 import com.github.javaparser.ast.Modifier
 import com.github.javaparser.ast.body.VariableDeclarator
 import com.github.javaparser.ast.expr.*
+import com.github.javaparser.ast.jml.body.JmlLemmaDeclaration
 import com.github.javaparser.ast.jml.expr.JmlLetExpr
 import com.github.javaparser.ast.jml.expr.JmlMultiCompareExpr
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr
@@ -129,6 +130,13 @@ class Jml2JavaTranslator {
     }
 
     private inner class Jml2JavaVisitor : GenericVisitorAdapter<Expression, BlockStmt>() {
+        override fun visit(n: JmlLemmaDeclaration, arg: BlockStmt): Expression? {
+            // A lemma is spec-only: it declares a proof obligation for KeY, not
+            // a Java member, so it never translates into Java code. Returning
+            // null keeps the visitor from touching the lemma's context.
+            return null
+        }
+
         override fun visit(n: JmlQuantifiedExpr, arg: BlockStmt): Expression {
             if (n.binder === JmlQuantifiedExpr.JmlDefaultBinder.FORALL) return visitForall(n, arg)
             if (n.binder === JmlQuantifiedExpr.JmlDefaultBinder.EXISTS) return visitExists(n, arg)

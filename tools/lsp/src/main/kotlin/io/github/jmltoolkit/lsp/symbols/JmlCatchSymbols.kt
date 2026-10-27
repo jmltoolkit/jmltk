@@ -172,6 +172,16 @@ class JmlCatchSymbols : GenericVisitorAdapter<MutableList<DocumentSymbol>?, Unit
             )
         )
 
+    override fun visit(n: JmlLemmaDeclaration, arg: Unit?): MutableList<DocumentSymbol> = arrayListOf(
+            DocumentSymbol(
+                n.name.asString(),
+                SymbolKind.Function,
+                n.asRange, n.asRange,
+                "Jml lemma (proof script)",
+                listOf()
+            )
+        )
+
     override fun visit(n: JmlSimpleExprClause, arg: Unit?): MutableList<DocumentSymbol> = arrayListOf(
             DocumentSymbol(
                 n.name.map { "$it : ${n.kind}" }.orElse("Clause ${n.kind}"),

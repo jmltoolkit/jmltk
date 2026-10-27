@@ -13,10 +13,12 @@ import com.github.javaparser.ast.body.FieldDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.jml.body.JmlClassAccessibleDeclaration
 import com.github.javaparser.ast.jml.body.JmlClassExprDeclaration
+import com.github.javaparser.ast.jml.body.JmlLemmaDeclaration
 import com.github.javaparser.ast.jml.body.JmlMethodDeclaration
 import com.github.javaparser.ast.jml.clauses.*
 import com.github.javaparser.ast.jml.expr.JmlLetExpr
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr
+import com.github.javaparser.ast.jml.proof.JmlProofCmdStmt
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 
 /** Statistics are stored inside the AST */
@@ -144,6 +146,19 @@ class JmlStatisticsReporter : VoidVisitorAdapter<Statistics>() {
 
     override fun visit(n: JmlClassExprDeclaration, arg: Statistics) {
         arg.inc(n)
+        super.visit(n, arg)
+    }
+
+    override fun visit(n: JmlLemmaDeclaration, arg: Statistics) {
+        arg.inc(StatisticKey.totalLemmas)
+        arg.inc(StatisticKeys.lemma(n.name.asString()))
+        super.visit(n, arg)
+    }
+
+    override fun visit(n: JmlProofCmdStmt, arg: Statistics) {
+        if (n.name.asString() == "use_lemma") {
+            arg.inc(StatisticKey.useLemmaCommands)
+        }
         super.visit(n, arg)
     }
 

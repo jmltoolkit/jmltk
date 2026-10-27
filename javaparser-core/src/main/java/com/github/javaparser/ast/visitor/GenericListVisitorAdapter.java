@@ -3406,4 +3406,39 @@ public abstract class GenericListVisitorAdapter<R, A> implements GenericVisitor<
         }
         return result;
     }
+
+    @Override
+    public List<R> visit(final JmlLemmaDeclaration n, final A arg) {
+        List<R> result = new ArrayList<>();
+        List<R> tmp;
+        {
+            tmp = n.getJmlTags().accept(this, arg);
+            if (tmp != null) result.addAll(tmp);
+        }
+        {
+            tmp = n.getModifiers().accept(this, arg);
+            if (tmp != null) result.addAll(tmp);
+        }
+        {
+            tmp = n.getName().accept(this, arg);
+            if (tmp != null) result.addAll(tmp);
+        }
+        {
+            tmp = n.getParameters().accept(this, arg);
+            if (tmp != null) result.addAll(tmp);
+        }
+        {
+            tmp = n.getScript().accept(this, arg);
+            if (tmp != null) result.addAll(tmp);
+        }
+        {
+            tmp = n.getAnnotations().accept(this, arg);
+            if (tmp != null) result.addAll(tmp);
+        }
+        if (n.getComment().isPresent()) {
+            tmp = n.getComment().get().accept(this, arg);
+            if (tmp != null) result.addAll(tmp);
+        }
+        return result;
+    }
 }

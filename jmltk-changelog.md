@@ -34,6 +34,36 @@ migration the version lives in `gradle.properties`.
 
 ## Combined releases (JML + KeY, this repository)
 
+### Unreleased — 1.2.0-SNAPSHOT
+
+Since the last prepared release the fork publishes under fork-local SemVer (`MAJOR.MINOR.PATCH`, see
+`AGENTS.md` → Versioning), independent of the upstream JavaParser base (`3.28.2`, tracked via
+`upstreamBase=` in `gradle.properties`). This is a feature release: `1.1.0-SNAPSHOT` → `1.2.0-SNAPSHOT`.
+
+Port of KeY PR #3971 — JML lemma declarations and `use_lemma` proof scripts (branch `weigl/lemmata`).
+
+**Added**
+
+- `//@ lemma Name(params) \by { … };` proof-command lemmas as class-body declarations (only KeY's
+  `assertionProof` script form — a definitional `lemma … = expr;` or `assert …` form is deliberately
+  **not** part of this port): `JmlLemmaDeclaration` AST node (`ba73811bc`, Phase 1), `JavaToken`
+  kind renumber for the `LEMMA` token (`c9271d7a2`), grammar incl. the mandatory `\by` script and the
+  `use_lemma` proof command following the `obtain` pattern (`b10bc16f8`, Phase 2),
+  `ConcreteSyntaxModel`/pretty-printer entries (`7ec4b72d8`, Phase 3), language-level validation incl.
+  lemma modifier rules (`0e1b5c621`, Phase 4), M1 parser/printer/lexical-preserving-printer test corpus
+  with the VerifyThis 2025.1 MinExcludant0 miniature (`06f73eef9`, Phase 5), symbol-solver resolution of
+  lemma parameters from inside the lemma body and its `\by` script — `\seq`/`\bigint` parameter names
+  resolve and their types fail cleanly instead of crashing (`ad7a0a9ae`, Phase 6), and M3 tool backends:
+  `wd`/`jml2java`/`smt` no-op visits, `stat` `totalLemmas`/`LEMMA_<name>`/`useLemmaCommands` counters
+  plus `<jml-lemma>` XML elements, `lsp` document symbols and expression well-definedness code actions
+  (`f248314f5`, Phase 7).
+- Design & implementation plan: `doc/design/lemmata-impl.md` (`d2c19333d`, Phase 0).
+
+**Deferred**
+
+- Method-level `use_lemma` statements (`//@ use_lemma …;` outside a `\by {…}` proof script); lemma
+  declarations as resolvable symbols — see `doc/design/lemmata-impl.md` → "Deferred / open".
+
 ### Version 3.28.2-J8.0-K13.6  (2026-10-25, prepared)
 
 Second combined release. Completes the K13.6 feature level on this lineage: the KeY fork published K13.6 on

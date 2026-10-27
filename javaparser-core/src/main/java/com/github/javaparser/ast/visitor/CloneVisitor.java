@@ -2253,4 +2253,21 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
         copyData(n, r);
         return r;
     }
+
+    @Override
+    public Visitable visit(final JmlLemmaDeclaration n, final Object arg) {
+        NodeList<SimpleName> jmlTags = cloneList(n.getJmlTags(), arg);
+        NodeList<Modifier> modifiers = cloneList(n.getModifiers(), arg);
+        SimpleName name = cloneNode(n.getName(), arg);
+        NodeList<Parameter> parameters = cloneList(n.getParameters(), arg);
+        NodeList<JmlProofStmt> script = cloneList(n.getScript(), arg);
+        NodeList<AnnotationExpr> annotations = cloneList(n.getAnnotations(), arg);
+        Comment comment = cloneNode(n.getComment(), arg);
+        JmlLemmaDeclaration r =
+                new JmlLemmaDeclaration(n.getTokenRange().orElse(null), jmlTags, modifiers, name, parameters, script);
+        r.setComment(comment);
+        n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
+        copyData(n, r);
+        return r;
+    }
 }

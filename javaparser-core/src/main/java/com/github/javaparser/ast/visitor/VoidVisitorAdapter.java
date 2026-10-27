@@ -1258,4 +1258,15 @@ public abstract class VoidVisitorAdapter<A> implements VoidVisitor<A> {
         n.getVar().accept(this, arg);
         n.getComment().ifPresent(l -> l.accept(this, arg));
     }
+
+    @Override
+    public void visit(final JmlLemmaDeclaration n, final A arg) {
+        n.getJmlTags().forEach(p -> p.accept(this, arg));
+        n.getModifiers().forEach(p -> p.accept(this, arg));
+        n.getName().accept(this, arg);
+        n.getParameters().forEach(p -> p.accept(this, arg));
+        n.getScript().forEach(p -> p.accept(this, arg));
+        n.getAnnotations().forEach(p -> p.accept(this, arg));
+        n.getComment().ifPresent(l -> l.accept(this, arg));
+    }
 }

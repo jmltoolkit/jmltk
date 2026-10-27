@@ -10,10 +10,12 @@ import com.github.javaparser.ast.jml.clauses.JmlMultiExprClause
 import com.github.javaparser.ast.jml.expr.JmlLabelExpr
 import com.github.javaparser.ast.jml.expr.JmlLetExpr
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr
+import com.github.javaparser.ast.jml.expr.JmlQuantifiedVariable
 import com.github.javaparser.ast.jml.expr.JmlTypeExpr
 import com.github.javaparser.ast.jml.stmt.JmlExpressionStmt
 import com.github.javaparser.ast.visitor.GenericVisitorAdapter
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
+import com.github.javaparser.jml.JmlQuantifierDesugarer
 import io.github.jmltoolkit.smt.ArithmeticTranslator
 import io.github.jmltoolkit.smt.JmlExpr2Smt
 import io.github.jmltoolkit.smt.SmtQuery
@@ -135,6 +137,15 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
     override fun visit(n: TypePatternExpr, arg: Any?): SExpr = term.makeTrue()
 
     override fun visit(n: JmlQuantifiedExpr, arg: Any?): SExpr {
+        if (JmlQuantifierDesugarer.isElementQuantifier(n)) {
+            // Element-domain quantifier: the iterable domain must itself be
+            // well-defined (non-null, free of NPEs/division by zero, i.e. pure
+            // and evaluated once), and every bound expression (filters and
+            // body) must be well-defined.
+            val binding = n.variables[0] as JmlQuantifiedVariable
+            val domainWd: SExpr = binding.iterable.map { it.accept(this, arg) }.orElse(term.makeTrue())
+            return term.and(domainWd, term.and(n.expressions.map { it.accept(this, arg) }))
+        }
         /*The quantified-expression is well-defined iff the two sub-expressions are well-defined. For a quantifier Q*/
         val seq: List<SExpr> = n.expressions.map { it.accept(this, arg) }
         val r: Expression = n.expressions[0]

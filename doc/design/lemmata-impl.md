@@ -321,12 +321,17 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
 
 ## Phase 8 — changelog & version
 
-- [ ] `jmltk-changelog.md`: add `Unreleased — 1.2.0-SNAPSHOT` entry listing the
+- [x] `jmltk-changelog.md`: add `Unreleased — 1.2.0-SNAPSHOT` entry listing the
       lemma/`use_lemma` port (Phases 1-7 with commit hashes); bump
       `1.1.0-SNAPSHOT` → `1.2.0-SNAPSHOT` (feature ⇒ minor)
-- [ ] `gradle.properties`: `version=1.2.0-SNAPSHOT`
-- [ ] Full corpus (`FragmentTest`, `FullExamplesTest`) green; root
+      (entry also documents the fork-local SemVer scheme switch; per-phase hashes
+      `ba73811bc` … `f248314f5` + design `d2c19333d`)
+- [x] `gradle.properties`: `version=1.2.0-SNAPSHOT`
+- [x] Full corpus (`FragmentTest`, `FullExamplesTest`) green; root
       `spotlessCheck` + `checkstyleMain` green; all touched module suites re-run
+      (jml-tests forced rerun incl. `decl_jml_lemma.txt` fragment +
+      `fullexamples/tested/Lemmas.java`; checkstyle reports only pre-existing
+      warnings — none in the new/changed files)
 - [ ] commit; then open PR against `main` on `jmltoolkit/jmltk` (base `main`,
       head `weigl/lemmata`, title like
       `feat(core,tools): JML lemma declarations and use_lemma proof commands (port of KeY #3971)`)

@@ -9,6 +9,7 @@ import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.LambdaExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.jml.body.JmlFieldDeclaration;
+import com.github.javaparser.ast.jml.body.JmlLemmaDeclaration;
 import com.github.javaparser.ast.modules.ModuleRequiresDirective;
 import com.github.javaparser.ast.nodeTypes.NodeWithModifiers;
 import com.github.javaparser.ast.nodeTypes.NodeWithTokenRange;
@@ -332,6 +333,51 @@ public class ModifierValidator extends VisitorValidator {
                 JML_SPEC_JAVA_MATH,
                 JML_SPEC_SAFE_MATH);
         super.visit(n.getDecl(), reporter);
+    }
+
+    @Override
+    public void visit(JmlLemmaDeclaration n, ProblemReporter reporter) {
+        validateModifiers(
+                n,
+                reporter,
+                PUBLIC,
+                PROTECTED,
+                PRIVATE,
+                STATIC,
+                FINAL,
+                JML_NULLABLE,
+                JML_NULLABLE_BY_DEFAULT,
+                JML_NON_NULL,
+                JML_NON_NULL_ELEMENTS,
+                JML_MODEL,
+                JML_INSTANCE,
+                JML_PURE,
+                JML_CODE_BIGINT_MATH,
+                JML_CODE_JAVA_MATH,
+                JML_CODE_SAFE_MATH,
+                JML_SPEC_BIGINT_MATH,
+                JML_SPEC_JAVA_MATH,
+                JML_SPEC_SAFE_MATH);
+        n.getParameters()
+                .forEach(p -> validateModifiers(
+                        p,
+                        reporter,
+                        FINAL,
+                        JML_NULLABLE,
+                        JML_NULLABLE_BY_DEFAULT,
+                        JML_NON_NULL,
+                        JML_NON_NULL_ELEMENTS));
+        duplicateParameters(n, reporter);
+        super.visit(n, reporter);
+    }
+
+    private void duplicateParameters(JmlLemmaDeclaration n, ProblemReporter reporter) {
+        final java.util.Set<String> names = new java.util.HashSet<>();
+        for (Parameter parameter : n.getParameters()) {
+            if (!names.add(parameter.getNameAsString())) {
+                reporter.report(parameter, "Parameter '" + parameter.getNameAsString() + "' is already defined");
+            }
+        }
     }
 
     @Override

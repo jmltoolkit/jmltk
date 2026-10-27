@@ -241,6 +241,7 @@ TOKEN : {
 | <ASSUME: "assume">
 | <ASSUME_REDUNDANTLY: "assume_redundantly">
 | <AXIOM: "axiom">
+| <LEMMA: "lemma">
 | <BEHAVIOR: "behavior">
 | <BEHAVIOUR: "behaviour">
 | <BIGINT: "\\BIGINT">
@@ -7735,6 +7736,7 @@ void JmlClassLevelInner(ModifierHolder modifiers,  NodeList<Node> ret):
 }
 {
 	  LOOKAHEAD(1) element = JmlClassExpr(modifiers)         { ret.add(element); }
+	| LOOKAHEAD(1) element = JmlClassLemma(modifiers)        { ret.add(element); }
 	| LOOKAHEAD(1) element = JmlClassAccessible(modifiers)   { ret.add(element); }
 	| LOOKAHEAD(1) element = JmlClassRepresents(modifiers)   { ret.add(element); }
 	| LOOKAHEAD(3) contracts = JmlContractsM(modifiers.modifiers)
@@ -7950,6 +7952,27 @@ JmlClassLevelDeclaration JmlClassExpr(ModifierHolder modifiers):
   {
     begin = orIfInvalid(modifiers.begin, kind);
     return new JmlClassExprDeclaration(range(begin, token()), kind, modifiers.modifiers, expr);
+  }
+}
+
+
+JmlClassLevelDeclaration JmlClassLemma(ModifierHolder modifiers):
+{
+    JavaToken begin;
+    SimpleName id;
+    Pair<NodeList<Parameter>, ReceiverParameter> parameters;
+    Expression expr;
+}
+{
+  <LEMMA> {begin=token();}
+  id=SimpleName()
+  parameters=Parameters()
+  "="
+  expr=Expression()
+  ";"
+  {
+    begin = orIfInvalid(modifiers.begin, begin);
+    return new JmlLemmaDeclaration(range(begin, token()), new NodeList<>(), modifiers.modifiers, id, parameters.a, expr);
   }
 }
 

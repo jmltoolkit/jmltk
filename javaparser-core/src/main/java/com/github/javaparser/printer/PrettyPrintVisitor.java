@@ -2286,6 +2286,9 @@ public class PrettyPrintVisitor implements VoidVisitor<Void> {
     public void visit(JmlRepresentsDeclaration n, Void arg) {}
 
     @Override
+    public void visit(JmlLemmaDeclaration n, Void arg) {}
+
+    @Override
     public void visit(JmlContract n, Void arg) {}
 
     @Override

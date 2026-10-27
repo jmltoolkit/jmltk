@@ -1752,4 +1752,17 @@ public class EqualsVisitor implements GenericVisitor<Boolean, Visitable> {
         if (!nodeEquals(n.getComment(), n2.getComment())) return false;
         return true;
     }
+
+    @Override
+    public Boolean visit(final JmlLemmaDeclaration n, final Visitable arg) {
+        final JmlLemmaDeclaration n2 = (JmlLemmaDeclaration) arg;
+        if (!nodeEquals(n.getBody(), n2.getBody())) return false;
+        if (!nodesEquals(n.getJmlTags(), n2.getJmlTags())) return false;
+        if (!nodesEquals(n.getModifiers(), n2.getModifiers())) return false;
+        if (!nodeEquals(n.getName(), n2.getName())) return false;
+        if (!nodesEquals(n.getParameters(), n2.getParameters())) return false;
+        if (!nodesEquals(n.getAnnotations(), n2.getAnnotations())) return false;
+        if (!nodeEquals(n.getComment(), n2.getComment())) return false;
+        return true;
+    }
 }

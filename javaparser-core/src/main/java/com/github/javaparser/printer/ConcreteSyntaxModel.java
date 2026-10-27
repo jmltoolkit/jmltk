@@ -1301,6 +1301,21 @@ public class ConcreteSyntaxModel {
         concreteSyntaxModelByClass.put(
                 JmlClassExprDeclaration.class,
                 sequence(child(MODIFIERS), space(), token(INVARIANT), space(), child(EXPRESSION), semicolon()));
+        concreteSyntaxModelByClass.put(
+                JmlLemmaDeclaration.class,
+                sequence(
+                        modifiers(),
+                        token(GeneratedJavaParserConstants.LEMMA),
+                        space(),
+                        child(NAME),
+                        token(LPAREN),
+                        list(PARAMETERS, sequence(comma(), space())),
+                        token(RPAREN),
+                        space(),
+                        token(GeneratedJavaParserConstants.ASSIGN),
+                        space(),
+                        child(BODY),
+                        semicolon()));
         concreteSyntaxModelByClass.put(JmlClassAccessibleDeclaration.class, sequence());
         concreteSyntaxModelByClass.put(JmlContract.class, sequence());
         concreteSyntaxModelByClass.put(

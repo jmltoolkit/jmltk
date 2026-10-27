@@ -53,13 +53,22 @@ public final class JmlQuantifierDesugarer {
      * The four binding kinds of {@code quantarray.md} §4.
      */
     public enum Kind {
-        /** Plain classic binding {@code (\binder int x; …)} — already classic. */
+
+        /**
+         * Plain classic binding {@code (\binder int x; …)} — already classic.
+         */
         CLASSIC,
-        /** Range generator {@code lo..hi}. */
+        /**
+         * Range generator {@code lo..hi}.
+         */
         RANGE,
-        /** Array generator ({@code E} array-typed, not an array access). */
+        /**
+         * Array generator ({@code E} array-typed, not an array access).
+         */
         ARRAY,
-        /** {@code Iterable} generator — formal model deferred, never desugared. */
+        /**
+         * {@code Iterable} generator — formal model deferred, never desugared.
+         */
         ITERABLE
     }
 
@@ -157,7 +166,6 @@ public final class JmlQuantifierDesugarer {
                 new BinaryExpr(range.getLeft().clone(), new NameExpr(name), BinaryExpr.Operator.LESS_EQUALS),
                 new BinaryExpr(new NameExpr(name), range.getRight().clone(), BinaryExpr.Operator.LESS),
                 BinaryExpr.Operator.AND);
-
         NodeList<VariableDeclarator> variables = new NodeList<>();
         variables.add(new VariableDeclarator(rangeBoundType(v), name));
         return new JmlQuantifiedExpr(n.getTokenRange().orElse(null), n.getBinder(), variables, prependHead(n, guard));
@@ -181,10 +189,8 @@ public final class JmlQuantifierDesugarer {
                 new BinaryExpr(
                         new NameExpr(index), new FieldAccessExpr(array.clone(), "length"), BinaryExpr.Operator.LESS),
                 BinaryExpr.Operator.AND);
-
         NodeList<VariableDeclarator> variables = new NodeList<>();
         variables.add(new VariableDeclarator(PrimitiveType.intType(), index));
-
         ArrayAccessExpr access = new ArrayAccessExpr(array.clone(), new NameExpr(index));
         NodeList<Expression> expressions = new NodeList<>();
         expressions.add(guard);

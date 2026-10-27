@@ -112,6 +112,21 @@ internal class JmlStatisticsReporterTest {
     }
 
     @Test
+    fun testTotalLemmasCounting() {
+        val code = """
+            class MyClass {
+                //@ instance lemma Pred(int i) = i > 0;
+                //@ model lemma Even(int n) = (n % 2 == 0);
+            }
+
+            """.trimIndent()
+        val cu = parse(code)
+        val stats = computeStatistics(cu)
+
+        assertThat(stats[StatisticKey.totalLemmas]).isEqualTo(2)
+    }
+
+    @Test
     fun testSpecifiedMethodDetection() {
         // Using \\ for JML escape sequences in Java strings
         val code = """

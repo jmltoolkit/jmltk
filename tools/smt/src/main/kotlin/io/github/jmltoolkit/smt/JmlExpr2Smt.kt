@@ -14,6 +14,7 @@ import com.github.javaparser.ast.jml.expr.*
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr.JmlDefaultBinder
 import com.github.javaparser.ast.type.Type
 import com.github.javaparser.ast.visitor.GenericVisitorAdapter
+import com.github.javaparser.jml.JmlQuantifierDesugarer
 import io.github.jmltoolkit.smt.model.SAtom
 import io.github.jmltoolkit.smt.model.SExpr
 import io.github.jmltoolkit.smt.model.SmtType
@@ -216,6 +217,20 @@ class JmlExpr2Smt(private val smtLog: SmtQuery, val translator: ArithmeticTransl
     override fun visit(n: TypePatternExpr, arg: Any?): SExpr = super.visit(n, arg)
 
     override fun visit(n: JmlQuantifiedExpr, arg: Any?): SExpr? {
+        if (JmlQuantifierDesugarer.isElementQuantifier(n)) {
+            // kinds 2 (range) and 3 (array) desugar to the classic index form and
+            // are re-encoded through the classic path; kind 4 (Iterable) has no
+            // formal model yet.
+            val classic = JmlQuantifierDesugarer.desugar(n).orElseThrow {
+                UnsupportedOperationException(
+                    "Element quantifiers over Iterable domains (kind 4) are not supported by the SMT backend yet: $n"
+                )
+            }
+            // Keep the desugared form attached to the tree so calculateResolvedType()
+            // on its sub-expressions (array access, field access) still resolves.
+            n.getParentNode().ifPresent(classic::setParentNode)
+            return classic.accept(this, arg)
+        }
         return boundedVars.bind(n.variables) {
             when (n.binder as JmlDefaultBinder) {
                 JmlDefaultBinder.FORALL -> {

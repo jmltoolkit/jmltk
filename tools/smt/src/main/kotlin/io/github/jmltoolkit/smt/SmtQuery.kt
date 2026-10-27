@@ -54,7 +54,10 @@ class SmtQuery : AppendableTo {
     override fun appendTo(writer: PrintWriter) {
         for (command in commands) {
             command.appendTo(writer)
-            writer.println()
+            // Bare '\n' (not PrintWriter.println, which writes the platform line
+            // separator): serialization must be byte-stable across OSes so that
+            // committed `.smt2` goldens match on Windows too (CRLF would drift).
+            writer.append('\n')
         }
     }
 
@@ -82,7 +85,8 @@ class SmtQuery : AppendableTo {
         commands.forEach(
             Consumer { a: SExpr ->
             a.appendTo(pw)
-            pw.println()
+            // see appendTo: '\n' keeps toString() stable on every OS
+            pw.append('\n')
         }
         )
         return sw.toString()

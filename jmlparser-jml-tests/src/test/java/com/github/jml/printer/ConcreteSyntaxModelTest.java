@@ -4,9 +4,14 @@
  */
 package com.github.jml.printer;
 
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.jml.ArbitraryNodeContainer;
+import com.github.javaparser.ast.jml.body.JmlLemmaDeclaration;
 import com.github.javaparser.printer.ConcreteSyntaxModel;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 
@@ -25,5 +30,18 @@ class ConcreteSyntaxModelTest {
         Expression expr = parseJmlExpression(line);
         System.out.println(expr);
         assertEquals(line, print(expr));
+    }
+
+    @ParameterizedTest()
+    @CsvFileSource(resources = "/csm_jml_classlevel.txt", delimiterString = "FOOBARFOOBAZ")
+    void printJmlClassLevel(String line) {
+        ParseResult<ArbitraryNodeContainer> result = new JavaParser().parseJmlClassLevel(line);
+        Assertions.assertTrue(result.isSuccessful(), () -> result.getProblems().toString());
+        JmlLemmaDeclaration lemma = result.getResult().get().getChildren().stream()
+                .filter(n -> n instanceof JmlLemmaDeclaration)
+                .map(n -> (JmlLemmaDeclaration) n)
+                .findFirst()
+                .orElseThrow();
+        assertEquals(line, print(lemma));
     }
 }

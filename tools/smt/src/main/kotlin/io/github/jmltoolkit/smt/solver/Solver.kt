@@ -33,8 +33,10 @@ open class Solver(private val defaultTimeoutMillis: Long = 60_000L) {
 
     @Throws(IOException::class)
     protected open fun startSmtSolver(): Process {
-        val pb = ProcessBuilder("sh", "-c", "z3 -smt2 -in")
-        return pb.start()
+        // Invoke the z3 binary directly (no `sh -c` wrapper): ProcessBuilder
+        // resolves it against PATH on every OS — `z3.exe` on Windows via the
+        // PATH entry added by the CI's SMT setup, `z3` on Linux/macOS.
+        return ProcessBuilder("z3", "-smt2", "-in").start()
     }
 
     @Throws(IOException::class)
@@ -163,7 +165,7 @@ open class Solver(private val defaultTimeoutMillis: Long = 60_000L) {
     }
 }
 
-/** Hard-kills a solver process tree (z3 runs as a child of `sh -c`). */
+/** Hard-kills the solver process. z3 is spawned directly (no shell wrapper), so it is the only process. */
 private fun killTree(process: Process) {
     runCatching { process.descendants().forEach { runCatching { it.destroyForcibly() } } }
     runCatching { process.destroyForcibly() }

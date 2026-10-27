@@ -18,6 +18,18 @@ import java.util.concurrent.TimeUnit
  */
 @Timeout(60)
 class SolverTest {
+
+    /** A "solver" that never finishes on its own, on every OS (`sleep` does not exist on Windows). */
+    private fun neverFinishingProcess(): Process {
+        val cmd =
+            if (System.getProperty("os.name").lowercase().contains("win")) {
+                listOf("ping", "-n", "31", "127.0.0.1")
+            } else {
+                listOf("sleep", "30")
+            }
+        return ProcessBuilder(cmd).start()
+    }
+
     @Test
     @Throws(IOException::class)
     fun startZ3Mini() {
@@ -31,7 +43,7 @@ class SolverTest {
     fun cancellationDestroysTheSolverProcess() {
         // a "solver" that never finishes on its own
         val solver = object : Solver() {
-            override fun startSmtSolver(): Process = ProcessBuilder("sleep", "30").start()
+            override fun startSmtSolver(): Process = neverFinishingProcess()
         }
         val started = System.nanoTime()
         val answer = solver.run(
@@ -49,7 +61,7 @@ class SolverTest {
     fun timeoutKillsExactlyAtTheDeadline() {
         // a "solver" that never finishes on its own: only the deadline can unblock the run
         val solver = object : Solver() {
-            override fun startSmtSolver(): Process = ProcessBuilder("sleep", "30").start()
+            override fun startSmtSolver(): Process = neverFinishingProcess()
         }
         val started = System.nanoTime()
         val answer = solver.run(

@@ -47,8 +47,7 @@ import java.util.function.Function;
  */
 public final class JmlQuantifierDesugarer {
 
-    private JmlQuantifierDesugarer() {
-    }
+    private JmlQuantifierDesugarer() {}
 
     /**
      * The four binding kinds of {@code quantarray.md} §4.
@@ -161,11 +160,7 @@ public final class JmlQuantifierDesugarer {
 
         NodeList<VariableDeclarator> variables = new NodeList<>();
         variables.add(new VariableDeclarator(rangeBoundType(v), name));
-        return new JmlQuantifiedExpr(
-                n.getTokenRange().orElse(null),
-                n.getBinder(),
-                variables,
-                prependHead(n, guard));
+        return new JmlQuantifiedExpr(n.getTokenRange().orElse(null), n.getBinder(), variables, prependHead(n, guard));
     }
 
     private static Type rangeBoundType(JmlQuantifiedVariable v) {
@@ -184,9 +179,7 @@ public final class JmlQuantifierDesugarer {
         Expression guard = new BinaryExpr(
                 new BinaryExpr(new IntegerLiteralExpr("0"), new NameExpr(index), BinaryExpr.Operator.LESS_EQUALS),
                 new BinaryExpr(
-                        new NameExpr(index),
-                        new FieldAccessExpr(array.clone(), "length"),
-                        BinaryExpr.Operator.LESS),
+                        new NameExpr(index), new FieldAccessExpr(array.clone(), "length"), BinaryExpr.Operator.LESS),
                 BinaryExpr.Operator.AND);
 
         NodeList<VariableDeclarator> variables = new NodeList<>();
@@ -220,7 +213,8 @@ public final class JmlQuantifierDesugarer {
         // Only NameExpr nodes present in the original expression are replaced; each
         // replacement introduces new nodes, so the pre-collected matches stay hits-free
         // (the domain may not reference the bound variable — validated by JmlProcessor).
-        for (NameExpr match : body.findAll(NameExpr.class, ne -> ne.getNameAsString().equals(name))) {
+        for (NameExpr match :
+                body.findAll(NameExpr.class, ne -> ne.getNameAsString().equals(name))) {
             match.replace(replacement.clone());
         }
         return body;

@@ -8,6 +8,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.*;
+import com.github.javaparser.ast.jml.body.JmlLemmaDeclaration;
 import com.github.javaparser.ast.jml.clauses.JmlContract;
 import com.github.javaparser.ast.jml.clauses.JmlForallClause;
 import com.github.javaparser.ast.jml.clauses.JmlSignalsClause;
@@ -51,6 +52,10 @@ public class JavaParserFactory {
 
         if (node instanceof JmlQuantifiedExpr) {
             return new JmlQuantifiedExprContext((JmlQuantifiedExpr) node, typeSolver);
+        }
+
+        if (node instanceof JmlLemmaDeclaration) {
+            return new JmlLemmaDeclarationContext((JmlLemmaDeclaration) node, typeSolver);
         }
 
         if (node instanceof JmlContract) {

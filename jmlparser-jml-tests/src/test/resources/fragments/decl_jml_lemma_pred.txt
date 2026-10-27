@@ -1,0 +1,1 @@
+instance lemma Pred(int i) = i > 0;

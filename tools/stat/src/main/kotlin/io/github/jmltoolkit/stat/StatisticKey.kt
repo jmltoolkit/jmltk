@@ -82,6 +82,7 @@ sealed class StatisticKey<T : Any>(val defValue: Any) {
     data object pureMethods : IntSumKey()
     data object helperMethods : IntSumKey()
     data object totalQuantifiers : IntSumKey()
+    data object totalElementQuantifiers : IntSumKey()
     data object CONTRACT_METHOD : IntSumKey()
     data object CONTRACT_LAMBDA : IntSumKey()
     data object CONTRACT_STATEMENT : IntSumKey()

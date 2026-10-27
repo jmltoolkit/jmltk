@@ -546,6 +546,24 @@ internal class JmlStatisticsReporterTest {
         assertThat(stats[StatisticKey.SPECIFIED_METHODS]).isEqualTo(1)
     }
 
+    @Test
+    fun testLemmaCounting() {
+        val code = """
+            class MyClass {
+                //@ lemma Pred(int i) = i > 0;
+                //@ lemma nospace(\seq s) \by { use_lemma nospace(s); auto; };
+            }
+
+            """.trimIndent()
+        val cu = parse(code)
+        val stats = computeStatistics(cu)
+
+        assertThat(stats[StatisticKey.totalLemmas]).isEqualTo(2)
+        assertThat(stats["LEMMA_PRED"]).isEqualTo(1)
+        assertThat(stats["LEMMA_NOSPACE"]).isEqualTo(1)
+        assertThat(stats[StatisticKey.useLemmaCommands]).isEqualTo(1)
+    }
+
     // ==================== Helper Methods ====================
     private fun computeStatistics(cu: CompilationUnit): Statistics {
         val stats = Statistics()

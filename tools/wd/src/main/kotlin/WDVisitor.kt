@@ -6,6 +6,7 @@ package io.github.jmltoolkit.wd
 
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.jml.body.JmlClassExprDeclaration
+import com.github.javaparser.ast.jml.body.JmlLemmaDeclaration
 import com.github.javaparser.ast.jml.clauses.JmlMultiExprClause
 import com.github.javaparser.ast.jml.expr.JmlLabelExpr
 import com.github.javaparser.ast.jml.expr.JmlLetExpr
@@ -172,6 +173,11 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
     override fun visit(n: JmlLetExpr, arg: Any?): SExpr = term.and(wd(n.body),  /* TODO  arguments */term.makeTrue())
 
     override fun visit(n: JmlClassExprDeclaration, arg: Any?): SExpr = term.makeTrue()
+
+    // A lemma is a spec-only declaration, not an assertion to be checked: the
+    // well-definedness of the lemma body is validated by the `\by` script, not
+    // by the verification-condition generator.
+    override fun visit(n: JmlLemmaDeclaration, arg: Any?): SExpr = term.makeTrue()
 
     override fun visit(n: JmlTypeExpr, arg: Any?): SExpr = term.makeTrue()
 

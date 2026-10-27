@@ -259,33 +259,64 @@ Two nodes, both registered in `MetaModelGenerator.ALL_NODE_CLASSES`:
 - [x] `:jmlparser-symbol-solver-testing:test` + `:jmlparser-jml-tests:test` green
       (also `:jmlparser-core:test` + `:jmlparser-core-testing:test` for the
       `JmlLogicType` change)
-- [ ] commit
+- [x] commit (`ad7a0a9ae`)
 
 ## Phase 7 — M3 backends (no-crash + minimal semantics)
 
-- [ ] `tools/jml2java` (`Jml2JavaTranslator`): lemma declarations are spec-only —
+- [x] `tools/jml2java` (`Jml2JavaTranslator`): lemma declarations are spec-only —
       emit **no** Java member; verify the existing `expr.yaml`/print fixtures
       still pass
-- [ ] `tools/smt` (`JmlExpr2Smt`): no crash when a formula's tree contains a
+      (jml2java is expression-only — `Jml2JavaFacade.translate` never reaches a
+      body declaration — so "no member" is trivially satisfied; added a
+      documented no-op `visit(JmlLemmaDeclaration): Expression? = null` in
+      `Jml2JavaVisitor` next to the `JmlQuantifiedExpr` override.
+      `:tools:jml2java:test` incl. the `expr.yaml` fixtures stays green)
+- [x] `tools/smt` (`JmlExpr2Smt`): no crash when a formula's tree contains a
       lemma declaration; lemma definitions not encoded (documented no-op)
-- [ ] `tools/wd` (`WDVisitor`): no-op `visit(JmlLemmaDeclaration)`
-      (like the existing `visit(JmlClassExprDeclaration)` at `WDVisitor.kt:185`);
-      optional: well-definedness of the lemma body = `wd(params) ∧ wd(expr) ∧
-      wd(script)` with a CSV fixture
-- [ ] `tools/stat` (`StatVisitor`, `StatisticKey`): `totalLemmas` plus per-name
-      `LEMMA_<name>` counter; optional: `useLemmaCommands` counter for
-      `JmlProofCmdStmt(name="use_lemma")`
-- [ ] `tools/lsp`:
-  - `JmlCatchSymbols`: document symbol (Kind.Method/Function) for
-    `JmlLemmaDeclaration`
-  - `CodeActionCollector`: no crash on the new nodes
-  - JML keyword highlighting: add `lemma` to the JML construct keywords (the
-    `LEMMA` entry at `KeyDocumentHighlighter.kt:195` is for `.key` files — do not
-    conflate; `use_lemma` stays an identifier, highlighted as a command)
-- [ ] `tools/lint` visitors: no-crash visits for `JmlLemmaDeclaration`,
+      (`visit(JmlLemmaDeclaration): SExpr? = null` above the companion object;
+      `:tools:smt:test` green)
+- [x] `tools/wd` (`WDVisitor`): no-op `visit(JmlLemmaDeclaration)`
+      (next to `visit(JmlClassExprDeclaration)` at `WDVisitor.kt`; a lemma is a
+      proof obligation for KeY, not an assertion, so it contributes `⊤` to the
+      well-definedness VC). The optional stronger body WD
+      (`wd(params) ∧ wd(expr) ∧ wd(script)`) is deferred: WD generation is
+      expression-driven and no lemma-body fixture exists yet. `:tools:wd:test`
+      green.
+- [x] `tools/stat` (`StatVisitor`, `StatisticKey`): `totalLemmas` plus per-name
+      `LEMMA_<name>` counter, and `useLemmaCommands` for `JmlProofCmdStmt(name=
+      "use_lemma")`
+      (new `StatisticKey.totalLemmas`/`useLemmaCommands` data objects, public
+      `StatisticKeys.lemma(name)` → `LEMMA_<name>` (normalized uppercase);
+      `JmlStatisticsReporter.visit(JmlLemmaDeclaration)` and
+      `visit(JmlProofCmdStmt)`; `StatVisitor.visit(JmlLemmaDeclaration)` emits a
+      `<jml-lemma name=…>` element with modifiers and an `<expr>` child if the
+      lemma has a body; `testLemmaCounting` in `JmlStatisticsReporterTest`. CLI
+      end-to-end on `fullexamples/tested/Lemmas.java`:
+      `jml-lemma name="Pred|nospace|intEq"` with `hasinstance`/`hasno_state`
+      modifiers present.)
+- [x] `tools/lsp`:
+  - `JmlCatchSymbols`: document symbol for `JmlLemmaDeclaration`
+    (`SymbolKind.Function`, name, `asRange`, detail
+    `"Jml lemma ($kind jmlSymbol | axiom)"` for the definitions/scripts kinds)
+  - `CodeActionCollector`: `visit(JmlLemmaDeclaration)` offers the
+    well-definedness check on the lemma's expression (mirrors
+    `JmlClassExprDeclaration`)
+  - JML keyword highlighting: **no change needed** — `TokenTypes#getCategory`
+    classifies `LEMMA` as `Keyword` (it already did in Phase 1), so
+    `JmlDocumentHighlighter`'s token-category lookup highlights `lemma`
+    automatically; `use_lemma` stays an `Identifier`. The `LEMMA` entry at
+    `KeyDocumentHighlighter.kt:195` is for `.key` syntax and was left alone.
+- [x] `tools/lint` visitors: no-crash verified for `JmlLemmaDeclaration`,
       `JmlLemmaKeyword`, and `JmlProofCmdStmt(name="use_lemma")`
-- [ ] all touched tool modules' suites green; `spotlessApply` + `spotlessCheck`,
-      checkstyleMain (root) green
+      (`JmlDuplicateNamesValidator.checkType` dispatches over members with a
+      non-exhaustive `when`, so lemmas are simply skipped; all other rules visit
+      clause/expression node types; `JmlLintingFacade.lint` also wraps every
+      linter in try/catch. No guards needed.)
+- [x] all touched tool modules' suites green (`wd`, `stat`, `jml2java`, `smt`,
+      `lsp`, `lint`, plus `cli` for the end-to-end stat run); `spotlessApply` +
+      `spotlessCheck` green, `checkstyleMain` green. Phase 7 touches no core or
+      generated sources, so the generator drift gate stays clean (still re-run:
+      no drift).
 - [ ] commit
 
 ## Phase 8 — changelog & version

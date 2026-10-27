@@ -34,6 +34,7 @@ object StatisticKeys {
     fun modifier(keyword: Modifier.Keyword) = getOrCreate("MODIFIER_$keyword")
     fun classExpr(keyword: SimpleName) = getOrCreate("CLASS_$keyword")
     fun classExpr(keyword: String) = getOrCreate("CLASS_$keyword")
+    fun lemma(name: String) = getOrCreate("LEMMA_$name")
     fun behavior(keyword: Any) = getOrCreate("BEHAVIOR_$keyword")
     fun binder(keyword: Any) = getOrCreate("BINDER_$keyword")
 }
@@ -81,6 +82,8 @@ sealed class StatisticKey<T : Any>(val defValue: Any) {
     data object totalModelMethods : IntSumKey()
     data object pureMethods : IntSumKey()
     data object helperMethods : IntSumKey()
+    data object totalLemmas : IntSumKey()
+    data object useLemmaCommands : IntSumKey()
     data object totalQuantifiers : IntSumKey()
     data object CONTRACT_METHOD : IntSumKey()
     data object CONTRACT_LAMBDA : IntSumKey()

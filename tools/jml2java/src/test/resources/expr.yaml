@@ -80,3 +80,167 @@
   result: |
     (let ((x 5)) x)
   disabled: true
+
+- expr: |
+    (\forall int e : a; e > 0)
+  result: |
+    {
+        boolean result_0 = true;
+        {
+        }
+        for (int e : a) {
+            boolean pred_1;
+            {
+                pred_1 = e > 0;
+            }
+            result_0 = result_0 && pred_1;
+        }
+    } result_0
+
+- expr: |
+    (\exists String s : words; s.length() > 3)
+  result: |
+    {
+        boolean result_0 = true;
+        {
+        }
+        for (String s : words) {
+            boolean pred_1;
+            {
+                pred_1 = s.length() > 3;
+            }
+            result_0 = result_0 && pred_1;
+        }
+    } !result_0
+
+- expr: |
+    (\sum int e : a; e * e)
+  result: |
+    {
+        int sum_0 = 0;
+        {
+        }
+        for (int e : a) {
+            {
+            }
+            sum_0 += e * e;
+        }
+    } sum_0
+
+- expr: |
+    (\product double e : a; e + 1)
+  result: |
+    {
+        int prod_0 = 1;
+        {
+        }
+        for (double e : a) {
+            {
+            }
+            prod_0 *= e + 1;
+        }
+    } prod_0
+
+- expr: |
+    (\num_of Object o : objs; o != null)
+  result: |
+    {
+        int num_0 = 0;
+        {
+        }
+        for (Object o : objs) {
+            {
+            }
+            if (o != null)
+                ++num_0;
+        }
+    } num_0
+
+- expr: |
+    (\forall int i : 0..n; a[i] > 0)
+  result: |
+    {
+        boolean result_0 = true;
+        {
+        }
+        {
+        }
+        for (int i = 0; i < n; i++) {
+            boolean pred_1;
+            {
+                pred_1 = a[i] > 0;
+            }
+            result_0 = result_0 && pred_1;
+        }
+    } result_0
+
+- expr: |
+    (\forall var i : 0..n; a[i] > 0)
+  result: |
+    {
+        boolean result_0 = true;
+        {
+        }
+        {
+        }
+        for (int i = 0; i < n; i++) {
+            boolean pred_1;
+            {
+                pred_1 = a[i] > 0;
+            }
+            result_0 = result_0 && pred_1;
+        }
+    } result_0
+
+- expr: |
+    (\forall int e : a; e != null; e.id > 0)
+  result: |
+    {
+        boolean result_0 = true;
+        {
+        }
+        for (int e : a) {
+            boolean pred_1;
+            {
+                pred_1 = e != null && e.id > 0;
+            }
+            result_0 = result_0 && pred_1;
+        }
+    } result_0
+
+- expr: |
+    (\num_of int i : 0..n; a[i] % 2 == 0)
+  result: |
+    {
+        int num_0 = 0;
+        {
+        }
+        {
+        }
+        for (int i = 0; i < n; i++) {
+            {
+            }
+            if (a[i] % 2 == 0)
+                ++num_0;
+        }
+    } num_0
+
+- expr: |
+    (\sum int x; 0 <= x && x < n; x * x)
+  result: |
+    {
+        int sum_0 = 0;
+        int x;
+        {
+            x = 0;
+        }
+        int high_1;
+        {
+            high_1 = 0;
+        }
+        while (x < high_1) {
+            {
+            }
+            sum_0 += x * x;
+        }
+    } sum_0

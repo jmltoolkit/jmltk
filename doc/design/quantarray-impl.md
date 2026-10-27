@@ -222,11 +222,11 @@ Hook: `JmlProcessor.JmlReplaceVisitor` already carries a `ProblemReporter`
 
 ## Phase 7 — M3 backends
 
-- [ ] Desugarer: new `com.github.javaparser.jml.JmlQuantifierDesugarer` (core) —
+- [x] Desugarer: new `com.github.javaparser.jml.JmlQuantifierDesugarer` (core) —
       kinds 2 (range) / 3 (array) → classic `JmlQuantifiedExpr`
       (`(\forall int _i; 0 <= _i && _i < a.length; P[x := a[_i]])` or via
       `JmlLetExpr`); unit tests; used by the KeY path and the LSP quick-fix
-- [ ] `tools/jml2java` `Jml2JavaTranslator.kt` (binder switch ~132, `visitForall`):
+- [x] `tools/jml2java` `Jml2JavaTranslator.kt` (binder switch ~132, `visitForall`):
       bound binding → enhanced-for (`ForStmt` with
       `initialization = [VariableDeclarationExpr(declarator), iterable]`); range →
       index loop; `\sum`/`\num_of`/`\product` accumulate; update

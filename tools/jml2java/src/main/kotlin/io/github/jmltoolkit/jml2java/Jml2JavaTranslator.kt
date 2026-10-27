@@ -5,11 +5,13 @@
 package io.github.jmltoolkit.jml2java
 
 import com.github.javaparser.ast.Modifier
+import com.github.javaparser.ast.NodeList
 import com.github.javaparser.ast.body.VariableDeclarator
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.jml.expr.JmlLetExpr
 import com.github.javaparser.ast.jml.expr.JmlMultiCompareExpr
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr
+import com.github.javaparser.ast.jml.expr.JmlQuantifiedVariable
 import com.github.javaparser.ast.stmt.*
 import com.github.javaparser.ast.type.PrimitiveType
 import com.github.javaparser.ast.type.VarType
@@ -130,10 +132,198 @@ class Jml2JavaTranslator {
 
     private inner class Jml2JavaVisitor : GenericVisitorAdapter<Expression, BlockStmt>() {
         override fun visit(n: JmlQuantifiedExpr, arg: BlockStmt): Expression {
+            if (n.variables.size == 1) {
+                val binding = n.variables[0]
+                if (binding is JmlQuantifiedVariable && binding.iterable.isPresent) {
+                    return visitElementQuantified(n, arg)
+                }
+            }
             if (n.binder === JmlQuantifiedExpr.JmlDefaultBinder.FORALL) return visitForall(n, arg)
             if (n.binder === JmlQuantifiedExpr.JmlDefaultBinder.EXISTS) return visitExists(n, arg)
 
-            throw IllegalArgumentException("Unsupport quantifier " + n.binder)
+            return when (n.binder) {
+                JmlQuantifiedExpr.JmlDefaultBinder.SUM ->
+                    visitClassicAccumulate(n, arg, "0", AssignExpr.Operator.PLUS)
+                JmlQuantifiedExpr.JmlDefaultBinder.PRODUCT ->
+                    visitClassicAccumulate(n, arg, "1", AssignExpr.Operator.MULTIPLY)
+                JmlQuantifiedExpr.JmlDefaultBinder.NUM_OF -> visitClassicCount(n, arg)
+                else -> throw IllegalArgumentException("Unsupport quantifier " + n.binder)
+            }
+        }
+
+        /**
+         * Element-domain quantification, desugared to a loop over the domain:
+         * `(\forall int e : a; P)` becomes
+         * `boolean result_N = true; for (int e : a) { boolean pred_M; { pred_M = <P>; } result_N &= pred_M; }`,
+         * `(\sum int e : a; v)` accumulates `sum_N += v`, etc. A range domain
+         * `lo..hi` becomes a plain index loop `for (int x = lo; x < hi; x++)`.
+         */
+        private fun visitElementQuantified(n: JmlQuantifiedExpr, arg: BlockStmt): Expression =
+            when (n.binder) {
+                JmlQuantifiedExpr.JmlDefaultBinder.FORALL -> visitElementForall(n, arg)
+                JmlQuantifiedExpr.JmlDefaultBinder.EXISTS ->
+                    UnaryExpr(visitElementForall(n, arg), UnaryExpr.Operator.LOGICAL_COMPLEMENT)
+                JmlQuantifiedExpr.JmlDefaultBinder.SUM ->
+                    visitElementAccumulate(n, arg, "0", AssignExpr.Operator.PLUS)
+                JmlQuantifiedExpr.JmlDefaultBinder.PRODUCT ->
+                    visitElementAccumulate(n, arg, "1", AssignExpr.Operator.MULTIPLY)
+                JmlQuantifiedExpr.JmlDefaultBinder.NUM_OF -> visitElementCount(n, arg)
+                else -> throw IllegalArgumentException("Unsupport quantifier " + n.binder)
+            }
+
+        private fun visitElementForall(n: JmlQuantifiedExpr, arg: BlockStmt): Expression {
+            val rvalue = newSymbol("result_")
+            arg.addAndGetStatement(
+                ExpressionStmt(
+                    VariableDeclarationExpr(
+                        VariableDeclarator(
+                            PrimitiveType(PrimitiveType.Primitive.BOOLEAN), rvalue, BooleanLiteralExpr(true)
+                        )
+                    )
+                )
+            )
+            val pred = Jml2JavaFacade.translate(predicatesOf(n))
+            val predVar = newSymbol("pred_")
+            val loopBody = BlockStmt()
+            loopBody.addAndGetStatement(
+                ExpressionStmt(
+                    VariableDeclarationExpr(
+                        VariableDeclarator(PrimitiveType(PrimitiveType.Primitive.BOOLEAN), predVar)
+                    )
+                )
+            )
+            pred.a!!.addAndGetStatement(
+                ExpressionStmt(AssignExpr(NameExpr(predVar), pred.b!!, AssignExpr.Operator.ASSIGN))
+            )
+            loopBody.addAndGetStatement(pred.a)
+            loopBody.addAndGetStatement(
+                ExpressionStmt(
+                    AssignExpr(
+                        NameExpr(rvalue),
+                        BinaryExpr(NameExpr(rvalue), NameExpr(predVar), BinaryExpr.Operator.AND),
+                        AssignExpr.Operator.ASSIGN
+                    )
+                )
+            )
+            emitElementLoop(n, arg, loopBody)
+            return NameExpr(rvalue)
+        }
+
+        /** `(\sum int e : a; v)` / `(\product int e : a; v)` accumulate into an `int`. */
+        private fun visitElementAccumulate(
+            n: JmlQuantifiedExpr, arg: BlockStmt, init: String, op: AssignExpr.Operator
+        ): Expression {
+            val acc = newSymbol(if (op == AssignExpr.Operator.PLUS) "sum_" else "prod_")
+            arg.addAndGetStatement(
+                ExpressionStmt(
+                    VariableDeclarationExpr(
+                        VariableDeclarator(PrimitiveType(PrimitiveType.Primitive.INT), acc, IntegerLiteralExpr(init))
+                    )
+                )
+            )
+            val value = Jml2JavaFacade.translate(findPredicate(n))
+            val filters = filtersOf(n)
+            val loopBody = BlockStmt()
+            val assign = ExpressionStmt(AssignExpr(NameExpr(acc), value.b!!, op))
+            loopBody.addAndGetStatement(value.a)
+            if (filters != null) {
+                loopBody.addAndGetStatement(IfStmt(filters, assign, null))
+            } else {
+                loopBody.addAndGetStatement(assign)
+            }
+            emitElementLoop(n, arg, loopBody)
+            return NameExpr(acc)
+        }
+
+        /** `(\num_of int e : a; P)` counts the elements satisfying `P`. */
+        private fun visitElementCount(n: JmlQuantifiedExpr, arg: BlockStmt): Expression {
+            val acc = newSymbol("num_")
+            arg.addAndGetStatement(
+                ExpressionStmt(
+                    VariableDeclarationExpr(
+                        VariableDeclarator(PrimitiveType(PrimitiveType.Primitive.INT), acc, IntegerLiteralExpr("0"))
+                    )
+                )
+            )
+            val pred = Jml2JavaFacade.translate(predicatesOf(n))
+            val loopBody = BlockStmt()
+            loopBody.addAndGetStatement(pred.a)
+            loopBody.addAndGetStatement(
+                IfStmt(
+                    pred.b!!,
+                    ExpressionStmt(UnaryExpr(NameExpr(acc), UnaryExpr.Operator.PREFIX_INCREMENT)),
+                    null
+                )
+            )
+            emitElementLoop(n, arg, loopBody)
+            return NameExpr(acc)
+        }
+
+        /**
+         * Appends to `arg` the loop iterating the domain of `n`'s single element
+         * binding — enhanced-for over arrays/Iterables, plain index loop over a
+         * range — with `loopBody` as its body. The domain (or the range endpoints)
+         * is evaluated exactly once, before the loop.
+         */
+        private fun emitElementLoop(n: JmlQuantifiedExpr, arg: BlockStmt, loopBody: BlockStmt) {
+            val variable = n.variables[0] as JmlQuantifiedVariable
+            val iterable = variable.iterable.get()
+            if (iterable is BinaryExpr && iterable.operator == BinaryExpr.Operator.RANGE) {
+                val low = Jml2JavaFacade.translate(iterable.left)
+                val high = Jml2JavaFacade.translate(iterable.right)
+                for (prelude in listOf(low.a, high.a)) {
+                    prelude?.let { arg.addAndGetStatement(it) }
+                }
+                val name = variable.nameAsString
+                val loopType = if (variable.type is VarType) {
+                    PrimitiveType(PrimitiveType.Primitive.INT)
+                } else {
+                    variable.type.clone()
+                }
+                val init = NodeList<Expression>()
+                init.add(VariableDeclarationExpr(VariableDeclarator(loopType, name, low.b)))
+                val update = NodeList<Expression>()
+                update.add(UnaryExpr(NameExpr(name), UnaryExpr.Operator.POSTFIX_INCREMENT))
+                arg.addAndGetStatement(
+                    ForStmt(
+                        init,
+                        BinaryExpr(NameExpr(name), high.b!!, BinaryExpr.Operator.LESS),
+                        update,
+                        loopBody
+                    )
+                )
+            } else {
+                val domain = Jml2JavaFacade.translate(iterable)
+                domain.a?.let { arg.addAndGetStatement(it) }
+                arg.addAndGetStatement(
+                    ForEachStmt(
+                        VariableDeclarationExpr(
+                            VariableDeclarator(variable.type.clone(), variable.nameAsString)
+                        ),
+                        domain.b!!,
+                        loopBody
+                    )
+                )
+            }
+        }
+
+        /** All filter expressions AND the final body/predicate of `n`. */
+        private fun predicatesOf(n: JmlQuantifiedExpr): Expression {
+            var pred: Expression = n.expressions[n.expressions.size - 1].clone()
+            for (i in n.expressions.size - 2 downTo 0) {
+                pred = BinaryExpr(n.expressions[i].clone(), pred, BinaryExpr.Operator.AND)
+            }
+            return pred
+        }
+
+        /** AND of the filter expressions, or null for a single-expression quantifier. */
+        private fun filtersOf(n: JmlQuantifiedExpr): Expression? {
+            var filters: Expression? = null
+            for (i in 0 until n.expressions.size - 1) {
+                val e = n.expressions[i].clone()
+                filters = if (filters == null) e else BinaryExpr(filters, e, BinaryExpr.Operator.AND)
+            }
+            return filters
         }
 
         private fun visitForall(n: JmlQuantifiedExpr, arg: BlockStmt): Expression {
@@ -241,6 +431,122 @@ class Jml2JavaTranslator {
         private fun newSymbol(prefix: String): String = prefix + counter.getAndIncrement()
 
         private fun visitExists(n: JmlQuantifiedExpr, arg: BlockStmt): Expression = UnaryExpr(visitForall(n, arg), UnaryExpr.Operator.LOGICAL_COMPLEMENT)
+
+        /**
+         * Classic `(\sum int x; lo <= x && x < hi; v)` — accumulates over the
+         * range described by the bound expressions. Mirrors {@link #visitForall}'s
+         * loop, but with an `int` accumulator.
+         */
+        private fun visitClassicAccumulate(
+            n: JmlQuantifiedExpr, arg: BlockStmt, init: String, op: AssignExpr.Operator
+        ): Expression {
+            assert(n.variables.size == 1)
+            val acc = newSymbol(if (op == AssignExpr.Operator.PLUS) "sum_" else "prod_")
+            arg.addAndGetStatement(
+                ExpressionStmt(
+                    VariableDeclarationExpr(
+                        VariableDeclarator(PrimitiveType(PrimitiveType.Primitive.INT), acc, IntegerLiteralExpr(init))
+                    )
+                )
+            )
+            val variable = n.variables[0]
+            val highVar = newSymbol("high_")
+            val low = Jml2JavaFacade.translate(findLowerBound(n, variable.nameAsString))
+            val high = Jml2JavaFacade.translate(requireNotNull(findUpperBound(n, variable.nameAsString)))
+            arg.addAndGetStatement(
+                ExpressionStmt(
+                    VariableDeclarationExpr(VariableDeclarator(variable.type.clone(), variable.nameAsString))
+                )
+            )
+            low.a!!.addAndGetStatement(
+                ExpressionStmt(AssignExpr(NameExpr(variable.nameAsString), low.b, AssignExpr.Operator.ASSIGN))
+            )
+            arg.addAndGetStatement(low.a)
+            arg.addAndGetStatement(
+                ExpressionStmt(VariableDeclarationExpr(VariableDeclarator(variable.type.clone(), highVar)))
+            )
+            high.a!!.addAndGetStatement(
+                ExpressionStmt(AssignExpr(NameExpr(highVar), high.b, AssignExpr.Operator.ASSIGN))
+            )
+            arg.addAndGetStatement(high.a!!.clone())
+
+            val value = Jml2JavaFacade.translate(findPredicate(n))
+            val loopBody = BlockStmt()
+            loopBody.addAndGetStatement(value.a)
+            loopBody.addAndGetStatement(ExpressionStmt(AssignExpr(NameExpr(acc), value.b!!, op)))
+
+            val whileStmt = arg.addAndGetStatement(WhileStmt())
+            whileStmt.setCondition(
+                BinaryExpr(NameExpr(variable.nameAsString), NameExpr(highVar), BinaryExpr.Operator.LESS)
+            )
+            whileStmt.setBody(loopBody)
+            return NameExpr(acc)
+        }
+
+        /**
+         * Classic `(\num_of int x; lo <= x && x < hi; P)` — counts the elements
+         * of the range satisfying `P`.
+         */
+        private fun visitClassicCount(n: JmlQuantifiedExpr, arg: BlockStmt): Expression {
+            assert(n.variables.size == 1)
+            val acc = newSymbol("num_")
+            arg.addAndGetStatement(
+                ExpressionStmt(
+                    VariableDeclarationExpr(
+                        VariableDeclarator(PrimitiveType(PrimitiveType.Primitive.INT), acc, IntegerLiteralExpr("0"))
+                    )
+                )
+            )
+            val variable = n.variables[0]
+            val highVar = newSymbol("high_")
+            val low = Jml2JavaFacade.translate(findLowerBound(n, variable.nameAsString))
+            val high = Jml2JavaFacade.translate(requireNotNull(findUpperBound(n, variable.nameAsString)))
+            arg.addAndGetStatement(
+                ExpressionStmt(
+                    VariableDeclarationExpr(VariableDeclarator(variable.type.clone(), variable.nameAsString))
+                )
+            )
+            low.a!!.addAndGetStatement(
+                ExpressionStmt(AssignExpr(NameExpr(variable.nameAsString), low.b, AssignExpr.Operator.ASSIGN))
+            )
+            arg.addAndGetStatement(low.a)
+            arg.addAndGetStatement(
+                ExpressionStmt(VariableDeclarationExpr(VariableDeclarator(variable.type.clone(), highVar)))
+            )
+            high.a!!.addAndGetStatement(
+                ExpressionStmt(AssignExpr(NameExpr(highVar), high.b, AssignExpr.Operator.ASSIGN))
+            )
+            arg.addAndGetStatement(high.a!!.clone())
+
+            val pred = Jml2JavaFacade.translate(predicatesOf(n))
+            val predVar = newSymbol("pred_")
+            val loopBody = BlockStmt()
+            loopBody.addAndGetStatement(
+                ExpressionStmt(
+                    VariableDeclarationExpr(
+                        VariableDeclarator(PrimitiveType(PrimitiveType.Primitive.BOOLEAN), predVar)
+                    )
+                )
+            )
+            pred.a!!.addAndGetStatement(
+                ExpressionStmt(AssignExpr(NameExpr(predVar), pred.b!!, AssignExpr.Operator.ASSIGN))
+            )
+            loopBody.addAndGetStatement(pred.a)
+            loopBody.addAndGetStatement(
+                IfStmt(
+                    NameExpr(predVar),
+                    ExpressionStmt(UnaryExpr(NameExpr(acc), UnaryExpr.Operator.PREFIX_INCREMENT)),
+                    null
+                )
+            )
+
+            val whileStmt = arg.addAndGetStatement(WhileStmt())
+            whileStmt.setCondition(
+                BinaryExpr(NameExpr(variable.nameAsString), NameExpr(highVar), BinaryExpr.Operator.LESS)
+            )
+            whileStmt.setBody(loopBody)
+            return NameExpr(acc)
+        }
 
         override fun visit(n: JmlLetExpr, arg: BlockStmt): Expression {
             val inner = BlockStmt()

@@ -236,7 +236,7 @@ Hook: `JmlProcessor.JmlReplaceVisitor` already carries a `ProblemReporter`
       "not supported yet" error; update `tools/smt/src/test/resources/expr.yaml`
       (also fixed the `SmtTermFactory.list(List<SExpr>)` stub that dropped the
       `forall` binder variables)
-- [ ] `tools/wd` `WDVisitor.kt` (~137): domain WD conditions (non-null, purity)
+- [x] `tools/wd` `WDVisitor.kt` (~137): domain WD conditions (non-null, purity)
 - [ ] `tools/stat` `Statistics.kt`/`StatVisitor.kt`/`JmlStatisticsReporter.kt`:
       count element quantifiers per binder
 - [ ] `tools/lsp` `CodeActionCollector.kt`: no crash on the new node; optional

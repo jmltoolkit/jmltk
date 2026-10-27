@@ -2253,4 +2253,19 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
         copyData(n, r);
         return r;
     }
+
+    @Override
+    public Visitable visit(final JmlQuantifiedVariable n, final Object arg) {
+        Expression iterable = cloneNode(n.getIterable(), arg);
+        Expression initializer = cloneNode(n.getInitializer(), arg);
+        SimpleName name = cloneNode(n.getName(), arg);
+        Type type = cloneNode(n.getType(), arg);
+        Comment comment = cloneNode(n.getComment(), arg);
+        JmlQuantifiedVariable r =
+                new JmlQuantifiedVariable(n.getTokenRange().orElse(null), type, name, initializer, iterable);
+        r.setComment(comment);
+        n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
+        copyData(n, r);
+        return r;
+    }
 }

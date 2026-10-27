@@ -37,6 +37,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.github.javaparser.utils.Utils.decapitalize;
 
@@ -196,6 +198,7 @@ public class MetaModelGenerator extends AbstractGenerator {
 
             add(JmlExpression.class);
             add(JmlQuantifiedExpr.class);
+            add(JmlQuantifiedVariable.class);
             add(JmlTypeExpr.class);
             add(JmlBinaryInfixExpr.class);
             add(JmlLetExpr.class);
@@ -350,6 +353,15 @@ public class MetaModelGenerator extends AbstractGenerator {
                 .filter(f -> f.getVariable(0).getNameAsString().endsWith("MetaModel"))
                 .forEach(Node::remove);
 
+        // A node meta model needs a protected "full" constructor (6 arguments) so that the
+        // meta models of its subclasses can pass their own class, name and package up to
+        // BaseNodeMetaModel. Abstract node meta models always get one; concrete node meta
+        // models only need one when the node has subclasses in ALL_NODE_CLASSES.
+        final Set<Class<?>> directSuperClasses = ALL_NODE_CLASSES.stream()
+                .map(c -> c.getSuperclass())
+                .filter(c -> c != null && Node.class.isAssignableFrom(c))
+                .collect(Collectors.toSet());
+
         // Do the generation of each node metamodel class.
         final NodeMetaModelGenerator nodeMetaModelGenerator = new NodeMetaModelGenerator(sourceRoot);
         for (Class<? extends Node> nodeClass : ALL_NODE_CLASSES) {
@@ -359,7 +371,8 @@ public class MetaModelGenerator extends AbstractGenerator {
                     initializeNodeMetaModelsStatements,
                     initializePropertyMetaModelsStatements,
                     initializeConstructorParametersStatements,
-                    sourceRoot);
+                    sourceRoot,
+                    directSuperClasses.contains(nodeClass));
         }
 
         // TODO: Document why sorting occurs.

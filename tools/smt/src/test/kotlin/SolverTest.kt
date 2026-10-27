@@ -23,15 +23,19 @@ class SolverTest {
      * A "solver" that never finishes on its own, on every OS.
      *
      * `sleep` does not exist on Windows. The Windows stand-in must also be
-     * *silent*: the Solver pipes the query into the process' stdin and parses its
-     * stdout incrementally, so a chatty stub (like `ping`, which prints headers
-     * and replies) makes the SMT parser throw before the watchdog kills it.
-     * `cmd /c "timeout /t 30 /nobreak >nul"` sleeps without writing to stdout.
+     * *silent* and *never read stdin*: the Solver pipes the query into the
+     * process' stdin and parses its stdout incrementally, so a chatty stub
+     * (like `ping` printing headers and replies) makes the SMT parser throw
+     * before the watchdog kills it. `cmd /c "timeout /t 30 /nobreak >nul"`
+     * would be silent, but `timeout.exe` refuses to run when stdin is
+     * redirected, so the process exits immediately and the run returns before
+     * the deadline. `cmd /c "ping -n 31 127.0.0.1 >nul"` stays alive ~30 s,
+     * writes nothing to stdout, and never touches stdin.
      */
     private fun neverFinishingProcess(): Process {
         val cmd =
             if (System.getProperty("os.name").lowercase().contains("win")) {
-                listOf("cmd", "/c", "timeout /t 30 /nobreak >nul")
+                listOf("cmd", "/c", "ping -n 31 127.0.0.1 >nul")
             } else {
                 listOf("sleep", "30")
             }

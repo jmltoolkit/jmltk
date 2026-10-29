@@ -352,15 +352,18 @@ public class JmlExpressionStmt extends JmlStatement implements NodeWithJmlTags<J
         return this;
     }
 
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
     public Optional<SimpleName> getLabel() {
         return Optional.ofNullable(label);
     }
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
     public @Nullable() SimpleName label() {
         return label;
     }
 
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
     public JmlExpressionStmt setLabel(final @Nullable() SimpleName label) {
         if (label == this.label) {
             return this;
@@ -372,6 +375,7 @@ public class JmlExpressionStmt extends JmlStatement implements NodeWithJmlTags<J
         return this;
     }
 
+    @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
     public JmlExpressionStmt removeLabel() {
         return setLabel((SimpleName) null);
     }

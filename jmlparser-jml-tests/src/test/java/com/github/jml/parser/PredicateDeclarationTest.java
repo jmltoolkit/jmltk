@@ -78,7 +78,10 @@ class PredicateDeclarationTest {
                 }
                 """);
         var predicate = cu.findAll(JmlPredicateDeclaration.class).get(0);
-        assertThat(predicate.toString()).isEqualTo("//@ instance predicate Pred(int i) = i > 0;\n");
+        // The child node carries no stored line-ending style, so the default printer
+        // uses System.lineSeparator() (LF on Unix, CRLF on Windows).
+        assertThat(predicate.toString())
+                .isEqualTo("//@ instance predicate Pred(int i) = i > 0;" + System.lineSeparator());
     }
 
     @Test

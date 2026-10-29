@@ -705,17 +705,21 @@ public final class JavaParserMetaModel {
         jmlClassAccessibleDeclarationMetaModel
                 .getConstructorParameters()
                 .add(jmlClassAccessibleDeclarationMetaModel.measuredByPropertyMetaModel);
-        jmlLemmaDeclarationMetaModel
+        jmlPredicateDeclarationMetaModel
                 .getConstructorParameters()
-                .add(jmlLemmaDeclarationMetaModel.jmlTagsPropertyMetaModel);
-        jmlLemmaDeclarationMetaModel
+                .add(jmlPredicateDeclarationMetaModel.jmlTagsPropertyMetaModel);
+        jmlPredicateDeclarationMetaModel
                 .getConstructorParameters()
-                .add(jmlLemmaDeclarationMetaModel.modifiersPropertyMetaModel);
-        jmlLemmaDeclarationMetaModel.getConstructorParameters().add(jmlLemmaDeclarationMetaModel.namePropertyMetaModel);
-        jmlLemmaDeclarationMetaModel
+                .add(jmlPredicateDeclarationMetaModel.modifiersPropertyMetaModel);
+        jmlPredicateDeclarationMetaModel
                 .getConstructorParameters()
-                .add(jmlLemmaDeclarationMetaModel.parametersPropertyMetaModel);
-        jmlLemmaDeclarationMetaModel.getConstructorParameters().add(jmlLemmaDeclarationMetaModel.bodyPropertyMetaModel);
+                .add(jmlPredicateDeclarationMetaModel.namePropertyMetaModel);
+        jmlPredicateDeclarationMetaModel
+                .getConstructorParameters()
+                .add(jmlPredicateDeclarationMetaModel.parametersPropertyMetaModel);
+        jmlPredicateDeclarationMetaModel
+                .getConstructorParameters()
+                .add(jmlPredicateDeclarationMetaModel.bodyPropertyMetaModel);
         keyCatchAllStmtMetaModel.getConstructorParameters().add(keyCatchAllStmtMetaModel.labelPropertyMetaModel);
         keyCatchAllStmtMetaModel.getConstructorParameters().add(keyCatchAllStmtMetaModel.blockPropertyMetaModel);
         keyCcatchBreakMetaModel.getConstructorParameters().add(keyCcatchBreakMetaModel.labelPropertyMetaModel);
@@ -900,13 +904,13 @@ public final class JavaParserMetaModel {
         nodeMetaModels.add(jmlLabelExprMetaModel);
         nodeMetaModels.add(jmlLabelStmtMetaModel);
         nodeMetaModels.add(jmlLabeledClauseMetaModel);
-        nodeMetaModels.add(jmlLemmaDeclarationMetaModel);
         nodeMetaModels.add(jmlLetExprMetaModel);
         nodeMetaModels.add(jmlMethodDeclarationMetaModel);
         nodeMetaModels.add(jmlMethodSignatureMetaModel);
         nodeMetaModels.add(jmlMultiCompareExprMetaModel);
         nodeMetaModels.add(jmlMultiExprClauseMetaModel);
         nodeMetaModels.add(jmlOldClauseMetaModel);
+        nodeMetaModels.add(jmlPredicateDeclarationMetaModel);
         nodeMetaModels.add(jmlProofArgMetaModel);
         nodeMetaModels.add(jmlProofCaseStmtMetaModel);
         nodeMetaModels.add(jmlProofCmdStmtMetaModel);
@@ -4587,8 +4591,8 @@ public final class JavaParserMetaModel {
         jmlClassAccessibleDeclarationMetaModel
                 .getDeclaredPropertyMetaModels()
                 .add(jmlClassAccessibleDeclarationMetaModel.variablePropertyMetaModel);
-        jmlLemmaDeclarationMetaModel.bodyPropertyMetaModel = new PropertyMetaModel(
-                jmlLemmaDeclarationMetaModel,
+        jmlPredicateDeclarationMetaModel.bodyPropertyMetaModel = new PropertyMetaModel(
+                jmlPredicateDeclarationMetaModel,
                 "body",
                 com.github.javaparser.ast.expr.Expression.class,
                 Optional.of(expressionMetaModel),
@@ -4596,11 +4600,11 @@ public final class JavaParserMetaModel {
                 false,
                 false,
                 false);
-        jmlLemmaDeclarationMetaModel
+        jmlPredicateDeclarationMetaModel
                 .getDeclaredPropertyMetaModels()
-                .add(jmlLemmaDeclarationMetaModel.bodyPropertyMetaModel);
-        jmlLemmaDeclarationMetaModel.jmlTagsPropertyMetaModel = new PropertyMetaModel(
-                jmlLemmaDeclarationMetaModel,
+                .add(jmlPredicateDeclarationMetaModel.bodyPropertyMetaModel);
+        jmlPredicateDeclarationMetaModel.jmlTagsPropertyMetaModel = new PropertyMetaModel(
+                jmlPredicateDeclarationMetaModel,
                 "jmlTags",
                 com.github.javaparser.ast.expr.SimpleName.class,
                 Optional.of(simpleNameMetaModel),
@@ -4608,11 +4612,11 @@ public final class JavaParserMetaModel {
                 false,
                 true,
                 false);
-        jmlLemmaDeclarationMetaModel
+        jmlPredicateDeclarationMetaModel
                 .getDeclaredPropertyMetaModels()
-                .add(jmlLemmaDeclarationMetaModel.jmlTagsPropertyMetaModel);
-        jmlLemmaDeclarationMetaModel.modifiersPropertyMetaModel = new PropertyMetaModel(
-                jmlLemmaDeclarationMetaModel,
+                .add(jmlPredicateDeclarationMetaModel.jmlTagsPropertyMetaModel);
+        jmlPredicateDeclarationMetaModel.modifiersPropertyMetaModel = new PropertyMetaModel(
+                jmlPredicateDeclarationMetaModel,
                 "modifiers",
                 com.github.javaparser.ast.Modifier.class,
                 Optional.of(modifierMetaModel),
@@ -4620,11 +4624,11 @@ public final class JavaParserMetaModel {
                 false,
                 true,
                 false);
-        jmlLemmaDeclarationMetaModel
+        jmlPredicateDeclarationMetaModel
                 .getDeclaredPropertyMetaModels()
-                .add(jmlLemmaDeclarationMetaModel.modifiersPropertyMetaModel);
-        jmlLemmaDeclarationMetaModel.namePropertyMetaModel = new PropertyMetaModel(
-                jmlLemmaDeclarationMetaModel,
+                .add(jmlPredicateDeclarationMetaModel.modifiersPropertyMetaModel);
+        jmlPredicateDeclarationMetaModel.namePropertyMetaModel = new PropertyMetaModel(
+                jmlPredicateDeclarationMetaModel,
                 "name",
                 com.github.javaparser.ast.expr.SimpleName.class,
                 Optional.of(simpleNameMetaModel),
@@ -4632,11 +4636,11 @@ public final class JavaParserMetaModel {
                 false,
                 false,
                 false);
-        jmlLemmaDeclarationMetaModel
+        jmlPredicateDeclarationMetaModel
                 .getDeclaredPropertyMetaModels()
-                .add(jmlLemmaDeclarationMetaModel.namePropertyMetaModel);
-        jmlLemmaDeclarationMetaModel.parametersPropertyMetaModel = new PropertyMetaModel(
-                jmlLemmaDeclarationMetaModel,
+                .add(jmlPredicateDeclarationMetaModel.namePropertyMetaModel);
+        jmlPredicateDeclarationMetaModel.parametersPropertyMetaModel = new PropertyMetaModel(
+                jmlPredicateDeclarationMetaModel,
                 "parameters",
                 com.github.javaparser.ast.body.Parameter.class,
                 Optional.of(parameterMetaModel),
@@ -4644,9 +4648,9 @@ public final class JavaParserMetaModel {
                 false,
                 true,
                 false);
-        jmlLemmaDeclarationMetaModel
+        jmlPredicateDeclarationMetaModel
                 .getDeclaredPropertyMetaModels()
-                .add(jmlLemmaDeclarationMetaModel.parametersPropertyMetaModel);
+                .add(jmlPredicateDeclarationMetaModel.parametersPropertyMetaModel);
         keyCatchAllStmtMetaModel.blockPropertyMetaModel = new PropertyMetaModel(
                 keyCatchAllStmtMetaModel,
                 "block",
@@ -5824,8 +5828,8 @@ public final class JavaParserMetaModel {
             new JmlClassAccessibleDeclarationMetaModel(Optional.of(jmlClassLevelDeclarationMetaModel));
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
-    public static final JmlLemmaDeclarationMetaModel jmlLemmaDeclarationMetaModel =
-            new JmlLemmaDeclarationMetaModel(Optional.of(jmlClassLevelDeclarationMetaModel));
+    public static final JmlPredicateDeclarationMetaModel jmlPredicateDeclarationMetaModel =
+            new JmlPredicateDeclarationMetaModel(Optional.of(jmlClassLevelDeclarationMetaModel));
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     public static final KeyAbstractExecutionContextMetaModel keyAbstractExecutionContextMetaModel =

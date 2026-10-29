@@ -6,7 +6,7 @@ package io.github.jmltoolkit.wd
 
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.jml.body.JmlClassExprDeclaration
-import com.github.javaparser.ast.jml.body.JmlLemmaDeclaration
+import com.github.javaparser.ast.jml.body.JmlPredicateDeclaration
 import com.github.javaparser.ast.jml.clauses.JmlMultiExprClause
 import com.github.javaparser.ast.jml.expr.JmlLabelExpr
 import com.github.javaparser.ast.jml.expr.JmlLetExpr
@@ -174,7 +174,7 @@ class WDVisitorExpr(smtLog: SmtQuery, private val translator: ArithmeticTranslat
 
     override fun visit(n: JmlClassExprDeclaration, arg: Any?): SExpr = term.makeTrue()
 
-    override fun visit(n: JmlLemmaDeclaration, arg: Any?): SExpr = wd(n.body)
+    override fun visit(n: JmlPredicateDeclaration, arg: Any?): SExpr = wd(n.body)
 
     override fun visit(n: JmlTypeExpr, arg: Any?): SExpr = term.makeTrue()
 

@@ -2255,7 +2255,7 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
     }
 
     @Override
-    public Visitable visit(final JmlLemmaDeclaration n, final Object arg) {
+    public Visitable visit(final JmlPredicateDeclaration n, final Object arg) {
         Expression body = cloneNode(n.getBody(), arg);
         NodeList<SimpleName> jmlTags = cloneList(n.getJmlTags(), arg);
         NodeList<Modifier> modifiers = cloneList(n.getModifiers(), arg);
@@ -2263,8 +2263,8 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
         NodeList<Parameter> parameters = cloneList(n.getParameters(), arg);
         NodeList<AnnotationExpr> annotations = cloneList(n.getAnnotations(), arg);
         Comment comment = cloneNode(n.getComment(), arg);
-        JmlLemmaDeclaration r =
-                new JmlLemmaDeclaration(n.getTokenRange().orElse(null), jmlTags, modifiers, name, parameters, body);
+        JmlPredicateDeclaration r =
+                new JmlPredicateDeclaration(n.getTokenRange().orElse(null), jmlTags, modifiers, name, parameters, body);
         r.setComment(comment);
         n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
         copyData(n, r);

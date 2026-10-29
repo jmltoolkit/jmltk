@@ -1182,11 +1182,11 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     }
 
     @Override
-    public void visit(JmlLemmaDeclaration n, Void arg) {
+    public void visit(JmlPredicateDeclaration n, Void arg) {
         wrapInJmlIfNeeded(() -> {
             printOrphanCommentsBeforeThisChildNode(n);
             printModifiers(n.getModifiers());
-            printer.print("lemma ");
+            printer.print("predicate ");
             n.getName().accept(this, arg);
             printer.print("(");
             printList(n.getParameters(), ", ");

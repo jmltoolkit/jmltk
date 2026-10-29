@@ -13,7 +13,7 @@ import com.github.javaparser.ast.body.FieldDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.jml.body.JmlClassAccessibleDeclaration
 import com.github.javaparser.ast.jml.body.JmlClassExprDeclaration
-import com.github.javaparser.ast.jml.body.JmlLemmaDeclaration
+import com.github.javaparser.ast.jml.body.JmlPredicateDeclaration
 import com.github.javaparser.ast.jml.body.JmlMethodDeclaration
 import com.github.javaparser.ast.jml.clauses.*
 import com.github.javaparser.ast.jml.expr.JmlLetExpr
@@ -148,8 +148,8 @@ class JmlStatisticsReporter : VoidVisitorAdapter<Statistics>() {
         super.visit(n, arg)
     }
 
-    override fun visit(n: JmlLemmaDeclaration, arg: Statistics) {
-        arg.inc(StatisticKey.totalLemmas)
+    override fun visit(n: JmlPredicateDeclaration, arg: Statistics) {
+        arg.inc(StatisticKey.totalPredicates)
         super.visit(n, arg)
     }
 

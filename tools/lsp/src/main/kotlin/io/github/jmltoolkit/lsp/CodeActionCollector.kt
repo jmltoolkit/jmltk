@@ -8,7 +8,7 @@ import com.github.javaparser.Range
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.Expression
 import com.github.javaparser.ast.jml.body.JmlClassExprDeclaration
-import com.github.javaparser.ast.jml.body.JmlLemmaDeclaration
+import com.github.javaparser.ast.jml.body.JmlPredicateDeclaration
 import com.github.javaparser.ast.jml.clauses.JmlSignalsClause
 import com.github.javaparser.ast.jml.clauses.JmlSimpleExprClause
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr
@@ -49,7 +49,7 @@ class CodeActionCollector(val context: CodeActionContext?, private val range: Ra
         super.visit(n, arg)
     }
 
-    override fun visit(n: JmlLemmaDeclaration, arg: Unit?) {
+    override fun visit(n: JmlPredicateDeclaration, arg: Unit?) {
         addWelldefinednessCheck(n.body)
         super.visit(n, arg)
     }

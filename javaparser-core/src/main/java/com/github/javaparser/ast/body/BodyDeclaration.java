@@ -550,21 +550,22 @@ public abstract class BodyDeclaration<T extends BodyDeclaration<?>> extends Node
     public void ifJmlRepresentsDeclaration(Consumer<JmlRepresentsDeclaration> action) {}
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public boolean isJmlLemmaDeclaration() {
+    public boolean isJmlPredicateDeclaration() {
         return false;
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public JmlLemmaDeclaration asJmlLemmaDeclaration() {
+    public JmlPredicateDeclaration asJmlPredicateDeclaration() {
         throw new IllegalStateException(f(
-                "%s is not JmlLemmaDeclaration, it is %s", this, this.getClass().getSimpleName()));
+                "%s is not JmlPredicateDeclaration, it is %s",
+                this, this.getClass().getSimpleName()));
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public Optional<JmlLemmaDeclaration> toJmlLemmaDeclaration() {
+    public Optional<JmlPredicateDeclaration> toJmlPredicateDeclaration() {
         return Optional.empty();
     }
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifJmlLemmaDeclaration(Consumer<JmlLemmaDeclaration> action) {}
+    public void ifJmlPredicateDeclaration(Consumer<JmlPredicateDeclaration> action) {}
 }

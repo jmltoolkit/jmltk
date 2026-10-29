@@ -5,7 +5,7 @@
 package com.github.javaparser.metamodel;
 
 import com.github.javaparser.ast.Generated;
-import com.github.javaparser.ast.jml.body.JmlLemmaDeclaration;
+import com.github.javaparser.ast.jml.body.JmlPredicateDeclaration;
 
 import java.util.Optional;
 
@@ -19,14 +19,14 @@ import java.util.Optional;
  * For this reason, any changes made directly to this file will be overwritten the next time generators are run.
  */
 @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
-public class JmlLemmaDeclarationMetaModel extends JmlClassLevelDeclarationMetaModel {
+public class JmlPredicateDeclarationMetaModel extends JmlClassLevelDeclarationMetaModel {
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
-    JmlLemmaDeclarationMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
+    JmlPredicateDeclarationMetaModel(Optional<BaseNodeMetaModel> superBaseNodeMetaModel) {
         super(
                 superBaseNodeMetaModel,
-                JmlLemmaDeclaration.class,
-                "JmlLemmaDeclaration",
+                JmlPredicateDeclaration.class,
+                "JmlPredicateDeclaration",
                 "com.github.javaparser.ast.jml.body",
                 false,
                 false);

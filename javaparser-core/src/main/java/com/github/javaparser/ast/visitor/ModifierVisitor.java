@@ -2167,7 +2167,7 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
     }
 
     @Override
-    public Visitable visit(final JmlLemmaDeclaration n, final A arg) {
+    public Visitable visit(final JmlPredicateDeclaration n, final A arg) {
         NodeList<AnnotationExpr> annotations = modifyList(n.getAnnotations(), arg);
         NodeList<Modifier> modifiers = modifyList(n.getModifiers(), arg);
         Expression body = (Expression) n.getBody().accept(this, arg);

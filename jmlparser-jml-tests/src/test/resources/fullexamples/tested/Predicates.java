@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
  */
 public class Predicates {
-    //@ instance lemma Pred(int i) = i > 0;
+    //@ instance predicate Pred(int i) = i > 0;
 
-    //@ model lemma Even(int n) = (n % 2 == 0);
+    //@ model predicate Even(int n) = (n % 2 == 0);
 
-    //@ static lemma PositiveSum(int a, int b) = a > 0 && b > a;
+    //@ static predicate PositiveSum(int a, int b) = a > 0 && b > a;
 
     public boolean check(int i) {
         return Pred(i);

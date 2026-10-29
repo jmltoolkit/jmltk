@@ -122,8 +122,8 @@ class NameResolutionTest {
     }
 
     @Test
-    void jmlLemma() throws IOException {
-        loadAndResolveAll("JmlLemmaResolutionTest.java");
+    void jmlPredicate() throws IOException {
+        loadAndResolveAll("JmlPredicateResolutionTest.java");
     }
 
     private void loadAndResolveAll(String name) throws IOException {

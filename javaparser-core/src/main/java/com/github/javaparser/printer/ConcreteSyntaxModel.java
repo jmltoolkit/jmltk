@@ -1256,7 +1256,7 @@ public class ConcreteSyntaxModel {
                         space(),
                         token(OR),
                         space(),
-                        attribute(PREDICATE),
+                        attribute(ObservableProperty.PREDICATE),
                         space(),
                         token(RBRACE)));
         concreteSyntaxModelByClass.put(
@@ -1302,10 +1302,10 @@ public class ConcreteSyntaxModel {
                 JmlClassExprDeclaration.class,
                 sequence(child(MODIFIERS), space(), token(INVARIANT), space(), child(EXPRESSION), semicolon()));
         concreteSyntaxModelByClass.put(
-                JmlLemmaDeclaration.class,
+                JmlPredicateDeclaration.class,
                 sequence(
                         modifiers(),
-                        token(GeneratedJavaParserConstants.LEMMA),
+                        token(GeneratedJavaParserConstants.PREDICATE),
                         space(),
                         child(NAME),
                         token(LPAREN),

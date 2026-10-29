@@ -5,7 +5,7 @@
 package com.github.javaparser.symbolsolver.javaparsermodel.contexts.jml;
 
 import com.github.javaparser.ast.body.Parameter;
-import com.github.javaparser.ast.jml.body.JmlLemmaDeclaration;
+import com.github.javaparser.ast.jml.body.JmlPredicateDeclaration;
 import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration;
 import com.github.javaparser.resolution.model.SymbolReference;
@@ -13,17 +13,17 @@ import com.github.javaparser.symbolsolver.javaparsermodel.contexts.AbstractJavaP
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserSymbolDeclaration;
 
 /**
- * Resolves names that occur in a {@link JmlLemmaDeclaration} (the body
- * expression) against the lemma's formal parameters.
+ * Resolves names that occur in a {@link JmlPredicateDeclaration} (the body
+ * expression) against the predicate's formal parameters.
  *
  * <p>Example:
  * <pre>{@code
- * //@ instance lemma Pred(int i) = i > 0;
+ * //@ instance predicate Pred(int i) = i > 0;
  * }</pre>
  * Here {@code i} in the body resolves to the formal parameter {@code int i}.
  */
-public class JmlLemmaDeclarationContext extends AbstractJavaParserContext<JmlLemmaDeclaration> {
-    public JmlLemmaDeclarationContext(JmlLemmaDeclaration wrappedNode, TypeSolver typeSolver) {
+public class JmlPredicateDeclarationContext extends AbstractJavaParserContext<JmlPredicateDeclaration> {
+    public JmlPredicateDeclarationContext(JmlPredicateDeclaration wrappedNode, TypeSolver typeSolver) {
         super(wrappedNode, typeSolver);
     }
 
@@ -35,7 +35,7 @@ public class JmlLemmaDeclarationContext extends AbstractJavaParserContext<JmlLem
             }
         }
 
-        // Fallback to the default implementation to find names defined outside the lemma.
+        // Fallback to the default implementation to find names defined outside the predicate.
         return super.solveSymbol(name);
     }
 }

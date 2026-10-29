@@ -7,7 +7,7 @@ package io.github.jmltoolkit.lsp
 import com.github.javaparser.JavaParser
 import com.github.javaparser.ParserConfiguration
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
-import com.github.javaparser.ast.jml.body.JmlLemmaDeclaration
+import com.github.javaparser.ast.jml.body.JmlPredicateDeclaration
 import com.google.common.truth.Truth
 import io.github.jmltoolkit.lsp.hover.JmlDocumentationIndex
 import io.github.jmltoolkit.lsp.symbols.JmlCatchSymbols
@@ -101,26 +101,26 @@ class CodeActionTests : TestUtilities() {
 }
 
 /**
- * Direct tests for the JML {@code lemma} declaration support in the LSP:
+ * Direct tests for the JML {@code predicate} declaration support in the LSP:
  * document symbols and well-definedness code actions.
  */
-class LemmaSupportTests {
+class PredicateSupportTests {
     private fun parse(source: String) = JavaParser(
         ParserConfiguration().setProcessJml(true)
     ).parse(source).result.orElseThrow()
 
     @Test
-    fun lemmaDocumentSymbol() {
+    fun predicateDocumentSymbol() {
         val cu = parse(
             """
             public class P {
-                //@ instance lemma Pred(int i) = i > 0;
+                //@ instance predicate Pred(int i) = i > 0;
             }
             """.trimIndent()
         )
         val klass = cu.findAll(ClassOrInterfaceDeclaration::class.java).single()
         val symbols = klass.accept(JmlCatchSymbols(), null)!!
-        // The class symbol carries the lemma as a child (as in the real LSP hierarchy).
+        // The class symbol carries the predicate as a child (as in the real LSP hierarchy).
         Truth.assertThat(symbols).hasSize(1)
         Truth.assertThat(symbols[0].name).isEqualTo("P")
         val lemmaSymbols = symbols.flatMap { it.children }
@@ -130,17 +130,17 @@ class LemmaSupportTests {
     }
 
     @Test
-    fun lemmaWellDefinednessCodeAction() {
+    fun predicateWellDefinednessCodeAction() {
         val cu = parse(
             """
             public class P {
-                //@ instance lemma Pred(int i) = i > 0;
+                //@ instance predicate Pred(int i) = i > 0;
             }
             """.trimIndent()
         )
-        val lemma = cu.findAll(JmlLemmaDeclaration::class.java).single()
+        val predicate = cu.findAll(JmlPredicateDeclaration::class.java).single()
         // Cursor at the body's first token (production passes the user's cursor).
-        val cursor = com.github.javaparser.Range(lemma.body.range.get().begin, lemma.body.range.get().begin)
+        val cursor = com.github.javaparser.Range(predicate.body.range.get().begin, predicate.body.range.get().begin)
         val collector = CodeActionCollector(null, cursor)
         cu.accept(collector, null)
         Truth.assertThat(collector.result.map { it.right?.title })

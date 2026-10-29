@@ -270,7 +270,7 @@ public class JavaToken {
         ASSUME(19),
         ASSUME_REDUNDANTLY(20),
         AXIOM(21),
-        LEMMA(22),
+        PREDICATE(22),
         BEHAVIOR(23),
         BEHAVIOUR(24),
         BIGINT(25),
@@ -1418,7 +1418,7 @@ public class JavaToken {
                 case 23:
                     return BEHAVIOR;
                 case 22:
-                    return LEMMA;
+                    return PREDICATE;
                 case 21:
                     return AXIOM;
                 case 20:

@@ -115,15 +115,15 @@ internal class JmlStatisticsReporterTest {
     fun testTotalLemmasCounting() {
         val code = """
             class MyClass {
-                //@ instance lemma Pred(int i) = i > 0;
-                //@ model lemma Even(int n) = (n % 2 == 0);
+                //@ instance predicate Pred(int i) = i > 0;
+                //@ model predicate Even(int n) = (n % 2 == 0);
             }
 
             """.trimIndent()
         val cu = parse(code)
         val stats = computeStatistics(cu)
 
-        assertThat(stats[StatisticKey.totalLemmas]).isEqualTo(2)
+        assertThat(stats[StatisticKey.totalPredicates]).isEqualTo(2)
     }
 
     @Test

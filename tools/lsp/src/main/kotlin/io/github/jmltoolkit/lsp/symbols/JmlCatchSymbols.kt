@@ -172,11 +172,11 @@ class JmlCatchSymbols : GenericVisitorAdapter<MutableList<DocumentSymbol>?, Unit
             )
         )
 
-    override fun visit(n: JmlLemmaDeclaration, arg: Unit?): MutableList<DocumentSymbol> = arrayListOf(
+    override fun visit(n: JmlPredicateDeclaration, arg: Unit?): MutableList<DocumentSymbol> = arrayListOf(
             DocumentSymbol(
                 n.nameAsString,
                 SymbolKind.Method,
-                n.asRange, n.name.asRange, "Jml lemma declaration", listOf()
+                n.asRange, n.name.asRange, "Jml predicate declaration", listOf()
             )
         )
 

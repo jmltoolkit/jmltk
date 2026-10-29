@@ -17,7 +17,7 @@ import com.github.javaparser.ast.visitor.CloneVisitor;
 import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
-import com.github.javaparser.metamodel.JmlLemmaDeclarationMetaModel;
+import com.github.javaparser.metamodel.JmlPredicateDeclarationMetaModel;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Objects;
@@ -27,22 +27,22 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
- * A JML lemma declaration in a class body.
+ * A JML predicate declaration in a class body.
  *
  * <p>Example:
  * <pre>{@code
- * //@ instance lemma Pred(int i) = i > 0;
+ * //@ instance predicate Pred(int i) = i > 0;
  * }</pre>
  *
- * <p>Binds the lemma name to an assertion formula over the formal parameters.
+ * <p>Binds the predicate name to an assertion formula over the formal parameters.
  * The {@code instance} modifier is optional.
  *
  * @see JmlClassLevelDeclaration
  */
-public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclaration>
-        implements NodeWithSimpleName<JmlLemmaDeclaration>,
-                NodeWithModifiers<JmlLemmaDeclaration>,
-                NodeWithAccessModifiers<JmlLemmaDeclaration> {
+public class JmlPredicateDeclaration extends JmlClassLevelDeclaration<JmlPredicateDeclaration>
+        implements NodeWithSimpleName<JmlPredicateDeclaration>,
+                NodeWithModifiers<JmlPredicateDeclaration>,
+                NodeWithAccessModifiers<JmlPredicateDeclaration> {
 
     private NodeList<Modifier> modifiers;
 
@@ -55,7 +55,7 @@ public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclar
     private NodeList<SimpleName> jmlTags;
 
     @AllFieldsConstructor
-    public JmlLemmaDeclaration(
+    public JmlPredicateDeclaration(
             NodeList<SimpleName> jmlTags,
             NodeList<Modifier> modifiers,
             SimpleName name,
@@ -68,7 +68,7 @@ public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclar
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlLemmaDeclaration(
+    public JmlPredicateDeclaration(
             TokenRange tokenRange,
             NodeList<SimpleName> jmlTags,
             NodeList<Modifier> modifiers,
@@ -102,7 +102,7 @@ public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclar
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlLemmaDeclaration setModifiers(final @NonNull() NodeList<Modifier> modifiers) {
+    public JmlPredicateDeclaration setModifiers(final @NonNull() NodeList<Modifier> modifiers) {
         assertNotNull(modifiers);
         if (modifiers == this.modifiers) {
             return this;
@@ -120,7 +120,7 @@ public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclar
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlLemmaDeclaration setName(final @NonNull() SimpleName name) {
+    public JmlPredicateDeclaration setName(final @NonNull() SimpleName name) {
         assertNotNull(name);
         if (name == this.name) {
             return this;
@@ -138,7 +138,7 @@ public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclar
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlLemmaDeclaration setParameters(final @NonNull() NodeList<Parameter> parameters) {
+    public JmlPredicateDeclaration setParameters(final @NonNull() NodeList<Parameter> parameters) {
         assertNotNull(parameters);
         if (parameters == this.parameters) {
             return this;
@@ -156,7 +156,7 @@ public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclar
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlLemmaDeclaration setBody(final @NonNull() Expression body) {
+    public JmlPredicateDeclaration setBody(final @NonNull() Expression body) {
         assertNotNull(body);
         if (body == this.body) {
             return this;
@@ -175,7 +175,7 @@ public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclar
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlLemmaDeclaration setJmlTags(final @NonNull() NodeList<SimpleName> jmlTags) {
+    public JmlPredicateDeclaration setJmlTags(final @NonNull() NodeList<SimpleName> jmlTags) {
         assertNotNull(jmlTags);
         if (jmlTags == this.jmlTags) {
             return this;
@@ -189,25 +189,25 @@ public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclar
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public boolean isJmlLemmaDeclaration() {
+    public boolean isJmlPredicateDeclaration() {
         return true;
     }
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public JmlLemmaDeclaration asJmlLemmaDeclaration() {
+    public JmlPredicateDeclaration asJmlPredicateDeclaration() {
         return this;
     }
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public Optional<JmlLemmaDeclaration> toJmlLemmaDeclaration() {
+    public Optional<JmlPredicateDeclaration> toJmlPredicateDeclaration() {
         return Optional.of(this);
     }
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifJmlLemmaDeclaration(Consumer<JmlLemmaDeclaration> action) {
+    public void ifJmlPredicateDeclaration(Consumer<JmlPredicateDeclaration> action) {
         action.accept(this);
     }
 
@@ -305,13 +305,13 @@ public class JmlLemmaDeclaration extends JmlClassLevelDeclaration<JmlLemmaDeclar
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.CloneGenerator")
-    public JmlLemmaDeclaration clone() {
-        return (JmlLemmaDeclaration) accept(new CloneVisitor(), null);
+    public JmlPredicateDeclaration clone() {
+        return (JmlPredicateDeclaration) accept(new CloneVisitor(), null);
     }
 
     @Override
     @Generated("com.github.javaparser.generator.core.node.GetMetaModelGenerator")
-    public JmlLemmaDeclarationMetaModel getMetaModel() {
-        return JavaParserMetaModel.jmlLemmaDeclarationMetaModel;
+    public JmlPredicateDeclarationMetaModel getMetaModel() {
+        return JavaParserMetaModel.jmlPredicateDeclarationMetaModel;
     }
 }

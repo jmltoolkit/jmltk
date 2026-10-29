@@ -11,7 +11,7 @@ import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.NameExpr;
-import com.github.javaparser.ast.jml.body.JmlLemmaDeclaration;
+import com.github.javaparser.ast.jml.body.JmlPredicateDeclaration;
 import com.github.javaparser.printer.ConcreteSyntaxModel;
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,12 +22,12 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for the JML class-body {@code lemma} declaration
- * ({@code //@ instance lemma Pred(int i) = i > 0;}).
+ * Tests for the JML class-body {@code predicate} declaration
+ * ({@code //@ instance predicate Pred(int i) = i > 0;}).
  *
  * @author jmltoolkit
  */
-class LemmaDeclarationTest {
+class PredicateDeclarationTest {
 
     private JavaParser parser;
 
@@ -53,40 +53,40 @@ class LemmaDeclarationTest {
     void parseInstanceLemma() {
         var cu = parse("""
                 public class P {
-                    //@ instance lemma Pred(int i) = i > 0;
+                    //@ instance predicate Pred(int i) = i > 0;
                 }
                 """);
-        var lemma = cu.findAll(JmlLemmaDeclaration.class).get(0);
-        assertThat(lemma.getNameAsString()).isEqualTo("Pred");
-        assertThat(lemma.getModifiers())
+        var predicate = cu.findAll(JmlPredicateDeclaration.class).get(0);
+        assertThat(predicate.getNameAsString()).isEqualTo("Pred");
+        assertThat(predicate.getModifiers())
                 .extracting(m -> m.getKeyword().asString())
                 .containsExactly("instance");
-        assertThat(lemma.getParameters()).hasSize(1);
-        Parameter parameter = lemma.getParameters().get(0);
+        assertThat(predicate.getParameters()).hasSize(1);
+        Parameter parameter = predicate.getParameters().get(0);
         assertThat(parameter.getType().asString()).isEqualTo("int");
         assertThat(parameter.getNameAsString()).isEqualTo("i");
-        assertThat(lemma.getBody()).isInstanceOf(BinaryExpr.class);
-        assertThat(lemma.getBody().toString()).isEqualTo("i > 0");
-        assertThat(lemma.hasModifier(Modifier.DefaultKeyword.JML_INSTANCE)).isTrue();
+        assertThat(predicate.getBody()).isInstanceOf(BinaryExpr.class);
+        assertThat(predicate.getBody().toString()).isEqualTo("i > 0");
+        assertThat(predicate.hasModifier(Modifier.DefaultKeyword.JML_INSTANCE)).isTrue();
     }
 
     @Test
     void toStringRoundTrip() {
         var cu = parse("""
                 public class P {
-                    //@ instance lemma Pred(int i) = i > 0;
+                    //@ instance predicate Pred(int i) = i > 0;
                 }
                 """);
-        var lemma = cu.findAll(JmlLemmaDeclaration.class).get(0);
-        assertThat(lemma.toString()).isEqualTo("//@ instance lemma Pred(int i) = i > 0;\n");
+        var predicate = cu.findAll(JmlPredicateDeclaration.class).get(0);
+        assertThat(predicate.toString()).isEqualTo("//@ instance predicate Pred(int i) = i > 0;\n");
     }
 
     @Test
     void lexicallyPreservingRoundTrip() {
         String source = """
                 public class P {
-                    //@ instance lemma Pred(int i) = i > 0;
-                    //@ lemma Even(int n) = (n % 2 == 0);
+                    //@ instance predicate Pred(int i) = i > 0;
+                    //@ predicate Even(int n) = (n % 2 == 0);
                 }
                 """;
         var cu = parse(source);
@@ -98,24 +98,25 @@ class LemmaDeclarationTest {
     void concreteSyntaxModelRoundTripWithoutModifiers() {
         var cu = parse("""
                 public class P {
-                    //@ lemma StrictlyPositive(int i) = i > 0;
+                    //@ predicate StrictlyPositive(int i) = i > 0;
                 }
                 """);
-        var lemma = cu.findAll(JmlLemmaDeclaration.class).get(0);
-        assertThat(ConcreteSyntaxModel.genericPrettyPrint(lemma)).isEqualTo("lemma StrictlyPositive(int i) = i > 0;");
+        var predicate = cu.findAll(JmlPredicateDeclaration.class).get(0);
+        assertThat(ConcreteSyntaxModel.genericPrettyPrint(predicate))
+                .isEqualTo("predicate StrictlyPositive(int i) = i > 0;");
     }
 
     @Test
     void bodyCanReferenceParameters() {
         var cu = parse("""
                 public class P {
-                    //@ lemma Between(int lo, int hi, int v) = lo <= v && v <= hi;
+                    //@ predicate Between(int lo, int hi, int v) = lo <= v && v <= hi;
                 }
                 """);
-        var lemma = cu.findAll(JmlLemmaDeclaration.class).get(0);
-        assertThat(lemma.getParameters()).hasSize(3);
+        var predicate = cu.findAll(JmlPredicateDeclaration.class).get(0);
+        assertThat(predicate.getParameters()).hasSize(3);
         // the left-most leaf of the conjunction references the first parameter
-        var node = lemma.getBody();
+        var node = predicate.getBody();
         while (node instanceof BinaryExpr be) {
             node = be.getLeft();
         }
@@ -127,7 +128,7 @@ class LemmaDeclarationTest {
     void duplicateParametersAreReported() {
         var result = parser.parse("""
                 public class P {
-                    //@ lemma Bad(int i, int i) = i > 0;
+                    //@ predicate Bad(int i, int i) = i > 0;
                 }
                 """);
         assertThat(result.getProblems()).anyMatch(p -> p.getMessage().contains("already defined"));
@@ -137,7 +138,7 @@ class LemmaDeclarationTest {
     void disallowedModifierIsReported() {
         var result = parser.parse("""
                 public class P {
-                    //@ synchronized lemma Bad() = true;
+                    //@ synchronized predicate Bad() = true;
                 }
                 """);
         assertThat(result.getProblems()).anyMatch(p -> p.getMessage().contains("'synchronized' is not allowed here."));

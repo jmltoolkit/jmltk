@@ -891,7 +891,7 @@ public abstract class VoidVisitorWithDefaults<A> implements VoidVisitor<A> {
     }
 
     @Override
-    public void visit(final JmlLemmaDeclaration n, final A arg) {
+    public void visit(final JmlPredicateDeclaration n, final A arg) {
         defaultAction(n, arg);
     }
 }

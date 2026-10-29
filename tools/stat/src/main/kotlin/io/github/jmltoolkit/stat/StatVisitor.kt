@@ -12,7 +12,7 @@ import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.jml.NodeWithJmlTags
 import com.github.javaparser.ast.jml.body.JmlClassExprDeclaration
 import com.github.javaparser.ast.jml.body.JmlFieldDeclaration
-import com.github.javaparser.ast.jml.body.JmlLemmaDeclaration
+import com.github.javaparser.ast.jml.body.JmlPredicateDeclaration
 import com.github.javaparser.ast.jml.body.JmlMethodDeclaration
 import com.github.javaparser.ast.jml.body.JmlRepresentsDeclaration
 import com.github.javaparser.ast.jml.clauses.*
@@ -141,9 +141,9 @@ class StatVisitor(
         }
     }
 
-    override fun visit(n: JmlLemmaDeclaration, arg: Element) {
+    override fun visit(n: JmlPredicateDeclaration, arg: Element) {
         if (active(n)) {
-            val e = newElement(arg, "lemma")
+            val e = newElement(arg, "predicate")
             e.setAttribute("name", n.nameAsString)
             setModifierAsAttributes(n, e)
             e.appendChild(getExpressionStat(n.body))

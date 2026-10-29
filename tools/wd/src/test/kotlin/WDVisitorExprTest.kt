@@ -4,7 +4,7 @@
  */
 import com.github.javaparser.JavaParser
 import com.github.javaparser.ParserConfiguration
-import com.github.javaparser.ast.jml.body.JmlLemmaDeclaration
+import com.github.javaparser.ast.jml.body.JmlPredicateDeclaration
 import io.github.jmltoolkit.smt.BitVectorArithmeticTranslator
 import io.github.jmltoolkit.smt.SmtQuery
 import io.github.jmltoolkit.smt.Z3
@@ -38,25 +38,25 @@ internal class WDVisitorExprTest {
     }
 
     @Test
-    fun lemmaWellDefinednessDelegatesToBody() {
+    fun predicateWellDefinednessDelegatesToBody() {
         val config = ParserConfiguration()
         config.isProcessJml = true
         val parser = JavaParser(config)
         val cu = parser.parse(
             """
             public class P {
-                //@ instance lemma Pred(int i) = i > 0;
+                //@ instance predicate Pred(int i) = i > 0;
             }
             """.trimIndent()
         ).result.orElseThrow()
-        val lemma = cu.findAll(JmlLemmaDeclaration::class.java).single()
+        val predicate = cu.findAll(JmlPredicateDeclaration::class.java).single()
 
         val query = SmtQuery()
         val visitor = WDVisitorExpr(query, BitVectorArithmeticTranslator(query))
-        // The well-definedness of a lemma declaration is the well-definedness of its body.
+        // The well-definedness of a predicate declaration is the well-definedness of its body.
         Assertions.assertEquals(
-            lemma.body.accept(visitor, null).toString(),
-            lemma.accept(visitor, null).toString()
+            predicate.body.accept(visitor, null).toString(),
+            predicate.accept(visitor, null).toString()
         )
     }
 }

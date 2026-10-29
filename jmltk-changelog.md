@@ -49,9 +49,9 @@ migration the version lives in `gradle.properties`.
 
 **Added**
 
-- JML class-body `lemma` declarations (`//@ instance lemma Pred(int i) = i > 0;`): AST node
-  `JmlLemmaDeclaration`, grammar/lexer support, concrete syntax and pretty printing, modifier and parameter
-  validation, symbol resolution of the lemma parameters, and `wd`/`stat`/`lsp` tool support (well-definedness,
+- JML class-body `predicate` declarations (`//@ instance predicate Pred(int i) = i > 0;`): AST node
+  `JmlPredicateDeclaration`, grammar/lexer support, concrete syntax and pretty printing, modifier and parameter
+  validation, symbol resolution of the predicate parameters, and `wd`/`stat`/`lsp` tool support (well-definedness,
   statistics, document symbols and code actions).
 
 ---

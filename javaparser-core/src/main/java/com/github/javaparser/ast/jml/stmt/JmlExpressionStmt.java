@@ -68,6 +68,13 @@ public class JmlExpressionStmt extends JmlStatement implements NodeWithJmlTags<J
     @OptionalProperty
     private NodeList<JmlProofStmt> script;
 
+    /**
+     * Optional label in KeY's label-after-keyword form, e.g. {@code assert LAB: e;}.
+     * The JML-standard prefix form {@code LAB: assert e;} is represented by {@link JmlLabelStmt}.
+     */
+    @OptionalProperty
+    private SimpleName label;
+
     @AllFieldsConstructor
     public JmlExpressionStmt(
             NodeList<SimpleName> jmlTags,
@@ -101,6 +108,20 @@ public class JmlExpressionStmt extends JmlStatement implements NodeWithJmlTags<J
         }
     }
 
+    /**
+     * Parser constructor for formatted JML statements that carry a label, e.g.
+     * {@code assert LAB: expr;} or {@code set LAB: expr = value;}.
+     */
+    public JmlExpressionStmt(
+            TokenRange range,
+            NodeList<SimpleName> jmlTags,
+            final Expression expression,
+            NodeList<JmlProofStmt> script,
+            SimpleName label) {
+        this(range, jmlTags, expression, script);
+        setLabel(label);
+    }
+
     @Override
     @Generated("com.github.javaparser.generator.core.node.AcceptGenerator")
     public <R, A> R accept(final GenericVisitor<R, A> v, final A arg) {
@@ -126,6 +147,12 @@ public class JmlExpressionStmt extends JmlStatement implements NodeWithJmlTags<J
         for (int i = 0; i < jmlTags.size(); i++) {
             if (jmlTags.get(i) == node) {
                 jmlTags.set(i, (SimpleName) replacementNode);
+                return true;
+            }
+        }
+        if (label != null) {
+            if (node == label) {
+                setLabel((SimpleName) replacementNode);
                 return true;
             }
         }
@@ -243,6 +270,12 @@ public class JmlExpressionStmt extends JmlStatement implements NodeWithJmlTags<J
                 return true;
             }
         }
+        if (label != null) {
+            if (node == label) {
+                removeLabel();
+                return true;
+            }
+        }
         if (script != null) {
             for (int i = 0; i < script.size(); i++) {
                 if (script.get(i) == node) {
@@ -317,5 +350,33 @@ public class JmlExpressionStmt extends JmlStatement implements NodeWithJmlTags<J
         this.script = script;
         setAsParentNodeOf(script);
         return this;
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public Optional<SimpleName> getLabel() {
+        return Optional.ofNullable(label);
+    }
+
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public @Nullable() SimpleName label() {
+        return label;
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public JmlExpressionStmt setLabel(final @Nullable() SimpleName label) {
+        if (label == this.label) {
+            return this;
+        }
+        notifyPropertyChange(ObservableProperty.LABEL, this.label, label);
+        if (this.label != null) this.label.setParentNode(null);
+        this.label = label;
+        setAsParentNodeOf(label);
+        return this;
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
+    public JmlExpressionStmt removeLabel() {
+        return setLabel((SimpleName) null);
     }
 }

@@ -2010,6 +2010,10 @@ public abstract class GenericListVisitorAdapter<R, A> implements GenericVisitor<
             tmp = n.getJmlTags().accept(this, arg);
             if (tmp != null) result.addAll(tmp);
         }
+        if (n.getLabel().isPresent()) {
+            tmp = n.getLabel().get().accept(this, arg);
+            if (tmp != null) result.addAll(tmp);
+        }
         if (n.getScript().isPresent()) {
             tmp = n.getScript().get().accept(this, arg);
             if (tmp != null) result.addAll(tmp);

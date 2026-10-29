@@ -1068,6 +1068,7 @@ public class EqualsVisitor implements GenericVisitor<Boolean, Visitable> {
         if (!nodeEquals(n.getExpression(), n2.getExpression())) return false;
         if (!nodesEquals(n.getJmlTags(), n2.getJmlTags())) return false;
         if (!objEquals(n.getKind(), n2.getKind())) return false;
+        if (!nodeEquals(n.getLabel(), n2.getLabel())) return false;
         if (!nodesEquals(n.getScript(), n2.getScript())) return false;
         if (!nodeEquals(n.getComment(), n2.getComment())) return false;
         return true;

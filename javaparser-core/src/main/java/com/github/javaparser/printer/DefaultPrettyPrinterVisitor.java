@@ -1182,6 +1182,21 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     }
 
     @Override
+    public void visit(JmlPredicateDeclaration n, Void arg) {
+        wrapInJmlIfNeeded(() -> {
+            printOrphanCommentsBeforeThisChildNode(n);
+            printModifiers(n.getModifiers());
+            printer.print("predicate ");
+            n.getName().accept(this, arg);
+            printer.print("(");
+            printList(n.getParameters(), ", ");
+            printer.print(") = ");
+            n.getBody().accept(this, arg);
+            printer.print(";");
+        });
+    }
+
+    @Override
     public void visit(JmlContract n, Void arg) {
         printOrphanCommentsBeforeThisChildNode(n);
         wrapInJmlIfNeededBlock(() -> {

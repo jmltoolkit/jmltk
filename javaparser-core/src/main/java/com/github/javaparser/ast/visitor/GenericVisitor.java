@@ -376,4 +376,6 @@ public interface GenericVisitor<R, A> {
     R visit(JmlInfFlowClause n, A arg);
 
     R visit(JmlProofObtainStmt n, A arg);
+
+    R visit(JmlPredicateDeclaration n, A arg);
 }

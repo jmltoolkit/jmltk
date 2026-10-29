@@ -30,6 +30,30 @@ Release markers found in the history (tags): `k1`, `k2`, `k3`, `v3.25.3-K3`, `v3
 `KEY-JAVAPARSER-3.28.0-K13.6`. Old releases were published from `pom.xml` (Maven); since the July 2026 Gradle
 migration the version lives in `gradle.properties`.
 
+> **Fork-local SemVer (1.x).** Since the Gradle migration, releases use fork-local `MAJOR.MINOR.PATCH` SemVer
+> (`version=` in `gradle.properties`), independent of the upstream JavaParser version. Mapping onto the
+> composite scheme:
+>
+> | Fork-local | Composite | Notes |
+> |---|---|---|
+> | `1.0.0` | `3.28.2-J8.0-K13.6` | First Gradle release, 2026-10-25 (`0e5e605fb`) |
+> | `1.1.0-SNAPSHOT` | — | Starting point after 1.0.0 (`df1e08542`) |
+>
+> Bump rules: patch = bugfix, minor = feature/upstream merge, major = breaking change.
+
+---
+
+## Fork-local releases
+
+### Version 1.2.0-SNAPSHOT  (unreleased)
+
+**Added**
+
+- JML class-body `predicate` declarations (`//@ instance predicate Pred(int i) = i > 0;`): AST node
+  `JmlPredicateDeclaration`, grammar/lexer support, concrete syntax and pretty printing, modifier and parameter
+  validation, symbol resolution of the predicate parameters, and `wd`/`stat`/`lsp` tool support (well-definedness,
+  statistics, document symbols and code actions).
+
 ---
 
 ## Combined releases (JML + KeY, this repository)

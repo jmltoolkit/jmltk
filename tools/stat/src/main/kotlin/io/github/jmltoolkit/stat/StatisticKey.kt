@@ -79,6 +79,7 @@ sealed class StatisticKey<T : Any>(val defValue: Any) {
     data object INVARIANTS : IntSumKey()
     data object GHOST_FIELDS : IntSumKey()
     data object totalModelMethods : IntSumKey()
+    data object totalPredicates : IntSumKey()
     data object pureMethods : IntSumKey()
     data object helperMethods : IntSumKey()
     data object totalQuantifiers : IntSumKey()

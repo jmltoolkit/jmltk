@@ -121,6 +121,11 @@ class NameResolutionTest {
         loadAndResolveAll("Locals.java");
     }
 
+    @Test
+    void jmlPredicate() throws IOException {
+        loadAndResolveAll("JmlPredicateResolutionTest.java");
+    }
+
     private void loadAndResolveAll(String name) throws IOException {
         final ParserConfiguration configuration = new ParserConfiguration().setProcessJml(true);
         configuration.setSymbolResolver(

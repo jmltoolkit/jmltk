@@ -3,10 +3,16 @@
  * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
  */
 import com.github.javaparser.JavaParser
+import com.github.javaparser.ParserConfiguration
+import com.github.javaparser.ast.jml.body.JmlPredicateDeclaration
+import io.github.jmltoolkit.smt.BitVectorArithmeticTranslator
+import io.github.jmltoolkit.smt.SmtQuery
 import io.github.jmltoolkit.smt.Z3
+import io.github.jmltoolkit.wd.WDVisitorExpr
 import io.github.jmltoolkit.wd.WdFacade.isWelldefined
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assumptions
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvFileSource
 
@@ -29,5 +35,28 @@ internal class WDVisitorExprTest {
     fun wdExpressionError(expr: String) {
         Assumptions.assumeTrue(Z3.z3Installed())
         Assertions.assertFalse(isWelldefined(parser, expr))
+    }
+
+    @Test
+    fun predicateWellDefinednessDelegatesToBody() {
+        val config = ParserConfiguration()
+        config.isProcessJml = true
+        val parser = JavaParser(config)
+        val cu = parser.parse(
+            """
+            public class P {
+                //@ instance predicate Pred(int i) = i > 0;
+            }
+            """.trimIndent()
+        ).result.orElseThrow()
+        val predicate = cu.findAll(JmlPredicateDeclaration::class.java).single()
+
+        val query = SmtQuery()
+        val visitor = WDVisitorExpr(query, BitVectorArithmeticTranslator(query))
+        // The well-definedness of a predicate declaration is the well-definedness of its body.
+        Assertions.assertEquals(
+            predicate.body.accept(visitor, null).toString(),
+            predicate.accept(visitor, null).toString()
+        )
     }
 }

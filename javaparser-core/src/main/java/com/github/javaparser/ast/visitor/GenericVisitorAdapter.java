@@ -1907,6 +1907,10 @@ public abstract class GenericVisitorAdapter<R, A> implements GenericVisitor<R, A
             result = n.getJmlTags().accept(this, arg);
             if (result != null) return result;
         }
+        if (n.getLabel().isPresent()) {
+            result = n.getLabel().get().accept(this, arg);
+            if (result != null) return result;
+        }
         if (n.getScript().isPresent()) {
             result = n.getScript().get().accept(this, arg);
             if (result != null) return result;

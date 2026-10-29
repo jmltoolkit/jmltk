@@ -1665,11 +1665,14 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
     public Visitable visit(final JmlExpressionStmt n, final A arg) {
         Expression expression = (Expression) n.getExpression().accept(this, arg);
         NodeList<SimpleName> jmlTags = modifyList(n.getJmlTags(), arg);
+        SimpleName label =
+                n.getLabel().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
         NodeList<JmlProofStmt> script = modifyList(n.getScript(), arg);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
         if (expression == null) return null;
         n.setExpression(expression);
         n.setJmlTags(jmlTags);
+        n.setLabel(label);
         n.setScript(script);
         n.setComment(comment);
         return n;

@@ -1259,4 +1259,13 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getVar().accept(this, arg)) * 31
                 + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
     }
+
+    @Override
+    public Integer visit(final JmlQuantifiedVariable n, final Void arg) {
+        return (n.getIterable().isPresent() ? n.getIterable().get().accept(this, arg) : 0) * 31
+                + (n.getInitializer().isPresent() ? n.getInitializer().get().accept(this, arg) : 0) * 31
+                + (n.getName().accept(this, arg)) * 31
+                + (n.getType().accept(this, arg)) * 31
+                + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
+    }
 }

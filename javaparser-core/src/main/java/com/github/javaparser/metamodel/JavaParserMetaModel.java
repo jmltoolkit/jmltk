@@ -532,6 +532,18 @@ public final class JavaParserMetaModel {
         jmlQuantifiedExprMetaModel
                 .getConstructorParameters()
                 .add(jmlQuantifiedExprMetaModel.expressionsPropertyMetaModel);
+        jmlQuantifiedVariableMetaModel
+                .getConstructorParameters()
+                .add(variableDeclaratorMetaModel.typePropertyMetaModel);
+        jmlQuantifiedVariableMetaModel
+                .getConstructorParameters()
+                .add(variableDeclaratorMetaModel.namePropertyMetaModel);
+        jmlQuantifiedVariableMetaModel
+                .getConstructorParameters()
+                .add(variableDeclaratorMetaModel.initializerPropertyMetaModel);
+        jmlQuantifiedVariableMetaModel
+                .getConstructorParameters()
+                .add(jmlQuantifiedVariableMetaModel.iterablePropertyMetaModel);
         jmlTypeExprMetaModel.getConstructorParameters().add(jmlTypeExprMetaModel.typePropertyMetaModel);
         jmlBinaryInfixExprMetaModel.getConstructorParameters().add(jmlBinaryInfixExprMetaModel.leftPropertyMetaModel);
         jmlBinaryInfixExprMetaModel.getConstructorParameters().add(jmlBinaryInfixExprMetaModel.rightPropertyMetaModel);
@@ -901,6 +913,7 @@ public final class JavaParserMetaModel {
         nodeMetaModels.add(jmlProofObtainStmtMetaModel);
         nodeMetaModels.add(jmlProofStmtMetaModel);
         nodeMetaModels.add(jmlQuantifiedExprMetaModel);
+        nodeMetaModels.add(jmlQuantifiedVariableMetaModel);
         nodeMetaModels.add(jmlRefiningStmtMetaModel);
         nodeMetaModels.add(jmlRepresentsDeclarationMetaModel);
         nodeMetaModels.add(jmlSetComprehensionExprMetaModel);
@@ -3547,6 +3560,18 @@ public final class JavaParserMetaModel {
         jmlQuantifiedExprMetaModel
                 .getDerivedPropertyMetaModels()
                 .add(jmlQuantifiedExprMetaModel.maximumCommonTypePropertyMetaModel);
+        jmlQuantifiedVariableMetaModel.iterablePropertyMetaModel = new PropertyMetaModel(
+                jmlQuantifiedVariableMetaModel,
+                "iterable",
+                com.github.javaparser.ast.expr.Expression.class,
+                Optional.of(expressionMetaModel),
+                true,
+                false,
+                false,
+                false);
+        jmlQuantifiedVariableMetaModel
+                .getDeclaredPropertyMetaModels()
+                .add(jmlQuantifiedVariableMetaModel.iterablePropertyMetaModel);
         jmlTypeExprMetaModel.typePropertyMetaModel = new PropertyMetaModel(
                 jmlTypeExprMetaModel,
                 "type",
@@ -5599,6 +5624,10 @@ public final class JavaParserMetaModel {
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     public static final JmlQuantifiedExprMetaModel jmlQuantifiedExprMetaModel =
             new JmlQuantifiedExprMetaModel(Optional.of(jmlExpressionMetaModel));
+
+    @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
+    public static final JmlQuantifiedVariableMetaModel jmlQuantifiedVariableMetaModel =
+            new JmlQuantifiedVariableMetaModel(Optional.of(variableDeclaratorMetaModel));
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     public static final JmlTypeExprMetaModel jmlTypeExprMetaModel =

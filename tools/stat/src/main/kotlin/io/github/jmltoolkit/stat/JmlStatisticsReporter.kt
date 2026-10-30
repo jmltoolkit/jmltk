@@ -17,6 +17,7 @@ import com.github.javaparser.ast.jml.body.JmlMethodDeclaration
 import com.github.javaparser.ast.jml.clauses.*
 import com.github.javaparser.ast.jml.expr.JmlLetExpr
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr
+import com.github.javaparser.jml.JmlQuantifierDesugarer
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 
 /** Statistics are stored inside the AST */
@@ -154,6 +155,10 @@ class JmlStatisticsReporter : VoidVisitorAdapter<Statistics>() {
 
     override fun visit(n: JmlQuantifiedExpr, arg: Statistics) {
         arg.inc(n.binder)
+        if (JmlQuantifierDesugarer.isElementQuantifier(n)) {
+            arg.inc(StatisticKey.totalElementQuantifiers)
+            arg.inc(StatisticKeys.binder("ELEMENT_" + n.binder.jmlSymbol()))
+        }
         super.visit(n, arg)
     }
 

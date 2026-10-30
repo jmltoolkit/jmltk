@@ -4703,6 +4703,7 @@ Expression JmlPrimaryPrefix():
     VariableDeclarationExpr decls;
     SimpleName name;
     Expression ret;
+    Expression iterable;
 }
 {
   (  LOOKAHEAD(2)
@@ -4726,6 +4727,23 @@ Expression JmlPrimaryPrefix():
        (<FORALLQ> | <EXISTS> | <NUM_OF> |  <SUM> | <MIN> | <PRODUCT> | <MAX> | <JML_IDENTIFIER>)
        {quant=token();}
        vars=QuantifiedVariables()
+       [
+           ":" iterable=Expression()
+           {
+               if (vars.size() != 1) throw new ParseException(
+                       "an iterable domain binds exactly one variable; nest quantifiers for more");
+               VariableDeclarator d = vars.get(0);
+               Type t = d.getType();
+               if (t instanceof ClassOrInterfaceType
+                       && ((ClassOrInterfaceType) t).getNameAsString().equals("var")
+                       && !((ClassOrInterfaceType) t).getTypeArguments().isPresent()
+                       && t.getArrayLevel() == 0) {
+                   t = new VarType(t.getTokenRange().orElse(null));
+               }
+               vars = new NodeList<>(new JmlQuantifiedVariable(
+                       t, d.getName(), d.getInitializer().orElse(null), iterable));
+           }
+       ]
        ";"
        expr=Expression() {exprs.add(expr);} (";" expr=Expression() {exprs.add(expr);})*
       ")"

@@ -2165,4 +2165,22 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
         n.setComment(comment);
         return n;
     }
+
+    @Override
+    public Visitable visit(final JmlQuantifiedVariable n, final A arg) {
+        Expression iterable =
+                n.getIterable().map(s -> (Expression) s.accept(this, arg)).orElse(null);
+        Expression initializer =
+                n.getInitializer().map(s -> (Expression) s.accept(this, arg)).orElse(null);
+        SimpleName name = (SimpleName) n.getName().accept(this, arg);
+        Type type = (Type) n.getType().accept(this, arg);
+        Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
+        if (name == null || type == null) return null;
+        n.setIterable(iterable);
+        n.setInitializer(initializer);
+        n.setName(name);
+        n.setType(type);
+        n.setComment(comment);
+        return n;
+    }
 }

@@ -72,8 +72,7 @@ object SmtTermFactory {
         return SList(smtType, javaType, nargs)
     }
 
-    // TODO weigl correct?
-    fun list(variables: List<SExpr>): SExpr = SList(null, null, listOf())
+    fun list(variables: List<SExpr>): SExpr = SList(null, null, variables)
 
     //region polymorphic operators
     fun bor(left: SExpr, right: SExpr): SExpr {

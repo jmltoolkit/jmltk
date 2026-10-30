@@ -112,6 +112,11 @@ class NameResolutionTest {
     }
 
     @Test
+    void jmlBinderExpressionIterable() throws IOException {
+        loadAndResolveAll("JmlQuantifiedExprIterableResolutionTest.java");
+    }
+
+    @Test
     void jmlBinderExpression_static() throws IOException {
         loadAndResolveAll("JmlQuantifiedExprResolutionStaticTest.java");
     }

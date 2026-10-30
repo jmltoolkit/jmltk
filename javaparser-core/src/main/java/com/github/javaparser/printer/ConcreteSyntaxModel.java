@@ -1319,14 +1319,15 @@ public class ConcreteSyntaxModel {
                 JmlLetExpr.class,
                 sequence(token(LPAREN), token(LET), space(), list(VARIABLES), space(), child(BODY), token(RPAREN)));
         concreteSyntaxModelByClass.put(JmlMultiCompareExpr.class, specialJmlMultiCompareExpr());
+        // Classic bindings share one leading type printed once; iterable-bound
+        // bindings (JmlQuantifiedVariable) carry their own type and iterable, in
+        // which case getMaximumCommonType() reports the derived type as absent.
         concreteSyntaxModelByClass.put(
                 JmlQuantifiedExpr.class,
                 sequence(
                         token(LPAREN),
                         attribute(BINDER),
-                        space(), // Classic bindings share one leading type printed once; iterable-bound
-                        // bindings (JmlQuantifiedVariable) carry their own type and iterable, in
-                        // which case getMaximumCommonType() reports the derived type as absent.
+                        space(),
                         conditional(
                                 ObservableProperty.MAXIMUM_COMMON_TYPE,
                                 IS_PRESENT,

@@ -38,5 +38,7 @@ public class JmlExpressionStmtMetaModel extends JmlStatementMetaModel {
 
     public PropertyMetaModel kindPropertyMetaModel;
 
+    public PropertyMetaModel labelPropertyMetaModel;
+
     public PropertyMetaModel scriptPropertyMetaModel;
 }

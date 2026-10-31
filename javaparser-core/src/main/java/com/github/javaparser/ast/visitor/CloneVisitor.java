@@ -1351,6 +1351,7 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
     public Visitable visit(final JmlExpressionStmt n, final Object arg) {
         Expression expression = cloneNode(n.getExpression(), arg);
         NodeList<SimpleName> jmlTags = cloneList(n.getJmlTags(), arg);
+        SimpleName label = cloneNode(n.getLabel(), arg);
         NodeList<JmlProofStmt> script = cloneList(n.getScript().orElse(null), arg);
         Comment comment = cloneNode(n.getComment(), arg);
         JmlExpressionStmt r =

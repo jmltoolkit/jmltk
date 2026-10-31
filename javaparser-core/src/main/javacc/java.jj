@@ -7071,7 +7071,7 @@ JmlStatement JmlStatement():
 	JavaToken begin;
 	Expression expr , target;
 	Statement stmt;
-	SimpleName label;
+	SimpleName label = null;
     JmlStatement ret;
     NodeList<JmlProofStmt> script = null;
 }
@@ -7079,12 +7079,13 @@ JmlStatement JmlStatement():
   (
     ( <JML_ASSERT> | <ASSUME> | <HENCE_BY> | <HENCE_BY_REDUNDANTLY> | <SET> | <ASSERT_REDUNDANTLY> )
     { begin = token(); }
+    [ LOOKAHEAD(<IDENTIFIER> ":") label=SimpleName() ":" ]
     expr=Expression()
     ( <BY> script=JmlProofBlock()
     | {}
     )
     ";"
-    { ret =  new JmlExpressionStmt(range(begin, token()), new NodeList<>(), expr, script); }
+    { ret =  new JmlExpressionStmt(range(begin, token()), new NodeList<>(), expr, script, label); }
   | <GHOST> { begin = token(); }
     stmt=BlockStatement()
     { ret =  new JmlGhostStmt(range(begin, token()), new NodeList<>(), stmt); }

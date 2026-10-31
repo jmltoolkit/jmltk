@@ -3879,6 +3879,18 @@ public final class JavaParserMetaModel {
         jmlExpressionStmtMetaModel
                 .getDeclaredPropertyMetaModels()
                 .add(jmlExpressionStmtMetaModel.kindPropertyMetaModel);
+        jmlExpressionStmtMetaModel.labelPropertyMetaModel = new PropertyMetaModel(
+                jmlExpressionStmtMetaModel,
+                "label",
+                com.github.javaparser.ast.expr.SimpleName.class,
+                Optional.of(simpleNameMetaModel),
+                true,
+                false,
+                false,
+                false);
+        jmlExpressionStmtMetaModel
+                .getDeclaredPropertyMetaModels()
+                .add(jmlExpressionStmtMetaModel.labelPropertyMetaModel);
         jmlExpressionStmtMetaModel.scriptPropertyMetaModel = new PropertyMetaModel(
                 jmlExpressionStmtMetaModel,
                 "script",

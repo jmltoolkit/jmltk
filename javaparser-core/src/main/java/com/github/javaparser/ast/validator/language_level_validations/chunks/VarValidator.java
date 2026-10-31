@@ -56,10 +56,12 @@ public class VarValidator implements TypedValidator<VarType> {
             return;
         }
         variableDeclarator.ifPresent(vd -> {
-            // JML quantifier bindings: `(\forall var e : a; ...)` — the type is inferred from
-            // the iterable domain's element type, so `var` is as legal here as in a local
-            // variable declaration. (The concrete type-based checks happen with the
-            // symbol-solver phases.)
+            // JML quantifier bindings may declare `var`: `(\forall var e : a; ...)` is
+            // allowed and denotes the domain's element type — it is equivalent to
+            // `(\forall T e : a; ...)` with T the element type of `a` (design
+            // quantarray.md §2). The declared type stays `var` in the AST, so a
+            // VarType under a JmlQuantifiedVariable must not be rejected here;
+            // resolving it to the element type is the symbol solver's job.
             if (vd instanceof JmlQuantifiedVariable) {
                 return;
             }

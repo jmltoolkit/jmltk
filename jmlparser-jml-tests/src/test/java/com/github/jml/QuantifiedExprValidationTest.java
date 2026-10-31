@@ -14,9 +14,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Syntactic validation of iterable-domain quantifiers:
- * {@code (\forall int e : a; ...)} and friends. The checks live in
- * {@link com.github.javaparser.jml.JmlProcessor}, so they only fire when
- * the parser is configured with {@code processJml=true}.
+ * {@code (\forall int e : a; ...)} and friends. Multi-declarator + iterable is
+ * rejected by the grammar at parse time; the binding-shape checks (no
+ * initializer, the domain must not reference the bound variable) live in
+ * {@link com.github.javaparser.jml.JmlProcessor} and fire when the parser is
+ * configured with {@code processJml=true}.
  *
  * @author Alexander Weigl
  */

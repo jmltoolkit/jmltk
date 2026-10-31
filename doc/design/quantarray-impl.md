@@ -148,11 +148,12 @@ Hook: `JmlProcessor.JmlReplaceVisitor` already carries a `ProblemReporter`
 (`jml/JmlProcessor.java:83–97`). Add `visit(JmlQuantifiedExpr)` /
 `visit(JmlQuantifiedVariable)` checks:
 
-- [ ] bound binding has no initializer
-- [ ] the iterable does not reference the bound variable (SimpleName scan —
+- [x] bound binding has no initializer
+- [x] the iterable does not reference the bound variable (SimpleName scan —
       self-index sugar is deferred; `(\forall int e : a[e]; …)` is an error)
-- [ ] multi-declarator + iterable cannot occur (parse-level), keep a defensive
-      validator anyway
+- [x] multi-declarator + iterable cannot occur — enforced by the grammar at
+      parse time only; the one-time defensive JmlProcessor check was dropped
+      (review #83) since it was dead for parser-produced ASTs
 - [ ] type-based kind checks (range → integer, array → component, Iterable →
       element) come with M2
 

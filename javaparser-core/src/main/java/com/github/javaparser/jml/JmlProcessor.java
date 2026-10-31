@@ -18,7 +18,6 @@ import com.github.javaparser.ast.jml.NodeWithContracts;
 import com.github.javaparser.ast.jml.NodeWithJmlTags;
 import com.github.javaparser.ast.jml.clauses.JmlContract;
 import com.github.javaparser.ast.jml.doc.*;
-import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr;
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedVariable;
 import com.github.javaparser.ast.jml.stmt.JmlStatement;
 import com.github.javaparser.ast.nodeTypes.NodeWithAnnotations;
@@ -235,24 +234,6 @@ public class JmlProcessor extends Processor {
                 }
             }
             return n;
-        }
-
-        @Override
-        public Visitable visit(JmlQuantifiedExpr n, Void arg) {
-            // Defensive: the grammar already rejects `(\forall int i, j : a; ...)` with a
-            // ParseException, but an iterable-bound binding coexisting with further
-            // bindings can also be assembled programmatically.
-            boolean hasBoundBinding = false;
-            for (var v : n.getVariables()) {
-                if (v instanceof JmlQuantifiedVariable) {
-                    hasBoundBinding = true;
-                    break;
-                }
-            }
-            if (hasBoundBinding && n.getVariables().size() != 1) {
-                reporter.report(n, "An iterable domain binds exactly one variable; nest quantifiers for more.");
-            }
-            return super.visit(n, arg);
         }
 
         @Override

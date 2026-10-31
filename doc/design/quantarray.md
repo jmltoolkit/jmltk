@@ -174,8 +174,8 @@ two-lists variant is the conservative fallback if the is-a relationship is rejec
 
 ### 3.6 Validators
 
-- an iterable binds exactly one declarator (defensive; the parse already enforces
-  it);
+- an iterable binds exactly one declarator — enforced by the grammar at parse
+  time (no validator needed);
 - **the iterable must not reference the bound variable** (`(\forall int e : a[e]; …)`
   is an error — the self-index sugar is deferred, §2);
 - **binding kinds** are decided by the iterable (§4) and re-checked:

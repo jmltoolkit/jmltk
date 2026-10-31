@@ -143,6 +143,13 @@ class VcgGoldenQueriesTest {
             arrayOf("stringConcatLen", "B_STR", "BOUNDED_string_index"),
             arrayOf("stringIndexOfAbsent", "U_STR", "UNBOUNDED_string_index"),
             arrayOf("stringCharAtUnknown", "U_STR", "UNBOUNDED_string_index"),
+            // P4.3 extension: substring/startsWith/replace under the same model —
+            // strsub/strsub2/strpre/strrep reads with explicit quantified axioms
+            // and per-position literal content binds
+            arrayOf("substringLen", "U_STR", "UNBOUNDED_string_index"),
+            arrayOf("substringLen2", "U_STR", "UNBOUNDED_string_index"),
+            arrayOf("literalStartsWith", "U_STR", "UNBOUNDED_string_index"),
+            arrayOf("replaceContentAt0", "U_STR", "UNBOUNDED_string_index"),
         ).map { Triple(it[0], it[1], it[2]) }
 
     private fun options(tag: String): VcgOptions = when (tag) {

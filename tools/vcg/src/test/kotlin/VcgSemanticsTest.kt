@@ -759,14 +759,15 @@ class VcgSemanticsTest {
 
     @Test
     fun testStringIndexProvenAndFalsifiable() {
-        // charAt/substring on a String literal are unrefined library calls: the
-        // bounds obligations come from the string-index feature, the call result
-        // itself is havoced/opaque via the allow flag
-        expectAllProven(vcgFor("charAtOk", u.copy(checkStringIndex = true, allowUnrefinedCalls = true)))
-        expectAllProven(vcgFor("charAtOk", b.copy(checkStringIndex = true, allowUnrefinedCalls = true)))
-        expectAllProven(vcgFor("subOk", u.copy(checkStringIndex = true, allowUnrefinedCalls = true)))
-        expectSomeFalsifiable(vcgFor("charAtUnchecked", u.copy(checkStringIndex = true, allowUnrefinedCalls = true)))
-        expectSomeFalsifiable(vcgFor("charAtUnchecked", b.copy(checkStringIndex = true, allowUnrefinedCalls = true)))
+        // charAt/substring on a String literal are modeled reads (strval/strsub)
+        // under the string-index feature: the bounds obligations against the
+        // literal's declared length prove for in-range indices and stay
+        // falsifiable for unchecked ones
+        expectAllProven(vcgFor("charAtOk", u.copy(checkStringIndex = true)))
+        expectAllProven(vcgFor("charAtOk", b.copy(checkStringIndex = true)))
+        expectAllProven(vcgFor("subOk", u.copy(checkStringIndex = true)))
+        expectSomeFalsifiable(vcgFor("charAtUnchecked", u.copy(checkStringIndex = true)))
+        expectSomeFalsifiable(vcgFor("charAtUnchecked", b.copy(checkStringIndex = true)))
     }
 
     @Test
@@ -805,6 +806,40 @@ class VcgSemanticsTest {
         // methods then stay on the unrefined path (rejected without the flag)
         val off = u.copy(checkStringIndex = false, allowUnrefinedCalls = false)
         assertThrows(IllegalStateException::class.java) { vcgFor("stringConcatLen", off) }
+    }
+
+    @Test
+    fun testStringModelExtended() {
+        // P4.3 extension: substring / startsWith / replace(char, char) become
+        // abstract-string model reads (strsub/strsub2/strpre/strrep) under the
+        // string-index feature, and string literals bind their per-position
+        // content so literal-based proofs discharge through the char reads
+        val so = u.copy(checkStringIndex = true)
+        val soB = b.copy(checkStringIndex = true)
+        // substring: length is the slice width (both overloads)
+        expectAllProven(vcgFor("substringLen", so))
+        expectAllProven(vcgFor("substringLen", soB))
+        expectAllProven(vcgFor("substringLen2", so))
+        expectAllProven(vcgFor("substringLen2", soB))
+        // startsWith: literal prefix + parameter prefix (explicit receiver)
+        expectAllProven(vcgFor("literalStartsWith", so))
+        expectAllProven(vcgFor("literalStartsWith", soB))
+        expectAllProven(vcgFor("startsWithLengthBound", so))
+        expectAllProven(vcgFor("startsWithLengthBound", soB))
+        // replace(char, char): length-preserving and content-mapping
+        expectAllProven(vcgFor("replaceLen", so))
+        expectAllProven(vcgFor("replaceLen", soB))
+        expectAllProven(vcgFor("replaceContentAt0", so))
+        expectAllProven(vcgFor("replaceContentAt0", soB))
+        // a prefix claim the model cannot support stays falsifiable: the
+        // broken fixture's receiver is too short for the "ab" prefix
+        expectSomeFalsifiable(vcgFor("literalStartsWithBroken", so))
+        expectSomeFalsifiable(vcgFor("literalStartsWithBroken", soB))
+        // indexOf(String) needs *substring search*, which the model does not
+        // cover: the call stays unrefined and is rejected by default (P1.3) —
+        // the remaining documented string divergence
+        val ex = assertThrows(IllegalStateException::class.java) { vcgFor("stringIndexOfString", so) }
+        assertTrue(ex.message!!.contains("no JML contract and no body"), ex.message)
     }
 
     //endregion

@@ -1941,6 +1941,76 @@ public class VcgExamples {
         return true;
     }
 
+    // ---- P4.3 extension: substring / startsWith / replace ----
+
+    // substring's runtime length is the slice width, so suffix-length proofs
+    // discharge through the strsub length axiom; the requires bounds the start
+    // index so the string-index obligation also proves
+    //@ requires s != null && 0 <= i && i <= s.length();
+    //@ ensures \result == s.length() - i;
+    public int substringLen(String s, int i) {
+        return s.substring(i).length();
+    }
+
+    // the two-argument overload's length is the slice width (the bounds come
+    // from the requires, checked by the string-index obligation)
+    //@ requires s != null && 0 <= i && i <= j && j <= s.length();
+    //@ ensures \result == j - i;
+    public int substringLen2(String s, int i, int j) {
+        return s.substring(i, j).length();
+    }
+
+    // a literal-startsWith claim: the prefix axiom plus the literal's bound
+    // content prove the char-read consequences
+    //@ requires s != null && s.length() >= 2 && s.charAt(0) == 'a' && s.charAt(1) == 'b';
+    //@ ensures true;
+    public boolean literalStartsWith(String s) {
+        //@ assert s.startsWith("ab");
+        return true;
+    }
+
+    // a broken literal-startsWith claim stays falsifiable: content alone is
+    // not enough when the prefix length is longer than the receiver
+    //@ requires s != null && s.length() == 1 && s.charAt(0) == 'a';
+    //@ ensures true;
+    public boolean literalStartsWithBroken(String s) {
+        //@ assert s.startsWith("ab");
+        return true;
+    }
+
+    // startsWith against a parameter: an assumed prefix yields the length bound
+    //@ requires s != null && p != null && s.startsWith(p);
+    //@ ensures p.length() <= s.length();
+    public boolean startsWithLengthBound(String s, String p) {
+        return true;
+    }
+
+    // replace(char, char) preserves the runtime length
+    //@ requires s != null;
+    //@ ensures \result == s.length();
+    public int replaceLen(String s) {
+        return s.replace('a', 'b').length();
+    }
+
+    // replace maps the replaced character: a content read at a position where
+    // the receiver held 'a' reads back 'b'
+    //@ requires s != null && s.length() > 0 && s.charAt(0) == 'a';
+    //@ ensures \result;
+    public boolean replaceContentAt0(String s) {
+        char c = s.replace('a', 'b').charAt(0);
+        //@ assert c == 'b';
+        return true;
+    }
+
+    // indexOf(String) is a substring search, which the abstract-string model
+    // does not cover (only the single-character `indexOf(int/char)` is modeled
+    // as `strindex`): the call stays unrefined and is rejected by default (P1.3)
+    //@ requires s != null;
+    //@ ensures \result >= -1;
+    public int stringIndexOfString(String s) {
+        return s.indexOf("ab");
+    }
+
     // ---- P2.1: constructor contracts at creation sites ----
     // note: named Counted (not Counter), because `Counter` is already a distinct
     // nested fixture type used by readCounter/writeReadCounter/... — a same-name

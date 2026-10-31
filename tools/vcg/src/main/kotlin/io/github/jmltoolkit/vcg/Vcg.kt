@@ -385,9 +385,11 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     }
 
     /** The `String` methods modeled as abstract-string reads under the
-     *  string-index feature (P4.3); all other `String` methods (substring,
-     *  startsWith, replace, ...) stay on the unrefined/contract paths. */
-    private val stringModeledOps = setOf("equals", "charAt", "codePointAt", "concat", "indexOf")
+     *  string-index feature (P4.3 + P4.4): char-level reads and concatenation,
+     *  plus substring/startsWith/replace and the character search. All other
+     *  `String` methods stay on the unrefined/contract paths. */
+    private val stringModeledOps =
+        setOf("equals", "charAt", "codePointAt", "concat", "indexOf", "substring", "startsWith", "replace")
 
     /**
      * P4.3 abstract-string model: a per-position character-code view `strval`,
@@ -583,6 +585,227 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                     )
                 )
             }
+
+            "substring" -> {
+                // `strsub`/`strsub2`: the two `substring` overloads. The result is a
+                // non-null slice whose runtime length is the slice width and whose
+                // content is the receiver's content shifted by the start index
+                // (position-wise, exactly like strcat) — so suffix/slice content
+                // reads tickle the same strval model. The call-site bounds
+                // obligations come from the string-index feature.
+                ensureFun("strval", listOf(u, isort), isort)
+                ensureFun("strsub", listOf(u, isort), u)
+                ensureFun("strsub2", listOf(u, isort, isort), u)
+                val lens: (SExpr) -> SExpr = { x ->
+                    term.list(null, intSort, term.symbol("stringLength"), x)
+                }
+                val zero = translator.makeInt(java.math.BigInteger.ZERO)
+                val strvalOf: (SExpr, SExpr) -> SExpr = { x, idx ->
+                    term.list(null, intSort, term.symbol("strval"), x, idx)
+                }
+                val sA = term.variable(SmtType.JAVA_OBJECT, null, "s\$a")
+                val sK = term.variable(intSort, null, "s\$k")
+                val sL = term.variable(intSort, null, "s\$l")
+                val sJ = term.variable(intSort, null, "s\$j")
+                val bA = term.binder(SmtType.JAVA_OBJECT, "s\$a")
+                val bK = term.binder(intSort, "s\$k")
+                val bL = term.binder(intSort, "s\$l")
+                val bJ = term.binder(intSort, "s\$j")
+                // one-argument substring: the suffix from start index k. The
+                // content axiom is flattened to a *single* universal level over
+                // (s$a, s$k, s$j) with the `(strval (strsub s$a s$k) s$j)` pattern —
+                // a nested index quantifier whose RHS index is the arithmetic
+                // `(+ s$k s$j)` cannot be E-matched, so Z3 falls back to the slow
+                // model-based instantiation even for satisfiability-only checks
+                // (the substringLen bounds obligation alone blew the watchdog).
+                val sub1 = term.list(null, SmtType.JAVA_OBJECT, term.symbol("strsub"), sA, sK)
+                val pat1 = term.list(null, intSort, term.symbol("strsub"), sA, sK)
+                val inSlice1: (SExpr) -> SExpr = { x ->
+                    term.and(
+                        term.lessOrEquals(zero, x, true),
+                        term.lessThan(x, term.subtract(lens(sA), sK))
+                    )
+                }
+                query.addAssert(
+                    term.forall(listOf(bA, bK), withPattern(term.nonNull(sub1), listOf(pat1)))
+                )
+                query.addAssert(
+                    term.forall(
+                        listOf(bA, bK),
+                        withPattern(
+                            term.equality(lens(sub1), term.subtract(lens(sA), sK)),
+                            listOf(pat1)
+                        )
+                    )
+                )
+                query.addAssert(
+                    term.forall(
+                        listOf(bA, bK, bJ),
+                        withPattern(
+                            term.impl(
+                                inSlice1(sJ),
+                                term.equality(strvalOf(sub1, sJ), strvalOf(sA, term.add(sK, sJ)))
+                            ),
+                            listOf(strvalOf(sub1, sJ))
+                        )
+                    )
+                )
+                // two-argument substring: the slice [k, l)
+                val sub2 = term.list(null, SmtType.JAVA_OBJECT, term.symbol("strsub2"), sA, sK, sL)
+                val pat2 = term.list(null, intSort, term.symbol("strsub2"), sA, sK, sL)
+                val inSlice2: (SExpr) -> SExpr = { x ->
+                    term.and(
+                        term.lessOrEquals(zero, x, true),
+                        term.lessThan(x, term.subtract(sL, sK))
+                    )
+                }
+                query.addAssert(
+                    term.forall(listOf(bA, bK, bL), withPattern(term.nonNull(sub2), listOf(pat2)))
+                )
+                query.addAssert(
+                    term.forall(
+                        listOf(bA, bK, bL),
+                        withPattern(
+                            term.equality(lens(sub2), term.subtract(sL, sK)),
+                            listOf(pat2)
+                        )
+                    )
+                )
+                query.addAssert(
+                    term.forall(
+                        listOf(bA, bK, bL, bJ),
+                        withPattern(
+                            term.impl(
+                                inSlice2(sJ),
+                                term.equality(strvalOf(sub2, sJ), strvalOf(sA, term.add(sK, sJ)))
+                            ),
+                            listOf(strvalOf(sub2, sJ))
+                        )
+                    )
+                )
+            }
+
+            "startsWith" -> {
+                // `strpre`: the prefix relation — `s.startsWith(p)` holds iff `p`
+                // is at most as long as `s` and agrees with `s` on every position
+                // below its length (both directions, mirroring the steq axioms).
+                // The forward directions are flattened to a single universal level
+                // with patterns that keep them inert until a ground `strpre` (and,
+                // for the content consequence, a ground `strval`) application
+                // appears; the converse direction keeps its nested index quantifier
+                // because it fires only on ground `(strpre ...)` terms, where the
+                // length facts discharge directly.
+                ensureFun("strval", listOf(u, isort), isort)
+                ensureFun("strpre", listOf(u, u), term.type(SmtType.BOOL))
+                val lens: (SExpr) -> SExpr = { x ->
+                    term.list(null, intSort, term.symbol("stringLength"), x)
+                }
+                val zero = translator.makeInt(java.math.BigInteger.ZERO)
+                val sA = term.variable(SmtType.JAVA_OBJECT, null, "s\$a")
+                val sB = term.variable(SmtType.JAVA_OBJECT, null, "s\$b")
+                val sI = term.variable(intSort, null, "s\$i")
+                val bA = term.binder(SmtType.JAVA_OBJECT, "s\$a")
+                val bB = term.binder(SmtType.JAVA_OBJECT, "s\$b")
+                val bI = term.binder(intSort, "s\$i")
+                val pre = term.list(null, SmtType.BOOL, term.symbol("strpre"), sA, sB)
+                val pat = term.list(null, intSort, term.symbol("strpre"), sA, sB)
+                val valA: SExpr = term.list(null, intSort, term.symbol("strval"), sA, sI)
+                val valB: SExpr = term.list(null, intSort, term.symbol("strval"), sB, sI)
+                val lenA = lens(sA)
+                val lenB = lens(sB)
+                val inB: SExpr =
+                    term.and(term.lessOrEquals(zero, sI, true), term.lessThan(sI, lenB))
+                // pre -> the prefix is no longer than the receiver
+                query.addAssert(
+                    term.forall(
+                        listOf(bA, bB),
+                        withPattern(
+                            term.impl(pre, term.lessOrEquals(lenB, lenA, true)),
+                            listOf(pat)
+                        )
+                    )
+                )
+                // pre -> the prefix and receiver agree below the prefix length.
+                // The multi-pattern `(strpre ...)` + `(strval s$a s$i)` keeps the
+                // axiom inert unless a ground content read is present.
+                query.addAssert(
+                    term.forall(
+                        listOf(bA, bB, bI),
+                        withPattern(
+                            term.impl(pre, term.impl(inB, term.equality(valA, valB))),
+                            listOf(pat, valA)
+                        )
+                    )
+                )
+                // the converse: at-most-length plus position-wise agreement
+                // implies the prefix relation
+                val contentEq: SExpr = term.forall(
+                    listOf(bI),
+                    term.impl(inB, term.equality(valA, valB))
+                )
+                query.addAssert(
+                    term.forall(
+                        listOf(bA, bB),
+                        withPattern(
+                            term.impl(
+                                term.and(term.lessOrEquals(lenB, lenA, true), contentEq),
+                                pre
+                            ),
+                            listOf(pat)
+                        )
+                    )
+                )
+            }
+
+            "replace" -> {
+                // `strrep`: the character-replacement overload `replace(char, char)`.
+                // The result is a non-null string of the same runtime length whose
+                // content matches the receiver everywhere except where the receiver
+                // holds the replaced character, which maps to the replacement.
+                ensureFun("strval", listOf(u, isort), isort)
+                ensureFun("strrep", listOf(u, isort, isort), u)
+                val lens: (SExpr) -> SExpr = { x ->
+                    term.list(null, intSort, term.symbol("stringLength"), x)
+                }
+                val zero = translator.makeInt(java.math.BigInteger.ZERO)
+                val sA = term.variable(SmtType.JAVA_OBJECT, null, "s\$a")
+                val sC = term.variable(intSort, null, "s\$c")
+                val sD = term.variable(intSort, null, "s\$d")
+                val sI = term.variable(intSort, null, "s\$i")
+                val bA = term.binder(SmtType.JAVA_OBJECT, "s\$a")
+                val bC = term.binder(intSort, "s\$c")
+                val bD = term.binder(intSort, "s\$d")
+                val bI = term.binder(intSort, "s\$i")
+                val rep = term.list(null, SmtType.JAVA_OBJECT, term.symbol("strrep"), sA, sC, sD)
+                val pat = term.list(null, intSort, term.symbol("strrep"), sA, sC, sD)
+                val strvalOf: (SExpr, SExpr) -> SExpr = { x, idx ->
+                    term.list(null, intSort, term.symbol("strval"), x, idx)
+                }
+                query.addAssert(
+                    term.forall(listOf(bA, bC, bD), withPattern(term.nonNull(rep), listOf(pat)))
+                )
+                query.addAssert(
+                    term.forall(
+                        listOf(bA, bC, bD),
+                        withPattern(term.equality(lens(rep), lens(sA)), listOf(pat))
+                    )
+                )
+                query.addAssert(
+                    term.forall(
+                        listOf(bA, bC, bD, bI),
+                        withPattern(
+                            term.impl(
+                                term.and(term.lessOrEquals(zero, sI, true), term.lessThan(sI, lens(sA))),
+                                term.equality(
+                                    strvalOf(rep, sI),
+                                    iteTerm(term.equality(strvalOf(sA, sI), sC), sD, strvalOf(sA, sI))
+                                )
+                            ),
+                            listOf(strvalOf(rep, sI))
+                        )
+                    )
+                )
+            }
         }
     }
 
@@ -669,6 +892,31 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         return term.list(null, intSort, term.symbol("strindex"), s, c)
     }
 
+    /** `(strsub s i)`: the suffix of `s` from position `i` (P4.3 substring). */
+    private fun strsubOf(s: SExpr, i: SExpr): SExpr {
+        ensureStringModel("substring")
+        return term.list(null, SmtType.JAVA_OBJECT, term.symbol("strsub"), s, i)
+    }
+
+    /** `(strsub2 s i j)`: the slice `s[i, j)` (P4.3 substring). */
+    private fun strsub2Of(s: SExpr, i: SExpr, j: SExpr): SExpr {
+        ensureStringModel("substring")
+        return term.list(null, SmtType.JAVA_OBJECT, term.symbol("strsub2"), s, i, j)
+    }
+
+    /** `(strpre s t)`: true iff `t` is a prefix of `s` (P4.3 startsWith). */
+    private fun strpreOf(s: SExpr, t: SExpr): SExpr {
+        ensureStringModel("startsWith")
+        return term.list(null, SmtType.BOOL, term.symbol("strpre"), s, t)
+    }
+
+    /** `(strrep s a b)`: `s` with every occurrence of character `a` replaced by
+     *  character `b` (P4.3 replace(char, char)). */
+    private fun strrepOf(s: SExpr, a: SExpr, b: SExpr): SExpr {
+        ensureStringModel("replace")
+        return term.list(null, SmtType.JAVA_OBJECT, term.symbol("strrep"), s, a, b)
+    }
+
     /**
      * The declared reference constant for a distinct string literal. A literal is a
      * *non-null* object (so `--check-null` on literal receivers proves) and, under
@@ -683,6 +931,21 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             query.addAssert(term.nonNull(v))
             if (options.checkStringIndex) {
                 query.addAssert(equality(stringLengthOf(v), translator.makeInt(value.length.toLong())))
+                // bind the literal's per-position content so literal-based proofs
+                // (`s.startsWith("ab")`, `"ab".charAt(i) == 'a'`, slice reads, ...)
+                // discharge through the model's char reads
+                ensureStringModel("charAt")
+                for ((i, c) in value.withIndex()) {
+                    query.addAssert(
+                        equality(
+                            term.list(
+                                null, intSort, term.symbol("strval"), v,
+                                translator.makeInt(java.math.BigInteger.valueOf(i.toLong()))
+                            ),
+                            translator.makeInt(java.math.BigInteger.valueOf(c.code.toLong()))
+                        )
+                    )
+                }
             }
             n
         }
@@ -3452,11 +3715,12 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         }
         // P4.3: the abstract-string model handles common `String` operations under
         // the string-index feature — equals / charAt / codePointAt / concat /
-        // indexOf become model reads (`steq`/`strval`/`strcat`/`strindex`) instead
-        // of opaque unrefined library calls, so String-heavy methods verify. Other
-        // String methods and methods without `--check-string-index` keep the
-        // unrefined/contract behavior.
-        if (options.checkStringIndex && call.arguments.size == 1 && call.nameAsString in stringModeledOps) {
+        // indexOf / substring / startsWith / replace become model reads
+        // (`steq`/`strval`/`strcat`/`strindex`/`strsub`/`strpre`/`strrep`)
+        // instead of opaque unrefined library calls, so String-heavy methods
+        // verify. Other String methods and methods without `--check-string-index`
+        // keep the unrefined/contract behavior.
+        if (options.checkStringIndex && call.nameAsString in stringModeledOps) {
             val scope = call.scope.orElse(null)
             val isStringMethod = try {
                 call.resolve().declaringType().qualifiedName == "java.lang.String"
@@ -3471,41 +3735,90 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                         term.impl(guard, term.nonNull(recv)), mode, call
                     )
                 }
-                val arg = atom(call.arguments[0], guard, mode)
+                // the modeled overloads all take primitives (chars / ints / a
+                // single String search argument); translating arguments up front
+                // mirrors the old single-argument path
+                val args = call.arguments.map { atom(it, guard, mode) }
+                fun paramTypes(): List<String> = try {
+                    val m = call.resolve()
+                    (0 until m.getNumberOfParams()).map { m.getParam(it).getType().describe() }
+                } catch (e: Exception) {
+                    emptyList()
+                }
                 when (call.nameAsString) {
-                    "charAt", "codePointAt" -> {
-                        stringIndexChecker(call, listOf(arg), recv, guard, mode)
-                        return strvalOf(recv, arg)
+                    "charAt", "codePointAt" -> if (call.arguments.size == 1) {
+                        stringIndexChecker(call, listOf(args[0]), recv, guard, mode)
+                        return strvalOf(recv, args[0])
                     }
 
-                    "equals" ->
+                    "equals" -> if (call.arguments.size == 1) {
                         // String.equals(null) is false: the argument is always a
                         // reference (null-guarded), never a primitive
-                        return term.and(term.nonNull(arg), steqOf(recv, arg))
-
-                    "concat" -> {
-                        if (options.checkNull && arg.smtType === SmtType.JAVA_OBJECT) {
-                            addObligation(
-                                "nullcheck", "null argument to ${describe(call)}",
-                                term.impl(guard, term.nonNull(arg)), mode, call
-                            )
-                        }
-                        return strcatOf(recv, arg, tryExprType(call))
+                        return term.and(term.nonNull(args[0]), steqOf(recv, args[0]))
                     }
 
-                    "indexOf" -> {
-                        // only the int(char) search fits the char-code model;
-                        // `indexOf(String)` needs substring search and stays unrefined
-                        val p0 = try {
-                            call.resolve().getParam(0).getType().describe()
-                        } catch (e: Exception) {
-                            null
+                    "concat" -> if (call.arguments.size == 1) {
+                        if (options.checkNull && args[0].smtType === SmtType.JAVA_OBJECT) {
+                            addObligation(
+                                "nullcheck", "null argument to ${describe(call)}",
+                                term.impl(guard, term.nonNull(args[0])), mode, call
+                            )
                         }
+                        return strcatOf(recv, args[0], tryExprType(call))
+                    }
+
+                    "indexOf" -> if (call.arguments.size == 1) {
+                        val p0 = paramTypes().firstOrNull()
                         if (p0 == "int" || p0 == "char") {
                             // a char literal/search value is a 16-bit bit-vector in
                             // BOUNDED mode; the model's codepoint parameter is the
                             // (32-bit) int sort
-                            return strindexOf(recv, if (arg.smtType === SmtType.BV16) convertTo(arg, intSort) else arg)
+                            return strindexOf(recv, if (args[0].smtType === SmtType.BV16) convertTo(args[0], intSort) else args[0])
+                        }
+                        if (p0 == "java.lang.String") {
+                            // `indexOf(String)` is a substring search: the modeled
+                            // first-position-of-character `strindex` does not apply,
+                            // so it stays unrefined/rejected (P1.3) — documented
+                            // remaining string divergence
+                        }
+                    }
+
+                    "substring" -> {
+                        val pt = paramTypes()
+                        if (pt.size in 1..2 && pt.all { it == "int" }) {
+                            // the bounds obligation against the receiver's model
+                            // length (0 <= i <= j <= len) is emitted for both overloads
+                            stringIndexChecker(call, args, recv, guard, mode)
+                            return if (pt.size == 1) {
+                                strsubOf(recv, args[0])
+                            } else {
+                                strsub2Of(recv, args[0], args[1])
+                            }
+                        }
+                    }
+
+                    "startsWith" -> if (paramTypes() == listOf("java.lang.String")) {
+                        // `s.startsWith(null)` throws NPE in Java (JLS 15.12.4.4 +
+                        // String.startsWith spec), so the prefix argument carries the
+                        // same nullcheck obligation as `concat`'s argument
+                        if (options.checkNull && args[0].smtType === SmtType.JAVA_OBJECT) {
+                            addObligation(
+                                "nullcheck", "null argument to ${describe(call)}",
+                                term.impl(guard, term.nonNull(args[0])), mode, call
+                            )
+                        }
+                        return strpreOf(recv, args[0])
+                    }
+
+                    "replace" -> {
+                        val pt = paramTypes()
+                        if (pt.size == 2 && pt.all { it == "char" }) {
+                            // char replacement values are 16-bit bit-vectors in
+                            // BOUNDED mode; the model's codepoints are the (32-bit)
+                            // int sort
+                            val a = if (args[0].smtType === SmtType.BV16) convertTo(args[0], intSort) else args[0]
+                            val b = if (args[1].smtType === SmtType.BV16) convertTo(args[1], intSort) else args[1]
+                            return strrepOf(recv, a, b)
                         }
                     }
                 }

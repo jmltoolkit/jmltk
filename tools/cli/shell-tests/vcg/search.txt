@@ -1,0 +1,27 @@
+---
+# 06-BinarySearch proves through its loop invariant (20 conditions).
+run: tools/cli/build/install/jmltk/bin/jmltk vcg tools/cli/src/test/resources/key/firstTouch/06-BinarySearch/BinarySearch.java --loop-invariant
+ignoreStderr: true
+sortOutput: true
+---
+ok   KeyBinarySearch#search(int[],int)#nullcheck-1@14:17  dereference at line 14
+  ok   KeyBinarySearch#search(int[],int)#nullcheck-2@16:12  dereference at line 16
+  ok   KeyBinarySearch#search(int[],int)#nullcheck-3@17:12  dereference at line 17
+  ok   KeyBinarySearch#search(int[],int)#nullcheck-4@17:34  dereference at line 17
+  ok   KeyBinarySearch#search(int[],int)#array-bound-5@17:34  array bound at line 17
+  ok   KeyBinarySearch#search(int[],int)#loop-invariant-init-6@-:-  loop invariant initially valid at line 23
+  ok   KeyBinarySearch#search(int[],int)#divbyzero-7@26:27  division by zero at line 26
+  ok   KeyBinarySearch#search(int[],int)#nullcheck-8@27:16  dereference at line 27
+  ok   KeyBinarySearch#search(int[],int)#array-bound-9@27:16  array bound at line 27
+  ok   KeyBinarySearch#search(int[],int)#nullcheck-10@29:23  dereference at line 29
+  ok   KeyBinarySearch#search(int[],int)#array-bound-11@29:23  array bound at line 29
+  ok   KeyBinarySearch#search(int[],int)#loop-invariant-preserved-12@-:-  loop invariant preserved at line 23
+  ok   KeyBinarySearch#search(int[],int)#variant-13@-:-  loop variant decreases at line 23
+  ok   KeyBinarySearch#search(int[],int)#variant-14@-:-  loop variant decreases at line 23
+  ok   KeyBinarySearch#search(int[],int)#nullcheck-15@36:12  dereference at line 36
+  ok   KeyBinarySearch#search(int[],int)#array-bound-16@36:12  array bound at line 36
+  ok   KeyBinarySearch#search(int[],int)#nullcheck-17@37:12  dereference at line 37
+  ok   KeyBinarySearch#search(int[],int)#array-bound-18@37:12  array bound at line 37
+  ok   KeyBinarySearch#search(int[],int)#postcondition-19@7:16  postcondition
+  ok   KeyBinarySearch#search(int[],int)#postcondition-20@7:16  postcondition
+20 conditions, 0 failing

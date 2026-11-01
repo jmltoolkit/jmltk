@@ -1,0 +1,27 @@
+---
+# 10-SITA: commonEntry and swap prove; the weak rearrange contract is excluded (20 conditions).
+run: tools/cli/build/install/jmltk/bin/jmltk vcg tools/cli/src/test/resources/key/firstTouch/10-SITA/SITA3.java --vcg-exclude 'KeySITA3#rearrange()*'
+ignoreStderr: true
+sortOutput: true
+---
+ok   KeySITA3#swap(int[],int,int)#nullcheck-1@50:16  dereference at line 50
+  ok   KeySITA3#swap(int[],int,int)#array-bound-2@50:16  array bound at line 50
+  ok   KeySITA3#swap(int[],int,int)#nullcheck-3@51:19  dereference at line 51
+  ok   KeySITA3#swap(int[],int,int)#array-bound-4@51:19  array bound at line 51
+  ok   KeySITA3#swap(int[],int,int)#nullcheck-5@48:51  dereference at line 48
+  ok   KeySITA3#swap(int[],int,int)#array-store-6@48:51  array store bound at line 48
+  ok   KeySITA3#swap(int[],int,int)#nullcheck-7@48:51  dereference at line 48
+  ok   KeySITA3#swap(int[],int,int)#array-store-8@48:51  array store bound at line 48
+  ok   KeySITA3#swap(int[],int,int)#postcondition-9@40:16  postcondition
+  ok   KeySITA3#swap(int[],int,int)#postcondition-10@40:16  postcondition
+  ok   KeySITA3#commonEntry(int,int)#loop-invariant-init-1@-:-  loop invariant initially valid at line 29
+  ok   KeySITA3#commonEntry(int,int)#nullcheck-2@32:16  dereference at line 32
+  ok   KeySITA3#commonEntry(int,int)#array-bound-3@32:16  array bound at line 32
+  ok   KeySITA3#commonEntry(int,int)#nullcheck-4@32:25  dereference at line 32
+  ok   KeySITA3#commonEntry(int,int)#array-bound-5@32:25  array bound at line 32
+  ok   KeySITA3#commonEntry(int,int)#loop-invariant-preserved-6@-:-  loop invariant preserved at line 29
+  ok   KeySITA3#commonEntry(int,int)#variant-7@-:-  loop variant decreases at line 29
+  ok   KeySITA3#commonEntry(int,int)#variant-8@-:-  loop variant decreases at line 29
+  ok   KeySITA3#commonEntry(int,int)#postcondition-9@11:16  postcondition
+  ok   KeySITA3#commonEntry(int,int)#postcondition-10@11:16  postcondition
+20 conditions, 0 failing

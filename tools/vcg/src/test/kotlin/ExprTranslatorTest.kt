@@ -602,6 +602,116 @@ class ExprTranslatorTest {
             trExpr(cond).toString()
         )
     }
+
+    @Test
+    fun testSumTranslatesToRecursiveFunction() {
+        // `\sum int j; lo <= j && j < hi; a[j]` ~~> `(jmlSum a lo hi)`, and the
+        // query gains the recursive definition + recurrence axiom exactly once.
+        val q = SmtQuery()
+        val range = parseExpr("lo <= j && j < hi")
+        val body = parseExpr("a[j]")
+        val sum = quantified(
+            JmlDefaultBinder.SUM,
+            listOf(binder("j", PrimitiveType.intType())),
+            listOf(range, body)
+        )
+        val env = mapOf("a" to aVar("a"), "lo" to iVar("lo"), "hi" to iVar("hi"))
+        val e = ExprTranslator(q, IntArithmeticTranslator(q), env, emptyMap(), { term.symbol("call") }, { term.symbol("unk") })
+        assertEquals("(jmlSum a lo hi)", e.tr(sum).toString())
+        val text = q.toString()
+        assertTrue(
+            text.contains("(define-fun-rec jmlSum ((a (Array Int Int)) (lo Int) (hi Int)) Int (ite (<= hi lo) 0"),
+            "missing definition in:\n$text"
+        )
+        assertTrue(
+            text.contains("(jmlSum a lo (- hi 1)) (select a (- hi 1))))"),
+            "missing recursive body in:\n$text"
+        )
+        assertTrue(
+            text.contains("(= (jmlSum a lo (+ hi 1)) (+ (jmlSum a lo hi) (select a hi)))"),
+            "missing recurrence in:\n$text"
+        )
+        assertTrue(
+            text.contains(":pattern ((jmlSum a lo (+ hi 1))))"),
+            "missing E-matching trigger in:\n$text"
+        )
+    }
+
+    @Test
+    fun testSumDeclaredOncePerQuery() {
+        // two `\sum` uses over the same array sort share the declaration
+        val q = SmtQuery()
+        val env = mapOf("a" to aVar("a"), "lo" to iVar("lo"), "hi" to iVar("hi"))
+        val e = ExprTranslator(q, IntArithmeticTranslator(q), env, emptyMap(), { term.symbol("call") }, { term.symbol("unk") })
+        val sum = quantified(
+            JmlDefaultBinder.SUM,
+            listOf(binder("j", PrimitiveType.intType())),
+            listOf(parseExpr("lo <= j && j < hi"), parseExpr("a[j]"))
+        )
+        e.tr(sum)
+        e.tr(sum)
+        val text = q.toString()
+        assertEquals(1, Regex("define-fun-rec jmlSum").findAll(text).count(), text)
+        assertEquals(1, Regex("\\(assert \\(forall").findAll(text).count(), text)
+    }
+
+    @Test
+    fun testSumBitVectorMode() {
+        val q = SmtQuery()
+        val sum = quantified(
+            JmlDefaultBinder.SUM,
+            listOf(binder("j", PrimitiveType.intType())),
+            listOf(parseExpr("lo <= j && j < hi"), parseExpr("a[j]"))
+        )
+        val env = mapOf(
+            "a" to term.variable(SmtType.Array(SmtType.BV32, SmtType.BV32), null, "a"),
+            "lo" to bvVar("lo"),
+            "hi" to bvVar("hi")
+        )
+        val e = ExprTranslator(q, BitVectorArithmeticTranslator(q), env, emptyMap(), { term.symbol("call") }, { term.symbol("unk") })
+        assertEquals("(jmlSum a lo hi)", e.tr(sum).toString())
+        val text = q.toString()
+        assertTrue(
+            text.contains("(define-fun-rec jmlSum ((a (Array (_ BitVec 32) (_ BitVec 32))) (lo (_ BitVec 32)) (hi (_ BitVec 32))) (_ BitVec 32) (ite (bvsle hi lo)"),
+            "missing BV definition in:\n$text"
+        )
+        assertTrue(
+            text.contains("(bvadd (jmlSum a lo (bvsub hi"),
+            "missing BV recursion in:\n$text"
+        )
+        assertTrue(
+            text.contains(":pattern ((jmlSum a lo (bvadd hi"),
+            "missing BV trigger in:\n$text"
+        )
+    }
+
+    @Test
+    fun testSumRejectsNonArrayTerm() {
+        // `\sum int j; lo <= j && j < hi; j` — the term is not an array read
+        val sum = quantified(
+            JmlDefaultBinder.SUM,
+            listOf(binder("j", PrimitiveType.intType())),
+            listOf(parseExpr("lo <= j && j < hi"), parseExpr("j"))
+        )
+        val ex = assertThrows(UnsupportedFeatureException::class.java) {
+            trExpr(sum, mapOf("a" to aVar("a"), "lo" to iVar("lo"), "hi" to iVar("hi")))
+        }
+        assertTrue(ex.message!!.contains("\\sum term must be a direct array read"), ex.message)
+    }
+
+    @Test
+    fun testSumRejectsMissingBound() {
+        // `\sum int j; 0 <= j; a[j]` — no upper bound
+        val sum = quantified(
+            JmlDefaultBinder.SUM,
+            listOf(binder("j", PrimitiveType.intType())),
+            listOf(parseExpr("0 <= j"), parseExpr("a[j]"))
+        )
+        val ex = assertThrows(UnsupportedFeatureException::class.java) {
+            trExpr(sum, mapOf("a" to aVar("a"), "lo" to iVar("lo"), "hi" to iVar("hi")))
+        }
+        assertTrue(ex.message!!.contains("\\sum range must bound"), ex.message)
+    }
     //endregion
 
     //region array creation

@@ -68,16 +68,15 @@ class VcgTest {
     private fun expectAllProven(result: VcgResult) {
         Assumptions.assumeTrue(Z3.z3Installed(), "z3 not installed")
         val answer = Solver().run(result.query)
-        val errors = try {
-            answer.consumeErrors()
-        } catch (e: Exception) {
-            listOf("solver answer not parseable: $answer")
-        }
-        Assertions.assertTrue(
-            errors.isEmpty(),
-            "solver errors: $errors\n${result.query}"
-        )
         for (vc in result.conditions) {
+            // Z3 interleaves `(error "line … unknown constant …")` warnings with the
+            // verdicts when BOUNDED `\sum` queries use implicit length constants; skip
+            // errors before each verdict so the answers stay aligned.
+            try {
+                answer.consumeErrors()
+            } catch (e: Exception) {
+                Assertions.fail<Any>("solver answer not parseable: $answer\n${result.query}")
+            }
             Assertions.assertTrue(
                 answer.isSymbol("unsat"),
                 "VC ${vc.id} (${vc.description}) not proven\n${result.query}"
@@ -93,6 +92,7 @@ class VcgTest {
         var sat = 0
         for (vc in result.conditions) {
             try {
+                answer.consumeErrors()
                 if (answer.isSymbol("sat")) sat++
             } catch (e: Exception) {
                 Assertions.fail<Any>("solver answer not parseable: $answer\n${result.query}")

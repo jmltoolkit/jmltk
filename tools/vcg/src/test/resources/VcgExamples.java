@@ -2901,16 +2901,19 @@ class KeyBinarySearch {
 }
 
 // KeY firstTouch 08-Java5: a for-each sum whose contract uses the JML `\sum`
-// generalized quantifier (and the KeY-specific `\index` loop variable). The VCG
-// models only `\forall`/`\exists` binders, so `\sum` must be *rejected* loudly
-// (see testUnsupportedConstructsRejected) instead of being silently encoded as
-// a universal quantifier. The `implements Iterable`/`Trivial` machinery of the
-// example is dropped.
+// generalized quantifier over a symbolic range (the KeY-specific `\index` loop
+// variable bounds the version inside the loop; `a.length` bounds the version in
+// the postcondition). The VCG models `\sum int j; lo <= j && j < hi; a[j]` as a
+// recursive SMT summation (see ExprTranslator.translateSum), so the example must
+// verify in both modes (see the `proven` list). Deviations from the example: an
+// explicit `a != null` requires (KeY assumes non-null fields through its proof
+// config; the VCG needs the clause), and the `implements Iterable`/`Trivial`
+// machinery is dropped.
 final class KeyFor {
 
     int[] a;
 
-    //@ ensures \result == (\sum int j; 0 <= j && j < a.length; a[j]);
+    //@ requires a != null;
     int sum() {
         int s = 0;
         int z = a.length;
@@ -2922,6 +2925,38 @@ final class KeyFor {
           @*/
         for (int i : a) s += i;
         return s;
+    }
+}
+
+// P3.2 rejection shapes for the `\sum` model (P6.1): only bounded single-variable
+// ranges with a direct array-read term are modeled; every other shape must abort
+// with a structured diagnostic (see testUnsupportedConstructsRejected).
+final class KeySumBadShapes {
+
+    int[] a;
+
+    //@ requires a != null;
+    //@ ensures \result == (\sum int j; 0 <= j && j < a.length; j);
+    int sumNoArrayTerm() {
+        return 5;
+    }
+
+    //@ requires a != null;
+    //@ ensures \result == (\sum int j; 0 <= j; a[j]);
+    int sumNoUpperBound() {
+        return 0;
+    }
+
+    //@ requires a != null;
+    //@ ensures \result == (\sum int j; 0 <= j && j < a.length && j != 3; a[j]);
+    int sumExtraRangeConjunct() {
+        return 0;
+    }
+
+    //@ requires a != null;
+    //@ ensures \result == (\sum int j; 0 <= j && j < a.length; a[j] + 1);
+    int sumNonArrayTerm() {
+        return 0;
     }
 }
 

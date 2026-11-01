@@ -53,8 +53,19 @@ data class NfIf(val cond: Expression, val thenStmts: List<NfStmt>, val elseStmts
  * `Node.hashCode()`: javaparser nodes use identity-based hash codes, which differ
  * between JVM runs and would make the emitted SMT text (break/continue flag names,
  * exit guards) nondeterministic.
+ *
+ * [indexVar] is the desugared `$idxN` index variable of a `foreach` loop (see
+ * [io.github.jmltoolkit.vcg.Normalizer.normalizeForEach]); the KeY `\index` keyword in the
+ * loop's contract clauses resolves to this variable. `null` for ordinary `while`/`for`/
+ * `do` loops.
  */
-data class NfLoop(val loopNode: Node, val cond: Expression, val body: List<NfStmt>, val loopId: Int) : NfStmt()
+data class NfLoop(
+    val loopNode: Node,
+    val cond: Expression,
+    val body: List<NfStmt>,
+    val loopId: Int,
+    val indexVar: String? = null,
+) : NfStmt()
 
 data class NfReturn(val value: Expression?) : NfStmt()
 

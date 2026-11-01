@@ -300,34 +300,34 @@ class NormalizerTest {
             // ---------------------------------------------------------------- foreach loops (desugared)
             Arguments.of(
                 "foreach basic", "for (int x : a) use(x);",
-                "assign(local:\$idx0, 0);\nloop(\$idx0 < a.length, [assign(local:x:int, a[\$idx0]); call(use(x)); assign(local:\$idx0, \$idx0 + 1)])"
+                "assign(local:\$idx0:int, 0);\nloop(\$idx0 < a.length, [assign(local:x:int, a[\$idx0]); call(use(x)); assign(local:\$idx0:int, \$idx0 + 1)])"
             ),
             Arguments.of(
                 "foreach this field", "for (int x : this.a) use(x);",
-                "assign(local:\$idx0, 0);\nloop(\$idx0 < this.a.length, [assign(local:x:int, this.a[\$idx0]); call(use(x)); assign(local:\$idx0, \$idx0 + 1)])"
+                "assign(local:\$idx0:int, 0);\nloop(\$idx0 < this.a.length, [assign(local:x:int, this.a[\$idx0]); call(use(x)); assign(local:\$idx0:int, \$idx0 + 1)])"
             ),
             Arguments.of(
                 "foreach receiver field", "for (int x : b.a) use(x);",
-                "assign(local:\$idx0, 0);\nloop(\$idx0 < b.a.length, [assign(local:x:int, b.a[\$idx0]); call(use(x)); assign(local:\$idx0, \$idx0 + 1)])"
+                "assign(local:\$idx0:int, 0);\nloop(\$idx0 < b.a.length, [assign(local:x:int, b.a[\$idx0]); call(use(x)); assign(local:\$idx0:int, \$idx0 + 1)])"
             ),
             Arguments.of(
                 "foreach empty body", "for (int x : a);",
-                "assign(local:\$idx0, 0);\nloop(\$idx0 < a.length, [assign(local:x:int, a[\$idx0]); assign(local:\$idx0, \$idx0 + 1)])"
+                "assign(local:\$idx0:int, 0);\nloop(\$idx0 < a.length, [assign(local:x:int, a[\$idx0]); assign(local:\$idx0:int, \$idx0 + 1)])"
             ),
             Arguments.of(
                 "foreach two sequential", "for (int x : a) use(x); for (int y : b) use(y);",
-                "assign(local:\$idx0, 0);\nloop(\$idx0 < a.length, [assign(local:x:int, a[\$idx0]); call(use(x)); assign(local:\$idx0, \$idx0 + 1)]);\n" +
-                    "assign(local:\$idx1, 0);\nloop(\$idx1 < b.length, [assign(local:y:int, b[\$idx1]); call(use(y)); assign(local:\$idx1, \$idx1 + 1)])"
+                "assign(local:\$idx0:int, 0);\nloop(\$idx0 < a.length, [assign(local:x:int, a[\$idx0]); call(use(x)); assign(local:\$idx0:int, \$idx0 + 1)]);\n" +
+                    "assign(local:\$idx1:int, 0);\nloop(\$idx1 < b.length, [assign(local:y:int, b[\$idx1]); call(use(y)); assign(local:\$idx1:int, \$idx1 + 1)])"
             ),
             Arguments.of(
                 "foreach nested", "for (int x : a) for (int y : b) use(x, y);",
-                "assign(local:\$idx0, 0);\nloop(\$idx0 < a.length, [assign(local:x:int, a[\$idx0]); " +
-                    "assign(local:\$idx1, 0); loop(\$idx1 < b.length, [assign(local:y:int, b[\$idx1]); call(use(x, y)); assign(local:\$idx1, \$idx1 + 1)]); " +
-                    "assign(local:\$idx0, \$idx0 + 1)])"
+                "assign(local:\$idx0:int, 0);\nloop(\$idx0 < a.length, [assign(local:x:int, a[\$idx0]); " +
+                    "assign(local:\$idx1:int, 0); loop(\$idx1 < b.length, [assign(local:y:int, b[\$idx1]); call(use(x, y)); assign(local:\$idx1:int, \$idx1 + 1)]); " +
+                    "assign(local:\$idx0:int, \$idx0 + 1)])"
             ),
             Arguments.of(
                 "foreach over new array", "for (int x : new int[3]) use(x);",
-                "assign(local:\$idx0, 0);\nloop(\$idx0 < new int[3].length, [assign(local:x:int, new int[3][\$idx0]); call(use(x)); assign(local:\$idx0, \$idx0 + 1)])"
+                "assign(local:\$idx0:int, 0);\nloop(\$idx0 < new int[3].length, [assign(local:x:int, new int[3][\$idx0]); call(use(x)); assign(local:\$idx0:int, \$idx0 + 1)])"
             ),
 
             // ---------------------------------------------------------------- return / throw
@@ -349,7 +349,7 @@ class NormalizerTest {
             Arguments.of("continue in for", "for (;;) { continue; }", "loop(true, [continue()])"),
             Arguments.of(
                 "break in foreach", "for (int x : a) { break; }",
-                "assign(local:\$idx0, 0);\nloop(\$idx0 < a.length, [assign(local:x:int, a[\$idx0]); break(); assign(local:\$idx0, \$idx0 + 1)])"
+                "assign(local:\$idx0:int, 0);\nloop(\$idx0 < a.length, [assign(local:x:int, a[\$idx0]); break(); assign(local:\$idx0:int, \$idx0 + 1)])"
             ),
             Arguments.of(
                 "break in do while", "do { if (c) break; } while (d);",
@@ -812,7 +812,7 @@ class NormalizerTest {
         val src = "for (int x : a) use(x);"
         val once = dump(src)
         // a *new* Normalizer starts its temp counter at 0 again
-        assertEquals("assign(local:\$idx0, 0);\nloop(\$idx0 < a.length, [assign(local:x:int, a[\$idx0]); call(use(x)); assign(local:\$idx0, \$idx0 + 1)])", once)
+        assertEquals("assign(local:\$idx0:int, 0);\nloop(\$idx0 < a.length, [assign(local:x:int, a[\$idx0]); call(use(x)); assign(local:\$idx0:int, \$idx0 + 1)])", once)
         assertEquals(once, dump(src))
     }
 

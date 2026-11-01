@@ -663,9 +663,11 @@ class ExprTranslatorTest {
     }
 
     @Test
-    fun testUnaryBitwiseComplementOnIntsIsUnsupportedViaTypeMismatch() {
-        // `~x` on an Int sort has no encoding in the integer arithmetic translator
-        assertThrows(RuntimeException::class.java) { tr("~x", mapOf("x" to iVar("x"))) }
+    fun testUnaryBitwiseComplementOnIntsIsRejectedStructured() {
+        // `~x` on an Int sort has no encoding: the UNBOUNDED mode guard raises the
+        // structured UnsupportedFeatureException (not a bare sort mismatch)
+        val ex = assertThrows(UnsupportedFeatureException::class.java) { tr("~x", mapOf("x" to iVar("x"))) }
+        assertTrue(ex.message!!.contains("bitwise"), ex.message)
     }
     //endregion
 

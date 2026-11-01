@@ -499,6 +499,10 @@ class VcgSemanticsTest {
             // (the constant folder still folds static-final shift/bitwise values)
             Arguments.of("shiftOps", "bit-shift"),
             Arguments.of("bitwiseOps", "bitwise"),
+            // `bitCompOnly` is a *body-level* `~` with no preceding binary bitwise
+            // op: this is the only fixture that reaches the UnaryExpr rejection in
+            // `atom()` (bitwiseOps throws at `&` in the ensures first)
+            Arguments.of("bitCompOnly", "bitwise"),
             // `shiftDistanceMasking` puts shifts in its *contract clause* (ensures),
             // exercising the ExprTranslator/tr() rejection path — distinct from the
             // body-level `atom()` path covered by `shiftOps`

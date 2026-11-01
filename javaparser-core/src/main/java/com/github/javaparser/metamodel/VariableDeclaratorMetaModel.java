@@ -5,6 +5,7 @@
 package com.github.javaparser.metamodel;
 
 import com.github.javaparser.ast.Generated;
+import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.VariableDeclarator;
 
 import java.util.Optional;
@@ -30,6 +31,17 @@ public class VariableDeclaratorMetaModel extends NodeMetaModel {
                 "com.github.javaparser.ast.body",
                 false,
                 false);
+    }
+
+    @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
+    protected VariableDeclaratorMetaModel(
+            Optional<BaseNodeMetaModel> superNodeMetaModel,
+            Class<? extends Node> type,
+            String name,
+            String packageName,
+            boolean isAbstract,
+            boolean hasWildcard) {
+        super(superNodeMetaModel, type, name, packageName, isAbstract, hasWildcard);
     }
 
     public PropertyMetaModel initializerPropertyMetaModel;

@@ -10,3 +10,6 @@ x - 2 == 3
 
 'x' != 65
 'x' != 65
+(\forall int e : ary; e > 0)
+(\forall int i : 0..n; a[i] > 0)
+(\forall int e : ary; e % 2 == 0)

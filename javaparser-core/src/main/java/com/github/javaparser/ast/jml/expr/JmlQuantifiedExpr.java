@@ -15,9 +15,11 @@ import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.jml.JmlKeyword;
 import com.github.javaparser.ast.nodeTypes.NodeWithVariables;
 import com.github.javaparser.ast.observer.ObservableProperty;
+import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.visitor.CloneVisitor;
 import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
+import com.github.javaparser.metamodel.DerivedProperty;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlQuantifiedExprMetaModel;
 import com.github.javaparser.metamodel.NonEmptyProperty;
@@ -289,6 +291,21 @@ public class JmlQuantifiedExpr extends JmlExpression implements NodeWithVariable
     @Generated("com.github.javaparser.generator.core.node.GetMetaModelGenerator")
     public JmlQuantifiedExprMetaModel getMetaModel() {
         return JavaParserMetaModel.jmlQuantifiedExprMetaModel;
+    }
+
+    /**
+     * The "one type printed once" scheme (used by the pretty printer and the concrete
+     * syntax model) only applies to classic bindings that share a single leading type.
+     * Bindings carrying an iterable domain ({@link JmlQuantifiedVariable}) print their
+     * own type, so the derived common type is intentionally reported as absent for them.
+     */
+    @Override
+    @DerivedProperty
+    public Optional<Type> getMaximumCommonType() {
+        if (getVariables().stream().anyMatch(variable -> variable instanceof JmlQuantifiedVariable)) {
+            return Optional.empty();
+        }
+        return NodeWithVariables.super.getMaximumCommonType();
     }
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()

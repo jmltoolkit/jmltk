@@ -121,12 +121,30 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
      *  (keyed by value so equal literals alias within one query). */
     private val stringLiteralConsts = HashMap<String, String>()
     private var stringLengthDeclared = false
+    /** `stringLength` is non-negative on every reference (Java `String.length()`
+     *  >= 0); asserted once per query so the slice functions can never derive a
+     *  negative runtime length (which let model-based instantiation synthesize
+     *  degenerate empty/negative-length strings and contradict the search axioms). */
+    private var stringNonnegDeclared = false
     /** Declared P4.3 string-model functions (`strval`/`steq`/`strcat`/`strindex`). */
     private val stringFunsDeclared = HashSet<String>()
     /** Model operations whose axioms are already in the query; declared lazily
      *  per operation so a charAt-only query never pays for the steq/strcat/
      *  strindex axioms (which would bloat every solver run). */
     private val stringAxiomsDeclared = HashSet<String>()
+
+    /** `strContent : U -> (Seq Int)` declared once — the native content view
+     *  behind the U-mode string model (declared, never axiomatized). */
+    private var stringContentDeclared = false
+
+    /** Per-verification counter for the U-mode model's fresh string-result
+     *  references: `concat`/`substring` results are fresh constants whose content
+     *  is bound by a ground equality, the replacement for the quantified
+     *  `strcat`/`strsub`/`strsub2` wrapper axioms — any quantified string axiom
+     *  makes even trivial satisfiability checks churn, since MBQI must satisfy it
+     *  while constructing models. Fresh per [Vcg] instance so identical inputs
+     *  produce identical queries while names stay unique within the query. */
+    private val anonStringCounter = java.util.concurrent.atomic.AtomicInteger()
 
     /**
      * Human-readable prefix shared by all verification-condition ids, e.g.
@@ -362,8 +380,11 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         }
     }
 
-    /** Declares `stringLength : U -> int` once; the model read behind `String.length()`. */
+    /** Declares `stringLength : U -> int` once; the model read behind `String.length()`.
+     *  In UNBOUNDED mode the runtime length is the native `(seq.len (strContent s))`
+     *  term instead, so this function is never declared. */
     private fun ensureStringLengthFn() {
+        if (options.mode == VerificationMode.UNBOUNDED) return
         if (stringLengthDeclared) return
         stringLengthDeclared = true
         query.addCommand(
@@ -380,29 +401,103 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
      *  string model (P3.3: `checkStringIndex` is part of the default policy) stay
      *  free of the declaration. */
     private fun stringLengthOf(s: SExpr): SExpr {
+        if (options.mode == VerificationMode.UNBOUNDED) {
+            // native: the sequence's length (non-negativity is a sequence-theory
+            // fact, so no `stringNonnegDeclared`-style axiom is needed)
+            return term.list(null, intSort, term.symbol("seq.len"), strContentOf(s))
+        }
         ensureStringLengthFn()
         return term.list(null, intSort, term.symbol("stringLength"), s)
     }
 
+    /** The U-mode native string sort: `(Seq Int)` over the mode's arithmetic sort. */
+    private val stringSeqType: SmtType by lazy { SmtType.Seq(intSort) }
+
+    /** Declares `strContent : U -> (Seq Int)` once (U-mode native string model). */
+    private fun ensureStringContentFn() {
+        if (stringContentDeclared) return
+        stringContentDeclared = true
+        query.addCommand(
+            term.command(
+                "declare-fun", term.symbol("strContent"),
+                SList(null, null, listOf(term.symbol("U"))),
+                term.type(stringSeqType)
+            )
+        )
+    }
+
+    /** `(strContent s)`: the character-code sequence of reference `s` (U mode). */
+    private fun strContentOf(s: SExpr): SExpr {
+        ensureStringContentFn()
+        return term.list(null, stringSeqType, term.symbol("strContent"), s)
+    }
+
+    /** `(as seq.empty (Seq Int))` — the native empty string (U mode). */
+    private fun emptySeqTerm(): SExpr =
+        SList(stringSeqType, null, listOf(term.symbol("as"), term.symbol("seq.empty"), term.type(stringSeqType)))
+
+    /** U-mode string-result constant: a fresh non-null reference whose content is
+     *  bound by a ground `(= (strContent c) content)` equality — the native
+     *  replacement for the quantified `strcat`/`strsub`/`strsub2` wrapper axioms
+     *  (see [anonStringCounter]). */
+    private fun freshStringConst(content: SExpr): SExpr {
+        val name = "str\$c${anonStringCounter.incrementAndGet()}"
+        query.addCommand(term.command("declare-const", term.symbol(name), term.symbol("U")))
+        val v = term.variable(SmtType.JAVA_OBJECT, null, name)
+        query.addAssert(term.nonNull(v))
+        query.addAssert(
+            term.equality(
+                term.list(null, stringSeqType, term.symbol("strContent"), v),
+                content
+            )
+        )
+        return v
+    }
+
     /** The `String` methods modeled as abstract-string reads under the
-     *  string-index feature (P4.3 + P4.4): char-level reads and concatenation,
-     *  plus substring/startsWith/replace and the character search. All other
-     *  `String` methods stay on the unrefined/contract paths. */
+     *  string-index feature (P4.3): char-level reads and concatenation, plus
+     *  substring/startsWith/replace and both `indexOf` overloads (the
+     *  single-character search `strindex` and the `String` substring search
+     *  `strfind`). All other `String` methods stay on the unrefined/contract
+     *  paths. */
     private val stringModeledOps =
         setOf("equals", "charAt", "codePointAt", "concat", "indexOf", "substring", "startsWith", "replace")
 
     /**
      * P4.3 abstract-string model: a per-position character-code view `strval`,
-     * extensional equality `steq`, concatenation `strcat` and search `strindex`
-     * over the reference universe. Each modeled operation declares its function
-     * and its length-bounded axioms once, lazily, per operation, behind
+     * extensional equality `steq`, concatenation `strcat`, the searches
+     * `strindex`/`strfind` and the substring/prefix/replace functions over the
+     * reference universe. Each modeled operation declares its function and its
+     * length-bounded axioms once, lazily, per operation, behind
      * `--check-string-index` — a charAt-only query never pays for the
-     * steq/strcat/strindex axioms. The functions follow the mode's arithmetic
-     * sort (like `stringLength`), so `strval`/`strindex` are `U x int -> int`.
+     * steq/strcat/strindex/strfind axioms. The functions follow the mode's
+     * arithmetic sort (like `stringLength`), so `strval`/`strindex`/`strfind`
+     * are `U x int -> int`/`U x U -> int`.
      */
     private fun ensureStringModel(op: String) {
         if (!stringAxiomsDeclared.add(op)) return
+        if (options.mode == VerificationMode.UNBOUNDED) {
+            ensureStringModelNative(op)
+            return
+        }
         ensureStringLengthFn()
+        if (!stringNonnegDeclared) {
+            stringNonnegDeclared = true
+            val sN = term.variable(SmtType.JAVA_OBJECT, null, "s\$n")
+            query.addAssert(
+                term.forall(
+                    listOf(term.binder(SmtType.JAVA_OBJECT, "s\$n")),
+                    withPattern(
+                        term.lessOrEquals(
+                            translator.makeInt(java.math.BigInteger.ZERO),
+                            term.list(null, intSort, term.symbol("stringLength"), sN),
+                            true
+                        ),
+                        listOf(term.list(null, intSort, term.symbol("stringLength"), sN))
+                    )
+                )
+            )
+        }
         val isort = term.type(intSort)
         val u = term.symbol("U")
         fun ensureFun(name: String, domain: List<SExpr>, range: SExpr) {
@@ -586,6 +681,126 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 )
             }
 
+            "indexOfString" -> {
+                // `strfind s t`: the first position where `t` occurs in `s`, or
+                // `-1` if it never does (`indexOf(String)`). This is substring
+                // search, distinct from the single-character `strindex`; the
+                // axioms reuse the substring/prefix model so matches flow through
+                // prefix relations (`strpre (strsub s k) t`) — never through
+                // arithmetic-shifted indices, which the indexOf spike showed
+                // churn model-based instantiation. All five axioms carry explicit
+                // patterns; the two position-wise ones (absence/minimality) bind
+                // the position and fire only when ground `(strsub s k)` /
+                // `(strpre (strsub s k) t)` terms exist, keeping satisfiability
+                // checks without such terms instant.
+                ensureFun("strfind", listOf(u, u), isort)
+                ensureFun("strsub", listOf(u, isort), u)
+                ensureFun("strpre", listOf(u, u), term.type(SmtType.BOOL))
+                val p = stringAxiomParams(bindB = true)
+                val lenA = term.list(null, intSort, term.symbol("stringLength"), p.a)
+                val lenB = term.list(null, intSort, term.symbol("stringLength"), p.b)
+                val find = term.list(null, intSort, term.symbol("strfind"), p.a, p.b)
+                val patF = term.list(null, intSort, term.symbol("strfind"), p.a, p.b)
+                val strsubAt: (SExpr) -> SExpr = { idx ->
+                    term.list(null, SmtType.JAVA_OBJECT, term.symbol("strsub"), p.a, idx)
+                }
+                val strpreAt: (SExpr) -> SExpr = { idx ->
+                    term.list(null, SmtType.BOOL, term.symbol("strpre"), strsubAt(idx), p.b)
+                }
+                // F1: the result is either -1 or an in-range position where the
+                // needle fits — nothing outside `[-1, len(s) - len(t)]` is reported
+                query.addAssert(
+                    p.outer(
+                        withPattern(
+                            term.or(
+                                term.equality(find, p.minus1),
+                                term.and(
+                                    term.lessOrEquals(p.zero, find, true),
+                                    term.lessOrEquals(term.add(find, lenB), lenA, true)
+                                )
+                            ),
+                            listOf(patF)
+                        )
+                    )
+                )
+                // F2: a non-negative result pins the match: the suffix from that
+                // position starts with the needle
+                query.addAssert(
+                    p.outer(
+                        withPattern(
+                            term.impl(
+                                term.lessOrEquals(p.zero, find, true),
+                                strpreAt(find)
+                            ),
+                            listOf(patF)
+                        )
+                    )
+                )
+                // F3: -1 means no in-range position starts with the needle;
+                // F4: minimality — nothing strictly before the reported position
+                // starts with it. Both bind the position at a single universal
+                // level with a multi-pattern, so they fire only when a ground
+                // `(strsub ...)` / `(strpre (strsub ...) ...)` term is present
+                // (query-created via requires/asserts).
+                val sK = term.variable(intSort, null, "s\$k")
+                val bK = term.binder(intSort, "s\$k")
+                val subK = strsubAt(sK)
+                val preK = strpreAt(sK)
+                val patSubK = term.list(null, intSort, term.symbol("strsub"), p.a, sK)
+                val patPreK = term.list(null, intSort, term.symbol("strpre"), subK, p.b)
+                query.addAssert(
+                    term.forall(
+                        listOf(
+                            term.binder(SmtType.JAVA_OBJECT, "s\$a"),
+                            term.binder(SmtType.JAVA_OBJECT, "s\$b"),
+                            bK
+                        ),
+                        withPattern(
+                            term.impl(
+                                term.and(
+                                    term.equality(find, p.minus1),
+                                    term.lessOrEquals(p.zero, sK, true),
+                                    term.lessOrEquals(sK, lenA, true)
+                                ),
+                                term.not(preK)
+                            ),
+                            listOf(patF, patSubK)
+                        )
+                    )
+                )
+                query.addAssert(
+                    term.forall(
+                        listOf(
+                            term.binder(SmtType.JAVA_OBJECT, "s\$a"),
+                            term.binder(SmtType.JAVA_OBJECT, "s\$b"),
+                            bK
+                        ),
+                        withPattern(
+                            term.impl(
+                                term.and(
+                                    term.lessOrEquals(p.zero, sK, true),
+                                    term.lessThan(sK, find)
+                                ),
+                                term.not(preK)
+                            ),
+                            listOf(patF, patPreK)
+                        )
+                    )
+                )
+                // F5: the empty needle always matches at position 0
+                query.addAssert(
+                    p.outer(
+                        withPattern(
+                            term.impl(
+                                term.equality(lenB, p.zero),
+                                term.equality(find, p.zero)
+                            ),
+                            listOf(patF, term.list(null, intSort, term.symbol("stringLength"), p.b))
+                        )
+                    )
+                )
+            }
+
             "substring" -> {
                 // `strsub`/`strsub2`: the two `substring` overloads. The result is a
                 // non-null slice whose runtime length is the slice width and whose
@@ -620,6 +835,16 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 // (the substringLen bounds obligation alone blew the watchdog).
                 val sub1 = term.list(null, SmtType.JAVA_OBJECT, term.symbol("strsub"), sA, sK)
                 val pat1 = term.list(null, intSort, term.symbol("strsub"), sA, sK)
+                // the length/content axioms apply only to *in-range* starts:
+                // for 0 <= k <= len(s) the suffix is a well-defined (non-negative
+                // length) slice; out-of-range arguments stay unconstrained, so the
+                // model can never derive a negative runtime length for a slice and
+                // the search axioms cannot be contradicted via degenerate strings
+                val inBounds1: SExpr =
+                    term.and(
+                        term.lessOrEquals(zero, sK, true),
+                        term.lessOrEquals(sK, lens(sA), true)
+                    )
                 val inSlice1: (SExpr) -> SExpr = { x ->
                     term.and(
                         term.lessOrEquals(zero, x, true),
@@ -633,7 +858,10 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                     term.forall(
                         listOf(bA, bK),
                         withPattern(
-                            term.equality(lens(sub1), term.subtract(lens(sA), sK)),
+                            term.impl(
+                                inBounds1,
+                                term.equality(lens(sub1), term.subtract(lens(sA), sK))
+                            ),
                             listOf(pat1)
                         )
                     )
@@ -643,7 +871,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                         listOf(bA, bK, bJ),
                         withPattern(
                             term.impl(
-                                inSlice1(sJ),
+                                term.and(inBounds1, inSlice1(sJ)),
                                 term.equality(strvalOf(sub1, sJ), strvalOf(sA, term.add(sK, sJ)))
                             ),
                             listOf(strvalOf(sub1, sJ))
@@ -653,6 +881,12 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 // two-argument substring: the slice [k, l)
                 val sub2 = term.list(null, SmtType.JAVA_OBJECT, term.symbol("strsub2"), sA, sK, sL)
                 val pat2 = term.list(null, intSort, term.symbol("strsub2"), sA, sK, sL)
+                val inBounds2: SExpr =
+                    term.and(
+                        term.lessOrEquals(zero, sK, true),
+                        term.lessOrEquals(sK, sL, true),
+                        term.lessOrEquals(sL, lens(sA), true)
+                    )
                 val inSlice2: (SExpr) -> SExpr = { x ->
                     term.and(
                         term.lessOrEquals(zero, x, true),
@@ -666,7 +900,10 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                     term.forall(
                         listOf(bA, bK, bL),
                         withPattern(
-                            term.equality(lens(sub2), term.subtract(sL, sK)),
+                            term.impl(
+                                inBounds2,
+                                term.equality(lens(sub2), term.subtract(sL, sK))
+                            ),
                             listOf(pat2)
                         )
                     )
@@ -676,7 +913,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                         listOf(bA, bK, bL, bJ),
                         withPattern(
                             term.impl(
-                                inSlice2(sJ),
+                                term.and(inBounds2, inSlice2(sJ)),
                                 term.equality(strvalOf(sub2, sJ), strvalOf(sA, term.add(sK, sJ)))
                             ),
                             listOf(strvalOf(sub2, sJ))
@@ -809,6 +1046,147 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         }
     }
 
+    /**
+     * U-mode native string model (P4.3 pivot): `strContent : U -> (Seq Int)` is the
+     * single content view; length/char/equals/concat/substring/startsWith and
+     * `indexOf(String)` are direct native sequence terms, so only the two
+     * operations the native sequence theory cannot express stay axiom-based:
+     *
+     *  * the single-character search `strindex` — its content lemmas
+     *    (`indexof(s, c) = k >= 0 => s[k] = c` and `indexof(s, c) = -1 =>
+     *    s[k] != c`) do not derive from `seq.indexof` natively (`-1 => content !=`
+     *    is satisfiable to Z3 and `=> charAt` churns), so the search keeps its
+     *    three axioms, with `strval` macroed to `(seq.nth (strContent s) i)`;
+     *  * `replace(char, char)` — `seq.replace_all` has no `(Seq Int)` instance,
+     *    so `strrep` stays uninterpreted with non-null, length-preservation and
+     *    the position-wise content map as axioms.
+     *
+     * The `strindex`/`strrep` axioms quantify only over their own declared
+     * functions, so queries that use neither stay free of quantified string axioms
+     * (e.g. `stringIndexOfWrong`: charAt/length/indexOf(String) only) — and their
+     * satisfiability checks answer instantly instead of churning in MBQI.
+     */
+    private fun ensureStringModelNative(op: String) {
+        // every native string model term reads `strContent`, so the function
+        // must precede them (the direct native ops never get here otherwise)
+        ensureStringContentFn()
+        val u = term.symbol("U")
+        val isort = term.type(intSort)
+        fun ensureFun(name: String, domain: List<SExpr>, range: SExpr) {
+            if (!stringFunsDeclared.add(name)) return
+            query.addCommand(term.command("declare-fun", term.symbol(name), SList(null, null, domain), range))
+        }
+        when (op) {
+            // direct native terms — nothing to declare or axiomatize
+            "charAt", "codePointAt", "equals", "concat", "indexOfString", "substring", "startsWith" -> Unit
+
+            "indexOf" -> {
+                ensureFun("strindex", listOf(u, isort), isort)
+                val sA = term.variable(SmtType.JAVA_OBJECT, null, "s\$a")
+                val sC = term.variable(intSort, null, "s\$c")
+                val sK = term.variable(intSort, null, "s\$k")
+                val bA = term.binder(SmtType.JAVA_OBJECT, "s\$a")
+                val bC = term.binder(intSort, "s\$c")
+                val bK = term.binder(intSort, "s\$k")
+                val contentA = term.list(null, stringSeqType, term.symbol("strContent"), sA)
+                val lenA = term.list(null, intSort, term.symbol("seq.len"), contentA)
+                val idx = term.list(null, intSort, term.symbol("strindex"), sA, sC)
+                val patIdx = term.list(null, intSort, term.symbol("strindex"), sA, sC)
+                val patNth = term.list(null, intSort, term.symbol("seq.nth"), contentA, sK)
+                val zero = translator.makeInt(java.math.BigInteger.ZERO)
+                val minus1 = translator.makeInt(-1L)
+                val inA: (SExpr) -> SExpr = { x ->
+                    term.and(term.lessOrEquals(zero, x, true), term.lessThan(x, lenA))
+                }
+                // the result is -1 or a position in range
+                query.addAssert(
+                    term.forall(
+                        listOf(bA, bC),
+                        withPattern(term.or(term.equality(idx, minus1), inA(idx)), listOf(patIdx))
+                    )
+                )
+                // a non-negative result is a position holding the character
+                query.addAssert(
+                    term.forall(
+                        listOf(bA, bC),
+                        withPattern(
+                            term.impl(
+                                term.lessOrEquals(zero, idx, true),
+                                term.equality(
+                                    term.list(null, intSort, term.symbol("seq.nth"), contentA, idx),
+                                    sC
+                                )
+                            ),
+                            listOf(patIdx)
+                        )
+                    )
+                )
+                // -1 means no in-range position holds the character (multi-pattern
+                // over `strindex` *and* `seq.nth`, so the axiom stays inert for
+                // pure search queries without ground content terms)
+                query.addAssert(
+                    term.forall(
+                        listOf(bA, bC, bK),
+                        withPattern(
+                            term.impl(
+                                term.and(term.equality(idx, minus1), inA(sK)),
+                                term.not(term.equality(term.list(null, intSort, term.symbol("seq.nth"), contentA, sK), sC))
+                            ),
+                            listOf(patIdx, patNth)
+                        )
+                    )
+                )
+            }
+
+            "replace" -> {
+                ensureFun("strrep", listOf(u, isort, isort), u)
+                val sA = term.variable(SmtType.JAVA_OBJECT, null, "s\$a")
+                val sC = term.variable(intSort, null, "s\$c")
+                val sD = term.variable(intSort, null, "s\$d")
+                val sI = term.variable(intSort, null, "s\$i")
+                val bA = term.binder(SmtType.JAVA_OBJECT, "s\$a")
+                val bC = term.binder(intSort, "s\$c")
+                val bD = term.binder(intSort, "s\$d")
+                val bI = term.binder(intSort, "s\$i")
+                val rep = term.list(null, SmtType.JAVA_OBJECT, term.symbol("strrep"), sA, sC, sD)
+                val pat = term.list(null, intSort, term.symbol("strrep"), sA, sC, sD)
+                val contentA = term.list(null, stringSeqType, term.symbol("strContent"), sA)
+                val lenA = term.list(null, intSort, term.symbol("seq.len"), contentA)
+                val contentRep = term.list(null, stringSeqType, term.symbol("strContent"), rep)
+                val lenRep = term.list(null, intSort, term.symbol("seq.len"), contentRep)
+                val zero = translator.makeInt(java.math.BigInteger.ZERO)
+                query.addAssert(
+                    term.forall(listOf(bA, bC, bD), withPattern(term.nonNull(rep), listOf(pat)))
+                )
+                query.addAssert(
+                    term.forall(
+                        listOf(bA, bC, bD),
+                        withPattern(term.equality(lenRep, lenA), listOf(lenRep))
+                    )
+                )
+                query.addAssert(
+                    term.forall(
+                        listOf(bA, bC, bD, bI),
+                        withPattern(
+                            term.impl(
+                                term.and(term.lessOrEquals(zero, sI, true), term.lessThan(sI, lenA)),
+                                term.equality(
+                                    term.list(null, intSort, term.symbol("seq.nth"), contentRep, sI),
+                                    iteTerm(
+                                        term.equality(term.list(null, intSort, term.symbol("seq.nth"), contentA, sI), sC),
+                                        sD,
+                                        term.list(null, intSort, term.symbol("seq.nth"), contentA, sI)
+                                    )
+                                )
+                            ),
+                            listOf(term.list(null, intSort, term.symbol("seq.nth"), contentRep, sI))
+                        )
+                    )
+                )
+            }
+        }
+    }
+
     /** Shared scaffolding for the quantified model axioms: the `s$...` parameter
      *  terms (bound by the outer universal schema) and the inner index binder. */
     private class StringAxiomParams(
@@ -866,21 +1244,35 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             )
         )
 
-    /** `(strval s i)`: the character code of `s` at position `i` (P4.3). */
+    /** `(strval s i)`: the character code of `s` at position `i` (P4.3) — the
+     *  native `(seq.nth (strContent s) i)` macro in UNBOUNDED mode. */
     private fun strvalOf(s: SExpr, i: SExpr): SExpr {
+        if (options.mode == VerificationMode.UNBOUNDED) {
+            return term.list(null, intSort, term.symbol("seq.nth"), strContentOf(s), i)
+        }
         ensureStringModel("charAt")
         return term.list(null, intSort, term.symbol("strval"), s, i)
     }
 
-    /** `(steq s t)`: extensional string equality (P4.3). */
+    /** `(steq s t)`: extensional string equality (P4.3) — native content-sequence
+     *  equality in UNBOUNDED mode (the null-guard lives at the call site). */
     private fun steqOf(s: SExpr, t: SExpr): SExpr {
+        if (options.mode == VerificationMode.UNBOUNDED) {
+            return term.equality(strContentOf(s), strContentOf(t))
+        }
         ensureStringModel("equals")
         return term.list(null, SmtType.BOOL, term.symbol("steq"), s, t)
     }
 
     /** `(strcat s t)`: the concatenation of `s` and `t` (P4.3); [jret] is the
-     *  call's resolved return type (`java.lang.String`). */
+     *  call's resolved return type (`java.lang.String`). In UNBOUNDED mode the
+     *  result is a fresh reference whose content is `(seq.++ ...)` natively. */
     private fun strcatOf(s: SExpr, t: SExpr, jret: ResolvedType?): SExpr {
+        if (options.mode == VerificationMode.UNBOUNDED) {
+            return freshStringConst(
+                term.list(null, stringSeqType, term.symbol("seq.++"), strContentOf(s), strContentOf(t))
+            )
+        }
         ensureStringModel("concat")
         return term.list(jret, SmtType.JAVA_OBJECT, term.symbol("strcat"), s, t)
     }
@@ -892,20 +1284,59 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         return term.list(null, intSort, term.symbol("strindex"), s, c)
     }
 
-    /** `(strsub s i)`: the suffix of `s` from position `i` (P4.3 substring). */
+    /** `(strfind s t)`: the first position where `t` occurs in `s`, or `-1` if
+     *  it never does — `indexOf(String)` (P4.3 indexOfString). In UNBOUNDED mode
+     *  this is the native `(seq.indexof (strContent s) (strContent t) 0)` term.
+     *  In BOUNDED mode the axioms reference the substring/prefix functions, so
+     *  their models are ensured alongside the search. */
+    private fun strfindOf(s: SExpr, t: SExpr): SExpr {
+        if (options.mode == VerificationMode.UNBOUNDED) {
+            return term.list(
+                null, intSort, term.symbol("seq.indexof"),
+                strContentOf(s), strContentOf(t), translator.makeInt(java.math.BigInteger.ZERO)
+            )
+        }
+        ensureStringModel("indexOfString")
+        ensureStringModel("substring")
+        ensureStringModel("startsWith")
+        return term.list(null, intSort, term.symbol("strfind"), s, t)
+    }
+
+    /** `(strsub s i)`: the suffix of `s` from position `i` (P4.3 substring) — a
+     *  fresh native reference whose content is `(seq.extract ...)`. */
     private fun strsubOf(s: SExpr, i: SExpr): SExpr {
+        if (options.mode == VerificationMode.UNBOUNDED) {
+            val content = strContentOf(s)
+            val len = term.list(null, intSort, term.symbol("seq.len"), content)
+            return freshStringConst(
+                term.list(null, stringSeqType, term.symbol("seq.extract"), content, i, term.subtract(len, i))
+            )
+        }
         ensureStringModel("substring")
         return term.list(null, SmtType.JAVA_OBJECT, term.symbol("strsub"), s, i)
     }
 
-    /** `(strsub2 s i j)`: the slice `s[i, j)` (P4.3 substring). */
+    /** `(strsub2 s i j)`: the slice `s[i, j)` (P4.3 substring) — a fresh native
+     *  reference whose content is `(seq.extract ...)`. */
     private fun strsub2Of(s: SExpr, i: SExpr, j: SExpr): SExpr {
+        if (options.mode == VerificationMode.UNBOUNDED) {
+            return freshStringConst(
+                term.list(
+                    null, stringSeqType, term.symbol("seq.extract"),
+                    strContentOf(s), i, term.subtract(j, i)
+                )
+            )
+        }
         ensureStringModel("substring")
         return term.list(null, SmtType.JAVA_OBJECT, term.symbol("strsub2"), s, i, j)
     }
 
-    /** `(strpre s t)`: true iff `t` is a prefix of `s` (P4.3 startsWith). */
+    /** `(strpre s t)`: true iff `t` is a prefix of `s` (P4.3 startsWith) — the
+     *  native `(seq.prefixof (strContent t) (strContent s))` in UNBOUNDED mode. */
     private fun strpreOf(s: SExpr, t: SExpr): SExpr {
+        if (options.mode == VerificationMode.UNBOUNDED) {
+            return term.list(null, SmtType.BOOL, term.symbol("seq.prefixof"), strContentOf(t), strContentOf(s))
+        }
         ensureStringModel("startsWith")
         return term.list(null, SmtType.BOOL, term.symbol("strpre"), s, t)
     }
@@ -930,21 +1361,40 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             val v = term.variable(SmtType.JAVA_OBJECT, null, n)
             query.addAssert(term.nonNull(v))
             if (options.checkStringIndex) {
-                query.addAssert(equality(stringLengthOf(v), translator.makeInt(value.length.toLong())))
-                // bind the literal's per-position content so literal-based proofs
-                // (`s.startsWith("ab")`, `"ab".charAt(i) == 'a'`, slice reads, ...)
-                // discharge through the model's char reads
-                ensureStringModel("charAt")
-                for ((i, c) in value.withIndex()) {
-                    query.addAssert(
-                        equality(
+                if (options.mode == VerificationMode.UNBOUNDED) {
+                    // bind the literal's whole content natively: a unit chain over
+                    // `seq.empty` (a single ground equality, no strval declarations)
+                    var content: SExpr = emptySeqTerm()
+                    for (ch in value) {
+                        content = term.list(
+                            null, stringSeqType, term.symbol("seq.++"),
+                            content,
                             term.list(
-                                null, intSort, term.symbol("strval"), v,
-                                translator.makeInt(java.math.BigInteger.valueOf(i.toLong()))
-                            ),
-                            translator.makeInt(java.math.BigInteger.valueOf(c.code.toLong()))
+                                null, stringSeqType, term.symbol("seq.unit"),
+                                translator.makeInt(java.math.BigInteger.valueOf(ch.code.toLong()))
+                            )
                         )
+                    }
+                    query.addAssert(
+                        equality(strContentOf(v), content)
                     )
+                } else {
+                    query.addAssert(equality(stringLengthOf(v), translator.makeInt(value.length.toLong())))
+                    // bind the literal's per-position content so literal-based proofs
+                    // (`s.startsWith("ab")`, `"ab".charAt(i) == 'a'`, slice reads, ...)
+                    // discharge through the model's char reads
+                    ensureStringModel("charAt")
+                    for ((i, c) in value.withIndex()) {
+                        query.addAssert(
+                            equality(
+                                term.list(
+                                    null, intSort, term.symbol("strval"), v,
+                                    translator.makeInt(java.math.BigInteger.valueOf(i.toLong()))
+                                ),
+                                translator.makeInt(java.math.BigInteger.valueOf(c.code.toLong()))
+                            )
+                        )
+                    }
                 }
             }
             n
@@ -3776,10 +4226,18 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                             return strindexOf(recv, if (args[0].smtType === SmtType.BV16) convertTo(args[0], intSort) else args[0])
                         }
                         if (p0 == "java.lang.String") {
-                            // `indexOf(String)` is a substring search: the modeled
-                            // first-position-of-character `strindex` does not apply,
-                            // so it stays unrefined/rejected (P1.3) — documented
-                            // remaining string divergence
+                            // `indexOf(String)` is substring search: the result is
+                            // the first position where the argument occurs (`strfind`).
+                            // As in Java (`s.indexOf(null)` throws NPE), the needle
+                            // carries the same nullcheck obligation as concat's and
+                            // startsWith's arguments
+                            if (options.checkNull && args[0].smtType === SmtType.JAVA_OBJECT) {
+                                addObligation(
+                                    "nullcheck", "null argument to ${describe(call)}",
+                                    term.impl(guard, term.nonNull(args[0])), mode, call
+                                )
+                            }
+                            return strfindOf(recv, args[0])
                         }
                     }
 

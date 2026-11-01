@@ -90,6 +90,7 @@
 (declare-const $result (_ BitVec 32))
 (assert (and (not (= s null)) (not (= t null))))
 (declare-fun stringLength (U) (_ BitVec 32))
+(assert (forall ((s$n U)) (! (bvsle ((_ int2bv 32) 0) (stringLength s$n)) :pattern ((stringLength s$n)))))
 (declare-fun strval (U (_ BitVec 32)) (_ BitVec 32))
 (declare-fun strcat (U U) U)
 (assert (forall ((s$a U) (s$b U)) (not (= (strcat s$a s$b) null))))

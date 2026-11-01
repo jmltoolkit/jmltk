@@ -150,6 +150,14 @@ class VcgGoldenQueriesTest {
             arrayOf("substringLen2", "U_STR", "UNBOUNDED_string_index"),
             arrayOf("literalStartsWith", "U_STR", "UNBOUNDED_string_index"),
             arrayOf("replaceContentAt0", "U_STR", "UNBOUNDED_string_index"),
+            // P4.3 indexOf(String): substring search via strfind — result
+            // domain, empty needle, found/absent suffix consequences (proven);
+            // the wrong-position claim stays falsifiable (no golden)
+            arrayOf("stringIndexOfLen", "U_STR", "UNBOUNDED_string_index"),
+            arrayOf("stringIndexOfEmpty", "U_STR", "UNBOUNDED_string_index"),
+            arrayOf("stringIndexOfFoundSuffix", "U_STR", "UNBOUNDED_string_index"),
+            arrayOf("stringIndexOfAbsentSuffix", "U_STR", "UNBOUNDED_string_index"),
+            arrayOf("stringIndexOfString", "U_STR", "UNBOUNDED_string_index"),
         ).map { Triple(it[0], it[1], it[2]) }
 
     private fun options(tag: String): VcgOptions = when (tag) {

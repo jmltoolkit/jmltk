@@ -772,19 +772,26 @@ class VcgSemanticsTest {
 
     @Test
     fun testStringLengthIsModelReadUnderFlag() {
-        // `String.length()` becomes an uninterpreted length read instead of an
-        // opaque contract-call result; the model length of a literal is bound.
-        val res = vcgFor("derefOk", u.copy(checkStringIndex = true, allowUnrefinedCalls = true))
+        // `String.length()` becomes a model length read instead of an opaque
+        // contract-call result: the uninterpreted `stringLength` function in
+        // BOUNDED mode, the native `(seq.len (strContent s))` term in UNBOUNDED.
+        val so = u.copy(checkStringIndex = true, allowUnrefinedCalls = true)
+        val res = vcgFor("derefOk", so)
         // default policy (P3.3) also emits a nullcheck for the `s.length()` receiver;
         // it is discharged by `requires s != null`, and the string length still comes
-        // from the stringLength function
+        // from the model
         assertTrue(
             res.conditions.any { it.kind == "nullcheck" },
             "expected a default-on nullcheck: " + res.conditions.map { it.kind }
         )
         expectAllProven(res)
-        // the length reads must come from the stringLength function
-        assertTrue(res.query.toString().contains("stringLength"), "expected a stringLength model read")
+        // the length reads come from the native content sequence in U mode
+        assertTrue(res.query.toString().contains("seq.len"), "expected a seq.len model read in U mode")
+        assertTrue(res.query.toString().contains("strContent"), "expected a strContent model read in U mode")
+        // ...and from the stringLength function in BOUNDED mode
+        val bRes = vcgFor("derefOk", b.copy(checkStringIndex = true, allowUnrefinedCalls = true))
+        expectAllProven(bRes)
+        assertTrue(bRes.query.toString().contains("stringLength"), "expected a stringLength model read in B mode")
     }
 
     @Test
@@ -810,10 +817,11 @@ class VcgSemanticsTest {
 
     @Test
     fun testStringModelExtended() {
-        // P4.3 extension: substring / startsWith / replace(char, char) become
-        // abstract-string model reads (strsub/strsub2/strpre/strrep) under the
-        // string-index feature, and string literals bind their per-position
-        // content so literal-based proofs discharge through the char reads
+        // P4.3 extension: substring / startsWith / replace(char, char) /
+        // indexOf(String) become abstract-string model reads (strsub/strsub2/
+        // strpre/strrep/strfind) under the string-index feature, and string
+        // literals bind their per-position content so literal-based proofs
+        // discharge through the char reads
         val so = u.copy(checkStringIndex = true)
         val soB = b.copy(checkStringIndex = true)
         // substring: length is the slice width (both overloads)
@@ -835,11 +843,29 @@ class VcgSemanticsTest {
         // broken fixture's receiver is too short for the "ab" prefix
         expectSomeFalsifiable(vcgFor("literalStartsWithBroken", so))
         expectSomeFalsifiable(vcgFor("literalStartsWithBroken", soB))
-        // indexOf(String) needs *substring search*, which the model does not
-        // cover: the call stays unrefined and is rejected by default (P1.3) —
-        // the remaining documented string divergence
-        val ex = assertThrows(IllegalStateException::class.java) { vcgFor("stringIndexOfString", so) }
-        assertTrue(ex.message!!.contains("no JML contract and no body"), ex.message)
+        // indexOf(String) is substring search (strfind): the result-domain
+        // axiom bounds a found position, the empty needle matches at 0, a
+        // non-negative result pins the matched suffix, and a -1 result rules
+        // out any in-range suffix-prefix claim
+        expectAllProven(vcgFor("stringIndexOfLen", so))
+        expectAllProven(vcgFor("stringIndexOfLen", soB))
+        expectAllProven(vcgFor("stringIndexOfEmpty", so))
+        expectAllProven(vcgFor("stringIndexOfEmpty", soB))
+        expectAllProven(vcgFor("stringIndexOfFoundSuffix", so))
+        expectAllProven(vcgFor("stringIndexOfFoundSuffix", soB))
+        expectAllProven(vcgFor("stringIndexOfAbsentSuffix", so))
+        expectAllProven(vcgFor("stringIndexOfAbsentSuffix", soB))
+        expectAllProven(vcgFor("stringIndexOfString", so))
+        // minimality is only derivable from a ground non-match at an earlier
+        // position: the searched needle occurs at 0, so a later-occurrence
+        // model keeps the wrong-position claim satisfiable (real Java: 0).
+        // This checks out in UNBOUNDED mode, where indexOf(String) is the
+        // native `seq.indexof` and the query carries no quantified string
+        // axioms; BOUNDED mode keeps the quantified search axioms, which MBQI
+        // cannot decide in the falsifiable direction (model construction must
+        // satisfy them: the check churns), so the B-mode run is not part of
+        // the suite (documented in doc/vcg-semantics-plan.md).
+        expectSomeFalsifiable(vcgFor("stringIndexOfWrong", so))
     }
 
     //endregion

@@ -68,7 +68,7 @@
 (declare-const this.counter$1 Int)
 (assert (= this.counter$1 (ite (and (and true (not false)) (not false)) $t1 this.counter)))
 (declare-const $t2 Int)
-(declare-fun stringLength (U) Int)
+(declare-fun strContent (U) (Seq Int))
 (declare-const $t3 Int)
 (declare-const fld$int.counter$2 (Array U Int))
 (assert (= fld$int.counter$2 (ite true (store fld$int.counter$1 this $t3) fld$int.counter$1)))

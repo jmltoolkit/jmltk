@@ -347,6 +347,8 @@ object SmtTermFactory {
 
     fun arrayType(from: SExpr, to: SExpr): SExpr = SList(SmtType.TYPE, null, listOf(symbol("Array"), from, to))
 
+    fun seqType(of: SExpr): SExpr = SList(SmtType.TYPE, null, listOf(symbol("Seq"), of))
+
     fun list(javaType: ResolvedType?, stype: SmtType, vararg args: Any): SExpr {
         val nargs = mutableListOf<SExpr>()
         for (i in args.indices) {
@@ -398,6 +400,11 @@ object SmtTermFactory {
             return arrayType(
             type(type.from),
             type(type.to)
+        )
+        }
+        if (type is SmtType.Seq) {
+            return seqType(
+            type(type.of)
         )
         }
         if (type is BitVec) return bvType(type.width)

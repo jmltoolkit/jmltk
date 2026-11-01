@@ -2002,9 +2002,54 @@ public class VcgExamples {
         return true;
     }
 
-    // indexOf(String) is a substring search, which the abstract-string model
-    // does not cover (only the single-character `indexOf(int/char)` is modeled
-    // as `strindex`): the call stays unrefined and is rejected by default (P1.3)
+    // ---- P4.3 indexOf(String): substring search via strfind ----
+
+    // the result domain axiom: a search report is the first in-range position
+    // where the needle fits, so a found result leaves room for the needle
+    //@ requires s != null && t != null && k >= 0 && k == s.indexOf(t);
+    //@ ensures k + t.length() <= s.length();
+    public boolean stringIndexOfLen(String s, String t, int k) {
+        return true;
+    }
+
+    // the empty needle always matches at position 0
+    //@ requires s != null;
+    //@ ensures true;
+    public boolean stringIndexOfEmpty(String s) {
+        //@ assert s.indexOf("") == 0;
+        return true;
+    }
+
+    // a non-negative result pins the match: the suffix from the reported
+    // position starts with the needle (strpre through strsub)
+    //@ requires s != null && s.indexOf("ab") == 2;
+    //@ ensures true;
+    public boolean stringIndexOfFoundSuffix(String s) {
+        //@ assert s.substring(2).startsWith("ab");
+        return true;
+    }
+
+    // a -1 result means no in-range position starts with the needle: the
+    // absence axiom discharges a concrete suffix-prefix claim
+    //@ requires s != null && s.length() >= 2 && s.indexOf("ab") == -1;
+    //@ ensures true;
+    public boolean stringIndexOfAbsentSuffix(String s) {
+        //@ assert !s.substring(0).startsWith("ab");
+        return true;
+    }
+
+    // minimality is not derivable without a ground non-match check at an
+    // earlier position: the searched needle occurs at 0 but a later-occurrence
+    // model keeps the claim satisfiable (real Java: indexOf("ab") == 0)
+    //@ requires s != null && s.length() >= 2 && s.charAt(0) == 'a' && s.charAt(1) == 'b';
+    //@ ensures true;
+    public boolean stringIndexOfWrong(String s) {
+        //@ assert s.indexOf("ab") == 1;
+        return true;
+    }
+
+    // the search result is never below -1, whichever overload (smoke for the
+    // strfind dispatch + result-domain axiom)
     //@ requires s != null;
     //@ ensures \result >= -1;
     public int stringIndexOfString(String s) {

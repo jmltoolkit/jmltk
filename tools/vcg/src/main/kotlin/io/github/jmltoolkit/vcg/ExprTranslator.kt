@@ -4,6 +4,7 @@
  */
 package io.github.jmltoolkit.vcg
 
+import com.github.javaparser.Range
 import com.github.javaparser.ast.expr.ArrayAccessExpr
 import com.github.javaparser.ast.expr.ArrayCreationExpr
 import com.github.javaparser.ast.expr.BinaryExpr
@@ -38,6 +39,7 @@ import io.github.jmltoolkit.smt.SmtQuery
 import io.github.jmltoolkit.smt.SmtTermFactory
 import io.github.jmltoolkit.smt.SmtTermFactory.equality
 import io.github.jmltoolkit.smt.model.SAtom
+import java.util.HashSet
 import java.util.concurrent.atomic.AtomicInteger
 import io.github.jmltoolkit.smt.model.SExpr
 import io.github.jmltoolkit.smt.model.SList
@@ -98,6 +100,12 @@ class ExprTranslator(
      *  verification's translators (the main one and its `\old`/quantifier inner
      *  ones) so anonymous array constants never collide within the query text. */
     val anonArrayCounter: AtomicInteger = anonCnt,
+    /** Shared, per-query state for the JML `\sum` model: the recursive `jmlSum`
+     *  function and its recurrence axiom are declared exactly once per query
+     *  (keyed by the array sort of the first use). All translators of one
+     *  verification share a single instance so a later clause reuses the
+     *  declaration instead of redeclaring `jmlSum`. */
+    val sumState: JmlSumState = JmlSumState(),
 ) : GenericVisitorAdapter<SExpr, Any?>() {
     private val term = SmtTermFactory
 
@@ -267,6 +275,9 @@ class ExprTranslator(
     override fun visit(n: JmlMultiCompareExpr, arg: Any?): SExpr = tr(JMLUtils.unroll(n))
 
     override fun visit(n: JmlQuantifiedExpr, arg: Any?): SExpr {
+        if (n.binder == JmlDefaultBinder.SUM) {
+            return translateSum(n, arg)
+        }
         // binders are built without symbol resolution (contracts may be detached from the CU)
         val binders = n.variables.map { v ->
             term.binder(binderType(v.type), v.nameAsString)
@@ -282,7 +293,7 @@ class ExprTranslator(
             fieldAccessHandler = fieldAccessHandler, arrayRefHandler = arrayRefHandler,
             arrayMayBeNull = arrayMayBeNull, arrayNullTerm = arrayNullTerm,
             arrayLengthHandler = arrayLengthHandler, invariantForHandler = invariantForHandler,
-            anonArrayCounter = anonArrayCounter
+            anonArrayCounter = anonArrayCounter, sumState = sumState
         )
         val conjuncts = { exprs: List<Expression> ->
             exprs.fold(term.makeTrue() as SExpr) { acc, e -> term.and(acc, e.accept(inner, arg)!!) }
@@ -301,6 +312,234 @@ class ExprTranslator(
             term.forall(binders, term.impl(range, conjuncts(n.expressions.drop(1))))
         }
     }
+
+    //region JML `\sum` model (P6.1)
+
+    /** Shape of a supported `\sum T j; <lo <= j && j < hi>; <a[j]>`. */
+    private class SumShape(val lo: Expression, val hi: Expression, val array: Expression)
+
+    /**
+     * Translates a JML `\sum` as a bounded integer-range sum: `\sum T j; lo <= j
+     * && j < hi; a[j]` becomes the application `(jmlSum a lo hi)` of a recursive
+     * summation function (see [ensureSumFunction]). The range bounds and the
+     * array expression are translated against the *outer* environment — only the
+     * shape is validated against the bound variable — so symbolic ranges over
+     * `a.length` or the KeY `\index` are modeled faithfully instead of being
+     * unrolled statically. Any other shape (multi-variable sums, missing range,
+     * non-array terms, …) is rejected with a structured [UnsupportedFeatureException]
+     * rather than silently mis-encoded (P3.2).
+     */
+    private fun translateSum(n: JmlQuantifiedExpr, arg: Any?): SExpr {
+        val shape = sumShape(n)
+        val arr = shape.array.accept(this, arg)!!
+        val lo = shape.lo.accept(this, arg)!!
+        val hi = shape.hi.accept(this, arg)!!
+        val arrSort = arr.smtType as? SmtType.Array
+            ?: throw UnsupportedFeatureException(
+                "unsupported: \\sum term must index an array (saw ${arr.smtType})",
+                n.range.orElse(null)
+            )
+        val fnName = sumFunctionName(arrSort)
+        ensureSumFunction(fnName, arrSort)
+        return term.list(null, arrSort.to, term.symbol(fnName), arr, lo, hi)
+    }
+
+    private fun sumShape(n: JmlQuantifiedExpr): SumShape {
+        val range = n.range.orElse(null)
+        if (n.variables.size != 1) {
+            throw UnsupportedFeatureException(
+                "unsupported: \\sum must bind exactly one variable (only univariate sums are modeled)",
+                range
+            )
+        }
+        if (n.expressions.size != 2) {
+            throw UnsupportedFeatureException(
+                "unsupported: \\sum must have exactly a range and a term" +
+                    " (`\\sum <type> v; <lo <= v && v < hi>; <a[v]>`)",
+                range
+            )
+        }
+        val j = n.variables[0].nameAsString
+        var lo: Expression? = null
+        var hi: Expression? = null
+        for (c in flattenAnd(n.expressions[0])) {
+            val uc = unwrap(c)
+            when {
+                // j <= hi
+                uc is BinaryExpr && uc.operator == BinaryExpr.Operator.LESS_EQUALS && isName(uc.left, j) ->
+                    hi = single(hi, uc.right, j, range, "upper")
+
+                // lo <= j
+                uc is BinaryExpr && uc.operator == BinaryExpr.Operator.LESS_EQUALS && isName(uc.right, j) ->
+                    lo = single(lo, uc.left, j, range, "lower")
+
+                // j >= lo
+                uc is BinaryExpr && uc.operator == BinaryExpr.Operator.GREATER_EQUALS && isName(uc.left, j) ->
+                    lo = single(lo, uc.right, j, range, "lower")
+
+                // j > lo
+                uc is BinaryExpr && uc.operator == BinaryExpr.Operator.GREATER && isName(uc.left, j) ->
+                    lo = single(lo, uc.right, j, range, "lower")
+
+                // j < hi
+                uc is BinaryExpr && uc.operator == BinaryExpr.Operator.LESS && isName(uc.left, j) ->
+                    hi = single(hi, uc.right, j, range, "upper")
+
+                // hi > j
+                uc is BinaryExpr && uc.operator == BinaryExpr.Operator.LESS && isName(uc.right, j) ->
+                    hi = single(hi, uc.left, j, range, "upper")
+
+                else -> throw UnsupportedFeatureException(
+                    "unsupported: \\sum range conjunct `$c` does not bound $j" +
+                        " (supported shapes: lo <= v, v >= lo, v < hi, v <= hi)",
+                    c.range.orElse(range)
+                )
+            }
+        }
+        if (lo == null || hi == null) {
+            throw UnsupportedFeatureException(
+                "unsupported: \\sum range must bound $j both below and above" +
+                    " (supported shapes: `lo <= v && v < hi`)",
+                range
+            )
+        }
+        if (mentions(lo, j) || mentions(hi, j)) {
+            throw UnsupportedFeatureException(
+                "unsupported: \\sum range bounds must not reference the bound variable $j",
+                range
+            )
+        }
+        val body = n.expressions[1]
+        if (body !is ArrayAccessExpr || !isName(body.index, j) || mentions(body.name, j)) {
+            throw UnsupportedFeatureException(
+                "unsupported: \\sum term must be a direct array read `a[$j]`" +
+                    " over an array expression free of $j",
+                body.range.orElse(range)
+            )
+        }
+        return SumShape(lo, hi, body.name)
+    }
+
+    private fun single(prev: Expression?, e: Expression, j: String, range: Range?, bound: String): Expression {
+        if (prev != null) {
+            throw UnsupportedFeatureException(
+                "unsupported: \\sum range constrains $j by two $bound bounds",
+                e.range.orElse(range)
+            )
+        }
+        return e
+    }
+
+    /** Flattens a (possibly parenthesized/nested) `&&` conjunction into its conjuncts. */
+    private fun flattenAnd(e: Expression): List<Expression> {
+        val u = unwrap(e)
+        return if (u is BinaryExpr && u.operator == BinaryExpr.Operator.AND) {
+            flattenAnd(u.left) + flattenAnd(u.right)
+        } else {
+            listOf(e)
+        }
+    }
+
+    private fun unwrap(e: Expression): Expression = when (e) {
+        is EnclosedExpr -> unwrap(e.inner)
+        else -> e
+    }
+
+    private fun isName(e: Expression, name: String): Boolean {
+        val u = unwrap(e)
+        return u is NameExpr && u.nameAsString == name
+    }
+
+    /** Whether the expression mentions [name] anywhere below it (bound-variable escape check). */
+    private fun mentions(e: Expression, name: String): Boolean =
+        e.findAll(NameExpr::class.java).any { it.nameAsString == name }
+
+    /** The `jmlSum` function name for an array sort: the plain name for the common
+     *  int-array sort (index and element sorts coincide), a deterministic
+     *  sort-suffixed variant otherwise — stable so committed goldens hold. */
+    private fun sumFunctionName(arrSort: SmtType.Array): String =
+        if (arrSort.from == arrSort.to) "jmlSum" else "jmlSum\$${arrSort.from}_${arrSort.to}"
+
+    /**
+     * Declares the recursive `jmlSum` function and its recurrence axiom once per
+     * query (per array sort). The definition mirrors the JML semantics of a
+     * bounded integer-range sum (Z3 4.16-proven in both modes):
+     *
+     * ```
+     * (define-fun-rec jmlSum ((a (Array I E)) (lo I) (hi I)) E
+     *   (ite (<= hi lo) 0 (+ (jmlSum a lo (- hi 1)) (select a (- hi 1)))))
+     * (assert (forall ((a (Array I E)) (lo I) (hi I))
+     *   (! (= (jmlSum a lo (+ hi 1)) (+ (jmlSum a lo hi) (select a hi)))
+     *      :pattern ((jmlSum a lo (+ hi 1))))))
+     * ```
+     *
+     * with `I`/`E` the mode's index/element sorts (`Int` in UNBOUNDED, `(_ BitVec 32)`
+     * in BOUNDED), so `\sum` works over symbolic ranges (`a.length`, the KeY
+     * `\index`) in both modes. The `+1` E-matching trigger lets Z3 drive the
+     * SMT induction that discharges the invariant-preservation obligations;
+     * without the trigger the recurrence is inert (the model-based prover would
+     * not instantiate it).
+     */
+    private fun ensureSumFunction(fnName: String, arrSort: SmtType.Array) {
+        if (sumState.contains(fnName)) return
+        sumState.declare(fnName)
+        val idxSort = arrSort.from
+        val elemSort = arrSort.to
+        val zero = translator.makeInt(java.math.BigInteger.ZERO)
+        val one = translator.makeInt(java.math.BigInteger.ONE)
+        val a = term.binder(arrSort, "a")
+        val loB = term.binder(idxSort, "lo")
+        val hiB = term.binder(idxSort, "hi")
+        val aR = term.variable(arrSort, null, "a")
+        val loR = term.variable(idxSort, null, "lo")
+        val hiR = term.variable(idxSort, null, "hi")
+        val call = { array: SExpr, lo: SExpr, hi: SExpr ->
+            term.list(null, elemSort, term.symbol(fnName), array, lo, hi)
+        }
+        // definition: jmlSum(a, lo, hi) = ite(hi <= lo, 0, jmlSum(a, lo, hi-1) + a[hi-1])
+        val hiMinus1 = term.subtract(hiR, one)
+        val body = SList(
+            elemSort, null,
+            listOf(
+                term.symbol("ite"),
+                term.lessOrEquals(hiR, loR, true),
+                zero,
+                term.add(call(aR, loR, hiMinus1), term.select(elemSort, null, aR, hiMinus1))
+            )
+        )
+        smtLog.addCommand(
+            term.command(
+                "define-fun-rec", term.symbol(fnName),
+                SList(null, null, listOf(a, loB, hiB)),
+                term.type(elemSort),
+                body
+            )
+        )
+        // recurrence: jmlSum(a, lo, hi+1) = jmlSum(a, lo, hi) + a[hi]
+        val hiPlus1 = term.add(hiR, one)
+        val sumPlus = call(aR, loR, hiPlus1)
+        val axiom = term.forall(
+            listOf(a, loB, hiB),
+            withPattern(
+                term.equality(sumPlus, term.add(call(aR, loR, hiR), term.select(elemSort, null, aR, hiR))),
+                listOf(sumPlus)
+            )
+        )
+        smtLog.addAssert(axiom)
+    }
+
+    /** `(! formula :pattern (patterns...))`: attaches an E-matching trigger to a
+     *  quantified axiom so Z3 instantiates it on matching ground terms. */
+    private fun withPattern(formula: SExpr, patterns: List<SExpr>): SExpr =
+        SList(
+            SmtType.BOOL, null,
+            listOf(
+                term.symbol("!"), formula,
+                term.symbol(":pattern"), SList(null, null, patterns)
+            )
+        )
+
+    //endregion
 
     private fun binderType(t: com.github.javaparser.ast.type.Type): SmtType = try {
         when (t) {
@@ -445,5 +684,24 @@ class ExprTranslator(
          *  (tests, legacy callers) share this counter; the VCG passes a fresh
          *  per-verification counter instead so golden queries are reproducible. */
         private val anonCnt = java.util.concurrent.atomic.AtomicInteger()
+    }
+}
+
+/**
+ * Shared, per-query state for the JML `\sum` model: the recursive `jmlSum`
+ * summation functions declared so far, keyed by the deterministic function name
+ * derived from the array sort ([ExprTranslator.sumFunctionName]). Every
+ * [ExprTranslator] of one verification shares a single instance so the
+ * `define-fun-rec` declaration and its recurrence axiom are emitted exactly once
+ * per query — redeclaring a function in SMT-LIB would be a hard error, and a
+ * sum-manifested query must not duplicate axioms (goldens, solver effort).
+ */
+class JmlSumState {
+    private val declared = HashSet<String>()
+
+    fun contains(fnName: String): Boolean = fnName in declared
+
+    fun declare(fnName: String) {
+        declared.add(fnName)
     }
 }

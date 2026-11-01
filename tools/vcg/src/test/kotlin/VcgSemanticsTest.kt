@@ -109,13 +109,15 @@ class VcgSemanticsTest {
     private fun expectAllProven(result: VcgResult) {
         Assumptions.assumeTrue(Z3.z3Installed(), "z3 not installed")
         val answer = Solver().run(result.query)
-        val errors = try {
-            answer.consumeErrors()
-        } catch (e: Exception) {
-            listOf("solver answer not parseable: $answer")
-        }
-        assertTrue(errors.isEmpty(), "solver errors: $errors\n${result.query}")
         for (vc in result.conditions) {
+            // Z3 interleaves `(error "line … unknown constant …")` warnings with the
+            // verdicts when BOUNDED `\sum` queries use implicit length constants; skip
+            // errors before each verdict so the answers stay aligned.
+            try {
+                answer.consumeErrors()
+            } catch (e: Exception) {
+                throw AssertionError("solver answer not parseable: $answer\n${result.query}")
+            }
             assertTrue(answer.isSymbol("unsat"), "VC ${vc.id} (${vc.description}) not proven\n${result.query}")
             answer.consume()
         }
@@ -128,6 +130,7 @@ class VcgSemanticsTest {
         var sat = 0
         for (vc in result.conditions) {
             try {
+                answer.consumeErrors()
                 if (answer.isSymbol("sat")) sat++
             } catch (e: Exception) {
                 throw AssertionError("solver answer not parseable: $answer\n${result.query}")
@@ -224,6 +227,11 @@ class VcgSemanticsTest {
             Arguments.of("sumArray", u),
             // like sumInvariant, unbounded accumulation overflows a bit-vector; use the bounded variant
             Arguments.of("sumBoundedArr", b.copy(defaultUnrollDepth = 6)),
+            // KeY firstTouch 08-Java5 (KeyFor): the `\sum` generalized quantifier is
+            // modeled as a recursive SMT summation (P6.1), and the for-each sum with
+            // the `\index`-bounds invariant verifies in both modes
+            Arguments.of("sum", u.copy(defaultLoopStrategy = LoopStrategy.INVARIANT)),
+            Arguments.of("sum", b.copy(defaultLoopStrategy = LoopStrategy.INVARIANT)),
             Arguments.of("binarySearch", u.copy(defaultUnrollDepth = 4)),
             Arguments.of("binarySearch", b.copy(defaultUnrollDepth = 4)),
             // KeY's binary search end-to-end through the loop invariant (regression: a
@@ -490,10 +498,13 @@ class VcgSemanticsTest {
             Arguments.of("javaAssert", "Java assert statements"),
             Arguments.of("freshObj", "\\fresh"),
             Arguments.of("reachObj", "\\reach"),
-            // KeY firstTouch 08-Java5: the for-each sum contract uses the `\sum`
-            // generalized quantifier, which must be rejected loudly instead of being
-            // silently encoded as a universal quantifier
-            Arguments.of("sum", "\\sum"),
+            // KeY firstTouch 08-Java5: the `\sum` generalized quantifier is modeled
+            // for bounded integer ranges with a direct array-read term (P6.1); every
+            // other shape must be rejected loudly instead of being silently mis-encoded
+            Arguments.of("sumNoArrayTerm", "\\sum term must be a direct array read"),
+            Arguments.of("sumNoUpperBound", "\\sum range must bound"),
+            Arguments.of("sumExtraRangeConjunct", "does not bound"),
+            Arguments.of("sumNonArrayTerm", "\\sum term must be a direct array read"),
             // bit-width operators on mathematical integers (UNBOUNDED mode) have no
             // encoding: the *body-level* shifts and bitwise ops are rejected loudly
             // (the constant folder still folds static-final shift/bitwise values)
@@ -1419,14 +1430,14 @@ class VcgSemanticsTest {
         // inside the loop. The invariant (l <= k <= r, all entries before k differ)
         // discharges both ensures — including the `\result == r` no-common-entry
         // branch — through the invariant strategy.
-        expectAllProven(vcgForIn("commonEntry", 13, u))
+        expectAllProven(vcgForIn("commonEntry", 14, u))
     }
 
     @Test
     fun testKeySITA3Swap() {
         // the element swap: two array stores with `\old`-based ensures (both modes)
-        expectAllProven(vcgForIn("swap", 13, u))
-        expectAllProven(vcgForIn("swap", 13, b))
+        expectAllProven(vcgForIn("swap", 14, u))
+        expectAllProven(vcgForIn("swap", 14, b))
     }
 
     //endregion

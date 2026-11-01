@@ -109,6 +109,14 @@ data class VcgResult(
         val map = LinkedHashMap<String, Status>()
         var done = 0
         for (vc in conditions) {
+            // Z3 interleaves `(error "line … unknown constant …")` warnings with the
+            // verdicts when BOUNDED `\sum` queries use implicit length constants; skip
+            // errors before each condition's verdict so the answers stay aligned.
+            try {
+                answer.consumeErrors()
+            } catch (e: Exception) {
+                // fall through: if the solver protocol broke, everything is unknown
+            }
             val verdict = try {
                 when {
                     answer.isSymbol("unsat") -> Status.PROVEN

@@ -326,13 +326,21 @@ class Normalizer {
             ).apply { origin = s }
         ) + body + listOf(
             NfAssign(
-                NfLocal(i, null),
+                // the desugared index variable is always an `int` (JLS 14.14.2);
+                // typing it explicitly keeps its SMT sort mode-correct (BV32 in
+                // BOUNDED) instead of the `Int` fallback of a typeless local
+                NfLocal(i, com.github.javaparser.ast.type.PrimitiveType.intType()),
                 BinaryExpr(NameExpr(i), IntegerLiteralExpr("1"), BinaryExpr.Operator.PLUS)
             ).apply { origin = s }
         )
         val res = mutableListOf<NfStmt>()
-        res.add(NfAssign(NfLocal(i, null), IntegerLiteralExpr("0")).apply { origin = s })
-        res.add(NfLoop(s, cond, loopBody, id).apply { origin = s })
+        res.add(
+            NfAssign(
+                NfLocal(i, com.github.javaparser.ast.type.PrimitiveType.intType()),
+                IntegerLiteralExpr("0")
+            ).apply { origin = s }
+        )
+        res.add(NfLoop(s, cond, loopBody, id, indexVar = i).apply { origin = s })
         return res
     }
 

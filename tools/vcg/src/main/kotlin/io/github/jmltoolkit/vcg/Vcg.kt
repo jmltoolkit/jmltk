@@ -135,6 +135,12 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
      *  strindex axioms (which would bloat every solver run). */
     private val stringAxiomsDeclared = HashSet<String>()
 
+    /** JML `\sum` model state: recursive `jmlSum` declarations emitted so far.
+     *  Shared by every [ExprTranslator] of this verification (clauses are
+     *  translated by fresh translators) so the `define-fun-rec` + recurrence
+     *  axiom appear at most once per query. */
+    private val sumState = JmlSumState()
+
     /** `strContent : U -> (Seq Int)` declared once — the native content view
      *  behind the U-mode string model (declared, never axiomatized). */
     private var stringContentDeclared = false
@@ -190,13 +196,18 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
      *  a contract clause) aborts generation with a structured diagnostic — see
      *  [validateSupported]. Keywords that arrive as quantifier/label binders
      *  (`\forall`, `\exists`, `\lbl`, …) are separate AST node kinds; only the
-     *  first two are modeled (other binder kinds like `\sum` are rejected by
-     *  [checkSupported]). */
+     *  first two plus `\sum` are modeled as binders (other binder kinds like
+     *  `\num_of` are rejected by [checkSupported]). `\index` is the KeY loop-index
+     *  keyword — bound to the desugared `$idxN` variable of a `foreach` loop by
+     *  [invariantLoop]; `\strictly_nothing` is accepted in `assignable` clauses
+     *  (frame conditions are ignored by the engine).
+     */
     private val SUPPORTED_JML_KEYWORDS =
         setOf(
             "\\result", "\\old",
             "\\invariant_for", "\\static_invariant_for",
-            "\\everything", "\\nothing",
+            "\\everything", "\\nothing", "\\strictly_nothing",
+            "\\index",
         )
 
     /**
@@ -210,9 +221,9 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
      *  - JML keywords outside the supported set (`\fresh`, `\reach`, `\TYPE`,
      *    … — without this they were silently mis-modeled or failed later with
      *    an unrelated resolver error),
-     *  - generalized/numeric quantifier binders (`\sum`, `\num_of`, `\product`,
-     *    … — only `\forall`/`\exists` are modeled; everything else used to be
-     *    silently encoded as a universal quantifier),
+     *  - generalized/numeric quantifier binders (`\num_of`, `\product`, `\min`,
+     *    … — only `\forall`/`\exists`/`\sum` are modeled; everything else used
+     *    to be silently encoded as a universal quantifier),
      *  - enumerations (verification would need an ordinal/constant model).
      */
     private fun validateSupported() {
@@ -261,12 +272,16 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
 
             is JmlQuantifiedExpr ->
                 if (node.binder is JmlDefaultBinder &&
-                    (node.binder == JmlDefaultBinder.FORALL || node.binder == JmlDefaultBinder.EXISTS)
+                    (
+                        node.binder == JmlDefaultBinder.FORALL ||
+                        node.binder == JmlDefaultBinder.EXISTS ||
+                        node.binder == JmlDefaultBinder.SUM
+                    )
                 ) {
                     null
                 } else {
                     "JML quantifier binder ${node.binder.jmlSymbol()}" +
-                        " (only \\forall and \\exists are modeled)"
+                        " (only \\forall, \\exists and \\sum are modeled)"
                 }
 
             else -> null
@@ -287,6 +302,10 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     //region entry point
     fun verify(): VcgResult {
         validateSupported()
+        // BOUNDED `\sum` queries fold array-length terms of constant symbols into
+        // implicit length constants (see arrayLengthOf); detect the binder once up
+        // front so every length term in the query takes the same form.
+        sumInScope = hasSumInScope()
         query.addCommand(term.command("set-logic", term.symbol("ALL")))
         setupTypeHierarchy()
         collectNonNullArrayLocs()
@@ -1955,15 +1974,71 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     }
 
     /** Length term of [arr]: `bv$length`/`int$length` on int arrays, the per-sort
-     *  `_<tag>` variant otherwise (object arrays have a distinct signature). */
+     *  `_<tag>` variant otherwise (object arrays have a distinct signature).
+     *
+     *  In BOUNDED `\sum` queries an array *constant symbol* (never a `store`/`select`
+     *  expression) is folded into a single shared `$len_<symbol>` constant. An array
+     *  symbol is not reassigned within a frame, so its length is fixed and the fold
+     *  is semantically exact (the old value `bv$length sym` was unconstrained apart
+     *  from the `>= 0` axiom — the fold keeps exactly that via a ground non-negativity
+     *  assertion). Crucially the constant is left *implicit* (not `declare-const`ed):
+     *  Z3's recursive-function instantiation stalls when the `\sum` recurrence axioms
+     *  coexist with an explicitly declared length constant — measured on KeyFor's
+     *  invariant-preserved/variant checks it is a full timeout with
+     *  `(declare-const $len …)`, but an immediate `unsat` with the same symbol used
+     *  implicitly. UNBOUNDED keeps the declared `int$length` function, which behaves
+     *  well there, and non-`\sum` BOUNDED queries keep the declared function too. */
     private fun arrayLengthOf(arr: SExpr): SExpr {
         val a = arr.smtType as? SmtType.Array
         if (a == null) return translator.arrayLength(arr)
+        if (options.mode == VerificationMode.BOUNDED && sumInScope && arr is SAtom) {
+            val name = foldedLengthName.getOrPut(a) { HashMap() }.getOrPut(arr.value) {
+                val base = "\$len_" + arr.value.replace(Regex("[^A-Za-z0-9_]"), "_")
+                var candidate = base
+                var n = 1
+                while (candidate in foldedLengthNames) candidate = base + "_" + n++
+                foldedLengthNames.add(candidate)
+                // non-negativity of the folded length, asserted once per constant
+                query.addCommand(
+                    term.command(
+                        "assert",
+                        term.greaterOrEquals(term.variable(SmtType.BV32, null, candidate), translator.makeInt(0), true)
+                    )
+                )
+                candidate
+            }
+            return term.variable(SmtType.BV32, null, name)
+        }
         ensureLengthFn(a)
         val unbounded = options.mode == VerificationMode.UNBOUNDED
         val ret = if (unbounded) SmtType.INT else SmtType.BV32
         return term.list(null, ret, term.symbol(lengthFnName(a)), arr)
     }
+
+    /** BOUNDED-mode folded length constants: per array sort and symbol name, plus the
+     *  set of used names for collision-free (and run-deterministic) naming. */
+    private val foldedLengthName = HashMap<SmtType.Array, MutableMap<String, String>>()
+    private val foldedLengthNames = HashSet<String>()
+
+    /** Whether the verified callable contains a `\sum` binder (see arrayLengthOf).
+     *
+     *  A `\sum` can hide in three places that are not all reachable through the
+     *  standard child traversal: (1) the ordinary AST walk of the callable
+     *  (`findAll`), (2) the callable's own JML spec cases ([VcgContext.contracts],
+     *  which the [Vcg] already walks explicitly — see [validateSupported]), and
+     *  (3) JML *loop* contracts, which JavaParser keeps off the parent's child list
+     *  (only the loop statement itself is a child) — so every contract-bearing node
+     *  must be found and its contract subtrees scanned directly. */
+    private fun hasSumInScope(): Boolean {
+        fun List<com.github.javaparser.ast.jml.clauses.JmlContract>.hasSum() =
+            any { c -> c.findAll(JmlQuantifiedExpr::class.java).any { q -> q.binder == JmlDefaultBinder.SUM } }
+        return ctx.callable.findAll(JmlQuantifiedExpr::class.java).any { it.binder == JmlDefaultBinder.SUM } ||
+            ctx.contracts.hasSum() ||
+            ctx.callable.findAll(Node::class.java)
+                .filterIsInstance<NodeWithContracts<*>>()
+                .any { n -> n.contracts.hasSum() }
+    }
+    private var sumInScope = false
 
     /**
      * Declared heap selector functions for instance fields, keyed by field name.
@@ -2329,7 +2404,8 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             arrayNullTerm = { v -> (v.smtType as? SmtType.Array)?.let { nullArrayValue(it) } },
             arrayLengthHandler = { arr -> arrayLengthOf(arr) },
             invariantForHandler = { recv, recvExpr, isStatic -> invariantForTerm(recv, recvExpr, isStatic) },
-            anonArrayCounter = anonArrayCounter
+            anonArrayCounter = anonArrayCounter,
+            sumState = sumState
         )
     }
 
@@ -2689,7 +2765,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         if (env[mapKey] == null) declareFieldMap(mapKey, elem)
         val prevMap = env[mapKey]!!
         val nextMap = freshFieldMapVersion(mapKey, elem)
-        emitPhi(mode, equality(nextMap, iteTerm(g, term.store(prevMap, recvTerm, v), prevMap)))
+        emitPhi(mode, equality(nextMap, phiIt(g, term.store(prevMap, recvTerm, v), prevMap)))
     }
     //endregion
 
@@ -2748,6 +2824,13 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     /** `ite` that tolerates missing java types (e.g. auxiliary boolean flags). */
     private fun iteTerm(cond: SExpr, then: SExpr, otherwise: SExpr): SExpr =
         SList(then.smtType ?: otherwise.smtType, then.javaType, listOf(term.symbol("ite"), cond, then, otherwise))
+
+    /** `ite(cond, a, b)` that collapses to `a` when [cond] is the canonical `true`
+     *  (a trivial [effectiveGuard]): straight-line assignments then bind `next`
+     *  directly instead of emitting `(ite true v old)` phis, which measurably
+     *  hurt the BV solver around the recursive `\sum` function (see effectiveGuard). */
+    private fun phiIt(cond: SExpr, then: SExpr, otherwise: SExpr): SExpr =
+        if (cond === term.makeTrue()) then else iteTerm(cond, then, otherwise)
 
     /** A location key for an [NfLocal]: local variable, or (implicit this-)field. */
     private fun localKey(name: String): String = when {
@@ -2832,8 +2915,9 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 // loop contract: the breaks clause holds when the loop is left via break
                 val f = loopFrames.lastOrNull { it.loopId == s.loopId }
                 if (f != null && f.strategy != LoopStrategy.UNROLL && f.breaks.isNotEmpty()) {
+                    val brkT = translatorOf(envOverride = loopClauseEnv(env, f))
                     var clause = term.makeTrue()
-                    for (b in f.breaks) clause = term.and(clause, translatorOf().tr(b))
+                    for (b in f.breaks) clause = term.and(clause, brkT.tr(b))
                     addObligation("break-clause", "loop breaks clause ${describe(s.origin!!)}", term.impl(g, clause), mode)
                 }
             }
@@ -2843,15 +2927,16 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 setFlag(ExprTranslator.CONTINUE + s.loopId, g, mode)
                 val f = loopFrames.lastOrNull { it.loopId == s.loopId }
                 if (f != null && f.strategy != LoopStrategy.UNROLL) {
+                    val contT = translatorOf(envOverride = loopClauseEnv(env, f))
                     var clause = term.makeTrue()
-                    for (c in f.continues) clause = term.and(clause, translatorOf().tr(c))
+                    for (c in f.continues) clause = term.and(clause, contT.tr(c))
                     if (f.continues.isNotEmpty()) {
                         addObligation("continue-clause", "loop continues clause ${describe(s.origin!!)}", term.impl(g, clause), mode)
                     }
                     // a continue reaches the loop head, so the invariant must hold here
                     if (f.invariants.isNotEmpty()) {
                         var inv = term.makeTrue()
-                        for (e in f.invariants) inv = term.and(inv, translatorOf().tr(e))
+                        for (e in f.invariants) inv = term.and(inv, contT.tr(e))
                         addObligation("loop-invariant-continue", "loop invariant at continue ${describe(s.origin!!)}", term.impl(g, inv), mode)
                     }
                 }
@@ -2896,7 +2981,49 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         innermostContinueId(s)?.let { id ->
             g = term.and(g, term.not(flag(ExprTranslator.CONTINUE + id)))
         }
-        return g
+        // A guard whose conjuncts are all literal `false` flags is statically `true`
+        // (no abrupt completion has happened on this path). Normalizing it to the
+        // canonical `true` keeps straight-line statements bit-free: `emit` then
+        // asserts the formula bare instead of `(=> (and (not false) ...) φ)`, and
+        // `phiIt` drops the `(ite true v old)` wrapper. With the recursive `\sum`
+        // function around, those residual `=> true`/`ite true` forms stall the BV
+        // solver's instantiation on the loop-step obligations (measured: ~1s vs
+        // non-termination on KeyFor's invariant-preserved/variant checks).
+        return if (triviallyTrue(g)) term.makeTrue() else g
+    }
+
+    /** Whether [e] is syntactically (and semantically) `true` under literal `false` flags:
+     *  the `true` atom, `(not false)`, or a conjunction all of whose conjuncts are. */
+    private fun triviallyTrue(e: SExpr): Boolean = when (e) {
+        is SAtom -> e.value == "true"
+
+        is SList -> {
+            val head = e.get(0)
+            when {
+                head is SAtom && head.value == "not" && listArity(e) == 2 ->
+                    (e.get(1) as? SAtom)?.value == "false"
+
+                head is SAtom && head.value == "and" ->
+                    (1 until listArity(e)).all { triviallyTrue(e.get(it)) }
+
+                else -> false
+            }
+        }
+
+        else -> false
+    }
+
+    /** Number of elements in the S-expression list [e] (SList exposes no size accessor). */
+    private fun listArity(e: SList): Int {
+        var i = 0
+        while (true) {
+            try {
+                e.get(i)
+                i++
+            } catch (_: IndexOutOfBoundsException) {
+                return i
+            }
+        }
     }
 
     private val loopContext = ArrayDeque<Pair<Int, Boolean>>() // (loopId, isSwitch?)
@@ -2909,6 +3036,9 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         val breaks: List<Expression>,
         val continues: List<Expression>,
         val returns: List<Expression>,
+        /** desugared `$idxN` variable of a `foreach` loop; KeY's `\index` keyword
+         *  in the loop's clauses resolves to it. `null` for ordinary loops. */
+        val indexVar: String? = null,
     )
 
     private val loopFrames = ArrayDeque<LoopFrame>()
@@ -2928,7 +3058,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         // unconstrained fresh constant on paths where the guard is false, which lets
         // the solver spuriously take the abrupt-completion branch (`$break`/`$continue`)
         // later (e.g. in an unrolled loop's exit conditions) with unbound post values.
-        emitPhi(mode, equality(f, iteTerm(guard, term.makeTrue(), prev)))
+        emitPhi(mode, equality(f, phiIt(guard, term.makeTrue(), prev)))
     }
 
     /** Executes a `throw`; sets the exceptional completion flags, disabling normal
@@ -2940,10 +3070,10 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         // dead guard keeps previous values instead of leaving fresh constants unconstrained
         val prevEv = env[ExprTranslator.EXCVAL] ?: term.makeNull()
         val ev = freshVersion(ExprTranslator.EXCVAL, SmtType.JAVA_OBJECT)
-        emitPhi(mode, equality(ev, iteTerm(g, v, prevEv)))
+        emitPhi(mode, equality(ev, phiIt(g, v, prevEv)))
         val prevExc = env[ExprTranslator.EXC] ?: term.makeFalse()
         val exc = freshVersion(ExprTranslator.EXC, SmtType.BOOL)
-        emitPhi(mode, equality(exc, iteTerm(g, term.makeTrue(), prevExc)))
+        emitPhi(mode, equality(exc, phiIt(g, term.makeTrue(), prevExc)))
     }
 
     /**
@@ -3102,7 +3232,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         // iteration of an enclosing unrolled loop (this switch node runs unchanged)
         val prevBrk = env[ExprTranslator.BREAK + s.switchId] ?: term.makeFalse()
         val brkFresh = freshVersion(ExprTranslator.BREAK + s.switchId, SmtType.BOOL)
-        emitPhi(mode, equality(brkFresh, iteTerm(g, term.makeFalse(), prevBrk)))
+        emitPhi(mode, equality(brkFresh, phiIt(g, term.makeFalse(), prevBrk)))
     }
 
     private fun execReturn(s: NfReturn, guard: SExpr, mode: Mode) {
@@ -3121,11 +3251,11 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             // leaving the constant unconstrained (which would produce spurious
             // counterexamples for the postcondition); the phi is emitted as a hard
             // equality because `g` reappears inside the ite.
-            emitPhi(mode, equality(res, iteTerm(g, v, prev ?: res)))
+            emitPhi(mode, equality(res, phiIt(g, v, prev ?: res)))
         }
         val prevRet = env[ExprTranslator.RET]
         val ret = freshVersion(ExprTranslator.RET, SmtType.BOOL)
-        emitPhi(mode, equality(ret, iteTerm(g, term.makeTrue(), prevRet ?: ret)))
+        emitPhi(mode, equality(ret, phiIt(g, term.makeTrue(), prevRet ?: ret)))
         // loop contract: a `return` escapes every enclosing loop, so the `\returns`
         // clause of each enclosing LOOP_CONTRACT loop must hold at the return point
         // (evaluated in the pre-return state — after `\result` is bound above).
@@ -3229,7 +3359,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 // phi-style store: on paths where the store does not execute (dead
                 // guard, e.g. statements after a `break`), the array keeps its old
                 // value instead of becoming a fresh unconstrained constant.
-                emitPhi(mode, equality(next, iteTerm(g, term.store(arr, idx, vv), arr)))
+                emitPhi(mode, equality(next, phiIt(g, term.store(arr, idx, vv), arr)))
                 // P4.2: an element store never makes the array reference null
                 // (Java) — axiomatize the stored version non-null, otherwise the
                 // SMT solver could conflate the `store(..)` application (a fresh
@@ -3273,7 +3403,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                     val kNext = freshVersion(k, kArr)
                     emitPhi(
                         mode,
-                        equality(kNext, iteTerm(g, iteTerm(refEq, term.store(kOld, idx, vv), kOld), kOld))
+                        equality(kNext, phiIt(g, iteTerm(refEq, term.store(kOld, idx, vv), kOld), kOld))
                     )
                     emit(mode, g, equality(arrayLengthOf(kNext), arrayLengthOf(kOld)))
                     // P4.2: when the identity match makes this frame an element
@@ -3363,7 +3493,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         // its previous value. Without this, `next` is an unconstrained fresh
         // constant that leaks into loop merges and postconditions.
         if (prev != null) {
-            emitPhi(mode, equality(next, iteTerm(g, vv, prev)))
+            emitPhi(mode, equality(next, phiIt(g, vv, prev)))
         } else {
             emit(mode, g, equality(next, vv))
         }
@@ -3408,7 +3538,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 // an unconstrained phi referenced by loop-exit conditions and the
                 // post-loop merge lets the solver invent values for it (spurious
                 // counterexamples for loops combining continue/break/return).
-                emitPhi(mode, equality(phi, iteTerm(g, iteTerm(c, tv, ev), pre)))
+                emitPhi(mode, equality(phi, phiIt(g, iteTerm(c, tv, ev), pre)))
                 env[key] = phi
                 // alias frames must survive a phi: the merged array's reference
                 // identity is whichever branch was taken.
@@ -3417,7 +3547,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 val re = arrayRef(ev)
                 val rpre = arrayRef(pre)
                 if (rp != null && rt != null && re != null && rpre != null) {
-                    emitPhi(mode, equality(rp, iteTerm(g, iteTerm(c, rt, re), rpre)))
+                    emitPhi(mode, equality(rp, phiIt(g, iteTerm(c, rt, re), rpre)))
                 }
             } else if (tv != null && ev == null) {
                 env[key] = tv
@@ -3446,7 +3576,8 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             loopClauses(s.loopNode, LOOP_INVARIANTS),
             if (strategy == LoopStrategy.LOOP_CONTRACT) loopClauses(s.loopNode, BREAKS) else emptyList(),
             if (strategy == LoopStrategy.LOOP_CONTRACT) loopClauses(s.loopNode, CONTINUES) else emptyList(),
-            if (strategy == LoopStrategy.LOOP_CONTRACT) loopClauses(s.loopNode, RETURNS) else emptyList()
+            if (strategy == LoopStrategy.LOOP_CONTRACT) loopClauses(s.loopNode, RETURNS) else emptyList(),
+            indexVar = s.indexVar
         )
         loopFrames.addLast(frame)
         when (strategy) {
@@ -3562,6 +3693,27 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     /** Exit conditions collected per loop; used to extend the guard after a loop. */
     private val exitGuards = HashMap<Int, SExpr>()
 
+    /**
+     * Active environment for translating a `foreach` loop's contract clauses:
+     * binds the KeY `\index` keyword to the current value of the desugared
+     * `$idxN` index variable in [active]. Ordinary loops (no [NfLoop.indexVar])
+     * just pass [active] through unchanged.
+     */
+    private fun loopClauseEnv(active: Map<String, SExpr>, s: NfLoop): Map<String, SExpr> {
+        val idx = s.indexVar ?: return active
+        val cur = active[idx] ?: return active
+        if (active["\\index"] === cur) return active
+        return LinkedHashMap(active).also { it["\\index"] = cur }
+    }
+
+    /** Variant of [loopClauseEnv] for a [LoopFrame] (break/continue clause sites). */
+    private fun loopClauseEnv(active: Map<String, SExpr>, f: LoopFrame): Map<String, SExpr> {
+        val idx = f.indexVar ?: return active
+        val cur = active[idx] ?: return active
+        if (active["\\index"] === cur) return active
+        return LinkedHashMap(active).also { it["\\index"] = cur }
+    }
+
     private fun invariantLoop(s: NfLoop, guard: SExpr, mode: Mode, loopId: Int, strategy: LoopStrategy) {
         val invariants = loopClauses(s.loopNode, LOOP_INVARIANTS)
         val variants = loopClauses(s.loopNode, LOOP_VARIANTS)
@@ -3577,7 +3729,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
 
         // (1) invariant established on entry
         var inv = term.makeTrue()
-        for (e in invariants) inv = term.and(inv, translatorOf().tr(e))
+        for (e in invariants) inv = term.and(inv, translatorOf(envOverride = loopClauseEnv(env, s)).tr(e))
         addObligation(
             "loop-invariant-init",
             "loop invariant initially valid ${describe(s.loopNode)}",
@@ -3608,7 +3760,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         val havocBefore = LinkedHashMap(havocEnv)
         val savedEnv = env
         env = havocEnv
-        val invHavoc = translatorOf(envOverride = havocEnv).let { tr ->
+        val invHavoc = translatorOf(envOverride = loopClauseEnv(havocEnv, s)).let { tr ->
             var a = term.makeTrue()
             for (e in invariants) a = term.and(a, tr.tr(e))
             a
@@ -3619,16 +3771,21 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         exec(s.body, term.makeTrue(), Mode.Record(rec))
         loopContext.removeLast()
         val envAfter = env
-        val invAfter = translatorOf(envOverride = envAfter).let { tr ->
+        val invAfter = translatorOf(envOverride = loopClauseEnv(envAfter, s)).let { tr ->
             var a = term.makeTrue()
             for (e in invariants) a = term.and(a, tr.tr(e))
             a
         }
-        val normal = term.and(
+        val normalRaw = term.and(
             term.not(flagIn(envAfter, ExprTranslator.RET)),
             term.not(flagIn(envAfter, ExprTranslator.BREAK + loopId)),
             term.not(flagIn(envAfter, ExprTranslator.CONTINUE + loopId))
         )
+        // all abrupt-completion flags are literal `false` on the plain iteration path:
+        // the preserved-check implication is unconditional (same rationale as the
+        // effectiveGuard normalization — residual `=> (and (not false) …)` forms
+        // stall the BV solver around the recursive `\sum` function).
+        val normal = if (triviallyTrue(normalRaw)) term.makeTrue() else normalRaw
         addObligation(
             "loop-invariant-preserved",
             "loop invariant preserved ${describe(s.loopNode)}",
@@ -3636,8 +3793,8 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             Mode.Record(rec)
         )
         for (v in variants) {
-            val d0 = translatorOf(envOverride = havocBefore).tr(v)
-            val d1 = translatorOf(envOverride = envAfter).tr(v)
+            val d0 = translatorOf(envOverride = loopClauseEnv(havocBefore, s)).tr(v)
+            val d1 = translatorOf(envOverride = loopClauseEnv(envAfter, s)).tr(v)
             val zero = translator.makeInt(java.math.BigInteger.ZERO)
             addObligation(
                 "variant",
@@ -3666,7 +3823,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 env[key] = term.variable(type, envJavaTypes[key], name)
             }
         }
-        val invMain = translatorOf().let { tr ->
+        val invMain = translatorOf(envOverride = loopClauseEnv(env, s)).let { tr ->
             var a = term.makeTrue()
             for (e in invariants) a = term.and(a, tr.tr(e))
             a
@@ -3692,8 +3849,9 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             emit(mode, g, term.not(brkMain))
         }
         if (strategy == LoopStrategy.LOOP_CONTRACT && breaks.isNotEmpty()) {
+            val brkT = translatorOf(envOverride = loopClauseEnv(env, s))
             for (b in breaks) {
-                emit(mode, term.and(g, brkMain), translatorOf().tr(b))
+                emit(mode, term.and(g, brkMain), brkT.tr(b))
             }
         }
         exitGuards[loopId] =

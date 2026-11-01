@@ -29,3 +29,7 @@ AST changes also touch the JML grammar (`javaparser-core/src/main/javacc/java.jj
 Adding or removing nodes/fields regenerates `metamodel/*MetaModel.java`, the visitors (Clone, Equals, Modifier,
 HashCode, Observer), `ObservableProperty`, and `JavaToken` kinds. See `CONTRIBUTING.md` → "Guide to Adding New
 Nodes and Fields" for the full checklist.
+
+## Changelog
+- User-visible AST changes (new nodes, attributes, or syntax) require an entry in the repository root
+  `jmltk-changelog.md`.

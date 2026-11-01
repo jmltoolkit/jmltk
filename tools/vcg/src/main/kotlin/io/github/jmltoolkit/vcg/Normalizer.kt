@@ -27,6 +27,7 @@ import com.github.javaparser.ast.stmt.ExpressionStmt
 import com.github.javaparser.ast.stmt.ForEachStmt
 import com.github.javaparser.ast.stmt.ForStmt
 import com.github.javaparser.ast.stmt.IfStmt
+import com.github.javaparser.ast.stmt.LabeledStmt
 import com.github.javaparser.ast.stmt.ReturnStmt
 import com.github.javaparser.ast.stmt.Statement
 import com.github.javaparser.ast.stmt.SwitchStmt
@@ -137,6 +138,11 @@ class Normalizer {
         is SwitchStmt -> normalizeSwitch(stmt)
 
         is JmlExpressionStmt -> normalizeJmlStmt(stmt)
+
+        is LabeledStmt -> throw UnsupportedFeatureException(
+            "labeled statements (`label: ...`) are not supported by the normal form",
+            stmt.range.orElse(null)
+        )
 
         else -> throw UnsupportedFeatureException(
             "Statement kind not supported by the normal form: ${stmt.javaClass.simpleName}",

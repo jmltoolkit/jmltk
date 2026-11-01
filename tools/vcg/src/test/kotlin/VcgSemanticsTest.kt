@@ -11,6 +11,7 @@ import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.expr.MethodCallExpr
 import com.github.javaparser.ast.jml.expr.JmlLabelExpr
+import com.github.javaparser.ast.stmt.BlockStmt
 import com.github.javaparser.ast.stmt.WhileStmt
 import com.github.javaparser.symbolsolver.JavaSymbolSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver
@@ -389,6 +390,41 @@ class VcgSemanticsTest {
             Arguments.of("catchUnknownType", u),
             // overload resolution in contract calls
             Arguments.of("overloadCaller", u),
+            // arithmetic/constant-folder coverage batch: every Java operator through
+            // both the static-final folding path (radixes, bit ranges, shift masking)
+            // and the live translator paths in both modes. `& | ^ ~` and shifts are
+            // bit-width operations: BOUNDED-only at the body level (see below).
+            Arguments.of("foldIntRadixes", u),
+            Arguments.of("foldIntRadixes", b),
+            Arguments.of("foldArithOps", u),
+            Arguments.of("foldArithOps", b),
+            Arguments.of("foldBoolOps", u),
+            Arguments.of("foldBoolOps", b),
+            Arguments.of("foldUnaryOps", u),
+            Arguments.of("foldUnaryOps", b),
+            Arguments.of("foldShiftOps", u),
+            Arguments.of("foldShiftOps", b),
+            Arguments.of("foldFieldSorts", u),
+            Arguments.of("foldFieldSorts", b),
+            Arguments.of("arithOps", u),
+            Arguments.of("arithOps", b),
+            Arguments.of("bitwiseOps", b),
+            Arguments.of("shiftOps", b),
+            // regressions: `>>>` is the *logical* shift (bvshr, not bvashr), and the
+            // shift distance is masked to the low 5 bits (JLS 15.19)
+            Arguments.of("unsignedShiftNegative", b),
+            Arguments.of("shiftDistanceMasking", b),
+            // loop contracts: the `\returns` abrupt-completion clause is enforced at
+            // an in-loop `return`; a `while (true)` loop that leaves only via `break`
+            // keeps the post-loop statements enabled
+            Arguments.of("loopContractReturns", u),
+            Arguments.of("loopContractReturns", b),
+            Arguments.of("loopExitsOnlyViaBreak", u),
+            Arguments.of("loopExitsOnlyViaBreak", b),
+            // the abstract-string model's codePointAt reads (checkStringIndex on by
+            // default): the index-check obligation discharges under the requires
+            Arguments.of("stringCodePointAt", u),
+            Arguments.of("stringCodePointAt", b),
         )
 
         @JvmStatic
@@ -434,6 +470,15 @@ class VcgSemanticsTest {
             Arguments.of("derefNullableArray", b),
             Arguments.of("storeNullElementFalsifiable", u),
             Arguments.of("storeNullElementFalsifiable", b),
+            // constant folder: a static-final initializer whose value cannot fold
+            // (`5 / (1 - 1)`: the divisor folds to zero) leaves the field unbound, so
+            // the postcondition on it is falsifiable
+            Arguments.of("foldDivZero", u),
+            Arguments.of("foldDivZero", b),
+            // loop contracts: a `\returns` clause that does not hold at the in-loop
+            // `return` fails the returns-clause obligation
+            Arguments.of("loopContractReturnsWrong", u),
+            Arguments.of("loopContractReturnsWrong", b),
         )
 
         /** P3.2: fixture method + the message fragment its diagnostic must carry. */
@@ -449,6 +494,15 @@ class VcgSemanticsTest {
             // generalized quantifier, which must be rejected loudly instead of being
             // silently encoded as a universal quantifier
             Arguments.of("sum", "\\sum"),
+            // bit-width operators on mathematical integers (UNBOUNDED mode) have no
+            // encoding: the *body-level* shifts and bitwise ops are rejected loudly
+            // (the constant folder still folds static-final shift/bitwise values)
+            Arguments.of("shiftOps", "bit-shift"),
+            Arguments.of("bitwiseOps", "bitwise"),
+            // `shiftDistanceMasking` puts shifts in its *contract clause* (ensures),
+            // exercising the ExprTranslator/tr() rejection path — distinct from the
+            // body-level `atom()` path covered by `shiftOps`
+            Arguments.of("shiftDistanceMasking", "bit-shift"),
         )
     }
 
@@ -522,6 +576,71 @@ class VcgSemanticsTest {
             assertNotNull(ex.range, "diagnostic must carry the source range: ${ex.message}")
             assertTrue(ex.range!!.begin.line > 0, ex.message)
         }
+    }
+
+    @Test
+    fun testBlockContractRejected() {
+        // A JML block contract (`/*@ requires ..; ensures ..; @*/` before a plain
+        // statement block) parses and attaches to the BlockStmt, but the engine has
+        // no model for it: without the guard it would be *silently dropped* — the
+        // block's requires/ensures/breaks/continues/returns would never produce
+        // obligations. Generation must reject it loudly (P3.2), with the source
+        // range of the offending block.
+        val r = parser.parse(
+            """class BlockProbe {
+                   public int add(int x, int y) {
+                       int z = 0;
+                       /*@ requires x >= 0 && y >= 0;
+                         @ ensures z == x + y;
+                         @ diverges false;
+                         @ signals_only \nothing;
+                         @ assignable \nothing;
+                         @*/
+                       {
+                           z = x + y;
+                       }
+                       return z;
+                   }
+               }"""
+        )
+        assertTrue(r.isSuccessful, r.problems.toString())
+        val md = r.result.get().findAll(MethodDeclaration::class.java).first()
+        assertTrue(md.findAll(BlockStmt::class.java).any { it.contracts.isNotEmpty() }, "block contract must be parsed and attached")
+        val ex = assertThrows(UnsupportedFeatureException::class.java) {
+            Vcg(VcgContext.of(md), u).verify()
+        }
+        assertTrue(ex.message!!.contains("block contracts"), ex.message)
+        assertTrue(ex.message!!.contains("not modeled"), ex.message)
+        assertNotNull(ex.range, "diagnostic must carry the source range: ${ex.message}")
+        assertTrue(ex.range!!.begin.line > 0, ex.message)
+    }
+
+    @Test
+    fun testLabeledStatementRejected() {
+        // `label: ...` statements are not part of the normal form; generation used
+        // to fail with a raw class-name diagnostic (`Statement kind not supported
+        // by the normal form: LabeledStmt`). It must now reject them with a
+        // dedicated, source-anchored message.
+        val r = parser.parse(
+            """class LabeledProbe {
+                   public int m(int x) {
+                       int y = 0;
+                       label: {
+                           y = x + 1;
+                           break label;
+                       }
+                       return y;
+                   }
+               }"""
+        )
+        assertTrue(r.isSuccessful, r.problems.toString())
+        val md = r.result.get().findAll(MethodDeclaration::class.java).first()
+        val ex = assertThrows(UnsupportedFeatureException::class.java) {
+            Vcg(VcgContext.of(md), u).verify()
+        }
+        assertTrue(ex.message!!.contains("labeled statements"), ex.message)
+        assertNotNull(ex.range, "diagnostic must carry the source range: ${ex.message}")
+        assertTrue(ex.range!!.begin.line > 0, ex.message)
     }
 
     @ParameterizedTest(name = "[{index}] {0} -> unsupported: {1}")
@@ -1128,6 +1247,16 @@ class VcgSemanticsTest {
         // `\static_invariant_for(InvariantExamples.class)` is a recognized call shape;
         // on the static method only the explicit requires is in play
         expectAllProven(vcgForIn("staticInvariantDoubles", 2, u))
+    }
+
+    @Test
+    fun testInvariantForInBodyStatementPosition() {
+        // a literal `\invariant_for(this)` inside the *body* (an explicit assert,
+        // not a contract clause) exercises the `handleCall` statement-position
+        // expansion: the receiver is atomized and the folded conjunction asserted
+        // here — `counter = 5` keeps every class invariant satisfied
+        expectAllProven(vcgForIn("invariantForInBody", 2, u))
+        expectAllProven(vcgForIn("invariantForInBody", 2, b))
     }
 
     @Test

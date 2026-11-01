@@ -136,7 +136,14 @@ object SmtTermFactory {
         return typeException()
     }
 
-    fun xor(left: SExpr, right: SExpr): SExpr = fnApply(BOOLEAN, SmtType.BOOL, "xor", left, right)
+    fun xor(left: SExpr, right: SExpr): SExpr {
+        // Java `^` applies to booleans *and* integers: Bool operands use the
+        // SMT-LIB `xor`, bit-vectors use `bvxor`. Emitting the Bool `xor` for
+        // bit-vectors (the old behavior) produced ill-sorted `(xor bv bv)` terms.
+        if (isBool(left, right)) return fnApply(BOOLEAN, SmtType.BOOL, "xor", left, right)
+        if (isBv(left, right)) return fnApplyToBV("bvxor", left, right)
+        return typeException()
+    }
 
     fun equality(left: SExpr, right: SExpr): SExpr = fnApply(BOOLEAN, SmtType.BOOL, "=", left, right)
 
@@ -220,7 +227,7 @@ object SmtTermFactory {
     fun bvgreaterOrEquals(left: SExpr, right: SExpr): SExpr = fnApplyToBool("bvsge", left, right)
 
     fun bvshiftRight(left: SExpr, right: SExpr, sign: Boolean): SExpr =
-        fnApplyToBV(if (sign) "bvashr" else "bvshr", left, right)
+        fnApplyToBV(if (sign) "bvashr" else "bvlshr", left, right)
 
     fun bvshiftLeft(left: SExpr, right: SExpr): SExpr = fnApplyToBV("bvshl", left, right)
 

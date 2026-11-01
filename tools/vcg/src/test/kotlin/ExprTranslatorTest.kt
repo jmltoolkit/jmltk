@@ -143,10 +143,10 @@ class ExprTranslatorTest {
             Arguments.of("a != b", "(not (= a b))"),
             Arguments.of("a & b", "(bvand a b)"),
             Arguments.of("a | b", "(bvor a b)"),
-            Arguments.of("a << b", "(bvshl a b)"),
-            Arguments.of("a >> b", "(bvashr a b)"),
-            Arguments.of("a >>> b", "(bvashr a b)"),
-            Arguments.of("a ^ b", "(xor a b)"),
+            Arguments.of("a << b", "(bvshl a (bvand b ((_ int2bv 32) 31)))"),
+            Arguments.of("a >> b", "(bvashr a (bvand b ((_ int2bv 32) 31)))"),
+            Arguments.of("a >>> b", "(bvlshr a (bvand b ((_ int2bv 32) 31)))"),
+            Arguments.of("a ^ b", "(bvxor a b)"),
         )
 
         @JvmStatic
@@ -156,7 +156,7 @@ class ExprTranslatorTest {
             Arguments.of("0", "0"),
             Arguments.of("42", "42"),
             Arguments.of("2147483648", "2147483648"),
-            Arguments.of("1L", "1L"),
+            Arguments.of("1L", "1"),
             Arguments.of("'a'", "97"),
             Arguments.of("'\\n'", "10"),
             Arguments.of("'\\\\'", "92"),

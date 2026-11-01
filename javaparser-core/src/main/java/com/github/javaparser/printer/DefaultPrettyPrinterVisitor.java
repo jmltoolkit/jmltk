@@ -955,6 +955,11 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     public void visit(JmlExpressionStmt n, Void arg) {
         wrapInJmlIfNeededBlock(n.getJmlTags(), () -> {
             printer.print(n.getKind().jmlSymbol());
+            n.getLabel().ifPresent(it -> {
+                printer.print(" ");
+                it.accept(this, arg);
+                printer.print(":");
+            });
             printer.print(" ");
             n.getExpression().accept(this, arg);
             n.getScript().ifPresent(this::printSuffix);

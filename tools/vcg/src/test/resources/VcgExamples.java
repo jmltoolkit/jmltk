@@ -2522,3 +2522,221 @@ class InvariantReceiver {
         this.counter = n;
     }
 }
+
+// ---- KeY firstTouch examples (key.ui/examples/firstTouch) — real teaching
+// ---- material verified through the VCG. Each class mirrors the corresponding
+// ---- KeY example file; only deviations required by the harness are made and
+// ---- documented (KeY assumes non-null parameters through its proof config,
+// ---- the VCG needs an explicit `a != null` requires; `05-ReverseArray`'s
+// ---- `main` driver and `08-Java5`'s Iterable machinery are dropped).
+
+// KeY firstTouch 05-ReverseArray: in-place reversal with a quantified `\old`
+// content invariant. Generation is exact (pinned by golden snapshots); the
+// content-level `\old` reasoning exceeds the solver budget, so no Z3 verdict
+// is asserted — both methods are exercised as generation-only fixtures.
+class KeyReverseArray {
+
+    public int[] a;
+
+    public KeyReverseArray() {
+    }
+
+    /*@ public normal_behavior
+      @ requires a != null && a.length >= 0;
+      @ ensures (\forall int j; j >= 0 && j < a.length; a[j] == \old(a[a.length - (j+1)]));
+      @ assignable a[*];
+      @*/
+    public void reverse() {
+        int i = 0;
+
+        final int length = (a.length / 2);
+        /*@
+          @ loop_invariant
+          @   (\forall int j; j >= 0 && j < i; \old(a[a.length - (j+1)]) == a[j] && \old(a[j]) == a[a.length - (j+1)])
+          @   && (\forall int j; j >= i && j < length; \old(a[a.length - (j+1)]) == a[a.length - (j+1)] && \old(a[j]) == a[j])
+          @   && (a.length % 2 != 0 ==> \old(a[a.length / 2]) == a[length])
+          @   && i >= 0 && i <= length;
+          @ assignable a[*];
+          @ decreases a.length - i;
+          @*/
+        while (i < length) {
+            int tmp = a[i];
+            a[i] = a[a.length - (i+1)];
+            a[a.length - (i+1)] = tmp;
+            i++;
+        }
+    }
+
+    /*@ public normal_behavior
+      @ requires p_a != null && p_a.length >= 0;
+      @ ensures (\forall int j; j >= 0 && j < \old(p_a.length); \result[j] == \old(p_a[p_a.length - (j+1)])) &&
+      @\result.length == \old(p_a.length);
+      @ diverges true;
+      @*/
+    public int[] reverse2(int[] p_a) {
+        int[] b = new int[p_a.length];
+        int i = 0;
+        /*@
+          @ loop_invariant (\forall int j; j >= 0 && j < i; b[j] == p_a[p_a.length - (j+1)]) && i >= 0 && i <= p_a.length;
+          @ assignable b[*];
+          @*/
+        while (i < p_a.length) {
+            b[i] = p_a[p_a.length - (i+1)];
+            i++;
+        }
+        return b;
+    }
+}
+
+// KeY firstTouch 06-BinarySearch: the classic search, verified through its loop
+// invariant. The only deviation from the example is the explicit `a != null`
+// requires (KeY assumes non-null parameters, the VCG requires the clause).
+class KeyBinarySearch {
+
+    /*@ public normal_behaviour
+      @   requires a != null &&
+      @     (\forall int x; (\forall int y; 0 <= x && x < y && y < a.length; a[x] <= a[y]));
+      @   ensures ((\exists int x; 0 <= x && x < a.length; a[x] == v) ? a[\result] == v : \result == -1);
+      @*/
+    static /*@pure@*/ int search(int[] a, int v) {
+        int l = 0;
+        int r = a.length - 1;
+
+        if(a.length == 0) return -1;
+        if(a.length == 1) return a[0] == v ? 0 : -1;
+
+        /*@ loop_invariant 0 <= l && l < r && r < a.length
+          @                && (\forall int x; 0 <= x && x < l; a[x] < v)
+          @                && (\forall int x; r < x && x < a.length; v < a[x]);
+          @ assignable \nothing;
+          @ decreases r - l;
+          @*/
+        while(r > l + 1) {
+            int mid = l + (r - l) / 2;
+            if(a[mid] == v) {
+                return mid;
+            } else if(a[mid] > v) {
+                r = mid;
+            } else {
+                l = mid;
+            }
+        }
+
+        if(a[l] == v) return l;
+        if(a[r] == v) return r;
+        return -1;
+    }
+}
+
+// KeY firstTouch 08-Java5: a for-each sum whose contract uses the JML `\sum`
+// generalized quantifier (and the KeY-specific `\index` loop variable). The VCG
+// models only `\forall`/`\exists` binders, so `\sum` must be *rejected* loudly
+// (see testUnsupportedConstructsRejected) instead of being silently encoded as
+// a universal quantifier. The `implements Iterable`/`Trivial` machinery of the
+// example is dropped.
+final class KeyFor {
+
+    int[] a;
+
+    //@ ensures \result == (\sum int j; 0 <= j && j < a.length; a[j]);
+    int sum() {
+        int s = 0;
+        int z = a.length;
+
+        /*@ maintaining s == (\sum int j; 0 <= j && j < \index; a[j]);
+          @ maintaining 0 <= \index && \index <= a.length;
+          @ decreasing a.length - \index;
+          @ assignable \strictly_nothing;
+          @*/
+        for (int i : a) s += i;
+        return s;
+    }
+}
+
+// KeY firstTouch 10-SITA: SITA3 — the first common entry search (loop with a
+// break, verified through its invariant), the element swap, and the rearrange
+// driver that composes them. Deviations from the example: explicit non-null
+// requires for the array parameters.
+class KeySITA3 {
+    public int[] a1;
+    public int[] a2;
+    int i, j;
+
+    /*@ public normal_behaviour
+      @  requires a1 != null && a2 != null && 0 <= l && l < r &&
+      @    r <= a1.length && r <= a2.length;
+      @  assignable \nothing;
+      @  ensures (l <= \result && \result < r &&
+      @       a1[\result] == a2[\result])
+      @    || \result == r;
+      @  ensures (\forall int j; l <= j && j < \result;
+      @    a1[j] != a2[j]);
+      @*/
+    public int commonEntry(int l, int r) {
+        int k = l;
+
+        /*@ loop_invariant
+          @   l <= k && k <= r
+          @   && (\forall int i; l <= i && i < k; a1[i] != a2[i]);
+          @
+          @  assignable \nothing;
+          @  decreases a1.length - k;
+          @*/
+        while(k < r) {
+            if(a1[k] == a2[k]) {
+                break;
+            }
+            k++;
+        }
+        return k;
+    }
+
+    /*@ public normal_behaviour
+      @  requires a != null && 0 <= pos1 && 0 <= pos2 &&
+      @    pos1 < a.length && pos2 < a.length;
+      @  ensures
+      @    a[pos1] == \old(a[pos2]) &&
+      @    a[pos2] == \old(a[pos1]);
+      @  assignable a[pos1], a[pos2];
+      @*/
+    public void swap(int[] a, int pos1, int pos2) {
+        int temp;
+        temp = a[pos1];
+        a[pos1] = a[pos2];
+        a[pos2] = temp;
+    }
+
+    /*@ public normal_behaviour
+      @  requires a1.length == a2.length;
+      @  ensures  (\forall int i; 0 <= i && i < a1.length;
+      @      a1[i] == a2[i] ==>
+      @    (\forall int j;0 <= j && j < i; a1[j] == a2[j]));
+      @  assignable a1[*],a2[*];
+      @*/
+    public void rearrange() {
+        int m = 0;
+        int k = 0;
+
+        /*@ maintaining
+          @ 0 <= m && m <= a1.length && k <= m && 0 <= k &&
+          @ (\forall int i;0<= i && i < k;
+          @      a1[i] == a2[i]) &&
+          @  (\forall int j; k <= j && j < m;
+          @    a1[j] != a2[j]);
+          @
+          @  assignable a1[*],a2[*];
+          @  decreases a1.length - m;
+          @*/
+        while (m < a1.length) {
+            m = commonEntry(m, a1.length);
+            if (m < a1.length) {
+                swap(a1, m, k);
+                if (a1 != a2) {
+                    swap(a2, m, k);
+                }
+                k = k + 1;
+                m = m + 1;
+            }
+        }
+    }
+}

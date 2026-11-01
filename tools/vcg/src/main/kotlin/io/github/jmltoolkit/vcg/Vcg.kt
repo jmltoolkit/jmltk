@@ -46,6 +46,8 @@ import com.github.javaparser.ast.jml.clauses.JmlLabeledClause
 import com.github.javaparser.ast.jml.clauses.JmlMultiExprClause
 import com.github.javaparser.ast.jml.clauses.JmlSimpleExprClause
 import com.github.javaparser.ast.jml.expr.JmlExpression
+import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr
+import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr.JmlDefaultBinder
 import com.github.javaparser.ast.stmt.AssertStmt
 import com.github.javaparser.ast.stmt.BlockStmt
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType
@@ -187,8 +189,9 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
     /** JML keywords the VCG understands. Any other `\name` (in an expression or
      *  a contract clause) aborts generation with a structured diagnostic — see
      *  [validateSupported]. Keywords that arrive as quantifier/label binders
-     *  (`\forall`, `\exists`, `\sum`, `\lbl`, …) are separate AST node kinds and
-     *  need no entry here. */
+     *  (`\forall`, `\exists`, `\lbl`, …) are separate AST node kinds; only the
+     *  first two are modeled (other binder kinds like `\sum` are rejected by
+     *  [checkSupported]). */
     private val SUPPORTED_JML_KEYWORDS =
         setOf(
             "\\result", "\\old",
@@ -207,6 +210,9 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
      *  - JML keywords outside the supported set (`\fresh`, `\reach`, `\TYPE`,
      *    … — without this they were silently mis-modeled or failed later with
      *    an unrelated resolver error),
+     *  - generalized/numeric quantifier binders (`\sum`, `\num_of`, `\product`,
+     *    … — only `\forall`/`\exists` are modeled; everything else used to be
+     *    silently encoded as a universal quantifier),
      *  - enumerations (verification would need an ordinal/constant model).
      */
     private fun validateSupported() {
@@ -238,6 +244,16 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             is NameExpr -> unsupportedJmlKeyword(node.nameAsString)
 
             is MethodCallExpr -> unsupportedJmlKeyword(node.nameAsString)
+
+            is JmlQuantifiedExpr ->
+                if (node.binder is JmlDefaultBinder &&
+                    (node.binder == JmlDefaultBinder.FORALL || node.binder == JmlDefaultBinder.EXISTS)
+                ) {
+                    null
+                } else {
+                    "JML quantifier binder ${node.binder.jmlSymbol()}" +
+                        " (only \\forall and \\exists are modeled)"
+                }
 
             else -> null
         }

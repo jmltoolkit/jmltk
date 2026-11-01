@@ -158,6 +158,15 @@ class VcgGoldenQueriesTest {
             arrayOf("stringIndexOfFoundSuffix", "U_STR", "UNBOUNDED_string_index"),
             arrayOf("stringIndexOfAbsentSuffix", "U_STR", "UNBOUNDED_string_index"),
             arrayOf("stringIndexOfString", "U_STR", "UNBOUNDED_string_index"),
+            // KeY firstTouch examples (key.ui/examples/firstTouch): real teaching
+            // material — ReverseArray's quantified `\old` content invariant is
+            // generation-only (exceeds the solver budget), BinarySearch and
+            // SITA3's search/swap are proven through their loop invariants
+            arrayOf("reverse", "U_INV", "UNBOUNDED_invariant"),
+            arrayOf("reverse2", "U", "UNBOUNDED"),
+            arrayOf("search", "U_INV", "UNBOUNDED_invariant"),
+            arrayOf("commonEntry", "U", "UNBOUNDED"),
+            arrayOf("swap", "U", "UNBOUNDED"),
         ).map { Triple(it[0], it[1], it[2]) }
 
     private fun options(tag: String): VcgOptions = when (tag) {

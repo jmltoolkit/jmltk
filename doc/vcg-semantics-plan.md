@@ -184,8 +184,11 @@ contract clauses) and aborts on the *first* construct the VCG cannot model with
     would otherwise be silently mis-modeled or fail with an unrelated resolver
     error). Whitelisted: `\result`, `\old`, `\invariant_for`,
     `\static_invariant_for`, `\everything`, `\nothing`; quantifier/label
-    binders (`\forall`, `\exists`, `\sum`, `\lbl`, …) are separate node kinds
-    and need no entry;
+    binders (`\forall`, `\exists`, `\lbl`, …) are separate node kinds and need
+    no entry — but only `\forall`/`\exists` are modeled: generalized / numeric
+    binders (`\sum`, `\num_of`, `\product`, `\max`, `\min`, …) are rejected
+    loudly instead of being silently encoded as a universal quantifier (the
+    firstTouch `08-Java5` `For.sum` fixture exercises this);
   - enums: verifying a member of an `EnumDeclaration` is rejected up front (an
     ordinal/constant model would be required).
 `UnsupportedFeatureException` (introduced in P3.1) is the *single* diagnostic

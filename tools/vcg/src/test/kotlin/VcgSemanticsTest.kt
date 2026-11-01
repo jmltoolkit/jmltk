@@ -64,8 +64,13 @@ class VcgSemanticsTest {
     }
 
     private fun method(name: String): MethodDeclaration {
-        val cls = cu.types[0].asClassOrInterfaceDeclaration()
-        return cls.methods.first { it.nameAsString == name }
+        // resolve across every top-level fixture type (the dedicated `methodIn`
+        // helpers predate fixtures in separate classes; the parameterized
+        // `proven`/`falsifiable`/`unsupportedConstructs` cases are name-keyed and
+        // may target the KeY firstTouch fixture classes, e.g. `swap`)
+        return cu.types
+            .flatMap { t -> if (t is com.github.javaparser.ast.body.ClassOrInterfaceDeclaration) t.methods else emptyList() }
+            .first { it.nameAsString == name }
     }
 
     private fun ctor(): ConstructorDeclaration =
@@ -223,6 +228,14 @@ class VcgSemanticsTest {
             // KeY's binary search end-to-end through the loop invariant (regression: a
             // `return` inside the loop must leave the post-loop statements enabled)
             Arguments.of("binarySearchInv", u.copy(defaultLoopStrategy = LoopStrategy.INVARIANT)),
+            // KeY firstTouch examples (key.ui/examples/firstTouch): the real teaching
+            // examples through their loop invariants. Exact copies of the KeY sources
+            // except for the explicit `a != null` requires (KeY assumes non-null
+            // parameters through its proof config; the VCG needs the clause).
+            Arguments.of("search", u.copy(defaultLoopStrategy = LoopStrategy.INVARIANT)),
+            Arguments.of("commonEntry", u),
+            Arguments.of("swap", u),
+            Arguments.of("swap", b),
             Arguments.of("divideByItselfWithTry", u),
             Arguments.of("setBox", u),
             Arguments.of("sumAndMax", u),
@@ -432,6 +445,10 @@ class VcgSemanticsTest {
             Arguments.of("javaAssert", "Java assert statements"),
             Arguments.of("freshObj", "\\fresh"),
             Arguments.of("reachObj", "\\reach"),
+            // KeY firstTouch 08-Java5: the for-each sum contract uses the `\sum`
+            // generalized quantifier, which must be rejected loudly instead of being
+            // silently encoded as a universal quantifier
+            Arguments.of("sum", "\\sum"),
         )
     }
 
@@ -1222,5 +1239,62 @@ class VcgSemanticsTest {
         assertTrue(labels.map { it.second }.any { it.contains("counter") })
         assertTrue(labels.map { it.second }.any { it.contains("limit") })
     }
+    //endregion
+
+    //region KeY firstTouch examples (key.ui/examples/firstTouch)
+    //
+    // The real KeY teaching examples (05-ReverseArray, 06-BinarySearch, 08-Java5,
+    // 10-SITA) as fixtures, mirroring the original sources. Most are proven through
+    // their loop invariants (see the `proven`/`unsupportedConstructs` cases); the
+    // ReverseArray methods are heavy quantified-`\old` content proofs that exceed
+    // the solver budget, so they are exercised as *generation-only* fixtures whose
+    // queries are pinned by the golden snapshots.
+
+    @Test
+    fun testKeyReverseArrayGenerationOnly() {
+        // KeY firstTouch 05-ReverseArray: in-place reversal. Generation is exact —
+        // the loop-invariant-init/preserved/variant and the quantified-`\old`
+        // postcondition obligations are all emitted — but the content-level `\old`
+        // reasoning does not terminate within the solver budget, so no Z3 verdict
+        // is asserted here (the goldens pin the generated queries).
+        val res = vcgForIn("reverse", 10, u.copy(defaultLoopStrategy = LoopStrategy.INVARIANT))
+        assertTrue(res.conditions.any { it.kind == "loop-invariant-init" }, res.conditions.toString())
+        assertTrue(res.conditions.any { it.kind == "loop-invariant-preserved" }, res.conditions.toString())
+        assertTrue(res.conditions.any { it.kind == "postcondition" }, res.conditions.toString())
+        assertTrue(
+            res.query.toString().contains("forall"),
+            "expected quantified content reasoning in the query"
+        )
+        // reverse2 allocates a fresh result array and copies in reverse
+        val res2 = vcgForIn("reverse2", 10, u)
+        assertTrue(res2.conditions.any { it.kind == "loop-invariant-init" }, res2.conditions.toString())
+        assertTrue(res2.conditions.any { it.kind == "postcondition" }, res2.conditions.toString())
+    }
+
+    @Test
+    fun testKeyBinarySearchViaInvariant() {
+        // KeY firstTouch 06-BinarySearch, verbatim except for the explicit
+        // `a != null` requires. The loop proves through its invariant; the
+        // post-loop `return l/r/-1` cascade stays enabled (same regression the
+        // classic `binarySearchInv` fixture guards).
+        expectAllProven(vcgForIn("search", 11, u.copy(defaultLoopStrategy = LoopStrategy.INVARIANT)))
+    }
+
+    @Test
+    fun testKeySITA3CommonEntry() {
+        // KeY firstTouch 10-SITA: the first-common-entry search with a `break`
+        // inside the loop. The invariant (l <= k <= r, all entries before k differ)
+        // discharges both ensures — including the `\result == r` no-common-entry
+        // branch — through the invariant strategy.
+        expectAllProven(vcgForIn("commonEntry", 13, u))
+    }
+
+    @Test
+    fun testKeySITA3Swap() {
+        // the element swap: two array stores with `\old`-based ensures (both modes)
+        expectAllProven(vcgForIn("swap", 13, u))
+        expectAllProven(vcgForIn("swap", 13, b))
+    }
+
     //endregion
 }

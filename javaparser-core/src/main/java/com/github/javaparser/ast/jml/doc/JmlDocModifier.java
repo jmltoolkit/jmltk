@@ -9,6 +9,8 @@ import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 
 /**
+ * A modifier whose representation and name is a list of JML doc comments ({@link JmlDoc}).
+ *
  * @author Alexander Weigl
  * @version 1 (11/23/21)
  */

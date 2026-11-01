@@ -1,5 +1,5 @@
 com.github.jmlparser.lint.rules.AllowedJmlClauses
-com.github.jmlparser.lint.rules.ContextSensitiveForbiddenFunctionsValidator
+io.github.jmltoolkit.lint.rules.ContextSensitiveForbiddenFunctionsValidator
 com.github.jmlparser.lint.rules.PurityValidator
 io.github.jmltoolkit.lint.rules.SignalsExceptionTypeCheck
 io.github.jmltoolkit.lint.rules.AssignableValidator

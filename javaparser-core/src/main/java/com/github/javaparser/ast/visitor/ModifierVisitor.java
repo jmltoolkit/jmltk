@@ -1651,11 +1651,13 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
         Expression expression = (Expression) n.getExpression().accept(this, arg);
         SimpleName label =
                 n.getLabel().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
+        JmlClauseKind kind = (JmlClauseKind) n.getKind().accept(this, arg);
         SimpleName name = n.getName().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
-        if (expression == null) return null;
+        if (expression == null || kind == null) return null;
         n.setExpression(expression);
         n.setLabel(label);
+        n.setKind(kind);
         n.setName(name);
         n.setComment(comment);
         return n;
@@ -1729,11 +1731,13 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
     public Visitable visit(final JmlSimpleExprClause n, final A arg) {
         Expression expression = (Expression) n.getExpression().accept(this, arg);
         NodeList<SimpleName> heaps = modifyList(n.getHeaps(), arg);
+        JmlClauseKind kind = (JmlClauseKind) n.getKind().accept(this, arg);
         SimpleName name = n.getName().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
-        if (expression == null) return null;
+        if (expression == null || kind == null) return null;
         n.setExpression(expression);
         n.setHeaps(heaps);
+        n.setKind(kind);
         n.setName(name);
         n.setComment(comment);
         return n;
@@ -1743,11 +1747,13 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
     public Visitable visit(final JmlSignalsClause n, final A arg) {
         Expression expression = (Expression) n.getExpression().accept(this, arg);
         Parameter parameter = (Parameter) n.getParameter().accept(this, arg);
+        JmlClauseKind kind = (JmlClauseKind) n.getKind().accept(this, arg);
         SimpleName name = n.getName().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
-        if (expression == null || parameter == null) return null;
+        if (expression == null || parameter == null || kind == null) return null;
         n.setExpression(expression);
         n.setParameter(parameter);
+        n.setKind(kind);
         n.setName(name);
         n.setComment(comment);
         return n;
@@ -1756,9 +1762,12 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
     @Override
     public Visitable visit(final JmlSignalsOnlyClause n, final A arg) {
         NodeList<Type> types = modifyList(n.getTypes(), arg);
+        JmlClauseKind kind = (JmlClauseKind) n.getKind().accept(this, arg);
         SimpleName name = n.getName().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
+        if (kind == null) return null;
         n.setTypes(types);
+        n.setKind(kind);
         n.setName(name);
         n.setComment(comment);
         return n;
@@ -1776,9 +1785,12 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
     @Override
     public Visitable visit(final JmlCallableClause n, final A arg) {
         NodeList<JmlMethodSignature> methodSignatures = modifyList(n.getMethodSignatures(), arg);
+        JmlClauseKind kind = (JmlClauseKind) n.getKind().accept(this, arg);
         SimpleName name = n.getName().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
+        if (kind == null) return null;
         n.setMethodSignatures(methodSignatures);
+        n.setKind(kind);
         n.setName(name);
         n.setComment(comment);
         return n;
@@ -1787,9 +1799,12 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
     @Override
     public Visitable visit(final JmlForallClause n, final A arg) {
         NodeList<Parameter> boundedVariables = modifyList(n.getBoundedVariables(), arg);
+        JmlClauseKind kind = (JmlClauseKind) n.getKind().accept(this, arg);
         SimpleName name = n.getName().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
+        if (kind == null) return null;
         n.setBoundedVariables(boundedVariables);
+        n.setKind(kind);
         n.setName(name);
         n.setComment(comment);
         return n;
@@ -1808,11 +1823,13 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
     public Visitable visit(final JmlConditionalClause n, final A arg) {
         Expression condition = (Expression) n.getCondition().accept(this, arg);
         Expression expression = (Expression) n.getExpression().accept(this, arg);
+        JmlClauseKind kind = (JmlClauseKind) n.getKind().accept(this, arg);
         SimpleName name = n.getName().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
-        if (condition == null || expression == null) return null;
+        if (condition == null || expression == null || kind == null) return null;
         n.setCondition(condition);
         n.setExpression(expression);
+        n.setKind(kind);
         n.setName(name);
         n.setComment(comment);
         return n;
@@ -1824,13 +1841,15 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
         NodeList<Modifier> modifiers = modifyList(n.getModifiers(), arg);
         Expression invariant = (Expression) n.getInvariant().accept(this, arg);
         NodeList<SimpleName> jmlTags = modifyList(n.getJmlTags(), arg);
+        JmlBodyClauseKind kind = (JmlBodyClauseKind) n.getKind().accept(this, arg);
         SimpleName name = n.getName().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
-        if (invariant == null) return null;
+        if (invariant == null || kind == null) return null;
         n.setAnnotations(annotations);
         n.setModifiers(modifiers);
         n.setInvariant(invariant);
         n.setJmlTags(jmlTags);
+        n.setKind(kind);
         n.setName(name);
         n.setComment(comment);
         return n;
@@ -1878,12 +1897,16 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
     @Override
     public Visitable visit(final JmlContract n, final A arg) {
         NodeList<Modifier> modifiers = modifyList(n.getModifiers(), arg);
+        JmlContractBehavior behavior = n.getBehavior()
+                .map(s -> (JmlContractBehavior) s.accept(this, arg))
+                .orElse(null);
         NodeList<JmlClause> clauses = modifyList(n.getClauses(), arg);
         NodeList<SimpleName> jmlTags = modifyList(n.getJmlTags(), arg);
         SimpleName name = n.getName().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
         NodeList<JmlContract> subContracts = modifyList(n.getSubContracts(), arg);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
         n.setModifiers(modifiers);
+        n.setBehavior(behavior);
         n.setClauses(clauses);
         n.setJmlTags(jmlTags);
         n.setName(name);
@@ -2050,10 +2073,12 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
     public Visitable visit(final JmlOldClause n, final A arg) {
         VariableDeclarationExpr declarations =
                 (VariableDeclarationExpr) n.getDeclarations().accept(this, arg);
+        JmlClauseKind kind = (JmlClauseKind) n.getKind().accept(this, arg);
         SimpleName name = n.getName().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
-        if (declarations == null) return null;
+        if (declarations == null || kind == null) return null;
         n.setDeclarations(declarations);
+        n.setKind(kind);
         n.setName(name);
         n.setComment(comment);
         return n;
@@ -2073,10 +2098,13 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
     public Visitable visit(final JmlMultiExprClause n, final A arg) {
         NodeList<Expression> expressions = modifyList(n.getExpressions(), arg);
         NodeList<SimpleName> heaps = modifyList(n.getHeaps(), arg);
+        JmlClauseKind kind = (JmlClauseKind) n.getKind().accept(this, arg);
         SimpleName name = n.getName().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
+        if (kind == null) return null;
         n.setExpressions(expressions);
         n.setHeaps(heaps);
+        n.setKind(kind);
         n.setName(name);
         n.setComment(comment);
         return n;
@@ -2140,13 +2168,16 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
         NodeList<Expression> erases = modifyList(n.getErases(), arg);
         NodeList<Expression> expressions = modifyList(n.getExpressions(), arg);
         NodeList<Expression> newObjects = modifyList(n.getNewObjects(), arg);
+        JmlClauseKind kind = (JmlClauseKind) n.getKind().accept(this, arg);
         SimpleName name = n.getName().map(s -> (SimpleName) s.accept(this, arg)).orElse(null);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
+        if (kind == null) return null;
         n.setBy(by);
         n.setDeclassifies(declassifies);
         n.setErases(erases);
         n.setExpressions(expressions);
         n.setNewObjects(newObjects);
+        n.setKind(kind);
         n.setName(name);
         n.setComment(comment);
         return n;
@@ -2165,6 +2196,27 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
         n.setType(type);
         n.setValue(value);
         n.setVar(var);
+        n.setComment(comment);
+        return n;
+    }
+
+    @Override
+    public Visitable visit(final JmlBodyClauseKind n, final A arg) {
+        Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
+        n.setComment(comment);
+        return n;
+    }
+
+    @Override
+    public Visitable visit(final JmlClauseKind n, final A arg) {
+        Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
+        n.setComment(comment);
+        return n;
+    }
+
+    @Override
+    public Visitable visit(final JmlContractBehavior n, final A arg) {
+        Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
         n.setComment(comment);
         return n;
     }

@@ -1410,6 +1410,9 @@ public class ConcreteSyntaxModel {
                         proofObtainKind(),
                         conditional(VALUE, IS_PRESENT, sequence(space(), child(VALUE))),
                         proofCmdSuffix()));
+        concreteSyntaxModelByClass.put(JmlBodyClauseKind.class, attribute(VALUE));
+        concreteSyntaxModelByClass.put(JmlClauseKind.class, attribute(VALUE));
+        concreteSyntaxModelByClass.put(JmlContractBehavior.class, attribute(VALUE));
         // endregion
         // region KEY
         concreteSyntaxModelByClass.put(

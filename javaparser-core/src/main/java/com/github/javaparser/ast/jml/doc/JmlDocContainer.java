@@ -8,6 +8,8 @@ import com.github.javaparser.ast.Generated;
 import com.github.javaparser.ast.NodeList;
 
 /**
+ * Marker interface for AST nodes that hold a list of JML doc comments ({@link JmlDoc}).
+ *
  * @author Alexander Weigl
  * @version 1 (26.05.22)
  */

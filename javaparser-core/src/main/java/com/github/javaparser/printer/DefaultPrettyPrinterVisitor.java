@@ -916,12 +916,33 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
         printer.print("(");
         printer.print(n.getBinder().jmlSymbol());
         printer.print(" ");
-        n.getVariables().getFirst().type().accept(this, arg);
-        printer.print(" ");
-        printList(n.getVariables(), ", ");
+        boolean boundBindings = !n.getVariables().isEmpty()
+                && n.getVariables().stream().anyMatch(v -> v instanceof JmlQuantifiedVariable);
+        if (boundBindings) {
+            // Bindings carry their own type and iterable (e.g. `int e : a`), so the
+            // classic "one common type, then names" scheme must not be used.
+            printList(n.getVariables(), ", ");
+        } else {
+            n.getVariables().getFirst().type().accept(this, arg);
+            printer.print(" ");
+            printList(n.getVariables(), ", ");
+        }
         printer.print("; ");
         printList(n.getExpressions(), "; ");
         printer.print(")");
+    }
+
+    @Override
+    public void visit(final JmlQuantifiedVariable n, final Void arg) {
+        printOrphanCommentsBeforeThisChildNode(n);
+        printComment(n.getComment(), arg);
+        n.getType().accept(this, arg);
+        printer.print(" ");
+        n.getName().accept(this, arg);
+        n.getIterable().ifPresent(iterable -> {
+            printer.print(" : ");
+            iterable.accept(this, arg);
+        });
     }
 
     @Override

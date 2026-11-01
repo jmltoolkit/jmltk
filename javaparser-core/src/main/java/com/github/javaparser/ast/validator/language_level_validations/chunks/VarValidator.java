@@ -8,6 +8,7 @@ import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.*;
+import com.github.javaparser.ast.jml.expr.JmlQuantifiedVariable;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ForEachStmt;
 import com.github.javaparser.ast.stmt.ForStmt;
@@ -55,6 +56,15 @@ public class VarValidator implements TypedValidator<VarType> {
             return;
         }
         variableDeclarator.ifPresent(vd -> {
+            // JML quantifier bindings may declare `var`: `(\forall var e : a; ...)` is
+            // allowed and denotes the domain's element type — it is equivalent to
+            // `(\forall T e : a; ...)` with T the element type of `a` (design
+            // quantarray.md §2). The declared type stays `var` in the AST, so a
+            // VarType under a JmlQuantifiedVariable must not be rejected here;
+            // resolving it to the element type is the symbol solver's job.
+            if (vd instanceof JmlQuantifiedVariable) {
+                return;
+            }
             if (vd.getType().isArrayType()) {
                 reporter.report(vd, "\"var\" cannot have extra array brackets.");
             }

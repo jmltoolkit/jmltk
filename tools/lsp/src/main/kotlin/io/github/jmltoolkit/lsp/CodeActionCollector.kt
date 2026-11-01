@@ -13,6 +13,7 @@ import com.github.javaparser.ast.jml.clauses.JmlSimpleExprClause
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr.JmlDefaultBinder
 import com.github.javaparser.ast.jml.stmt.JmlExpressionStmt
+import com.github.javaparser.jml.JmlQuantifierDesugarer
 import org.eclipse.lsp4j.CodeAction
 import org.eclipse.lsp4j.CodeActionContext
 import org.eclipse.lsp4j.Command
@@ -63,6 +64,13 @@ class CodeActionCollector(val context: CodeActionContext?, private val range: Ra
         if (n.binder == JmlDefaultBinder.FORALL || n.binder == JmlDefaultBinder.EXISTS) {
             val ca = CodeAction("Add boundary")
             add(ca)
+        }
+        if (JmlQuantifierDesugarer.isElementQuantifier(n)) {
+            // kinds 2 (range) and 3 (array) rewrite to the classic index form;
+            // kind 4 (Iterable) and unresolvable domains degrade to no action.
+            JmlQuantifierDesugarer.desugar(n).ifPresent {
+                add(CodeAction("Expand quantifier domain: $it"))
+            }
         }
     }
 }

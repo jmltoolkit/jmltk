@@ -38,6 +38,10 @@ Use the Gradle wrapper: `./gradlew`.
   then run the generators (`:jmlparser-core-metamodel-generator:run`, `:jmlparser-core-generators:run`) and
   `spotlessApply`; CI style check fails otherwise.
 
+### Changelog / Documentation 
+- Features, bug fixes, and other user-visible changes require an entry in `jmltk-changelog.md`.
+- Documentation is here <https://github.com/jmltoolkit/jmltoolkit.github.io> find it locally and ask the user to update the documentation for each significant change in core, or the tools. 
+
 ## AST changes
 Adding/removing AST classes and attributes follows a specific workflow and touches related generator and
 printer sources — see `javaparser-core/AGENTS.md`.

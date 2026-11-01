@@ -330,6 +330,40 @@ internal class JmlStatisticsReporterTest {
         assertThat(stats[StatisticKey.totalQuantifiers]).isEqualTo(1)
     }
 
+    @Test
+    fun testElementQuantifierCounting() {
+        val code = """
+            class MyClass {
+                /*@ requires (\forall int e : arr; e > 0); @*/
+                void process(int[] arr) {}
+            }
+
+            """.trimIndent()
+        val cu = parse(code)
+        val stats = computeStatistics(cu)
+
+        assertThat(stats[StatisticKey.totalQuantifiers]).isEqualTo(1)
+        assertThat(stats[StatisticKey.totalElementQuantifiers]).isEqualTo(1)
+        assertThat(stats[StatisticKeys.binder("ELEMENT_FORALL")]).isEqualTo(1)
+        assertThat(stats[StatisticKeys.binder("FORALL")]).isEqualTo(1)
+    }
+
+    @Test
+    fun testClassicQuantifiersAreNotElementQuantifiers() {
+        val code = """
+            class MyClass {
+                /*@ requires (\forall int i; 0 <= i && i < arr.length; arr[i] >= 0); @*/
+                void process(int[] arr) {}
+            }
+
+            """.trimIndent()
+        val cu = parse(code)
+        val stats = computeStatistics(cu)
+
+        assertThat(stats[StatisticKey.totalQuantifiers]).isEqualTo(1)
+        assertThat(stats[StatisticKey.totalElementQuantifiers]).isEqualTo(0)
+    }
+
     // ==================== JML Statements (Body Level) ====================
     @Test
     fun testGhostStatementCounting() {

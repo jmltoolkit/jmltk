@@ -13,9 +13,12 @@ Commit hashes are given for every entry so that each claim can be verified with 
 
 ## Version scheme
 
-```
-<JavaParser>-J<JML>-K<KeY>      e.g. 3.28.2-J8.0-K13.6  (next release, prepared)
-```
+Fork-local SemVer (`MAJOR.MINOR.PATCH`), independent of the upstream JavaParser version. Source of truth:
+`version=` in `gradle.properties`. Bump rules: patch = bugfix, minor = feature/upstream merge, major = breaking
+change; keep `-SNAPSHOT` between releases. Version `1.0.0` (2026-10-25) was the first SemVer release; it
+corresponds to the composite `3.28.2-J8.0-K13.6` below.
+
+Up to `1.0.0` the fork used the composite scheme `<JavaParser>-J<JML>-K<KeY>`:
 
 - **J** counts the JML (Java Modeling Language) feature level — JML AST nodes (`ast/jml/**`), JML grammar, JMLDoc,
   contracts, stipulations (`\by` scripts), etc. Built in the JML fork since 2022.
@@ -29,6 +32,57 @@ Commit hashes are given for every entry so that each claim can be verified with 
 Release markers found in the history (tags): `k1`, `k2`, `k3`, `v3.25.3-K3`, `v3.25.3-K5`, `K11.1`,
 `KEY-JAVAPARSER-3.28.0-K13.6`. Old releases were published from `pom.xml` (Maven); since the July 2026 Gradle
 migration the version lives in `gradle.properties`.
+
+---
+
+## Unreleased — 1.2.0-SNAPSHOT
+
+Single-binding element quantification over arrays, ranges and `Iterable`/`SequencedCollection` (feature branch
+`weigl/quantarray`, design `doc/design/quantarray.md`, implementation plan `doc/design/quantarray-impl.md`):
+for-each style binder domains `(\forall int e : a; e > 0)`, `(\forall int i : 0..n; a[i] > 0)` and
+`(\forall var x : list; x != null)`, uniformly for `\forall`, `\exists`, `\sum`, `\product` and `\num_of`.
+Index+element multi-binding (`int i, T e : a[i]`) stays deferred. Feature ⇒ minor bump
+(`1.1.0-SNAPSHOT` → `1.2.0-SNAPSHOT`).
+
+**Added**
+
+- AST: `JmlQuantifiedVariable extends VariableDeclarator` with one optional iterable/range domain per binding,
+  including metamodel/CSM/printer support (`8df3526a8`, `21e69bcaf`; printers `1bdf833d8`).
+- Grammar (Phase 2): an iterable domain binds exactly one variable — multi-binding domains are rejected with a
+  fix-it message; `var` in a binding is normalized to `VarType` and accepted (validator exemption in
+  `1bdf833d8`).
+- Validation (Phase 4): the iterable must be pure and must not reference the bound variable; binding-kind
+  checks for ranges, arrays and `Iterable` generators (`f2d67de0f`).
+- Type inference (Phase 6): the static type of a bound variable is the element type of its domain — component
+  type for arrays, first `Iterable<T>` type argument, `int` for ranges (`249c8fd05`, `ef6c83289`).
+- Backends (Phase 7):
+  - core `JmlQuantifierDesugarer` rewriting range/array domains into the classic index form, used by the KeY
+    path and the LSP quick-fix (`58dbc6ad7`);
+  - jml2java: enhanced-for (array/`Iterable`) and index-loop (range) translations with `\sum`/`\product`/
+    `\num_of` accumulation (`58dbc6ad7`);
+  - smt: `forall` encodings for range/array domains, loud "not supported yet" for `Iterable`; also fixes
+    `SmtTermFactory.list(List<SExpr>)` dropping quantifier binder variables (`c622f256a`);
+  - wd: domain well-definedness (non-null, purity, evaluated once) for element domains (`1ea5178e9`);
+  - stat: `totalElementQuantifiers` plus per-binder `BINDER_ELEMENT_*` counters (`0c894f223`);
+  - lsp: "Expand quantifier domain" quick-fix, no crash on kind 4 (`da1a4fba7`).
+- Tests & corpus: `jmlparser-jml-tests` M1 suite (`249c8fd05`), desugarer unit tests, and the `QuantArray.java`
+  corpus fixture exercised by `FullExamplesTest` (all parser/backend suites green).
+
+**VCG (`tools/vcg`, branch `weigl/vcg`, PR #69)** — JML `\sum` generalized quantifiers with a *bounded* integer
+range and a *direct array-read body* are modeled in the VCG as a lazily-declared recursive SMT function
+(`(define-fun-rec jmlSum a lo hi …)`, unfolding along the index range with `hi <= lo` → `0`), so KeY's firstTouch
+08 for-each sum contract (`maintaining s == \sum int j; 0 <= j && j < \index; a[j]`) verifies in both BOUNDED and
+UNBOUNDED mode; every other `\sum` shape is rejected with a structured `UnsupportedFeatureException`.
+
+**Added**
+
+- vcg: `\sum` encoding — range-bound checks, array-read-body validation (`KeySumBadShapes`), and the BOUNDED
+  length fold (`bv$length sym` → shared implicit `$len_<sym>` constant plus one ground `>= 0` assert) that makes
+  the recursive-function queries terminate under Z3; KeY loop-position `\index` binds the type-tagged `$idxN`
+  loop-counter register; `\strictly_nothing` joins the assignable whitelist (`e8c120ab9`).
+- cli: `jmltk vcg` end-to-end subprocess tests and shell fixtures for the four KeY firstTouch examples
+  (05-ReverseArray honest UNKNOWN/FAIL, 06-BinarySearch and 10-SITA proven via loop invariants, 08-Java5 proven
+  in both modes); the shell tester gained a `sortOutput` comparison mode (`d0ee30440`).
 
 ---
 
@@ -341,6 +395,8 @@ Tagged `k1`. Release commit: `211d31f46` "set non-snapshot" (merge of the `weigl
 | `3.28.0-K13.7-SNAPSHOT` | 2026-07-20 | `0336c93d6` | KeY |
 | `3.28.2-J8.0-K13.5` | 2026-10-25 | `82b6d7869` (release) | JML (jmltk) |
 | `3.28.2-J8.0-K13.6` | 2026-10-25 | `0b2a7a359` (prepare release) | JML (jmltk) |
+| `1.0.0` (= `3.28.2-J8.0-K13.6`) | 2026-10-25 | `0e5e605fb` (prepare and release) | JML (jmltk) |
+| `1.1.0-SNAPSHOT` | 2026-10-25 | `df1e08542` (starting version) | JML (jmltk) |
 
 JML `-b` iterations: `3.25.10-b2` (`f2ef7f2f0`, 2024-05-03), `3.25.10-b3` (`6cca21e71`, 2024-05-04),
 `3.25.10-b6` (`72507343c`, 2024-05-23), `3.26.2-b6` (`b89f51c48`, 2024-11-15), `3.26.2-b7`

@@ -2421,6 +2421,12 @@ public class VcgExamples {
         int cp = ~x;
     }
 
+    // the *body-level* `~` alone (no binary bitwise op to reject first): this is
+    // the only fixture that reaches the UNBOUNDED UnaryExpr rejection in `atom()`
+    public void bitCompOnly(int x) {
+        int r = ~x;
+    }
+
     // shift operators at the body level: BOUNDED mode only (UNBOUNDED rejects
     // them with a structured diagnostic, see unsupportedConstructs). The distance
     // is masked to the low 5 bits exactly like Java (JLS 15.19) and `>>>` is the

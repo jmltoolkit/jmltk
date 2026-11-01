@@ -29,7 +29,17 @@ open class BitVectorArithmeticTranslator(val smtLog: SmtQuery) : ArithmeticTrans
         // *before* the operation, so `bv8 + bv32` and `bvadd` on BV8 — which would
         // wrap where Java cannot — are impossible. Equality/boolean/array operands
         // are not bit-vectors and pass through unchanged.
-        val (l, r) = promote(operator, left, right)
+        var (l, r) = promote(operator, left, right)
+        // Shifts (JLS 15.19) mask the distance to the low log2(width) bits of the
+        // (promoted) left operand — `x << 33` is `x << 1`. SMT-LIB's bvshl/bvshr/
+        // bvashr instead zero/sign-fill for distances >= the width, so the mask must
+        // be applied explicitly to keep the model Java-faithful.
+        if (operator in SHIFT_OPS) {
+            val w = (l.smtType as? SmtType.BitVec)?.width
+            if (w != null && w > 1) {
+                r = term.band(r, term.makeBitvector(w, (w - 1).toLong()))
+            }
+        }
         return when (operator) {
             IMPLICATION -> term.impl(l, r)
             SUBTYPE -> error("")
@@ -52,7 +62,7 @@ open class BitVectorArithmeticTranslator(val smtLog: SmtQuery) : ArithmeticTrans
             GREATER_EQUALS -> term.greaterOrEquals(l, r, true)
             LEFT_SHIFT -> term.shiftLeft(l, r)
             SIGNED_RIGHT_SHIFT -> term.shiftRight(l, r, true)
-            UNSIGNED_RIGHT_SHIFT -> term.shiftRight(l, r, true)
+            UNSIGNED_RIGHT_SHIFT -> term.shiftRight(l, r, false)
             BinaryExpr.Operator.PLUS -> term.add(l, r)
             BinaryExpr.Operator.MINUS -> term.subtract(l, r)
             MULTIPLY -> term.multiply(l, r)
@@ -119,7 +129,25 @@ open class BitVectorArithmeticTranslator(val smtLog: SmtQuery) : ArithmeticTrans
     private fun widthOf(x: SExpr, fallback: Int): Int =
         (x.smtType as? SmtType.BitVec)?.width ?: fallback
 
-    override fun makeLong(n: LongLiteralExpr) = term.makeBitvector(64, n.value.toBigInteger())
+    override fun makeLong(n: LongLiteralExpr): SExpr =
+        // `value` keeps the `L`/`l` suffix (and any radix prefix); parse it as a
+        // BigInteger with JLS 3.10.1 radix/typing rules
+        term.makeBitvector(64, longLiteralValue(n))
+
+    /** JLS 3.10.1 `long` literal → value: strips `_`, the `L`/`l` suffix and
+     *  resolves the radix (decimal/hex/octal/binary); always yields the exact
+     *  BigInteger (works for values ≥ 2^63, unlike `asLong()`). */
+    protected fun longLiteralValue(n: LongLiteralExpr): BigInteger {
+        var text = n.value.replace("_", "")
+        if (text.endsWith('L') || text.endsWith('l')) text = text.dropLast(1)
+        val (radix, digits) = when {
+            text.startsWith("0x", ignoreCase = true) -> 16 to text.substring(2)
+            text.startsWith("0b", ignoreCase = true) -> 2 to text.substring(2)
+            text.length > 1 && text.startsWith("0") -> 8 to text.substring(1)
+            else -> 10 to text
+        }
+        return BigInteger(digits, radix)
+    }
 
     override fun makeInt(n: IntegerLiteralExpr) = term.makeBitvector(32, n.asNumber().toLong())
 

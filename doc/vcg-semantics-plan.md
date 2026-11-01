@@ -190,7 +190,23 @@ contract clauses) and aborts on the *first* construct the VCG cannot model with
     loudly instead of being silently encoded as a universal quantifier (the
     firstTouch `08-Java5` `For.sum` fixture exercises this);
   - enums: verifying a member of an `EnumDeclaration` is rejected up front (an
-    ordinal/constant model would be required).
+    ordinal/constant model would be required);
+  - **block contracts** (`/*@ requires ..; ensures ..; @*/` before a plain
+    statement block): they parse and attach to the `BlockStmt`, but the engine
+    has no model for them — without the guard they would be *silently dropped*
+    (no requires/ensures/breaks/continues/returns obligations ever generated).
+    `validateSupported()` now rejects a callable that contains a contracted
+    block with a source-anchored diagnostic;
+  - **labeled statements** (`label: ...`): the normal form has no node for
+    them; the generic `Statement kind not supported` failure is replaced by a
+    dedicated `labeled statements` message (same `UnsupportedFeatureException`);
+  - **UNBOUNDED-mode bit-width operators**: mathematical integers have no bit
+    width, so shifts (`<<`, `>>`, `>>>`) and bitwise operators (`&`, `|`, `^`,
+    `~`) cannot be encoded. Both the runtime path (`atom()`) and the
+    expression path (`ExprTranslator` for contract clauses / JML
+    assert/assume) reject them with a structured `unsupported: …
+    in UNBOUNDED mode` diagnostic instead of a bare sort mismatch (the
+    constant folder still folds constant static-final shift/bitwise values).
 `UnsupportedFeatureException` (introduced in P3.1) is the *single* diagnostic
 type; the `Normalizer`'s generic statement/expression/assignment-target throws
 now use it too (it extends `UnsupportedOperationException`, so existing
@@ -278,6 +294,69 @@ Design direction (recorded, not implemented): boxing compared types into `(Seq (
 
 ### P4.4 (future) Boxing `boxIntVal`: design direction  📌 RECORDED
 The native `strContent` encoding models Java strings as `(Seq Int)` (UTF-16 code units). Boxing the compared type to `(Seq (Seq Int))` (the `boxIntVal` idea) would let a substring search over a *string-valued* view live inside the sequence theory, at the cost of a heavier sort and explicit boxing of every `seq.unit`/`seq.nth`. Not needed for the current P4.3 read set (all reads are single code units or whole content); recorded so the pivot and the axiom models document why `replace` and char-`indexOf` are the only quantified leftovers.
+
+## Phase 5 — Arithmetic/shift/bitwise fidelity; loop & block contracts
+
+### P5.1 Each arithmetic operator is exercised through the real translators in both modes, exposing and fixing encoder defects — DONE
+Before, the test surface exercised a handful of arithmetic forms and relied on
+golden snapshots; the *encoder* paths for every operator were never forced
+through both modes. New `fold*` fixtures push constant arithmetic through the
+static-final folding path (radixes, bit ranges, division-by-zero leave a field
+unbound), and `arithOps` pushes every arithmetic/comparison/boolean operator
+through the live translators in both modes. This coverage exposed four real
+defects, all fixed:
+- `>>>` was emitted as `bvshr`, which does not exist in SMT-LIB (the core
+  shift functions are `bvshl`/`bvashr`/`bvlshr`); Z3 answered `unknown constant
+  bvshr`. `bvshiftRight(sign=false)` now emits `bvlshr` — the logical shift —
+  so `-8 >>> 2` proves `1073741822` (`unsignedShiftNegative`), not `-2`.
+- The shift distance was not masked: `x << 33` is `x << 1` per JLS 15.19, but
+  SMT-LIB's `bvshl`/`bvlshr`/`bvashr` zero/sign-fill for distances ≥ width.
+  `BitVectorArithmeticTranslator.binary()` now applies `(bvand d ((_ int2bv 32)
+  31))` to the distance (the constant-folding path already masked), and
+  `shiftDistanceMasking` proves `(x << 33) == (x << 1)` in BOUNDED mode.
+- `xor` was unconditionally the Bool `xor`: on bit-vector operands it built an
+  ill-sorted `(xor bv bv)` (arity 2 of `xor : Bool Bool -> Bool`) that Z3
+  rejected with a sort mismatch. `SmtTermFactory.xor` is now polymorphic —
+  Bool operands → `xor`, bit-vectors → `bvxor`.
+- `makeLong` used the literal's raw `value` string (suffix `L` included), so any
+  long literal ≥ 2³¹ (or any suffix-less parse) threw `NumberFormatException`
+  ("11627776L", "00000000L"). A shared JLS 3.10.1 parser
+  (`BitVectorArithmeticTranslator.longLiteralValue`) strips `_`, the `L`/`l`
+  suffix, and resolves decimal/hex/octal/binary; both translators use it
+  (`makeBitvector` renders the value as `((_ int2bv 64) <numeral>)`, `makeInt`
+  as the exact `Int` numeral).
+Bit-width operators have no encoding on mathematical integers: in UNBOUNDED
+mode the body-path (`atom()`) and the expression path (contract clauses, JML
+asserts — `ExprTranslator`) reject `<< >> >>> & | ^ ~` with a structured
+diagnostic (P3.2), while `foldShiftOps`/`foldFieldSorts` keep proving the
+*folded* constant results of `1L << 40`, `0xF >> 2`, etc. in both modes.
+Tests: new/completed fixtures `foldIntRadixes`, `foldArithOps`,
+`foldBoolOps`, `foldUnaryOps`, `foldShiftOps`, `foldDivZero`, `foldFieldSorts`,
+`arithOps` (u+b), `bitwiseOps` (BOUNDED-only), `shiftOps`, `unsignedShiftNegative`,
+`shiftDistanceMasking` (u-rejection + b-proven); `ExprTranslatorTest` asserts the
+masked shift terms, `bvlshr`, `bvxor` and literal `1L → 1`; 60 goldens
+regenerated — each gained only the 91 lines of `AR_*` static-final entry-state
+declares (verified add-only in the diff).
+
+### P5.2 Loop contracts: `\returns` is enforced; break-only exit loops keep the post-loop path live — DONE
+- A loop contract's `\returns` clause was parsed and ignored. `LoopFrame` now
+  carries the returns clauses and `execReturn` emits a `returns-clause`
+  obligation for every enclosing `LOOP_CONTRACT` frame when the `return` is
+  live — `loopContractReturns` proves the in-loop `return -1` against the
+  contract's `\returns \result == -1`, and `loopContractReturnsWrong` (whose
+  `\returns \result > 0` does not hold at `return -1`) is falsifiable.
+- A loop that only leaves via `break` (e.g. `while (true) { … break; }`) now
+  keeps the statements after it enabled: the `break` flag is set and the
+  post-loop code is checked — `loopExitsOnlyViaBreak` verifies (the post-loop
+  assert discharges on the break path).
+Method-call coverage: `stringCodePointAt` drives the P4.3 abstract-string
+`codePointAt` read under default `checkStringIndex`, proving the index-check
+obligation under its requires, in both modes.
+Tests: `loopContractReturns` u+b proven, `loopContractReturnsWrong` u+b
+falsifiable, `loopExitsOnlyViaBreak` u+b proven, `stringCodePointAt` u+b
+proven; the parameterized `proven`/`falsifiable`/`unsupportedConstructs`
+tables grew by the new cases and the whole `:tools:vcg:test` suite is green
+(860 tests); whole-project compile + spotless + checkstyle green.
 
 ## Execution order
 1. Phase 0 baseline → P1.1 → P1.2 → P1.3, one commit each, rerun suite, push to `weigl/vcg`.

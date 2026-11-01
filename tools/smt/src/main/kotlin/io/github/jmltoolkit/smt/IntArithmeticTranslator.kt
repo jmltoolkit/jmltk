@@ -30,7 +30,10 @@ class IntArithmeticTranslator(smtLog: SmtQuery) : BitVectorArithmeticTranslator(
 
     override fun makeChar(n: CharLiteralExpr): SExpr = term.makeInt("" + n.asChar().code)
 
-    override fun makeLong(n: LongLiteralExpr): SExpr = term.makeInt("" + n.value)
+    override fun makeLong(n: LongLiteralExpr): SExpr =
+        // `value` keeps the `L`/`l` suffix; longLiteralValue strips it and
+        // resolves the radix (see the sibling BitVectorArithmeticTranslator)
+        term.makeInt(longLiteralValue(n).toString())
 
     override fun makeInt(n: IntegerLiteralExpr): SExpr = term.makeInt("" + n.value)
 

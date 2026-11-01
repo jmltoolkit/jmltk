@@ -476,8 +476,10 @@ class NormalizerTest {
     //region unsupported statement / expression kinds
     @Test
     fun testUnsupportedLabeledStatement() {
+        // rejected with a dedicated, user-facing diagnostic (not the raw
+        // class-name fallback `Statement kind not supported ...: LabeledStmt`)
         val e = assertThrows(UnsupportedOperationException::class.java) { normalize("foo: { x = 1; }") }
-        assertTrue(e.message!!.contains("LabeledStmt"), "unexpected message: ${e.message}")
+        assertTrue(e.message!!.contains("labeled statements"), "unexpected message: ${e.message}")
     }
 
     @Test

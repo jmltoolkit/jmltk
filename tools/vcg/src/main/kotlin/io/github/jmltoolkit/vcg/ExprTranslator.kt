@@ -33,6 +33,7 @@ import com.github.javaparser.ast.visitor.GenericVisitorAdapter
 import com.github.javaparser.resolution.types.ResolvedType
 import io.github.jmltoolkit.utils.JMLUtils
 import io.github.jmltoolkit.smt.ArithmeticTranslator
+import io.github.jmltoolkit.smt.IntArithmeticTranslator
 import io.github.jmltoolkit.smt.SmtQuery
 import io.github.jmltoolkit.smt.SmtTermFactory
 import io.github.jmltoolkit.smt.SmtTermFactory.equality
@@ -103,6 +104,14 @@ class ExprTranslator(
     fun tr(e: Expression): SExpr = e.accept(this, null)!!
 
     override fun visit(n: BinaryExpr, arg: Any?): SExpr {
+        // UNBOUNDED mode models int/long as mathematical integers, which have no
+        // bit width: shifts and bitwise operators cannot be encoded. This is the
+        // *expression* path (contract clauses, JML assert/assume statements); the
+        // runtime path (`atom`) carries the same guard — both reject loudly with a
+        // structured diagnostic instead of a bare sort mismatch.
+        if (translator is IntArithmeticTranslator) {
+            rejectBitWidthOp(n.operator, n.range.orElse(null))
+        }
         val left = n.left.accept(this, arg)!!
         val right = n.right.accept(this, arg)!!
         if (n.operator == BinaryExpr.Operator.EQUALS || n.operator == BinaryExpr.Operator.NOT_EQUALS) {
@@ -148,6 +157,30 @@ class ExprTranslator(
 
     private fun isNull(x: SExpr): Boolean = (x as? SAtom)?.value == "null"
 
+    /** Structured P3.2 rejection for bit-width operators in UNBOUNDED mode. */
+    private fun rejectBitWidthOp(op: BinaryExpr.Operator, range: com.github.javaparser.Range?) {
+        val kind = when (op) {
+            BinaryExpr.Operator.LEFT_SHIFT,
+            BinaryExpr.Operator.SIGNED_RIGHT_SHIFT,
+            BinaryExpr.Operator.UNSIGNED_RIGHT_SHIFT,
+            -> "bit-shift operators"
+
+            BinaryExpr.Operator.BINARY_AND,
+            BinaryExpr.Operator.BINARY_OR,
+            BinaryExpr.Operator.XOR,
+            -> "bitwise operators"
+
+            else -> null
+        }
+        if (kind != null) {
+            throw UnsupportedFeatureException(
+                "unsupported: $kind in UNBOUNDED mode (mathematical integers have no bit width); " +
+                    "use BOUNDED (bit-vector) mode",
+                range
+            )
+        }
+    }
+
     override fun visit(n: EnclosedExpr, arg: Any?): SExpr = n.inner.accept(this, arg)!!
 
     override fun visit(n: CastExpr, arg: Any?): SExpr {
@@ -191,8 +224,18 @@ class ExprTranslator(
         }
         }
 
-    override fun visit(n: UnaryExpr, arg: Any?): SExpr =
-        translator.unary(n.operator, n.expression.accept(this, arg)!!)
+    override fun visit(n: UnaryExpr, arg: Any?): SExpr {
+        // `~x` on a mathematical integer cannot be encoded (mirror of the binary
+        // bitwise rejection above)
+        if (translator is IntArithmeticTranslator && n.operator == UnaryExpr.Operator.BITWISE_COMPLEMENT) {
+            throw UnsupportedFeatureException(
+                "unsupported: bitwise operators in UNBOUNDED mode (mathematical integers have no bit width); " +
+                    "use BOUNDED (bit-vector) mode",
+                n.range.orElse(null)
+            )
+        }
+        return translator.unary(n.operator, n.expression.accept(this, arg)!!)
+    }
 
     override fun visit(n: BooleanLiteralExpr, arg: Any?): SExpr = translator.makeBoolean(n.value)
 

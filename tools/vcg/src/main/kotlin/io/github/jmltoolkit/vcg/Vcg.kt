@@ -222,6 +222,20 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                 enumDecl.range.orElse(null)
             )
         }
+        // Block contracts (`/*@ requires ..; ensures ..; @*/` attached to a plain
+        // statement block) parse and attach to the BlockStmt, but the engine has
+        // no model for them: without this check they would be *silently dropped*,
+        // i.e. the block's requires/ensures/breaks/continues/returns would never
+        // produce obligations. Reject loudly instead (P3.2), before the generic
+        // clause walk reports confusing `\before`-style keyword diagnostics.
+        ctx.callable.findAll(BlockStmt::class.java).firstOrNull { it.contracts.isNotEmpty() }?.let { block ->
+            throw UnsupportedFeatureException(
+                "unsupported: block contracts (contracts attached to a statement block) " +
+                    "are not modeled; use method contracts, loop contracts or JML " +
+                    "assert/assume statements instead",
+                block.range.orElse(null)
+            )
+        }
         checkSupported(ctx.callable)
         // JML contract clauses are walked explicitly so a detached or
         // re-parented callable still gets its `\fresh`/`\reach` diagnostics.
@@ -2894,6 +2908,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         val invariants: List<Expression>,
         val breaks: List<Expression>,
         val continues: List<Expression>,
+        val returns: List<Expression>,
     )
 
     private val loopFrames = ArrayDeque<LoopFrame>()
@@ -3111,6 +3126,21 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         val prevRet = env[ExprTranslator.RET]
         val ret = freshVersion(ExprTranslator.RET, SmtType.BOOL)
         emitPhi(mode, equality(ret, iteTerm(g, term.makeTrue(), prevRet ?: ret)))
+        // loop contract: a `return` escapes every enclosing loop, so the `\returns`
+        // clause of each enclosing LOOP_CONTRACT loop must hold at the return point
+        // (evaluated in the pre-return state — after `\result` is bound above).
+        for (f in loopFrames) {
+            if (f.strategy == LoopStrategy.LOOP_CONTRACT && f.returns.isNotEmpty()) {
+                var clause = term.makeTrue()
+                for (r in f.returns) clause = term.and(clause, translatorOf().tr(r))
+                addObligation(
+                    "returns-clause",
+                    "loop returns clause ${describe(s.origin!!)}",
+                    term.impl(g, clause),
+                    mode, s.origin
+                )
+            }
+        }
     }
 
     private fun locationKey(l: NfLocation): String = when (l) {
@@ -3415,7 +3445,8 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             loopId, strategy,
             loopClauses(s.loopNode, LOOP_INVARIANTS),
             if (strategy == LoopStrategy.LOOP_CONTRACT) loopClauses(s.loopNode, BREAKS) else emptyList(),
-            if (strategy == LoopStrategy.LOOP_CONTRACT) loopClauses(s.loopNode, CONTINUES) else emptyList()
+            if (strategy == LoopStrategy.LOOP_CONTRACT) loopClauses(s.loopNode, CONTINUES) else emptyList(),
+            if (strategy == LoopStrategy.LOOP_CONTRACT) loopClauses(s.loopNode, RETURNS) else emptyList()
         )
         loopFrames.addLast(frame)
         when (strategy) {
@@ -3790,11 +3821,52 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
                     }
                 }
             }
+            // UNBOUNDED mode models `int`/`long` as mathematical integers, which have
+            // no bit width: shifts and bitwise operators cannot be encoded. The
+            // constant folder still folds constant shifts/bitwise of static-final
+            // fields; anything reaching here fails loudly with a structured
+            // diagnostic instead of a bare sort mismatch (or, for `^`, a silently
+            // ill-sorted `(xor int int)` term — the Int arithmetic translator
+            // inherits the bit-vector path).
+            if (options.mode == VerificationMode.UNBOUNDED) {
+                val kind = when (e.operator) {
+                    BinaryExpr.Operator.LEFT_SHIFT,
+                    BinaryExpr.Operator.SIGNED_RIGHT_SHIFT,
+                    BinaryExpr.Operator.UNSIGNED_RIGHT_SHIFT,
+                    -> "bit-shift operators"
+
+                    BinaryExpr.Operator.BINARY_AND,
+                    BinaryExpr.Operator.BINARY_OR,
+                    BinaryExpr.Operator.XOR,
+                    -> "bitwise operators"
+
+                    else -> null
+                }
+                if (kind != null) {
+                    throw UnsupportedFeatureException(
+                        "unsupported: $kind in UNBOUNDED mode (mathematical integers have no bit width); " +
+                            "use BOUNDED (bit-vector) mode",
+                        e.range.orElse(null)
+                    )
+                }
+            }
             val res = translator.binary(e.operator, lp, rp)
             if (res.smtType == SmtType.BOOL) res else tempAssign(res, guard, mode, e)
         }
 
         is UnaryExpr -> {
+            // mirror of the binary rejection above: `~x` on a mathematical integer
+            // hits the bit-vector `bvnot` path (a bare sort mismatch); reject it
+            // with the same structured diagnostic
+            if (options.mode == VerificationMode.UNBOUNDED &&
+                e.operator == UnaryExpr.Operator.BITWISE_COMPLEMENT
+            ) {
+                throw UnsupportedFeatureException(
+                    "unsupported: bitwise operators in UNBOUNDED mode (mathematical integers have no bit width); " +
+                        "use BOUNDED (bit-vector) mode",
+                    e.range.orElse(null)
+                )
+            }
             val x = atom(e.expression, guard, mode)
             val res = translator.unary(e.operator, x)
             if (res.smtType == SmtType.BOOL) res else tempAssign(res, guard, mode, e)

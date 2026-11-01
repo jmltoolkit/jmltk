@@ -2254,6 +2254,263 @@ public class VcgExamples {
         r.counter = -1;
         r.setCounter(6);
     }
+
+    // ---- arithmetic coverage batch (bounded + unbounded + the constant folder) ----
+    // The `static final` initializers exercise `foldFieldConst`/`intLiteralConst`/
+    // `longLiteralConst`/`foldUnaryConst`/`foldBinaryConst`/`shiftConst` (radix
+    // variants, every binary/unary operator, bit ranges, shift masking); the
+    // body arithmetic exercises the real `ArithmeticTranslator` paths in both
+    // modes. Nothing here is ever javac-compiled, so Java-constant-value edge
+    // cases (leading-zero octal, `1 << 31`, `5 / (1 - 1)`) stay parseable.
+
+    // int literal radix variants: decimal, hex, binary, octal
+    private static final int AR_DEC = 42;
+    private static final int AR_HEX = 0x1F;       // 31
+    private static final int AR_BIN = 0b1010;     // 10
+    private static final int AR_OCT = 010;        // 8 (JLS 3.10.1 leading zero)
+    // long literal radix variants
+    private static final long AR_L_DEC = 42L;
+    private static final long AR_L_HEX = 0xFFFFL;   // 65535
+    private static final long AR_L_BIN = 0b1111L;   // 15
+    private static final long AR_L_OCT = 077L;      // 63
+
+    //@ ensures \result == 42 + 31 + 10 + 8 + 42 + 65535 + 15 + 63;
+    public int foldIntRadixes() {
+        return (int) (AR_DEC + AR_HEX + AR_BIN + AR_OCT + AR_L_DEC + AR_L_HEX + AR_L_BIN + AR_L_OCT);
+    }
+
+    // every binary operator folds through `foldBinaryConst`/`num`
+    private static final int AR_A = 7;
+    private static final int AR_B = 3;
+    private static final int AR_SUM = AR_A + AR_B;          // 10
+    private static final int AR_DIFF = AR_A - AR_B;         // 4
+    private static final int AR_PROD = AR_A * AR_B;         // 21
+    private static final int AR_DIV = AR_A / AR_B;          // 2
+    private static final int AR_REM = AR_A % AR_B;          // 1
+    private static final int AR_AND = AR_A & AR_B;          // 3
+    private static final int AR_OR = AR_A | AR_B;           // 7
+    private static final int AR_XOR = AR_A ^ AR_B;          // 4
+    private static final boolean AR_LT = AR_A < AR_B;       // false
+    private static final boolean AR_LE = AR_A <= AR_B;      // false
+    private static final boolean AR_GT = AR_A > AR_B;       // true
+    private static final boolean AR_GE = AR_A >= AR_B;      // true
+    private static final boolean AR_EQ = AR_A == AR_B;      // false
+    private static final boolean AR_NE = AR_A != AR_B;      // true
+
+    public void foldArithOps() {
+        //@ assert AR_SUM == 10;
+        //@ assert AR_DIFF == 4;
+        //@ assert AR_PROD == 21;
+        //@ assert AR_DIV == 2;
+        //@ assert AR_REM == 1;
+        //@ assert AR_AND == 3;
+        //@ assert AR_OR == 7;
+        //@ assert AR_XOR == 4;
+        //@ assert AR_LT == false;
+        //@ assert AR_LE == false;
+        //@ assert AR_GT == true;
+        //@ assert AR_GE == true;
+        //@ assert AR_EQ == false;
+        //@ assert AR_NE == true;
+    }
+
+    // boolean operators fold through `foldBinaryConst`'s boolean branch
+    private static final boolean AR_T = true;
+    private static final boolean AR_F = false;
+    private static final boolean AR_BAND = AR_T && AR_F;   // false
+    private static final boolean AR_BOR = AR_T || AR_F;    // true
+    private static final boolean AR_BEQ = AR_T == AR_F;    // false
+    private static final boolean AR_BNE = AR_T != AR_F;    // true
+
+    public void foldBoolOps() {
+        //@ assert AR_BAND == false;
+        //@ assert AR_BOR == true;
+        //@ assert AR_BEQ == false;
+        //@ assert AR_BNE == true;
+    }
+
+    // unary operators fold through `foldUnaryConst` (plus/minus, complements)
+    private static final int AR_PLUS = +7;           // 7
+    private static final int AR_NEG = -AR_A;         // -7
+    private static final int AR_COMP = ~AR_A;        // -8
+    private static final boolean AR_LCOMP = !AR_F;   // true
+
+    public void foldUnaryOps() {
+        //@ assert AR_PLUS == 7;
+        //@ assert AR_NEG == -7;
+        //@ assert AR_COMP == -8;
+        //@ assert AR_LCOMP == true;
+    }
+
+    // shifts fold through `shiftConst`, which masks the distance (JLS 15.19):
+    // int masks to the low 5 bits, long to the low 6
+    private static final int AR_SHL = 1 << 5;              // 32
+    private static final int AR_SHR = -8 >> 2;             // -2
+    private static final int AR_MASKED = 1 << 40;          // 1 << (40 & 31) = 256
+    private static final long AR_LSHL = 1L << 40;          // 2^40
+    private static final long AR_LSHR = -16L >> 3;         // -2
+
+    public void foldShiftOps() {
+        //@ assert AR_SHL == 32;
+        //@ assert AR_SHR == -2;
+        //@ assert AR_MASKED == 256;
+        //@ assert AR_LSHL == 1099511627776L;
+        //@ assert AR_LSHR == -2L;
+    }
+
+    // a folded value that does not fit the declared 32-bit slot is *not* bound
+    // (`intLiteralConst` produces the long value, `fieldNumTerm` rejects it)
+    private static final int AR_INT_OVER32 = 3000000000;      // folds-as-long, then dropped
+    private static final int AR_LIT_OVER64 = 10000000000000000000; // > 2^63: never folds
+    private static final int AR_SHIFT_OVERFLOW = 1 << 31;     // 2^31: not representable in 32 bits
+    private static final int AR_DIV_ZERO = 5 / (1 - 1);       // divisor folds to 0: no fold
+    private static final int AR_REM_ZERO = 5 % (1 - 1);       // divisor folds to 0: no fold
+
+    //@ ensures \result == 5;   // AR_DIV_ZERO stays unconstrained -> falsifiable
+    public int foldDivZero() {
+        return AR_DIV_ZERO;
+    }
+
+    // folded byte/short/char/long constants hit the per-type range gates in
+    // `fieldNumTerm` and bind as the field's exact sort
+    private static final byte AR_BYTE = 5;
+    private static final short AR_SHORT = 300;
+    private static final char AR_CHAR = 'z';
+    private static final long AR_LONG = 3000000000L;   // decimal long literal > 2^31
+
+    public void foldFieldSorts() {
+        //@ assert AR_BYTE == 5;
+        //@ assert AR_SHORT == 300;
+        //@ assert AR_CHAR == 'z';
+        //@ assert AR_LONG == 3000000000L;
+    }
+
+    // body-level arithmetic through the real translators (both modes): binary
+    // numeric promotion, division/remainder under `checkDivision` (y >= 1), and
+    // every arithmetic/comparison/boolean operator the translator must encode.
+    // (Bitwise `& | ^ ~` live in `bitwiseOps`: mathematical integers in UNBOUNDED
+    // mode have no bit width, so they are BOUNDED-mode-only and rejected loudly.)
+    //@ requires x >= 0 && y >= 1 && x <= 20 && y <= 20;
+    //@ ensures s == x + y && d == x - y && p == x * y && q == x / y && r == x % y;
+    //@ ensures ng == -x && lc == !(x > 0);
+    //@ ensures lt == (x < y) && le == (x <= y) && gt == (x > y) && ge == (x >= y) && eq == (x == y) && ne == (x != y);
+    public void arithOps(int x, int y) {
+        int s = x + y;
+        int d = x - y;
+        int p = x * y;
+        int q = x / y;
+        int r = x % y;
+        int ng = -x;
+        boolean lc = !(x > 0);
+        boolean lt = x < y;
+        boolean le = x <= y;
+        boolean gt = x > y;
+        boolean ge = x >= y;
+        boolean eq = x == y;
+        boolean ne = x != y;
+    }
+
+    // bitwise operators at the body level: BOUNDED mode only (UNBOUNDED rejects
+    // them with a structured diagnostic, see unsupportedConstructs)
+    //@ requires x >= 0 && y >= 0 && x <= 20 && y <= 20;
+    //@ ensures b == (x & y) && o == (x | y) && e == (x ^ y) && cp == ~x;
+    public void bitwiseOps(int x, int y) {
+        int b = x & y;
+        int o = x | y;
+        int e = x ^ y;
+        int cp = ~x;
+    }
+
+    // shift operators at the body level: BOUNDED mode only (UNBOUNDED rejects
+    // them with a structured diagnostic, see unsupportedConstructs). The distance
+    // is masked to the low 5 bits exactly like Java (JLS 15.19) and `>>>` is the
+    // logical shift.
+    //@ requires x >= 0 && x <= 100;
+    //@ ensures sl == x * 4 && sr == x / 4 && ur == x / 4;
+    //@ ensures slm == (x * 4) && srm == (x / 4) && urm == (x / 4);
+    public void shiftOps(int x) {
+        int sl = x << 2;
+        int sr = x >> 2;
+        int ur = x >>> 2;
+        int slm = x << 34;   // 34 & 31 = 2
+        int srm = x >> 34;
+        int urm = x >>> 34;
+    }
+
+    // regression: `-8 >>> 2` must be the logical shift result 1073741822,
+    // not the arithmetic `-2` (bvshr, not bvashr)
+    //@ ensures \result == 1073741822;
+    public int unsignedShiftNegative() {
+        return -8 >>> 2;
+    }
+
+    // shift-distance masking regression: `x << 33 == x << 1` (JLS 15.19)
+    //@ requires x >= 0 && x <= 100;
+    //@ ensures (x << 33) == (x << 1) && (x >> 33) == (x >> 1) && (x >>> 33) == (x >>> 1);
+    public void shiftDistanceMasking(int x) {
+        //@ assert (x << 33) == (x << 1);
+        //@ assert (x >> 33) == (x >> 1);
+        //@ assert (x >>> 33) == (x >>> 1);
+    }
+
+    // ---- loop contracts: `\returns` abrupt-completion clauses ----
+    // the in-loop `return -1` must satisfy the loop contract's `\returns` clause;
+    // a wrong clause is caught by the falsifiable variant
+
+    //@ requires n >= 0;
+    //@ ensures \result == 0 || \result == -1;
+    public int loopContractReturns(int n) {
+        int i = 0;
+        //@ maintaining 0 <= i && i <= n;
+        //@ decreasing n - i;
+        //@ returns \result == -1;
+        while (i < n) {
+            i = i + 1;
+            if (i >= n) {
+                return -1;
+            }
+        }
+        return 0;
+    }
+
+    //@ requires n > 0;
+    //@ ensures \result == -1;
+    public int loopContractReturnsWrong(int n) {
+        int i = 0;
+        //@ maintaining 0 <= i && i <= n;
+        //@ decreasing n - i;
+        //@ returns \result > 0;   // false at `return -1` -> falsifiable
+        while (i < n) {
+            i = i + 1;
+            if (i >= n) {
+                return -1;
+            }
+        }
+        return 0;
+    }
+
+    // ---- abnormal loop termination: a `while (true)` loop that leaves only
+    // ---- through `break` keeps the post-loop statements enabled
+    //@ requires n >= 0 && n <= 3;
+    //@ ensures \result == n;
+    public int loopExitsOnlyViaBreak(int n) {
+        int i = 0;
+        while (true) {
+            if (i == n) {
+                break;
+            }
+            i = i + 1;
+        }
+        return i;
+    }
+
+    // ---- method calls: the abstract-string model's codePointAt read ----
+
+    //@ requires i >= 0 && i < 2;
+    //@ ensures \result == "ab".codePointAt(i);
+    public int stringCodePointAt(int i) {
+        return "ab".codePointAt(i);
+    }
 }
 
 // ---- \invariant_for fixtures: separate top-level types so the class-level
@@ -2396,6 +2653,15 @@ class InvariantExamples extends InvariantExamplesBase {
         this.counter = -1;
         this.helperReassignCounter();
         this.counter = 7;
+    }
+
+    // the literal `\invariant_for(this)` in the *body* (an explicit assert, not a
+    // contract clause) exercises the `handleCall` statement-position expansion:
+    // the receiver is atomized and the folded conjunction is asserted here
+    //@ ensures true;
+    public void invariantForInBody() {
+        this.counter = 5;
+        //@ assert \invariant_for(this);
     }
 }
 

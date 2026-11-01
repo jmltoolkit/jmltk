@@ -1335,7 +1335,13 @@ public class ConcreteSyntaxModel {
         concreteSyntaxModelByClass.put(JmlRefiningStmt.class, sequence());
         concreteSyntaxModelByClass.put(JmlRepresentsDeclaration.class, sequence());
         concreteSyntaxModelByClass.put(
-                JmlExpressionStmt.class, sequence(child(KIND), space(), child(EXPRESSION), semicolon()));
+                JmlExpressionStmt.class,
+                sequence(
+                        child(KIND),
+                        space(),
+                        conditional(LABEL, IS_PRESENT, sequence(attribute(LABEL), token(COLON), space())),
+                        child(EXPRESSION),
+                        semicolon()));
         concreteSyntaxModelByClass.put(JmlTypeExpr.class, sequence(child(ObservableProperty.TYPE)));
         concreteSyntaxModelByClass.put(JmlUnreachableStmt.class, sequence(token(UNREACHABLE), semicolon()));
         concreteSyntaxModelByClass.put(

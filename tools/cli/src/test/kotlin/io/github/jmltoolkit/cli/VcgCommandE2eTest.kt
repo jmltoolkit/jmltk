@@ -130,15 +130,20 @@ class VcgCommandE2eTest {
     }
 
     @Test
-    fun java5SumIsRejectedLoudly() {
+    fun java5SumIsVerifiedInBothModes() {
         assumeTrue(Z3.z3Installed(), "z3 not installed")
-        // KeY firstTouch 08-Java5 uses the JML `\sum` quantifier, which the VCG
-        // does not model: the run must abort with the structured diagnostic and a
-        // non-zero exit code, not silently mis-encode the contract.
-        val res = runCli(fixture("08-Java5", "For.java").toString())
-        assertTrue(res.exitCode != 0, "expected non-zero exit, got ${res.exitCode}:\n${res.output}")
-        assertTrue(res.output.contains("\\sum"), res.output)
-        assertTrue(res.output.contains("UnsupportedFeatureException"), res.output)
+        // KeY firstTouch 08-Java5: the JML `\sum` quantifier is modeled as a
+        // recursive SMT summation (`jmlSum`), so every generated condition solves
+        // to `ok` — runtime checks, loop-invariant init/preservation and variant,
+        // and the `\sum` postcondition. Assert the bounded default and the
+        // `--unbounded` mode alike; the CLI exits 0 and reports 11 conditions.
+        val base = listOf(fixture("08-Java5", "For.java").toString())
+        for (extra in listOf(listOf("--loop-invariant"), listOf("--unbounded", "--loop-invariant"))) {
+            val res = runCli(*((base + extra).toTypedArray()))
+            assertEquals(0, res.exitCode, res.output)
+            assertEquals("11 conditions, 0 failing", res.summary(), res.output)
+            assertTrue(res.nonOkConditions().isEmpty(), "unexpected verdicts:\n${res.output}")
+        }
     }
 
     @Test

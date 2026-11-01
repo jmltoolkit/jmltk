@@ -7,7 +7,7 @@ Here is some information that's good to know when contributing to JMLtk:
 - JMLtk is a fork of JavaParser that adds first-class support for the Java Modeling Language (JML). The parser,
   the AST and the symbol solver from JavaParser are extended with JML constructs, and the repository also contains a
   `tools` directory with command-line utilities (for example `cli`, `stat`, `lint`, `smt`, `prettyprinting`, and
-  `lsp`). If you are new to the code base, these are the places you will spend most of your time:
+  `lsp`).
     - The AST nodes live in `javaparser-core/src/main/java/com/github/javaparser/ast/`, with the JML-specific nodes in
       `com.github.javaparser.ast.jml` and its subpackages (`body`, `clauses`, `doc`, `expr`, `stmt`, `type`).
     - The grammar used to generate the parser lives in `javaparser-core/src/main/javacc/java.jj`.
@@ -24,29 +24,16 @@ Thanks for helping!
 
 ## Contribution Workflow
 
-Our development workflow is based on pull requests. A pull request is a proposal to merge a branch of commits from
-your fork into the main repository. If you are not familiar with pull requests, this is how the workflow works:
-
-1. **Fork** the JMLtk project (the repository is `jmltoolkit/jmltk` on GitHub). If you already have a fork, ensure to
-   fetch the latest commits from the main repository first.
-2. In your forked project, **create a branch** related to the issue you are working on. This is important to ensure
-   that your pull request will not contain unrelated work. A good naming convention is to include the issue number,
-   for example `fix/123-description-of-the-fix`.
-3. When your work in your branch is done, **push your branch to your forked repository**.
-4. Go back to the JMLtk project site and it should have a message offering to **create a pull request** from your
-   branch. If it doesn't, you can create one manually using the "Pull requests" -> "New pull request" page, which
-   lets you pick the fork and the branch you want to compare against the `main` branch of the main repository.
+Our development workflow is based on pull requests. 
 
 ### Remember:
 
 - A pull request should include tests. You can either use BDD or JUnit.
 - Every pull request will automatically be checked by GitHub Actions. Make sure the `Tests` and
-  `Check codegen and formatting` workflows are green (both are also available for manual triggering, so you can run
-  them on your fork via the "Actions" tab).
+  `Check codegen and formatting` workflows are green.
 - Pull requests often stay open for at least a few days to give people a chance to review it.
 - A pull request is merged when all comments on it have been resolved.
-- If you create a pull request for an issue, mention the issue in the format #123 to make GitHub link it
-  automatically.
+- If you create a pull request for an issue, mention the issue in the format #123 to make GitHub link it automatically.
 - Before creating a commit (or at least before submitting a pull request), please reformat the project with the
   instructions given below to avoid any formatting-related issues during the review.
 
@@ -79,11 +66,9 @@ This project is formatted with Spotless using the palantir-java-format style, an
 
 ### Coding style
 
-- indent with four spaces
-- wrap lines at 120 characters
-- type and method annotations go on a separate line
-- wrapped arguments are aligned to the opening parenthesis
-
+- palantir-java-format is used on Java, and ktlint on Kotlin code.
+- follow `gradle spotlessApply`
+  
 ### License headers for new files
 
 Newly added files must contain the correct copyright and license header comment (this is enforced by Spotless, which

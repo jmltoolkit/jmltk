@@ -98,7 +98,7 @@
 (declare-const c U)
 (assert (=> (and (and true (not false)) (not false)) (= c $t1)))
 (declare-const $t2 Int)
-(declare-fun stringLength (U) Int)
+(declare-fun strContent (U) (Seq Int))
 (assert (=> (and (and true (not false)) (not false)) (= $t2 (select fld$int.count c))))
 (assert (=> (and (and true (not false)) (not false)) (>= (select fld$int.count c) 0)))
 (declare-const $result$1 Int)

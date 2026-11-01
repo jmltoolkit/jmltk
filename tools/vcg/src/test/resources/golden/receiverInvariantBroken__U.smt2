@@ -101,7 +101,7 @@
 (declare-const fld$int.counter$1 (Array U Int))
 (assert (= fld$int.counter$1 (ite (and (and true (not false)) (not false)) (store fld$int.counter r $t2) fld$int.counter)))
 (declare-const $t3 Int)
-(declare-fun stringLength (U) Int)
+(declare-fun strContent (U) (Seq Int))
 (declare-const $t4 Int)
 (declare-const fld$int.counter$2 (Array U Int))
 (assert (= fld$int.counter$2 (ite true (store fld$int.counter$1 r $t4) fld$int.counter$1)))

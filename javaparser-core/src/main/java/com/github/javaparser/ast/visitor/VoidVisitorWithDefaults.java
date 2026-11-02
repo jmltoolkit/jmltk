@@ -909,4 +909,9 @@ public abstract class VoidVisitorWithDefaults<A> implements VoidVisitor<A> {
     public void visit(final JmlContractBehavior n, final A arg) {
         defaultAction(n, arg);
     }
+
+    @Override
+    public void visit(final JmlMergePointStmt n, final A arg) {
+        defaultAction(n, arg);
+    }
 }

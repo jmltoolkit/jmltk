@@ -54,7 +54,7 @@ public class JmlMergePointStmt extends JmlStatement implements NodeWithJmlTags<J
      * The abstraction procedure/property of {@code \\by}, e.g. {@code "MergeByPredicateAbstraction"}.
      */
     @OptionalProperty
-    private StringLiteralExpr using;
+    private StringLiteralExpr by;
 
     /**
      * The lattice name given by {@code \\lattice}, e.g. {@code conjunctive}.
@@ -78,11 +78,11 @@ public class JmlMergePointStmt extends JmlStatement implements NodeWithJmlTags<J
     @AllFieldsConstructor
     public JmlMergePointStmt(
             NodeList<SimpleName> jmlTags,
-            StringLiteralExpr using,
+            StringLiteralExpr by,
             StringLiteralExpr lattice,
             Parameter predicateVariable,
             NodeList<Expression> predicates) {
-        this(null, jmlTags, using, lattice, predicateVariable, predicates);
+        this(null, jmlTags, by, lattice, predicateVariable, predicates);
     }
 
     /**
@@ -92,13 +92,13 @@ public class JmlMergePointStmt extends JmlStatement implements NodeWithJmlTags<J
     public JmlMergePointStmt(
             TokenRange tokenRange,
             NodeList<SimpleName> jmlTags,
-            StringLiteralExpr using,
+            StringLiteralExpr by,
             StringLiteralExpr lattice,
             Parameter predicateVariable,
             NodeList<Expression> predicates) {
         super(tokenRange);
         setJmlTags(jmlTags);
-        setUsing(using);
+        setBy(by);
         setLattice(lattice);
         setPredicateVariable(predicateVariable);
         setPredicates(predicates);
@@ -136,14 +136,14 @@ public class JmlMergePointStmt extends JmlStatement implements NodeWithJmlTags<J
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public JmlMergePointStmt setUsing(final @Nullable() StringLiteralExpr using) {
-        if (using == this.using) {
+    public JmlMergePointStmt setBy(final @Nullable() StringLiteralExpr by) {
+        if (by == this.by) {
             return this;
         }
-        notifyPropertyChange(ObservableProperty.USING, this.using, using);
-        if (this.using != null) this.using.setParentNode(null);
-        this.using = using;
-        setAsParentNodeOf(using);
+        notifyPropertyChange(ObservableProperty.BY, this.by, by);
+        if (this.by != null) this.by.setParentNode(null);
+        this.by = by;
+        setAsParentNodeOf(by);
         return this;
     }
 
@@ -247,14 +247,14 @@ public class JmlMergePointStmt extends JmlStatement implements NodeWithJmlTags<J
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Optional<StringLiteralExpr> getUsing() {
-        return Optional.ofNullable(using);
+    public Optional<StringLiteralExpr> getBy() {
+        return Optional.ofNullable(by);
     }
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @Nullable() StringLiteralExpr using() {
-        return using;
+    public @Nullable() StringLiteralExpr by() {
+        return by;
     }
 
     @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
@@ -268,8 +268,8 @@ public class JmlMergePointStmt extends JmlStatement implements NodeWithJmlTags<J
     }
 
     @Generated("com.github.javaparser.generator.core.node.RemoveMethodGenerator")
-    public JmlMergePointStmt removeUsing() {
-        return setUsing((StringLiteralExpr) null);
+    public JmlMergePointStmt removeBy() {
+        return setBy((StringLiteralExpr) null);
     }
 
     @Override
@@ -277,6 +277,12 @@ public class JmlMergePointStmt extends JmlStatement implements NodeWithJmlTags<J
     public boolean remove(Node node) {
         if (node == null) {
             return false;
+        }
+        if (by != null) {
+            if (node == by) {
+                removeBy();
+                return true;
+            }
         }
         for (int i = 0; i < jmlTags.size(); i++) {
             if (jmlTags.get(i) == node) {
@@ -304,12 +310,6 @@ public class JmlMergePointStmt extends JmlStatement implements NodeWithJmlTags<J
                 }
             }
         }
-        if (using != null) {
-            if (node == using) {
-                removeUsing();
-                return true;
-            }
-        }
         return super.remove(node);
     }
 
@@ -318,6 +318,12 @@ public class JmlMergePointStmt extends JmlStatement implements NodeWithJmlTags<J
     public boolean replace(Node node, Node replacementNode) {
         if (node == null) {
             return false;
+        }
+        if (by != null) {
+            if (node == by) {
+                setBy((StringLiteralExpr) replacementNode);
+                return true;
+            }
         }
         for (int i = 0; i < jmlTags.size(); i++) {
             if (jmlTags.get(i) == node) {
@@ -343,12 +349,6 @@ public class JmlMergePointStmt extends JmlStatement implements NodeWithJmlTags<J
                     predicates.set(i, (Expression) replacementNode);
                     return true;
                 }
-            }
-        }
-        if (using != null) {
-            if (node == using) {
-                setUsing((StringLiteralExpr) replacementNode);
-                return true;
             }
         }
         return super.replace(node, replacementNode);

@@ -3267,6 +3267,10 @@ public abstract class GenericVisitorAdapter<R, A> implements GenericVisitor<R, A
     @Override
     public R visit(final JmlMergePointStmt n, final A arg) {
         R result;
+        if (n.getBy().isPresent()) {
+            result = n.getBy().get().accept(this, arg);
+            if (result != null) return result;
+        }
         {
             result = n.getJmlTags().accept(this, arg);
             if (result != null) return result;
@@ -3281,10 +3285,6 @@ public abstract class GenericVisitorAdapter<R, A> implements GenericVisitor<R, A
         }
         if (n.getPredicates().isPresent()) {
             result = n.getPredicates().get().accept(this, arg);
-            if (result != null) return result;
-        }
-        if (n.getUsing().isPresent()) {
-            result = n.getUsing().get().accept(this, arg);
             if (result != null) return result;
         }
         if (n.getComment().isPresent()) {

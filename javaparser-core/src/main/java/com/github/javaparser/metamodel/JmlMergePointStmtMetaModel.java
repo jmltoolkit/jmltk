@@ -32,6 +32,8 @@ public class JmlMergePointStmtMetaModel extends JmlStatementMetaModel {
                 false);
     }
 
+    public PropertyMetaModel byPropertyMetaModel;
+
     public PropertyMetaModel jmlTagsPropertyMetaModel;
 
     public PropertyMetaModel latticePropertyMetaModel;
@@ -39,6 +41,4 @@ public class JmlMergePointStmtMetaModel extends JmlStatementMetaModel {
     public PropertyMetaModel predicateVariablePropertyMetaModel;
 
     public PropertyMetaModel predicatesPropertyMetaModel;
-
-    public PropertyMetaModel usingPropertyMetaModel;
 }

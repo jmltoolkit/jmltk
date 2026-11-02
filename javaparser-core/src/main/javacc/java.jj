@@ -7151,21 +7151,21 @@ JmlStatement JmlSpecialStatement():
 JmlMergePointStmt JmlMergePoint():
 {
     JavaToken begin;
-    StringLiteralExpr using = null, lattice = null;
+    StringLiteralExpr by = null, lattice = null;
     Parameter predicateVariable = null;
     NodeList<Expression> predicates = null;
 }
 {
     <MERGE_POINT> { begin = token(); }
     [ LOOKAHEAD({ "\\by".equals(getToken(1).image) })
-      ( <BY> | <JML_IDENTIFIER> ) using = JmlKeyValue() ]
+      ( <BY> | <JML_IDENTIFIER> ) by = JmlKeyValue() ]
     [ LOOKAHEAD({ getToken(1).kind == JML_IDENTIFIER && "\\lattice".equals(getToken(1).image) })
       <JML_IDENTIFIER> lattice = JmlKeyValue() ]
     [ LOOKAHEAD({ getToken(1).kind == JML_IDENTIFIER && "\\predicate".equals(getToken(1).image) })
       <JML_IDENTIFIER>
       "(" predicateVariable = Parameter() ")" ":" predicates = ExpressionList() ]
     ";"
-    { return new JmlMergePointStmt(range(begin, token()), new NodeList<>(), using, lattice, predicateVariable, predicates); }
+    { return new JmlMergePointStmt(range(begin, token()), new NodeList<>(), by, lattice, predicateVariable, predicates); }
 }
 
 /**

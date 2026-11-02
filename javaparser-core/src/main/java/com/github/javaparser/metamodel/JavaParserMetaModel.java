@@ -588,7 +588,7 @@ public final class JavaParserMetaModel {
                 .add(jmlExpressionStmtMetaModel.expressionPropertyMetaModel);
         jmlExpressionStmtMetaModel.getConstructorParameters().add(jmlExpressionStmtMetaModel.scriptPropertyMetaModel);
         jmlMergePointStmtMetaModel.getConstructorParameters().add(jmlMergePointStmtMetaModel.jmlTagsPropertyMetaModel);
-        jmlMergePointStmtMetaModel.getConstructorParameters().add(jmlMergePointStmtMetaModel.usingPropertyMetaModel);
+        jmlMergePointStmtMetaModel.getConstructorParameters().add(jmlMergePointStmtMetaModel.byPropertyMetaModel);
         jmlMergePointStmtMetaModel.getConstructorParameters().add(jmlMergePointStmtMetaModel.latticePropertyMetaModel);
         jmlMergePointStmtMetaModel
                 .getConstructorParameters()
@@ -3938,6 +3938,16 @@ public final class JavaParserMetaModel {
         jmlExpressionStmtMetaModel
                 .getDeclaredPropertyMetaModels()
                 .add(jmlExpressionStmtMetaModel.scriptPropertyMetaModel);
+        jmlMergePointStmtMetaModel.byPropertyMetaModel = new PropertyMetaModel(
+                jmlMergePointStmtMetaModel,
+                "by",
+                com.github.javaparser.ast.expr.StringLiteralExpr.class,
+                Optional.of(stringLiteralExprMetaModel),
+                true,
+                false,
+                false,
+                false);
+        jmlMergePointStmtMetaModel.getDeclaredPropertyMetaModels().add(jmlMergePointStmtMetaModel.byPropertyMetaModel);
         jmlMergePointStmtMetaModel.jmlTagsPropertyMetaModel = new PropertyMetaModel(
                 jmlMergePointStmtMetaModel,
                 "jmlTags",
@@ -3986,18 +3996,6 @@ public final class JavaParserMetaModel {
         jmlMergePointStmtMetaModel
                 .getDeclaredPropertyMetaModels()
                 .add(jmlMergePointStmtMetaModel.predicatesPropertyMetaModel);
-        jmlMergePointStmtMetaModel.usingPropertyMetaModel = new PropertyMetaModel(
-                jmlMergePointStmtMetaModel,
-                "using",
-                com.github.javaparser.ast.expr.StringLiteralExpr.class,
-                Optional.of(stringLiteralExprMetaModel),
-                true,
-                false,
-                false,
-                false);
-        jmlMergePointStmtMetaModel
-                .getDeclaredPropertyMetaModels()
-                .add(jmlMergePointStmtMetaModel.usingPropertyMetaModel);
         jmlRefiningStmtMetaModel.jmlTagsPropertyMetaModel = new PropertyMetaModel(
                 jmlRefiningStmtMetaModel,
                 "jmlTags",

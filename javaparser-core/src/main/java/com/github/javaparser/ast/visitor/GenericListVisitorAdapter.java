@@ -3442,6 +3442,10 @@ public abstract class GenericListVisitorAdapter<R, A> implements GenericVisitor<
     public List<R> visit(final JmlMergePointStmt n, final A arg) {
         List<R> result = new ArrayList<>();
         List<R> tmp;
+        if (n.getBy().isPresent()) {
+            tmp = n.getBy().get().accept(this, arg);
+            if (tmp != null) result.addAll(tmp);
+        }
         {
             tmp = n.getJmlTags().accept(this, arg);
             if (tmp != null) result.addAll(tmp);
@@ -3456,10 +3460,6 @@ public abstract class GenericListVisitorAdapter<R, A> implements GenericVisitor<
         }
         if (n.getPredicates().isPresent()) {
             tmp = n.getPredicates().get().accept(this, arg);
-            if (tmp != null) result.addAll(tmp);
-        }
-        if (n.getUsing().isPresent()) {
-            tmp = n.getUsing().get().accept(this, arg);
             if (tmp != null) result.addAll(tmp);
         }
         if (n.getComment().isPresent()) {

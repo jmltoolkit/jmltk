@@ -1271,11 +1271,11 @@ public abstract class VoidVisitorAdapter<A> implements VoidVisitor<A> {
 
     @Override
     public void visit(final JmlMergePointStmt n, final A arg) {
+        n.getBy().ifPresent(l -> l.accept(this, arg));
         n.getJmlTags().forEach(p -> p.accept(this, arg));
         n.getLattice().ifPresent(l -> l.accept(this, arg));
         n.getPredicateVariable().ifPresent(l -> l.accept(this, arg));
         n.getPredicates().ifPresent(l -> l.forEach(v -> v.accept(this, arg)));
-        n.getUsing().ifPresent(l -> l.accept(this, arg));
         n.getComment().ifPresent(l -> l.accept(this, arg));
     }
 }

@@ -39,16 +39,16 @@ class JmlMergePointTest {
     @Test
     void bareMergePoint() {
         JmlMergePointStmt stmt = parseMergePoint("merge_point;");
-        assertThat(stmt.getUsing()).isEmpty();
+        assertThat(stmt.getBy()).isEmpty();
         assertThat(stmt.getLattice()).isEmpty();
         assertThat(stmt.getPredicateVariable()).isEmpty();
         assertThat(stmt.getPredicates()).isEmpty();
     }
 
     @Test
-    void usingAsStringLiteral() {
+    void byAsStringLiteral() {
         JmlMergePointStmt stmt = parseMergePoint("merge_point \\by \"MergeByIfThenElse\";");
-        assertThat(stmt.getUsing())
+        assertThat(stmt.getBy())
                 .isPresent()
                 .get()
                 .extracting(StringLiteralExpr::getValue)
@@ -59,9 +59,9 @@ class JmlMergePointTest {
     }
 
     @Test
-    void usingAsIdentifierIsNormalisedToLiteral() {
+    void byAsIdentifierIsNormalisedToLiteral() {
         JmlMergePointStmt stmt = parseMergePoint("merge_point \\by MergeByIfThenElse;");
-        assertThat(stmt.getUsing())
+        assertThat(stmt.getBy())
                 .isPresent()
                 .get()
                 .extracting(StringLiteralExpr::getValue)
@@ -93,7 +93,7 @@ class JmlMergePointTest {
         JmlMergePointStmt stmt = parseMergePoint("merge_point \\by \"MergeByPredicateAbstraction\"\n"
                 + "//@ \\lattice conjunctive\n"
                 + "//@ \\predicate (int x) : x >= 0, x == \\old(b) || x == -\\old(b);");
-        assertThat(stmt.getUsing())
+        assertThat(stmt.getBy())
                 .isPresent()
                 .get()
                 .extracting(StringLiteralExpr::getValue)

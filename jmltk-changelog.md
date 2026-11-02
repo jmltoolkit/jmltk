@@ -71,7 +71,8 @@ Index+element multi-binding (`int i, T e : a[i]`) stays deferred. Feature ⇒ mi
   `merge_point \by "MergeByPredicateAbstraction" \lattice conjunctive \predicate (int x) : x >= 0, x == \old(b) || x == -\old(b);`
   — all of `\by`, `\lattice` and `\predicate` are optional and must appear in this fixed order. The values of
   `\by`/`\lattice` may be given as a string literal or as a plain identifier; both forms are normalized to a
-  `StringLiteralExpr` in the AST. Includes metamodel, CSM, visitor and pretty-printer support, plus parser tests.
+  `StringLiteralExpr` in the AST, exposed as the `by`, `lattice`, `predicateVariable` and `predicates` properties
+  on `JmlMergePointStmt`. Includes metamodel, CSM, visitor and pretty-printer support, plus parser tests.
 - Examples: unblocked `key/firstTouch/11-StateMerging/A.java` (bare `merge_point;`) and rewrote
   `key/firstTouch/11-StateMerging/Gcd.java` from the legacy KeY `merge_proc`/`merge_params` syntax to the new
   `merge_point` options in `FullExamplesTest`.

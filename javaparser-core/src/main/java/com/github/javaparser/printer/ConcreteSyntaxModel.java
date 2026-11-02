@@ -1428,13 +1428,13 @@ public class ConcreteSyntaxModel {
                 sequence(
                         string(GeneratedJavaParserConstants.MERGE_POINT, "merge_point"),
                         conditional(
-                                USING,
+                                BY,
                                 IS_PRESENT,
                                 sequence(
                                         space(),
                                         string(GeneratedJavaParserConstants.JML_IDENTIFIER, "\\by"),
                                         space(),
-                                        child(USING))),
+                                        child(BY))),
                         conditional(
                                 LATTICE,
                                 IS_PRESENT,

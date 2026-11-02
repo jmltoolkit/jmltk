@@ -1722,9 +1722,9 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
         printOrphanCommentsBeforeThisChildNode(n);
         wrapInJmlIfNeededBlock(n.getJmlTags(), () -> {
             printer.print("merge_point");
-            n.getUsing().ifPresent(u -> {
+            n.getBy().ifPresent(b -> {
                 printer.print(" \\by ");
-                u.accept(this, arg);
+                b.accept(this, arg);
             });
             n.getLattice().ifPresent(l -> {
                 printer.print(" \\lattice ");

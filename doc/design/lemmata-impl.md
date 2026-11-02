@@ -1,5 +1,8 @@
 # Implementation Plan — JML lemmas & `use_lemma` proof commands (port of KeY PR #3971)
 
+**Status: experimental** — implemented on `weigl/lemmata` (PR #84); the language surface and the
+`JmlLemmaDeclaration` API may change.
+
 Executable checklist for the design in `lemmata.md`: a class-body `lemma`
 declaration in the KeY proof-script form only (`//@ lemma nospace(\seq s) \by {…}`;
 KeY's `assertionProof: BY (proofCmd | LBRACE (proofCmd)+ RBRACE)` is mandatory, so

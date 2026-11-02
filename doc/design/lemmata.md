@@ -1,6 +1,6 @@
 # Design: JML lemmas and `use_lemma` proof commands (port of KeY PR #3971) — `weigl/lemmata`
 
-Status: proposal (draft), not yet implemented.
+Status: **experimental** — implemented on `weigl/lemmata` (PR #84); language surface and API may change.
 Source: [KeYProject/key#3971 "JML Lemmas and proof scripts in model methods"](https://github.com/KeYProject/key/pull/3971)
 (draft, mattulbrich, milestone v3.1.0, branch `mattulbrich:jmlLemmas`).
 Branch: `weigl/lemmata`.

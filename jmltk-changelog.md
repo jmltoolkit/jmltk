@@ -70,11 +70,13 @@ Index+element multi-binding (`int i, T e : a[i]`) stays deferred. Feature ⇒ mi
 
 **Fixed**
 
-- Model methods and model/ghost fields (and other class-level JML declarations) placed *inside a method
-  body* are now rejected with a targeted problem — e.g. `Model method modelMethod is not allowed within
-  methods.` / `Model field modelField is not allowed within methods.` — instead of the raw method-level
-  grammar error ("Encountered unexpected token …") plus the generic `Could not handle the JML comment.`
-  fallback (`JmlProcessor`; parser tests in `ModelDeclarationInMethodTest`, commit `049b39550`).
+- Model methods, ghost methods, model/ghost fields (and other class-level JML declarations) placed *inside
+  a method body* are now rejected with a targeted problem — e.g. `Model method modelMethod is not allowed
+  within methods.` / `Ghost method ghostMethod is not allowed within methods.` / `Model field modelField
+  is not allowed within methods.` — instead of the raw method-level grammar error ("Encountered unexpected
+  token …") plus the generic `Could not handle the JML comment.` fallback (`JmlProcessor`; parser tests in
+  `ModelDeclarationInMethodTest`, commit `1381d5d73`). Local ghost variables (`/*@ ghost int local; */`),
+  which JML deliberately allows inside methods, keep parsing.
 
 ---
 

@@ -11,7 +11,6 @@ import com.github.javaparser.symbolsolver.JavaSymbolSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver
 import com.google.common.truth.Truth.assertThat
 import org.eclipse.lsp4j.CodeAction
-import org.eclipse.lsp4j.CodeActionContext
 import org.eclipse.lsp4j.Command
 import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.junit.jupiter.api.Test
@@ -26,15 +25,12 @@ import org.junit.jupiter.api.Test
  */
 class ElementQuantifierCodeActionTest {
 
-    private fun collect(code: String): MutableList<Either<Command, CodeAction>> {
+    private fun collect(code: String): List<Either<Command, CodeAction>> {
         val config = ParserConfiguration()
             .setProcessJml(true)
             .setSymbolResolver(JavaSymbolSolver(ReflectionTypeSolver(true)))
         val cu: CompilationUnit = JavaParser(config).parse(code).result.get()
-        val range = cu.range.orElseThrow()
-        val collector = CodeActionCollector(CodeActionContext(listOf(), null), range)
-        cu.accept(collector, null)
-        return collector.result
+        return CodeActionCollector.collect("file:///A.java", cu)
     }
 
     @Test

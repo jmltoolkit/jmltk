@@ -68,6 +68,14 @@ Index+element multi-binding (`int i, T e : a[i]`) stays deferred. Feature ⇒ mi
 - Tests & corpus: `jmlparser-jml-tests` M1 suite (`249c8fd05`), desugarer unit tests, and the `QuantArray.java`
   corpus fixture exercised by `FullExamplesTest` (all parser/backend suites green).
 
+**Fixed**
+
+- Model methods and model/ghost fields (and other class-level JML declarations) placed *inside a method
+  body* are now rejected with a targeted problem — e.g. `Model method modelMethod is not allowed within
+  methods.` / `Model field modelField is not allowed within methods.` — instead of the raw method-level
+  grammar error ("Encountered unexpected token …") plus the generic `Could not handle the JML comment.`
+  fallback (`JmlProcessor`; parser tests in `ModelDeclarationInMethodTest`, commit `049b39550`).
+
 ---
 
 ## Combined releases (JML + KeY, this repository)

@@ -87,6 +87,69 @@ Index+element multi-binding (`int i, T e : a[i]`) stays deferred. Feature ⇒ mi
   `ModelDeclarationInMethodTest`, commit `1381d5d73`). Local ghost variables (`/*@ ghost int local; */`),
   which JML deliberately allows inside methods, keep parsing.
 
+### Language Server Protocol & keyword-node AST (PR #61, `weigl/lsp`)
+
+Makes JML keywords first-class AST nodes and reworks the jmltk LSP server (code actions, document symbols,
+server plumbing). Rebased onto `main` after `3.28.2-J8.0-K13.6`/`1.0.0`.
+
+**Added**
+
+- JML keywords are now AST nodes: abstract `JmlKeywordNode` (implements `Jmlish`) with a `JmlKeyword`
+  interface (`jmlSymbol()`/`asString()`), and three keyword nodes — `JmlContractBehavior` (a contract's
+  behavior keyword, incl. British spellings and `feasible_behavior` → `behavior`), `JmlClauseKind`
+  (wrapping `JmlClauseKeyword`, e.g. `requires`/`ensures`/`assignable`/`signals`/`forall`) and
+  `JmlBodyClauseKind` (wrapping `JmlBodyClauseKeyword`, e.g. `invariant`/`constraint`/`axiom`/`initially`).
+  Clause/body-clause keywords are now child nodes with a token range (`1adcfd20a`, `b074e749d`).
+- Grammar (`java.jj`): behavior and clause productions now build the keyword nodes; loop/model contracts pass
+  `null` behavior where none is present.
+- LSP code actions reworked to a common `LspAction` interface discovered via `ServiceLoader`:
+  `AddBehaviorKeyword`, `AddNameToClauseOrContract`, `AddQuantification`, `AddBoundary` +
+  `ExpandQuantifierDomain` (via `JmlQuantifierDesugarer`), `AddStubs` code lens; reworked
+  `WellDefinednessCheck`, `VerifyAgainstParent`, `CreateKeyProjectFile`; `StartKey` removed (`e2820b134`,
+  `6aabdf640`, `5c586ac2b`).
+- Document symbols: `JmlCatchSymbols` (contracts, clauses, JML fields/represents/accessible declarations) and
+  `KeyCatchSymbols` (function declarations, predicates, schema variables, taclets).
+- Server/launcher: custom `Launcher` construction (executor service, message validation, new
+  `--trace [-|file]`, `tcpNoDelay` + `keepAlive`), semantic tokens for `**/*.{jml,java}` and `**/*.key`,
+  expanded docs (`doc.md`, new `sol.md`), `eglot.el`.
+- Tests: `VariableDeclarationErrorPositionTest`, `CodeActionsUnitTest`, `JmlCatchSymbolsTest`,
+  `KeyCatchSymbolsTest`, `CodeActionCollectorTest`, `ElementQuantifierCodeActionTest`, `JmlClauseKeywordTest`;
+  LSP suite grows 17 → 53 tests (instruction coverage 39.6% → 61.6%) (`e2820b134`).
+- Utility helpers in `tools/utils` (`JMLUtils`), `stat` counters, `lint` rule package move, `redux`
+  `RecordClassBuilder`, `jmlstub` `JREClassStubGenerator` updated for the keyword nodes.
+
+**Changed**
+
+- *Breaking* (downstream, in particular KeY): `com.github.javaparser.ast.stmt.Behavior` is removed;
+  `JmlContract` now stores a `JmlContractBehavior` node or `null` instead of `Behavior.NONE`
+  (`getBehavior()` → `Optional<JmlContractBehavior>`, `behavior()` now `@Nullable`). `JmlClause` subclasses no
+  longer keep their own `kind` field — the keyword node is a regular child, so clause child-node counts shift
+  by one. `abrupt_behavior` now maps to `JmlBehaviorKeyword.ABRUPT` instead of being folded into `BREAK`.
+  `Node.associatedSpecificationComments`/`ObservableProperty.ASSOCIATED_SPECIFICATION_COMMENTS` removed;
+  `Node.treeIterator` is public.
+- Error positions for malformed local variable declarations: `BlockStatement` lookahead rewritten to
+  `Modifiers() Type() Identifier() (ArrayBracketPair())* ("," | "=" | ";")` so `int i = ;` is reported at the
+  offending token instead of the statement start (regression `VariableDeclarationErrorPositionTest`).
+- Regenerated metamodel, `JavaParserMetaModel`, visitors and pretty-printers for the keyword nodes and the
+  merged `JmlQuantifiedVariable`/KeY label nodes (`58218de58`, `7a8039020`, `cd4639c2f`, `5bb102edf`,
+  `796ac8684`).
+
+**Fixed**
+
+- `AddNameToClauseOrContract` no longer crashes the whole `textDocument/codeAction` request for unsupported
+  declarations (only claims nodes `createEdit`/`hasName` support); `CodeActionCollector` guards
+  `isCallableForNode`/`createCodeAction` so a failing action degrades to "no action" instead of aborting the
+  request (`AddQuantification`'s unresolved-symbol path included).
+- `AddBehaviorKeyword` emits a valid VS Code snippet choice and drops the empty `NONE` keyword from the
+  choices (`6aabdf640`).
+- `JmlClauseKeyword` token constants corrected (`DETERMINES`/`LOOP_DETERMINES`/`SEPARATES`/
+  `LOOP_SEPARATES` no longer point at `DURATION_REDUNDANTLY`); `DECREASING_REDUNDANTLY` added so
+  `decreasing_redundantly` loop contracts parse (`5c586ac2b`).
+- Unimplemented actions no longer advertised: `WellDefinednessCheck` stops offering its quick-fix, `AddStubs`
+  stops registering the code lens; `VerifyAgainstParent` cache populated so the offered command reports.
+- KeY label-after-keyword printing (`assert LAB: e;`) restored in the hand-maintained printers after the
+  rebase (`cd4639c2f`, `5bb102edf`, `796ac8684`); `JmlProcessor`/grammar error-positioning restored.
+
 ---
 
 ## Combined releases (JML + KeY, this repository)

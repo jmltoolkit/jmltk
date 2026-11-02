@@ -74,7 +74,7 @@ Index+element multi-binding (`int i, T e : a[i]`) stays deferred. Feature ⇒ mi
   body* are now rejected with a targeted problem — e.g. `Model method modelMethod is not allowed within
   methods.` / `Model field modelField is not allowed within methods.` — instead of the raw method-level
   grammar error ("Encountered unexpected token …") plus the generic `Could not handle the JML comment.`
-  fallback (`JmlProcessor`; parser tests in `ModelDeclarationInMethodTest`, commit `049b39550`).
+  fallback (`JmlProcessor`; parser tests in `ModelDeclarationInMethodTest`, commit `c73bee629`).
 
 ---
 

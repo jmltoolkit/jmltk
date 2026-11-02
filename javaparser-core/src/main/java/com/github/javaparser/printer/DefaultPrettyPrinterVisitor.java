@@ -1717,6 +1717,29 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
         printSuffix(n.getSuffix());
     }
 
+    @Override
+    public void visit(JmlMergePointStmt n, Void arg) {
+        printOrphanCommentsBeforeThisChildNode(n);
+        wrapInJmlIfNeededBlock(n.getJmlTags(), () -> {
+            printer.print("merge_point");
+            n.getBy().ifPresent(b -> {
+                printer.print(" \\by ");
+                b.accept(this, arg);
+            });
+            n.getLattice().ifPresent(l -> {
+                printer.print(" \\lattice ");
+                l.accept(this, arg);
+            });
+            n.getPredicateVariable().ifPresent(p -> {
+                printer.print(" \\predicate (");
+                p.accept(this, arg);
+                printer.print(") : ");
+                printList(n.getPredicates().orElse(new NodeList<>()), ", ");
+            });
+            printer.print(";");
+        });
+    }
+
     private void printSuffix(NodeList<JmlProofStmt> suffix) {
         printSuffix(suffix, true);
     }

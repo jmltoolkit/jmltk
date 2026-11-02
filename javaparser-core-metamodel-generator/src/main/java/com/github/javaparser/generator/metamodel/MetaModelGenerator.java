@@ -215,6 +215,7 @@ public class MetaModelGenerator extends AbstractGenerator {
             add(JmlStatement.class);
             add(JmlGhostStmt.class);
             add(JmlExpressionStmt.class);
+            add(JmlMergePointStmt.class);
             add(JmlRefiningStmt.class);
             add(JmlUnreachableStmt.class);
             add(JmlLabelStmt.class);

@@ -7109,6 +7109,7 @@ JmlStatement JmlStatement():
     { ret =  new JmlGhostStmt(range(begin, token()), new NodeList<>(), stmt); }
   | <UNREACHABLE> {begin=token();} ";"
     { ret =  new JmlUnreachableStmt(range(begin, token()), new NodeList<>()); }
+  | ret = JmlMergePoint()
 
   )
   { return ret; }
@@ -7131,6 +7132,56 @@ JmlStatement JmlSpecialStatement():
     { ret =  new JmlBeginStmt(range(token(), token()), new NodeList<>()); }
   )
   { return ret; }
+}
+
+/**
+ * JML {@code merge_point} statement, e.g.
+ * <pre>{@code
+ * merge_point \\by "MergeByPredicateAbstraction"
+ *             \\lattice conjunctive
+ *             \\predicate (int x) : x >= 0, x == \\old(b) || x == -\\old(b);
+ * }</pre>
+ * The options {@code \\by}, {@code \\lattice} and {@code \\predicate} are each optional
+ * and appear in exactly this order. Values after {@code \\by}/{@code \\lattice} may be
+ * given either as a string literal or as a plain identifier; the latter is normalised to a
+ * string literal in the AST. {@code \\by} is a dedicated token (shared with JML proof scripts),
+ * so the option matches on the token image and accepts either the {@code BY} or the
+ * {@code JML_IDENTIFIER} token kind.
+ */
+JmlMergePointStmt JmlMergePoint():
+{
+    JavaToken begin;
+    StringLiteralExpr by = null, lattice = null;
+    Parameter predicateVariable = null;
+    NodeList<Expression> predicates = null;
+}
+{
+    <MERGE_POINT> { begin = token(); }
+    [ LOOKAHEAD({ "\\by".equals(getToken(1).image) })
+      ( <BY> | <JML_IDENTIFIER> ) by = JmlKeyValue() ]
+    [ LOOKAHEAD({ getToken(1).kind == JML_IDENTIFIER && "\\lattice".equals(getToken(1).image) })
+      <JML_IDENTIFIER> lattice = JmlKeyValue() ]
+    [ LOOKAHEAD({ getToken(1).kind == JML_IDENTIFIER && "\\predicate".equals(getToken(1).image) })
+      <JML_IDENTIFIER>
+      "(" predicateVariable = Parameter() ")" ":" predicates = ExpressionList() ]
+    ";"
+    { return new JmlMergePointStmt(range(begin, token()), new NodeList<>(), by, lattice, predicateVariable, predicates); }
+}
+
+/**
+ * A key/value option argument of {@code merge_point}: either a string literal or a
+ * plain identifier, normalised into a {@link StringLiteralExpr}.
+ */
+StringLiteralExpr JmlKeyValue():
+{
+    StringLiteralExpr ret;
+}
+{
+    (
+        <STRING_LITERAL> { ret = new StringLiteralExpr(tokenRange(), unquote(token.image)); }
+      | <IDENTIFIER>     { ret = new StringLiteralExpr(tokenRange(), token.image); }
+    )
+    { return ret; }
 }
 
 /*

@@ -2356,6 +2356,9 @@ public class PrettyPrintVisitor implements VoidVisitor<Void> {
     public void visit(JmlProofCaseStmt n, Void arg) {}
 
     @Override
+    public void visit(JmlMergePointStmt n, Void arg) {}
+
+    @Override
     public void visit(JmlMethodSignature n, Void arg) {}
 
     private void printOrphanCommentsBeforeThisChildNode(final Node node) {

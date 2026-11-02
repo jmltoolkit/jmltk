@@ -808,4 +808,9 @@ public class ObjectIdentityHashCodeVisitor implements GenericVisitor<Integer, Vo
     public Integer visit(final JmlQuantifiedVariable n, final Void arg) {
         return n.hashCode();
     }
+
+    @Override
+    public Integer visit(final JmlMergePointStmt n, final Void arg) {
+        return n.hashCode();
+    }
 }

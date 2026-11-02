@@ -84,8 +84,6 @@ class FullExamplesTest {
         blocked.add("/key/standard_key/BookExamples/10UsingKeY/Bank-JML/classpath/AbstractButton.java");
         blocked.add("/key/standard_key/BookExamples/10UsingKeY/Bank-JML/classpath/JFrame.java");
         blocked.add("/key/standard_key/BookExamples/10UsingKeY/Bank-JML/classpath/JButton.java");
-        blocked.add("/key/firstTouch/11-StateMerging/A.java");
-        blocked.add("/key/firstTouch/11-StateMerging/Gcd.java");
         blocked.add("/key/completionscopes/src/CompletionScopes.java");
         blocked.add("/key/standard_key/java_dl/payCardJML/classpath/JTextComponent.java");
         blocked.add("/key/standard_key/java_dl/payCardJML/classpath/Component.java");

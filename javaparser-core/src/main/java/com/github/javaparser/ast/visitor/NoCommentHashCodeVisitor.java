@@ -1062,4 +1062,16 @@ public class NoCommentHashCodeVisitor implements GenericVisitor<Integer, Void> {
                 + (n.getName().accept(this, arg)) * 31
                 + (n.getType().accept(this, arg));
     }
+
+    @Override
+    public Integer visit(final JmlMergePointStmt n, final Void arg) {
+        return (n.getBy().isPresent() ? n.getBy().get().accept(this, arg) : 0) * 31
+                + (n.getJmlTags().accept(this, arg)) * 31
+                + (n.getLattice().isPresent() ? n.getLattice().get().accept(this, arg) : 0) * 31
+                + (n.getPredicateVariable().isPresent()
+                                ? n.getPredicateVariable().get().accept(this, arg)
+                                : 0)
+                        * 31
+                + (n.getPredicates().isPresent() ? n.getPredicates().get().accept(this, arg) : 0);
+    }
 }

@@ -1542,4 +1542,15 @@ public class NoCommentEqualsVisitor implements GenericVisitor<Boolean, Visitable
         if (!nodeEquals(n.getType(), n2.getType())) return false;
         return true;
     }
+
+    @Override
+    public Boolean visit(final JmlMergePointStmt n, final Visitable arg) {
+        final JmlMergePointStmt n2 = (JmlMergePointStmt) arg;
+        if (!nodeEquals(n.getBy(), n2.getBy())) return false;
+        if (!nodesEquals(n.getJmlTags(), n2.getJmlTags())) return false;
+        if (!nodeEquals(n.getLattice(), n2.getLattice())) return false;
+        if (!nodeEquals(n.getPredicateVariable(), n2.getPredicateVariable())) return false;
+        if (!nodesEquals(n.getPredicates(), n2.getPredicates())) return false;
+        return true;
+    }
 }

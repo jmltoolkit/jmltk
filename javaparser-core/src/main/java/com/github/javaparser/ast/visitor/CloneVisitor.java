@@ -2285,6 +2285,7 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
         copyData(n, r);
         return r;
     }
+
     @Override
     public Visitable visit(final JmlLemmaDeclaration n, final Object arg) {
         NodeList<SimpleName> jmlTags = cloneList(n.getJmlTags(), arg);
@@ -2300,4 +2301,5 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
         n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
         copyData(n, r);
         return r;
-    }}
+    }
+}

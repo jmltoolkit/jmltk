@@ -82,7 +82,11 @@ jobs:
         name: Install Z3 SMT solver
         uses: KeYProject/setup-smt@f4ecc2ef28ca8af8a9ae72ece0dbaa00d217943d  # v0.3.1
         with:
-          z3Version: '4.13.3'
+          # 4.15.4: the newest release the pinned setup-smt action installs on every
+          # OS in the matrix. Z3 < 4.15 does not terminate on quantified bit-vector
+          # queries (e.g. the binarySearch firstTouch postcondition), which shows up
+          # as UNKNOWN verdicts in :tools:cli e2e tests; 4.15+ decides them.
+          z3Version: '4.15.4'
           cvc5Version: 'false'
 
       - name: Check z3 is on PATH

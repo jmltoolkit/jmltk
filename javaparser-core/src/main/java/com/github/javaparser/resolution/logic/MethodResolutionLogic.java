@@ -900,7 +900,9 @@ public class MethodResolutionLogic {
                     if (declaration.isProtected()
                             && !(containerType.isAssignableBy(invocationContext) || samePackage)) {
                         methods.remove(method);
-                    } else if (declaration.getAccessSpecifier() == AccessSpecifier.NONE && !samePackage) {
+                    } else if (declaration.getAccessSpecifier() == AccessSpecifier.NONE
+                            && !containerType.isInterface()
+                            && !samePackage) {
                         methods.remove(method);
                     }
                 }

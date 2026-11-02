@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Parser tests for the JML {@code merge_point} statement, e.g.
  * <pre>{@code
- * //@ merge_point \\using "MergeByPredicateAbstraction"
+ * //@ merge_point \\by "MergeByPredicateAbstraction"
  * //@     \\lattice conjunctive
  * //@     \\predicate (int x) : x >= 0, x == \\old(b) || x == -\\old(b);
  * }</pre>
@@ -47,7 +47,7 @@ class JmlMergePointTest {
 
     @Test
     void usingAsStringLiteral() {
-        JmlMergePointStmt stmt = parseMergePoint("merge_point \\using \"MergeByIfThenElse\";");
+        JmlMergePointStmt stmt = parseMergePoint("merge_point \\by \"MergeByIfThenElse\";");
         assertThat(stmt.getUsing())
                 .isPresent()
                 .get()
@@ -60,7 +60,7 @@ class JmlMergePointTest {
 
     @Test
     void usingAsIdentifierIsNormalisedToLiteral() {
-        JmlMergePointStmt stmt = parseMergePoint("merge_point \\using MergeByIfThenElse;");
+        JmlMergePointStmt stmt = parseMergePoint("merge_point \\by MergeByIfThenElse;");
         assertThat(stmt.getUsing())
                 .isPresent()
                 .get()
@@ -90,7 +90,7 @@ class JmlMergePointTest {
 
     @Test
     void fullExample() {
-        JmlMergePointStmt stmt = parseMergePoint("merge_point \\using \"MergeByPredicateAbstraction\"\n"
+        JmlMergePointStmt stmt = parseMergePoint("merge_point \\by \"MergeByPredicateAbstraction\"\n"
                 + "//@ \\lattice conjunctive\n"
                 + "//@ \\predicate (int x) : x >= 0, x == \\old(b) || x == -\\old(b);");
         assertThat(stmt.getUsing())
@@ -115,11 +115,11 @@ class JmlMergePointTest {
 
     @Test
     void roundTripPrinting() {
-        JmlMergePointStmt stmt = parseMergePoint("merge_point \\using \"MergeByPredicateAbstraction\"\n"
+        JmlMergePointStmt stmt = parseMergePoint("merge_point \\by \"MergeByPredicateAbstraction\"\n"
                 + "//@ \\lattice conjunctive\n"
                 + "//@ \\predicate (int x) : x >= 0, x == \\old(b) || x == -\\old(b);");
         assertThat(stmt.toString().trim())
-                .isEqualTo("/*@ merge_point \\using \"MergeByPredicateAbstraction\" "
+                .isEqualTo("/*@ merge_point \\by \"MergeByPredicateAbstraction\" "
                         + "\\lattice \"conjunctive\" \\predicate (int x) : "
                         + "x >= 0, x == \\old(b) || x == -\\old(b);*/");
     }

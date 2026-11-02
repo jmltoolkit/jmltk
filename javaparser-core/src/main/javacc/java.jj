@@ -7137,14 +7137,16 @@ JmlStatement JmlSpecialStatement():
 /**
  * JML {@code merge_point} statement, e.g.
  * <pre>{@code
- * merge_point \\using "MergeByPredicateAbstraction"
+ * merge_point \\by "MergeByPredicateAbstraction"
  *             \\lattice conjunctive
  *             \\predicate (int x) : x >= 0, x == \\old(b) || x == -\\old(b);
  * }</pre>
- * The options {@code \\using}, {@code \\lattice} and {@code \\predicate} are each optional
- * and appear in exactly this order. Values after {@code \\using}/{@code \\lattice} may be
+ * The options {@code \\by}, {@code \\lattice} and {@code \\predicate} are each optional
+ * and appear in exactly this order. Values after {@code \\by}/{@code \\lattice} may be
  * given either as a string literal or as a plain identifier; the latter is normalised to a
- * string literal in the AST.
+ * string literal in the AST. {@code \\by} is a dedicated token (shared with JML proof scripts),
+ * so the option matches on the token image and accepts either the {@code BY} or the
+ * {@code JML_IDENTIFIER} token kind.
  */
 JmlMergePointStmt JmlMergePoint():
 {
@@ -7155,8 +7157,8 @@ JmlMergePointStmt JmlMergePoint():
 }
 {
     <MERGE_POINT> { begin = token(); }
-    [ LOOKAHEAD({ getToken(1).kind == JML_IDENTIFIER && "\\using".equals(getToken(1).image) })
-      <JML_IDENTIFIER> using = JmlKeyValue() ]
+    [ LOOKAHEAD({ "\\by".equals(getToken(1).image) })
+      ( <BY> | <JML_IDENTIFIER> ) using = JmlKeyValue() ]
     [ LOOKAHEAD({ getToken(1).kind == JML_IDENTIFIER && "\\lattice".equals(getToken(1).image) })
       <JML_IDENTIFIER> lattice = JmlKeyValue() ]
     [ LOOKAHEAD({ getToken(1).kind == JML_IDENTIFIER && "\\predicate".equals(getToken(1).image) })

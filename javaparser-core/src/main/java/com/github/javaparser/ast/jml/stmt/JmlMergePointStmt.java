@@ -34,12 +34,12 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
  * A JML {@code merge_point} statement, used to insert a state-merging/abstraction point
  * into a Java method, e.g.
  * <pre>{@code
- * //@ merge_point \\using "MergeByPredicateAbstraction"
+ * //@ merge_point \\by "MergeByPredicateAbstraction"
  * //@     \\lattice conjunctive
  * //@     \\predicate (int x) : x >= 0, x == \\old(b) || x == -\\old(b);
  * }</pre>
  *
- * <p>The statement is used by KeY-style state merging: {@code \\using} names the abstraction
+ * <p>The statement is used by KeY-style state merging: {@code \\by} names the abstraction
  * strategy (or the procedure implementing it, given as a string literal or identifier),
  * {@code \\lattice} names the lattice, and {@code \\predicate} binds a variable {@code (type name)}
  * and lists the abstraction predicates separating it by commas.</p>
@@ -51,7 +51,7 @@ public class JmlMergePointStmt extends JmlStatement implements NodeWithJmlTags<J
     private NodeList<SimpleName> jmlTags;
 
     /**
-     * The abstraction procedure/property of {@code \\using}, e.g. {@code "MergeByPredicateAbstraction"}.
+     * The abstraction procedure/property of {@code \\by}, e.g. {@code "MergeByPredicateAbstraction"}.
      */
     @OptionalProperty
     private StringLiteralExpr using;

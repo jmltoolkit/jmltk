@@ -1432,7 +1432,7 @@ public class ConcreteSyntaxModel {
                                 IS_PRESENT,
                                 sequence(
                                         space(),
-                                        string(GeneratedJavaParserConstants.JML_IDENTIFIER, "\\using"),
+                                        string(GeneratedJavaParserConstants.JML_IDENTIFIER, "\\by"),
                                         space(),
                                         child(USING))),
                         conditional(

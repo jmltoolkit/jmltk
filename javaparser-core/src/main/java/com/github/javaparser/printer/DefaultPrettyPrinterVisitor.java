@@ -1723,7 +1723,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
         wrapInJmlIfNeededBlock(n.getJmlTags(), () -> {
             printer.print("merge_point");
             n.getUsing().ifPresent(u -> {
-                printer.print(" \\using ");
+                printer.print(" \\by ");
                 u.accept(this, arg);
             });
             n.getLattice().ifPresent(l -> {

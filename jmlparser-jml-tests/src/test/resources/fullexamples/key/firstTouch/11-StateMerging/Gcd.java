@@ -10,11 +10,11 @@ public class Gcd {
     public static int gcd(int a, int b) {
         if (a < 0) a = -a;
 
-        //@ merge_point \using "MergeByIfThenElse";
+        //@ merge_point \by "MergeByIfThenElse";
 
         if (b < 0) b = -b;
 
-        //@ merge_point \using "MergeByPredicateAbstraction"
+        //@ merge_point \by "MergeByPredicateAbstraction"
         //@     \lattice conjunctive
         //@     \predicate (int x) : x >= 0, x == \old(b) || x == -\old(b);
 

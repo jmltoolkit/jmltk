@@ -199,6 +199,8 @@ public interface VoidVisitor<A> {
 
     void visit(JmlQuantifiedVariable n, A arg);
 
+    void visit(JmlMergePointStmt n, A arg);
+
     void visit(VoidType n, A arg);
 
     void visit(WhileStmt n, A arg);

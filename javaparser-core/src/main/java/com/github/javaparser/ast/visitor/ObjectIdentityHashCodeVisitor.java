@@ -364,6 +364,10 @@ public class ObjectIdentityHashCodeVisitor implements GenericVisitor<Integer, Vo
         return n.hashCode();
     }
 
+    public Integer visit(final JmlMergePointStmt n, final Void arg) {
+        return n.hashCode();
+    }
+
     public Integer visit(final VoidType n, final Void arg) {
         return n.hashCode();
     }

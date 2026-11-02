@@ -374,4 +374,6 @@ public interface VoidVisitor<A> {
     void visit(JmlProofObtainStmt n, A arg);
 
     void visit(JmlQuantifiedVariable n, A arg);
+
+    void visit(JmlMergePointStmt n, A arg);
 }

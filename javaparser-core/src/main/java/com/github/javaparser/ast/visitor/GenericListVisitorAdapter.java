@@ -3437,4 +3437,35 @@ public abstract class GenericListVisitorAdapter<R, A> implements GenericVisitor<
         }
         return result;
     }
+
+    @Override
+    public List<R> visit(final JmlMergePointStmt n, final A arg) {
+        List<R> result = new ArrayList<>();
+        List<R> tmp;
+        {
+            tmp = n.getJmlTags().accept(this, arg);
+            if (tmp != null) result.addAll(tmp);
+        }
+        if (n.getLattice().isPresent()) {
+            tmp = n.getLattice().get().accept(this, arg);
+            if (tmp != null) result.addAll(tmp);
+        }
+        if (n.getPredicateVariable().isPresent()) {
+            tmp = n.getPredicateVariable().get().accept(this, arg);
+            if (tmp != null) result.addAll(tmp);
+        }
+        if (n.getPredicates().isPresent()) {
+            tmp = n.getPredicates().get().accept(this, arg);
+            if (tmp != null) result.addAll(tmp);
+        }
+        if (n.getUsing().isPresent()) {
+            tmp = n.getUsing().get().accept(this, arg);
+            if (tmp != null) result.addAll(tmp);
+        }
+        if (n.getComment().isPresent()) {
+            tmp = n.getComment().get().accept(this, arg);
+            if (tmp != null) result.addAll(tmp);
+        }
+        return result;
+    }
 }

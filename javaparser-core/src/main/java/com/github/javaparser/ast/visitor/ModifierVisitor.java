@@ -2186,4 +2186,25 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
         n.setComment(comment);
         return n;
     }
+
+    @Override
+    public Visitable visit(final JmlMergePointStmt n, final A arg) {
+        NodeList<SimpleName> jmlTags = modifyList(n.getJmlTags(), arg);
+        StringLiteralExpr lattice =
+                n.getLattice().map(s -> (StringLiteralExpr) s.accept(this, arg)).orElse(null);
+        Parameter predicateVariable = n.getPredicateVariable()
+                .map(s -> (Parameter) s.accept(this, arg))
+                .orElse(null);
+        NodeList<Expression> predicates = modifyList(n.getPredicates(), arg);
+        StringLiteralExpr using =
+                n.getUsing().map(s -> (StringLiteralExpr) s.accept(this, arg)).orElse(null);
+        Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
+        n.setJmlTags(jmlTags);
+        n.setLattice(lattice);
+        n.setPredicateVariable(predicateVariable);
+        n.setPredicates(predicates);
+        n.setUsing(using);
+        n.setComment(comment);
+        return n;
+    }
 }

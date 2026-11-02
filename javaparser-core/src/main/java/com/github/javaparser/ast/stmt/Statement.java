@@ -1034,4 +1034,23 @@ public abstract class Statement extends Node {
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public void ifKeyMarkerStatement(Consumer<KeyMarkerStatement> action) {}
+
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
+    public boolean isJmlMergePointStmt() {
+        return false;
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
+    public JmlMergePointStmt asJmlMergePointStmt() {
+        throw new IllegalStateException(
+                f("%s is not JmlMergePointStmt, it is %s", this, this.getClass().getSimpleName()));
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
+    public Optional<JmlMergePointStmt> toJmlMergePointStmt() {
+        return Optional.empty();
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
+    public void ifJmlMergePointStmt(Consumer<JmlMergePointStmt> action) {}
 }

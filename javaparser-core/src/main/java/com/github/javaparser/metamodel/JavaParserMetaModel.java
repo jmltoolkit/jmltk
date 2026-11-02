@@ -587,6 +587,15 @@ public final class JavaParserMetaModel {
                 .getConstructorParameters()
                 .add(jmlExpressionStmtMetaModel.expressionPropertyMetaModel);
         jmlExpressionStmtMetaModel.getConstructorParameters().add(jmlExpressionStmtMetaModel.scriptPropertyMetaModel);
+        jmlMergePointStmtMetaModel.getConstructorParameters().add(jmlMergePointStmtMetaModel.jmlTagsPropertyMetaModel);
+        jmlMergePointStmtMetaModel.getConstructorParameters().add(jmlMergePointStmtMetaModel.usingPropertyMetaModel);
+        jmlMergePointStmtMetaModel.getConstructorParameters().add(jmlMergePointStmtMetaModel.latticePropertyMetaModel);
+        jmlMergePointStmtMetaModel
+                .getConstructorParameters()
+                .add(jmlMergePointStmtMetaModel.predicateVariablePropertyMetaModel);
+        jmlMergePointStmtMetaModel
+                .getConstructorParameters()
+                .add(jmlMergePointStmtMetaModel.predicatesPropertyMetaModel);
         jmlRefiningStmtMetaModel.getConstructorParameters().add(jmlRefiningStmtMetaModel.jmlTagsPropertyMetaModel);
         jmlUnreachableStmtMetaModel
                 .getConstructorParameters()
@@ -902,6 +911,7 @@ public final class JavaParserMetaModel {
         nodeMetaModels.add(jmlLabelStmtMetaModel);
         nodeMetaModels.add(jmlLabeledClauseMetaModel);
         nodeMetaModels.add(jmlLetExprMetaModel);
+        nodeMetaModels.add(jmlMergePointStmtMetaModel);
         nodeMetaModels.add(jmlMethodDeclarationMetaModel);
         nodeMetaModels.add(jmlMethodSignatureMetaModel);
         nodeMetaModels.add(jmlMultiCompareExprMetaModel);
@@ -3928,6 +3938,66 @@ public final class JavaParserMetaModel {
         jmlExpressionStmtMetaModel
                 .getDeclaredPropertyMetaModels()
                 .add(jmlExpressionStmtMetaModel.scriptPropertyMetaModel);
+        jmlMergePointStmtMetaModel.jmlTagsPropertyMetaModel = new PropertyMetaModel(
+                jmlMergePointStmtMetaModel,
+                "jmlTags",
+                com.github.javaparser.ast.expr.SimpleName.class,
+                Optional.of(simpleNameMetaModel),
+                false,
+                false,
+                true,
+                false);
+        jmlMergePointStmtMetaModel
+                .getDeclaredPropertyMetaModels()
+                .add(jmlMergePointStmtMetaModel.jmlTagsPropertyMetaModel);
+        jmlMergePointStmtMetaModel.latticePropertyMetaModel = new PropertyMetaModel(
+                jmlMergePointStmtMetaModel,
+                "lattice",
+                com.github.javaparser.ast.expr.StringLiteralExpr.class,
+                Optional.of(stringLiteralExprMetaModel),
+                true,
+                false,
+                false,
+                false);
+        jmlMergePointStmtMetaModel
+                .getDeclaredPropertyMetaModels()
+                .add(jmlMergePointStmtMetaModel.latticePropertyMetaModel);
+        jmlMergePointStmtMetaModel.predicateVariablePropertyMetaModel = new PropertyMetaModel(
+                jmlMergePointStmtMetaModel,
+                "predicateVariable",
+                com.github.javaparser.ast.body.Parameter.class,
+                Optional.of(parameterMetaModel),
+                true,
+                false,
+                false,
+                false);
+        jmlMergePointStmtMetaModel
+                .getDeclaredPropertyMetaModels()
+                .add(jmlMergePointStmtMetaModel.predicateVariablePropertyMetaModel);
+        jmlMergePointStmtMetaModel.predicatesPropertyMetaModel = new PropertyMetaModel(
+                jmlMergePointStmtMetaModel,
+                "predicates",
+                com.github.javaparser.ast.expr.Expression.class,
+                Optional.of(expressionMetaModel),
+                true,
+                false,
+                true,
+                false);
+        jmlMergePointStmtMetaModel
+                .getDeclaredPropertyMetaModels()
+                .add(jmlMergePointStmtMetaModel.predicatesPropertyMetaModel);
+        jmlMergePointStmtMetaModel.usingPropertyMetaModel = new PropertyMetaModel(
+                jmlMergePointStmtMetaModel,
+                "using",
+                com.github.javaparser.ast.expr.StringLiteralExpr.class,
+                Optional.of(stringLiteralExprMetaModel),
+                true,
+                false,
+                false,
+                false);
+        jmlMergePointStmtMetaModel
+                .getDeclaredPropertyMetaModels()
+                .add(jmlMergePointStmtMetaModel.usingPropertyMetaModel);
         jmlRefiningStmtMetaModel.jmlTagsPropertyMetaModel = new PropertyMetaModel(
                 jmlRefiningStmtMetaModel,
                 "jmlTags",
@@ -5696,6 +5766,10 @@ public final class JavaParserMetaModel {
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     public static final JmlExpressionStmtMetaModel jmlExpressionStmtMetaModel =
             new JmlExpressionStmtMetaModel(Optional.of(jmlStatementMetaModel));
+
+    @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
+    public static final JmlMergePointStmtMetaModel jmlMergePointStmtMetaModel =
+            new JmlMergePointStmtMetaModel(Optional.of(jmlStatementMetaModel));
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     public static final JmlRefiningStmtMetaModel jmlRefiningStmtMetaModel =

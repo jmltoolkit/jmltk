@@ -2269,4 +2269,20 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
         copyData(n, r);
         return r;
     }
+
+    @Override
+    public Visitable visit(final JmlMergePointStmt n, final Object arg) {
+        NodeList<SimpleName> jmlTags = cloneList(n.getJmlTags(), arg);
+        StringLiteralExpr lattice = cloneNode(n.getLattice(), arg);
+        Parameter predicateVariable = cloneNode(n.getPredicateVariable(), arg);
+        NodeList<Expression> predicates = cloneList(n.getPredicates().orElse(null), arg);
+        StringLiteralExpr using = cloneNode(n.getUsing(), arg);
+        Comment comment = cloneNode(n.getComment(), arg);
+        JmlMergePointStmt r = new JmlMergePointStmt(
+                n.getTokenRange().orElse(null), jmlTags, using, lattice, predicateVariable, predicates);
+        r.setComment(comment);
+        n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
+        copyData(n, r);
+        return r;
+    }
 }

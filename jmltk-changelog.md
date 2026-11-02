@@ -67,6 +67,14 @@ Index+element multi-binding (`int i, T e : a[i]`) stays deferred. Feature ⇒ mi
   - lsp: "Expand quantifier domain" quick-fix, no crash on kind 4 (`da1a4fba7`).
 - Tests & corpus: `jmlparser-jml-tests` M1 suite (`249c8fd05`), desugarer unit tests, and the `QuantArray.java`
   corpus fixture exercised by `FullExamplesTest` (all parser/backend suites green).
+- AST + grammar: `JmlMergePointStmt` for JML state-merging points, e.g.
+  `merge_point \using "MergeByPredicateAbstraction" \lattice conjunctive \predicate (int x) : x >= 0, x == \old(b) || x == -\old(b);`
+  — all of `\using`, `\lattice` and `\predicate` are optional and must appear in this fixed order. The values of
+  `\using`/`\lattice` may be given as a string literal or as a plain identifier; both forms are normalized to a
+  `StringLiteralExpr` in the AST. Includes metamodel, CSM, visitor and pretty-printer support, plus parser tests.
+- Examples: unblocked `key/firstTouch/11-StateMerging/A.java` (bare `merge_point;`) and rewrote
+  `key/firstTouch/11-StateMerging/Gcd.java` from the legacy KeY `merge_proc`/`merge_params` syntax to the new
+  `merge_point` options in `FullExamplesTest`.
 
 **Fixed**
 

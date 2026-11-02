@@ -60,6 +60,8 @@ public interface GenericVisitor<R, A> {
 
     R visit(VariableDeclarator n, A arg);
 
+    R visit(JmlQuantifiedVariable n, A arg);
+
     R visit(ConstructorDeclaration n, A arg);
 
     R visit(MethodDeclaration n, A arg);

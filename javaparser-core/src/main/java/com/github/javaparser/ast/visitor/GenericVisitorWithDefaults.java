@@ -417,6 +417,11 @@ public abstract class GenericVisitorWithDefaults<R, A> implements GenericVisitor
     }
 
     @Override
+    public R visit(final JmlQuantifiedVariable n, final A arg) {
+        return defaultAction(n, arg);
+    }
+
+    @Override
     public R visit(final VoidType n, final A arg) {
         return defaultAction(n, arg);
     }

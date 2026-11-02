@@ -48,6 +48,7 @@ import com.github.javaparser.ast.jml.clauses.JmlSimpleExprClause
 import com.github.javaparser.ast.jml.expr.JmlExpression
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedExpr.JmlDefaultBinder
+import com.github.javaparser.ast.jml.expr.JmlQuantifiedVariable
 import com.github.javaparser.ast.stmt.AssertStmt
 import com.github.javaparser.ast.stmt.BlockStmt
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType
@@ -271,7 +272,14 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
             is MethodCallExpr -> unsupportedJmlKeyword(node.nameAsString)
 
             is JmlQuantifiedExpr ->
-                if (node.binder is JmlDefaultBinder &&
+                if (node.variables.any { it is JmlQuantifiedVariable }) {
+                    // #83 core introduced element/range-domain bindings
+                    // (`\forall int e : a; …`); the VCG has no desugaring for the
+                    // domain, so rejecting loudly beats silently dropping it
+                    // (encoding the body over the *whole* index type is unsound).
+                    "element/range-domain quantifier bindings (`\\forall int e : a; …`)" +
+                        " (the VCG models only classic binder forms with a declared integer range)"
+                } else if (node.binder is JmlDefaultBinder &&
                     (
                         node.binder == JmlDefaultBinder.FORALL ||
                         node.binder == JmlDefaultBinder.EXISTS ||

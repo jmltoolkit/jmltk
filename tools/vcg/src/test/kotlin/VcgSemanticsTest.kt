@@ -505,6 +505,12 @@ class VcgSemanticsTest {
             Arguments.of("sumNoUpperBound", "\\sum range must bound"),
             Arguments.of("sumExtraRangeConjunct", "does not bound"),
             Arguments.of("sumNonArrayTerm", "\\sum term must be a direct array read"),
+            // core #83 element/range-domain bindings (`\forall int e : a; …`,
+            // `\sum int e : a; …`): the domain lives on the binding node and the
+            // VCG has no desugarer — rejecting loudly beats expanding the body
+            // over the whole index type (unsound)
+            Arguments.of("quantIterableDomain", "element/range-domain quantifier bindings"),
+            Arguments.of("sumIterableDomain", "element/range-domain quantifier bindings"),
             // bit-width operators on mathematical integers (UNBOUNDED mode) have no
             // encoding: the *body-level* shifts and bitwise ops are rejected loudly
             // (the constant folder still folds static-final shift/bitwise values)

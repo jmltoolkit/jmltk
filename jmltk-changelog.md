@@ -68,6 +68,24 @@ Index+element multi-binding (`int i, T e : a[i]`) stays deferred. Feature ⇒ mi
 - Tests & corpus: `jmlparser-jml-tests` M1 suite (`249c8fd05`), desugarer unit tests, and the `QuantArray.java`
   corpus fixture exercised by `FullExamplesTest` (all parser/backend suites green).
 
+**VCG (`tools/vcg`, branch `weigl/vcg`, PR #69)** — JML `\sum` generalized quantifiers with a *bounded* integer
+range and a *direct array-read body* are modeled in the VCG as a lazily-declared recursive SMT function
+(`(define-fun-rec jmlSum a lo hi …)`, unfolding along the index range with `hi <= lo` → `0`), so KeY's firstTouch
+08 for-each sum contract (`maintaining s == \sum int j; 0 <= j && j < \index; a[j]`) verifies in both BOUNDED and
+UNBOUNDED mode; every other `\sum` shape is rejected with a structured `UnsupportedFeatureException`.
+
+**Added**
+
+- vcg: `\sum` encoding — range-bound checks, array-read-body validation (`KeySumBadShapes`), and the BOUNDED
+  length fold (`bv$length sym` → shared implicit `$len_<sym>` constant plus one ground `>= 0` assert) that makes
+  the recursive-function queries terminate under Z3; KeY loop-position `\index` binds the type-tagged `$idxN`
+  loop-counter register; `\strictly_nothing` joins the assignable whitelist (`e8c120ab9`). The element/range-domain
+  bindings introduced with #83 (`\forall int e : a; …`, `\sum int e : a; …`) are rejected loudly — no desugaring
+  exists, and expanding the body over the whole index type would be unsound.
+- cli: `jmltk vcg` end-to-end subprocess tests and shell fixtures for the four KeY firstTouch examples
+  (05-ReverseArray honest UNKNOWN/FAIL, 06-BinarySearch and 10-SITA proven via loop invariants, 08-Java5 proven
+  in both modes); the shell tester gained a `sortOutput` comparison mode (`d0ee30440`).
+
 ---
 
 ## Combined releases (JML + KeY, this repository)

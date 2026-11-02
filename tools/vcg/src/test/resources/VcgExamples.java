@@ -2958,6 +2958,17 @@ final class KeySumBadShapes {
     int sumNonArrayTerm() {
         return 0;
     }
+
+    // core #83 element/range-domain bindings have no VCG encoding (the domain is
+    // a property of the binding node, not of the range clause): must be rejected
+    // loudly instead of expanding the body over the whole index type
+    //@ requires a != null && (\forall int e : a; e > 0);
+    //@ ensures true;
+    void quantIterableDomain(int[] a) {}
+
+    //@ requires a != null && (\sum int e : a; e) == 3;
+    //@ ensures true;
+    void sumIterableDomain(int[] a) {}
 }
 
 // KeY firstTouch 10-SITA: SITA3 — the first common entry search (loop with a

@@ -262,6 +262,15 @@ version is set to `1.0.1` in `c25a757e1`; no `JMLtk-v1.0.1` tag exists yet.
   `#isstatic` production.
 - Fallback tests for the renamed expression-position constructs: `#createObject(…)`,
   `#lengthReference(…)` and `#staticEvaluate(…)` parse as `MethodCallExpr` and round-trip.
+- vcg: `\sum` encoding — range-bound checks, array-read-body validation (`KeySumBadShapes`), and the BOUNDED
+  length fold (`bv$length sym` → shared implicit `$len_<sym>` constant plus one ground `>= 0` assert) that makes
+  the recursive-function queries terminate under Z3; KeY loop-position `\index` binds the type-tagged `$idxN`
+  loop-counter register; `\strictly_nothing` joins the assignable whitelist (`e8c120ab9`). The element/range-domain
+  bindings introduced with #83 (`\forall int e : a; …`, `\sum int e : a; …`) are rejected loudly — no desugaring
+  exists, and expanding the body over the whole index type would be unsound.
+- cli: `jmltk vcg` end-to-end subprocess tests and shell fixtures for the four KeY firstTouch examples
+  (05-ReverseArray honest UNKNOWN/FAIL, 06-BinarySearch and 10-SITA proven via loop invariants, 08-Java5 proven
+  in both modes); the shell tester gained a `sortOutput` comparison mode (`d0ee30440`).
 
 **Docs**
 

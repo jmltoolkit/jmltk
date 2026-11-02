@@ -8,6 +8,7 @@ import com.github.javaparser.*;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.comments.CommentsCollection;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.LambdaExpr;
@@ -16,6 +17,9 @@ import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.jml.ArbitraryNodeContainer;
 import com.github.javaparser.ast.jml.NodeWithContracts;
 import com.github.javaparser.ast.jml.NodeWithJmlTags;
+import com.github.javaparser.ast.jml.body.JmlClassLevelDeclaration;
+import com.github.javaparser.ast.jml.body.JmlFieldDeclaration;
+import com.github.javaparser.ast.jml.body.JmlMethodDeclaration;
 import com.github.javaparser.ast.jml.clauses.JmlContract;
 import com.github.javaparser.ast.jml.doc.*;
 import com.github.javaparser.ast.jml.expr.JmlQuantifiedVariable;
@@ -31,6 +35,7 @@ import com.github.javaparser.ast.visitor.Visitable;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -273,10 +278,26 @@ public class JmlProcessor extends Processor {
 
         private int handleJmlStatementLevel(BlockStmt p, JmlDocStmt n, int pos) {
             processedJmlDoc.add(n);
+            final int problemsBefore = problems.size();
             ArbitraryNodeContainer t = parseJmlMethodLevel(n.getJmlComments());
             if (t == null) {
                 String s = sanitizer.asString(n.getJmlComments());
-                reporter.report(n, "Could not handle the JML comment.\n---\n" + s + "\n---\n");
+                List<Node> classLevelDeclarations = extractMisplacedJmlClassLevelDeclarations(s);
+                if (!classLevelDeclarations.isEmpty()) {
+                    // The JML comment contains syntactically valid class-level declarations
+                    // (model method, model/ghost field, represents clause, invariant, lemma, ...),
+                    // which are not allowed inside a method body. The raw method-level parse
+                    // errors they triggered are misleading here, so drop them and keep only the
+                    // targeted diagnostics.
+                    while (problems.size() > problemsBefore) {
+                        problems.remove(problems.size() - 1);
+                    }
+                    for (Node declaration : classLevelDeclarations) {
+                        reporter.report(n, jmlClassLevelKind(declaration) + " is not allowed within methods.");
+                    }
+                } else {
+                    reporter.report(n, "Could not handle the JML comment.\n---\n" + s + "\n---\n");
+                }
                 return pos;
             }
             setJmlTags(t);
@@ -330,6 +351,42 @@ public class JmlProcessor extends Processor {
                 }
             }
             return insertPosition - 1;
+        }
+
+        /**
+         * A JML comment inside a method body may still contain syntactically valid
+         * <em>class-level</em> JML declarations (model methods, model/ghost fields,
+         * represents clauses, invariants, lemmas, ...). JML does not allow such
+         * declarations within methods — model/ghost members are class members. If the
+         * comment content parses as class-level declarations only, return them so the
+         * caller can report a targeted problem per declaration; return an empty list
+         * otherwise.
+         */
+        private List<Node> extractMisplacedJmlClassLevelDeclarations(String content) {
+            ParseResult<ArbitraryNodeContainer> classLevel = javaParser.parseJmlClassLevel(content);
+            Optional<ArbitraryNodeContainer> result = classLevel.getResult();
+            if (result.isEmpty()) {
+                return List.of();
+            }
+            NodeList<Node> declarations = result.get().getChildren();
+            if (declarations.isEmpty()
+                    || declarations.stream().anyMatch(ch -> !(ch instanceof JmlClassLevelDeclaration))) {
+                return List.of();
+            }
+            return declarations;
+        }
+
+        private static String jmlClassLevelKind(Node declaration) {
+            if (declaration instanceof JmlMethodDeclaration method) {
+                return "Model method " + method.getMethodDeclaration().getNameAsString();
+            }
+            if (declaration instanceof JmlFieldDeclaration field) {
+                String names = field.getDecl().getVariables().stream()
+                        .map(VariableDeclarator::getNameAsString)
+                        .collect(Collectors.joining(", "));
+                return "Model field " + names;
+            }
+            return "Class-level JML declaration " + declaration.getMetaModel().getTypeName();
         }
 
         @Override

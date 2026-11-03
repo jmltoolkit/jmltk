@@ -277,6 +277,21 @@ version is set to `1.0.1` in `c25a757e1`; no `JMLtk-v1.0.1` tag exists yet.
 - The jmltoolkit.github.io documentation of the meta-construct names must be updated to the new
   camelCase identifiers and the generic `#name(…)` syntax.
 
+**Fixed**
+
+- cli: Windows `jmltk` launcher loaded the wrong `ParserConfiguration` — the distribution shipped two
+  `com.github.javaparser` implementations, the fork core and KeY's proofjava fork
+  (`org.key-project.proofjava:javaparser-core:3.28.0-K13.6`, pulled in by the LSP's `key.core`). The Windows
+  start script must use the `%APP_HOME%\lib\*` classpath wildcard (cmd.exe cannot hold an explicit 100+-jar
+  classpath: `%APP_HOME%` expands to absolute paths and any single `set CLASSPATH=` line exceeds the
+  8191-character limit), and Java expands that wildcard in directory-enumeration order, so Windows could load
+  KeY's `ParserConfiguration` first and `jmltk vcg` crashed with `NoSuchMethodError` on
+  `ParserConfiguration.setProcessJml(boolean)`. The CLI runtime now excludes the proofjava fork, so the
+  distribution carries exactly one `com.github.javaparser` implementation (the fork core) and directory order
+  cannot matter (`63aaf0907`).
+
+---
+
 ## Combined releases (JML + KeY, this repository)
 
 ### Version 3.28.2-J8.0-K13.6  (2026-10-25, prepared)

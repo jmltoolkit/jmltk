@@ -99,14 +99,14 @@ server plumbing). Rebased onto `main` after `3.28.2-J8.0-K13.6`/`1.0.0`.
   behavior keyword, incl. British spellings and `feasible_behavior` → `behavior`), `JmlClauseKind`
   (wrapping `JmlClauseKeyword`, e.g. `requires`/`ensures`/`assignable`/`signals`/`forall`) and
   `JmlBodyClauseKind` (wrapping `JmlBodyClauseKeyword`, e.g. `invariant`/`constraint`/`axiom`/`initially`).
-  Clause/body-clause keywords are now child nodes with a token range (`1adcfd20a`, `b074e749d`).
+  Clause/body-clause keywords are now child nodes with a token range (`9f4d3d713`, `d42204f00`).
 - Grammar (`java.jj`): behavior and clause productions now build the keyword nodes; loop/model contracts pass
   `null` behavior where none is present.
 - LSP code actions reworked to a common `LspAction` interface discovered via `ServiceLoader`:
   `AddBehaviorKeyword`, `AddNameToClauseOrContract`, `AddQuantification`, `AddBoundary` +
   `ExpandQuantifierDomain` (via `JmlQuantifierDesugarer`), `AddStubs` code lens; reworked
-  `WellDefinednessCheck`, `VerifyAgainstParent`, `CreateKeyProjectFile`; `StartKey` removed (`e2820b134`,
-  `6aabdf640`, `5c586ac2b`).
+  `WellDefinednessCheck`, `VerifyAgainstParent`, `CreateKeyProjectFile`; `StartKey` removed (`dc8f9a837`,
+  `d95c9fc6d`, `20f862f59`).
 - Document symbols: `JmlCatchSymbols` (contracts, clauses, JML fields/represents/accessible declarations) and
   `KeyCatchSymbols` (function declarations, predicates, schema variables, taclets).
 - Server/launcher: custom `Launcher` construction (executor service, message validation, new
@@ -114,7 +114,7 @@ server plumbing). Rebased onto `main` after `3.28.2-J8.0-K13.6`/`1.0.0`.
   expanded docs (`doc.md`, new `sol.md`), `eglot.el`.
 - Tests: `VariableDeclarationErrorPositionTest`, `CodeActionsUnitTest`, `JmlCatchSymbolsTest`,
   `KeyCatchSymbolsTest`, `CodeActionCollectorTest`, `ElementQuantifierCodeActionTest`, `JmlClauseKeywordTest`;
-  LSP suite grows 17 → 53 tests (instruction coverage 39.6% → 61.6%) (`e2820b134`).
+  LSP suite grows 17 → 53 tests (instruction coverage 39.6% → 61.6%) (`dc8f9a837`).
 - Utility helpers in `tools/utils` (`JMLUtils`), `stat` counters, `lint` rule package move, `redux`
   `RecordClassBuilder`, `jmlstub` `JREClassStubGenerator` updated for the keyword nodes.
 
@@ -131,8 +131,8 @@ server plumbing). Rebased onto `main` after `3.28.2-J8.0-K13.6`/`1.0.0`.
   `Modifiers() Type() Identifier() (ArrayBracketPair())* ("," | "=" | ";")` so `int i = ;` is reported at the
   offending token instead of the statement start (regression `VariableDeclarationErrorPositionTest`).
 - Regenerated metamodel, `JavaParserMetaModel`, visitors and pretty-printers for the keyword nodes and the
-  merged `JmlQuantifiedVariable`/KeY label nodes (`58218de58`, `7a8039020`, `cd4639c2f`, `5bb102edf`,
-  `796ac8684`).
+  merged `JmlQuantifiedVariable`/KeY label nodes (`fa5d7c528`, `d09d6a3e8`, `e4c71a502`, `39936e897`,
+  `4fe3ef094`).
 
 **Fixed**
 
@@ -141,14 +141,14 @@ server plumbing). Rebased onto `main` after `3.28.2-J8.0-K13.6`/`1.0.0`.
   `isCallableForNode`/`createCodeAction` so a failing action degrades to "no action" instead of aborting the
   request (`AddQuantification`'s unresolved-symbol path included).
 - `AddBehaviorKeyword` emits a valid VS Code snippet choice and drops the empty `NONE` keyword from the
-  choices (`6aabdf640`).
+  choices (`d95c9fc6d`).
 - `JmlClauseKeyword` token constants corrected (`DETERMINES`/`LOOP_DETERMINES`/`SEPARATES`/
   `LOOP_SEPARATES` no longer point at `DURATION_REDUNDANTLY`); `DECREASING_REDUNDANTLY` added so
-  `decreasing_redundantly` loop contracts parse (`5c586ac2b`).
+  `decreasing_redundantly` loop contracts parse (`20f862f59`).
 - Unimplemented actions no longer advertised: `WellDefinednessCheck` stops offering its quick-fix, `AddStubs`
   stops registering the code lens; `VerifyAgainstParent` cache populated so the offered command reports.
 - KeY label-after-keyword printing (`assert LAB: e;`) restored in the hand-maintained printers after the
-  rebase (`cd4639c2f`, `5bb102edf`, `796ac8684`); `JmlProcessor`/grammar error-positioning restored.
+  rebase (`e4c71a502`, `39936e897`, `4fe3ef094`); `JmlProcessor`/grammar error-positioning restored.
 
 ---
 

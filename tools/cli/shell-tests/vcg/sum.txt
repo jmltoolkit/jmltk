@@ -1,0 +1,18 @@
+---
+# 08-Java5: the JML \sum quantifier verifies (11 conditions) in unbounded mode.
+run: tools/cli/build/install/jmltk/bin/jmltk vcg tools/cli/src/test/resources/key/firstTouch/08-Java5/For.java --unbounded --loop-invariant
+ignoreStderr: true
+sortOutput: true
+---
+ok   KeyFor#sum()#nullcheck-1@17:17  dereference at line 17
+  ok   KeyFor#sum()#loop-invariant-init-2@-:-  loop invariant initially valid at line 22
+  ok   KeyFor#sum()#nullcheck-3@-:-  dereference at line ?
+  ok   KeyFor#sum()#nullcheck-4@-:-  dereference at line ?
+  ok   KeyFor#sum()#array-bound-5@-:-  array bound at line ?
+  ok   KeyFor#sum()#loop-invariant-preserved-6@-:-  loop invariant preserved at line 22
+  ok   KeyFor#sum()#variant-7@-:-  loop variant decreases at line 22
+  ok   KeyFor#sum()#variant-8@-:-  loop variant decreases at line 22
+  ok   KeyFor#sum()#nullcheck-9@-:-  dereference at line ?
+  ok   KeyFor#sum()#postcondition-10@13:9  postcondition
+  ok   KeyFor#sum()#postcondition-11@13:9  postcondition
+11 conditions, 0 failing

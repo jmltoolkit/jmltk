@@ -1,0 +1,38 @@
+---
+# 05-ReverseArray is generation-only: most verdicts are UNKNOWN (????) and reverse2's store-index checks FAIL honestly (31 conditions, 2 failing).
+run: tools/cli/build/install/jmltk/bin/jmltk vcg tools/cli/src/test/resources/key/firstTouch/05-ReverseArray/ReverseArray.java --unbounded --loop-invariant
+ignoreStderr: true
+sortOutput: true
+---
+ok   KeyReverseArray#reverse()#nullcheck-1@22:29  dereference at line 22
+  ok   KeyReverseArray#reverse()#divbyzero-2@22:29  division by zero at line 22
+  ???? KeyReverseArray#reverse()#loop-invariant-init-3@-:-  loop invariant initially valid at line 30
+  ???? KeyReverseArray#reverse()#nullcheck-4@33:23  dereference at line 33
+  ???? KeyReverseArray#reverse()#array-bound-5@33:23  array bound at line 33
+  ???? KeyReverseArray#reverse()#nullcheck-6@34:20  dereference at line 34
+  ???? KeyReverseArray#reverse()#nullcheck-7@34:22  dereference at line 34
+  ???? KeyReverseArray#reverse()#array-bound-8@34:20  array bound at line 34
+  ???? KeyReverseArray#reverse()#nullcheck-9@32:28  dereference at line 32
+  ???? KeyReverseArray#reverse()#array-store-10@32:28  array store bound at line 32
+  ???? KeyReverseArray#reverse()#nullcheck-11@35:15  dereference at line 35
+  ???? KeyReverseArray#reverse()#nullcheck-12@32:28  dereference at line 32
+  ???? KeyReverseArray#reverse()#array-store-13@32:28  array store bound at line 32
+  ???? KeyReverseArray#reverse()#loop-invariant-preserved-14@-:-  loop invariant preserved at line 30
+  ???? KeyReverseArray#reverse()#variant-15@-:-  loop variant decreases at line 30
+  ???? KeyReverseArray#reverse()#variant-16@-:-  loop variant decreases at line 30
+  ???? KeyReverseArray#reverse()#postcondition-17@14:16  postcondition
+  ???? KeyReverseArray#reverse()#postcondition-18@14:16  postcondition
+  ok   KeyReverseArray#reverse2(int[])#nullcheck-1@47:27  dereference at line 47
+  ok   KeyReverseArray#reverse2(int[])#negative-array-size-2@47:19  negative array size at line 47
+  ok   KeyReverseArray#reverse2(int[])#loop-invariant-init-3@-:-  loop invariant initially valid at line 51
+  ok   KeyReverseArray#reverse2(int[])#nullcheck-4@53:20  dereference at line 53
+  ok   KeyReverseArray#reverse2(int[])#nullcheck-5@54:20  dereference at line 54
+  ok   KeyReverseArray#reverse2(int[])#nullcheck-6@54:24  dereference at line 54
+  ok   KeyReverseArray#reverse2(int[])#array-bound-7@54:20  array bound at line 54
+  FAIL KeyReverseArray#reverse2(int[])#nullcheck-8@53:32  dereference at line 53
+  FAIL KeyReverseArray#reverse2(int[])#array-store-9@53:32  array store bound at line 53
+  ???? KeyReverseArray#reverse2(int[])#loop-invariant-preserved-10@-:-  loop invariant preserved at line 51
+  ???? KeyReverseArray#reverse2(int[])#nullcheck-11@53:20  dereference at line 53
+  ???? KeyReverseArray#reverse2(int[])#postcondition-12@40:16  postcondition
+  ???? KeyReverseArray#reverse2(int[])#postcondition-13@40:16  postcondition
+31 conditions, 2 failing

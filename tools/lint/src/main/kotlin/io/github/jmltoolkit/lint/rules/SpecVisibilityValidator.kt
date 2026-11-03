@@ -23,7 +23,6 @@ import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserFieldDeclaration
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserMethodDeclaration
 import io.github.jmltoolkit.lint.LintProblemReporter
-import io.github.jmltoolkit.lint.LintRule
 import io.github.jmltoolkit.lint.LintRuleVisitor
 import kotlin.jvm.optionals.getOrNull
 
@@ -93,7 +92,7 @@ class SpecVisibilityValidator : LintRuleVisitor() {
         val parent = expr.parentNode.orElse(null) ?: return false
         val scope = when (parent) {
             is FieldAccessExpr -> parent.scope as Expression
-            is MethodCallExpr -> parent.scope.getOrNull() as? Expression
+            is MethodCallExpr -> parent.scope.getOrNull()
             else -> return false
         }
         return scope == expr
@@ -220,7 +219,7 @@ class SpecVisibilityValidator : LintRuleVisitor() {
         val SPEC_LESS_VISIBLE: LintProblemMeta = LintProblemMeta(
             "JML-VISIBILITY-1",
             "A specification may only refer to names at its own privacy level or more visible.",
-            LintRule.ERROR,
+            ERROR,
         )
     }
 }

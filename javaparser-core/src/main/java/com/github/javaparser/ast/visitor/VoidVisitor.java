@@ -197,6 +197,10 @@ public interface VoidVisitor<A> {
 
     void visit(VariableDeclarator n, A arg);
 
+    void visit(JmlQuantifiedVariable n, A arg);
+
+    void visit(JmlMergePointStmt n, A arg);
+
     void visit(VoidType n, A arg);
 
     void visit(WhileStmt n, A arg);
@@ -373,7 +377,9 @@ public interface VoidVisitor<A> {
 
     void visit(JmlProofObtainStmt n, A arg);
 
-    void visit(JmlQuantifiedVariable n, A arg);
+    void visit(JmlBodyClauseKind n, A arg);
 
-    void visit(JmlMergePointStmt n, A arg);
+    void visit(JmlClauseKind n, A arg);
+
+    void visit(JmlContractBehavior n, A arg);
 }

@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture
 import kotlin.io.path.exists
 import kotlin.io.path.writeText
 
-class CreateKeyProjectFile : LspAction<Node> {
+class CreateKeyProjectFile : LspAction {
     override val title: String = "Create KeY project file"
     override fun execute(server: JmlLanguageServer, value: List<Any>?): CompletableFuture<Any> {
         val root = server.rootFolder
@@ -28,4 +28,6 @@ class CreateKeyProjectFile : LspAction<Node> {
 
         return CompletableFuture.completedFuture("")
     }
+
+    override fun createCodeAction(uri: String, node: Node) = null
 }

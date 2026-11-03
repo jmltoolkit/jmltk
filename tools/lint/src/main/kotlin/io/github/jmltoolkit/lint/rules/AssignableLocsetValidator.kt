@@ -4,7 +4,7 @@
  */
 package io.github.jmltoolkit.lint.rules
 
-import com.github.javaparser.ast.jml.clauses.JmlClauseKind
+import com.github.javaparser.ast.jml.clauses.JmlClauseKeyword.*
 import com.github.javaparser.ast.jml.clauses.JmlMultiExprClause
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import io.github.jmltoolkit.lint.LintProblemReporter
@@ -95,7 +95,7 @@ class AssignableLocsetValidator : LintRuleVisitor() {
     override val visitor: VoidVisitorAdapter<LintProblemReporter> = Visitor
     private object Visitor :  VoidVisitorAdapter<LintProblemReporter>() {
         override fun visit(n: JmlMultiExprClause, arg: LintProblemReporter) {
-            if (n.kind !in FRAME_KINDS) return
+            if (n.kind.value() !in FRAME_KINDS) return
             val value = LocsetEvaluator().frame(n.expression.toList())
             when {
                 value.isBottom -> arg.error(
@@ -124,13 +124,12 @@ class AssignableLocsetValidator : LintRuleVisitor() {
         const val CATEGORY = "locset"
 
         private val FRAME_KINDS = setOf(
-            JmlClauseKind.ASSIGNABLE,
-            JmlClauseKind.ASSIGNABLE_REDUNDANTLY,
-            JmlClauseKind.MODIFIABLE,
-            JmlClauseKind.MODIFIABLE_REDUNDANTLY,
-            JmlClauseKind.MODIFIES,
-            JmlClauseKind.MODIFIES_REDUNDANTLY,
-            JmlClauseKind.ACCESSIBLE,
+            ASSIGNABLE,
+            ASSIGNABLE_REDUNDANTLY,
+            MODIFIABLE,
+            MODIFIABLE_REDUNDANTLY,
+            MODIFIES,
+            MODIFIES_REDUNDANTLY, ACCESSIBLE,
         )
 
         val ALWAYS_EMPTY: LintProblemMeta = LintProblemMeta(

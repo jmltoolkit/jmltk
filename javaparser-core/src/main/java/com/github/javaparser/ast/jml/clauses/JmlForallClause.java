@@ -24,25 +24,31 @@ import java.util.function.Consumer;
 
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
-/**
- * @author Alexander Weigl
- * @version 1 (2/22/21)
- */
+/// Class-level predicate clause, typically a `forall` clause that binds variables over which a
+/// universally-quantified predicate is stated.
+///
+/// For example:
+/// ```
+/// FORALL int i;
+/// ```
+///
+/// @author Alexander Weigl
+/// @version 1 (2/22/21)
 public class JmlForallClause extends JmlClause {
 
     private NodeList<Parameter> boundedVariables;
 
     @AllFieldsConstructor
-    public JmlForallClause(NodeList<Parameter> boundedVariables) {
-        this(null, boundedVariables);
+    public JmlForallClause(JmlClauseKind kind, NodeList<Parameter> boundedVariables) {
+        this(null, kind, boundedVariables);
     }
 
     /**
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlForallClause(TokenRange tokenRange, NodeList<Parameter> boundedVariables) {
-        super(tokenRange);
+    public JmlForallClause(TokenRange tokenRange, JmlClauseKind kind, NodeList<Parameter> boundedVariables) {
+        super(tokenRange, kind);
         setBoundedVariables(boundedVariables);
         customInitialization();
     }
@@ -117,11 +123,6 @@ public class JmlForallClause extends JmlClause {
     @Generated("com.github.javaparser.generator.core.node.GetMetaModelGenerator")
     public JmlForallClauseMetaModel getMetaModel() {
         return JavaParserMetaModel.jmlForallClauseMetaModel;
-    }
-
-    @Override
-    public JmlClauseKind getKind() {
-        return JmlClauseKind.FORALL;
     }
 
     @Override

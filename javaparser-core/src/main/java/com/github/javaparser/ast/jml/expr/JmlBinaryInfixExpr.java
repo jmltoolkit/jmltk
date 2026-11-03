@@ -26,6 +26,9 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * A binary infix expression over JML operators, e.g. {@code ==>}, {@code <==} or {@code <=!=>},
+ * holding a left operand, a right operand and the operator name.
+ *
  * @author Alexander Weigl
  * @version 1 (7/3/21)
  */

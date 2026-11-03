@@ -10,8 +10,10 @@ import com.github.javaparser.ast.comments.*;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.jml.body.*;
 import com.github.javaparser.ast.jml.clauses.*;
-import com.github.javaparser.ast.jml.doc.*;
 import com.github.javaparser.ast.jml.doc.JmlDoc;
+import com.github.javaparser.ast.jml.doc.JmlDocDeclaration;
+import com.github.javaparser.ast.jml.doc.JmlDocStmt;
+import com.github.javaparser.ast.jml.doc.JmlDocType;
 import com.github.javaparser.ast.jml.expr.*;
 import com.github.javaparser.ast.jml.proof.*;
 import com.github.javaparser.ast.jml.stmt.*;
@@ -1101,7 +1103,8 @@ public class PrettyPrintVisitor implements VoidVisitor<Void> {
         printer.print(n.kind().toString());
         printer.print(" ");
         printArguments(n.getExpressions(), arg);
-        if (n.kind() == JmlClauseKind.DETERMINES || n.kind() == JmlClauseKind.LOOP_DETERMINES) {
+        if (n.kind().getValue() == JmlClauseKeyword.DETERMINES
+                || n.kind().getValue() == JmlClauseKeyword.LOOP_DETERMINES) {
             printer.print(" \\by ");
             printArguments(n.getBy(), arg);
         }
@@ -1120,7 +1123,18 @@ public class PrettyPrintVisitor implements VoidVisitor<Void> {
         printer.print(";\n");
     }
 
-    @Override
+    public void visit(JmlBodyClauseKind n, Void arg) {
+        printer.print(n.value().jmlSymbol());
+    }
+
+    public void visit(JmlClauseKind n, Void arg) {
+        printer.print(n.value().jmlSymbol());
+    }
+
+    public void visit(JmlContractBehavior n, Void arg) {
+        printer.print(n.value().jmlSymbol());
+    }
+
     public void visit(JmlProofObtainStmt n, Void arg) {}
 
     @Override

@@ -1423,6 +1423,40 @@ public class ConcreteSyntaxModel {
                         proofObtainKind(),
                         conditional(VALUE, IS_PRESENT, sequence(space(), child(VALUE))),
                         proofCmdSuffix()));
+        concreteSyntaxModelByClass.put(
+                JmlMergePointStmt.class,
+                sequence(
+                        string(GeneratedJavaParserConstants.MERGE_POINT, "merge_point"),
+                        conditional(
+                                BY,
+                                IS_PRESENT,
+                                sequence(
+                                        space(),
+                                        string(GeneratedJavaParserConstants.JML_IDENTIFIER, "\\by"),
+                                        space(),
+                                        child(BY))),
+                        conditional(
+                                LATTICE,
+                                IS_PRESENT,
+                                sequence(
+                                        space(),
+                                        string(GeneratedJavaParserConstants.JML_IDENTIFIER, "\\lattice"),
+                                        space(),
+                                        child(LATTICE))),
+                        conditional(
+                                PREDICATE_VARIABLE,
+                                IS_PRESENT,
+                                sequence(
+                                        space(),
+                                        string(GeneratedJavaParserConstants.JML_IDENTIFIER, "\\predicate"),
+                                        space(),
+                                        token(LPAREN),
+                                        child(PREDICATE_VARIABLE),
+                                        token(RPAREN),
+                                        token(COLON),
+                                        space(),
+                                        list(PREDICATES, sequence(comma(), space())))),
+                        semicolon()));
         concreteSyntaxModelByClass.put(JmlBodyClauseKind.class, attribute(VALUE));
         concreteSyntaxModelByClass.put(JmlClauseKind.class, attribute(VALUE));
         concreteSyntaxModelByClass.put(JmlContractBehavior.class, attribute(VALUE));

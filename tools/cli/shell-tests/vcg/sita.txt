@@ -1,6 +1,6 @@
 ---
 # 10-SITA: commonEntry and swap prove; the weak rearrange contract is excluded (20 conditions).
-run: tools/cli/build/install/jmltk/bin/jmltk vcg tools/cli/src/test/resources/key/firstTouch/10-SITA/SITA3.java --vcg-exclude 'KeySITA3#rearrange()*'
+run: tools/cli/build/install/jmltk/bin/jmltk vcg tools/cli/src/test/resources/key/firstTouch/10-SITA/SITA3.java --vcg-exclude "KeySITA3#rearrange()*"
 ignoreStderr: true
 sortOutput: true
 ---

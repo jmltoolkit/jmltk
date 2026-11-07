@@ -1,0 +1,2 @@
+lemma nospace(\seq s) \by { oss; use_lemma nospace(x); auto; };
+lemma L(int x) \by { auto; };

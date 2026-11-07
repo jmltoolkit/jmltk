@@ -122,6 +122,11 @@ class NameResolutionTest {
     }
 
     @Test
+    void lemmaParameters() throws IOException {
+        loadAndResolveAll("JmlLemmaResolutionTest.java");
+    }
+
+    @Test
     void locals() throws IOException {
         loadAndResolveAll("Locals.java");
     }

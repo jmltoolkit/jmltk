@@ -376,4 +376,6 @@ public interface VoidVisitor<A> {
     void visit(JmlQuantifiedVariable n, A arg);
 
     void visit(JmlMergePointStmt n, A arg);
+
+    void visit(JmlLemmaDeclaration n, A arg);
 }

@@ -89,13 +89,15 @@ public class ConcreteSyntaxModel {
     }
 
     private static CsmElement proofCmdSuffix() {
+        // tokenImage[BY] is JavaCC-escaped (doubled backslash); emit the plain
+        // single-backslash form so the printout can be re-parsed.
         return conditional(
                 SUFFIX,
                 IS_EMPTY,
                 semicolon(),
                 sequence(
                         space(),
-                        token(GeneratedJavaParserConstants.BY),
+                        string(GeneratedJavaParserConstants.BY, "\\by"),
                         space(),
                         token(LBRACE),
                         list(SUFFIX, space()),
@@ -1298,6 +1300,23 @@ public class ConcreteSyntaxModel {
                         newline()));
         concreteSyntaxModelByClass.put(
                 JmlCallableClause.class, sequence(child(MODIFIERS), token(CALLABLE), semicolon()));
+        concreteSyntaxModelByClass.put(
+                JmlLemmaDeclaration.class,
+                sequence(
+                        modifiers(),
+                        token(LEMMA),
+                        space(),
+                        child(NAME),
+                        token(LPAREN),
+                        list(PARAMETERS, sequence(comma(), space())),
+                        token(RPAREN),
+                        space(),
+                        string(GeneratedJavaParserConstants.BY, "\\by"),
+                        space(),
+                        token(LBRACE),
+                        list(SCRIPT, space()),
+                        token(RBRACE),
+                        semicolon()));
         concreteSyntaxModelByClass.put(
                 JmlClassExprDeclaration.class,
                 sequence(child(MODIFIERS), space(), token(INVARIANT), space(), child(EXPRESSION), semicolon()));

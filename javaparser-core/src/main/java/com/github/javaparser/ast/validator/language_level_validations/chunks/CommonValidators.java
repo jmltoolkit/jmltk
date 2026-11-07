@@ -73,6 +73,7 @@ public class CommonValidators extends Validators {
                             // No need to check empty strings, it should be impossible to set them to ""
                         }
                     }
-                }));
+                }),
+                new JmlLemmaValidator());
     }
 }

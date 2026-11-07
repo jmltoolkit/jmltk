@@ -380,4 +380,6 @@ public interface GenericVisitor<R, A> {
     R visit(JmlQuantifiedVariable n, A arg);
 
     R visit(JmlMergePointStmt n, A arg);
+
+    R visit(JmlLemmaDeclaration n, A arg);
 }

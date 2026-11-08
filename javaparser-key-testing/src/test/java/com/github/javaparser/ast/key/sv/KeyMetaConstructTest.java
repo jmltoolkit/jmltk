@@ -7,6 +7,7 @@ package com.github.javaparser.ast.key.sv;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
+import com.github.javaparser.ast.expr.AssignmentExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.stmt.BreakStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
@@ -82,6 +83,40 @@ class KeyMetaConstructTest {
         MethodCallExpr call = (MethodCallExpr) stmt.getExpression();
         assertThat(call.getName().toString()).isEqualTo("#custom");
         assertThat(call.getArguments()).hasSize(2);
+    }
+
+    @Test
+    void renamedExpressionConstructsFallBackToMethodCalls() {
+        // "#create-object" / "#length-reference" / "#static-evaluate" lost their dedicated
+        // productions and now parse like any non-reserved "#name(...)"
+        String[][] cases = {
+            {"{.. #createObject(#n); ...}", "#createObject", "#n"},
+            {"{.. #lengthReference(#a); ...}", "#lengthReference", "#a"},
+            {"{.. #staticEvaluate(#e); ...}", "#staticEvaluate", "#e"},
+        };
+        for (String[] c : cases) {
+            ExpressionStmt stmt = (ExpressionStmt) parse(c[0]).getStatements().get(0);
+            MethodCallExpr call = (MethodCallExpr) stmt.getExpression();
+            assertThat(call.getName().toString()).as(c[0]).isEqualTo(c[1]);
+            assertThat(call.getArguments()).as(c[0]).hasSize(1);
+            assertThat(((KeyExpressionSV) call.getArgument(0)).getText()).isEqualTo(c[2]);
+
+            // print -> re-parse -> print is stable
+            String printed = stmt.toString();
+            ExpressionStmt reparsed = (ExpressionStmt) parse("{" + printed + "}").getStatements().get(0);
+            assertThat(reparsed.toString()).as(c[0]).isEqualTo(printed);
+        }
+    }
+
+    @Test
+    void renamedExpressionConstructsWorkInAssignmentPosition() {
+        // as in the KeY corpus: "#v0 = #createObject(#n)"
+        ExpressionStmt stmt =
+                (ExpressionStmt) parse("{.. #v0 = #createObject(#n); ...}").getStatements().get(0);
+        AssignmentExpr assign = (AssignmentExpr) stmt.getExpression();
+        assertThat(((KeyExpressionSV) assign.getTarget()).getText()).isEqualTo("#v0");
+        MethodCallExpr call = (MethodCallExpr) assign.getValue();
+        assertThat(call.getName().toString()).isEqualTo("#createObject");
     }
 
     @Test

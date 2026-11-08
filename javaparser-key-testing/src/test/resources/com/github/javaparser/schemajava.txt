@@ -611,7 +611,7 @@
 {.. #t #v0; #v0 = #vi; ...}
 {.. #t #v0 = #vi; ...}
 {.. { #t #v; #v = (#t) #se; #slist1 } ...}
-{ .. { #typeof(#a) #a = #e; for(int #v0 = 0; #v0 < #length-reference(#a); #v0 ++) { #ty #id = #a[#v0]; #stm } } ... }
+{ .. { #typeof(#a) #a = #e; for(int #v0 = 0; #v0 < #lengthReference(#a); #v0 ++) { #ty #id = #a[#v0]; #stm } } ... }
 {.. #typeof(#a) #v0 = #v1.#a; #staticInitialisation(#sv); @(#sv) = #v0; ...}
 {.. #typeof(#a) #v0 = #v1.#a; @(#sv) = #v0; ...}
 {.. #typeof(#e0) #v0=#e0; #typeof(#e) #v1=#e; #v0[#v1]=#e1; #lhs0=#v0[#v1]; ...}
@@ -793,8 +793,8 @@
 {.. #typeof(#sv) #v0 = ~ #left; @(#sv) = #v0; ...}
 {.. #typeof(#sv) #v0 = (short) #seIntLong; #staticInitialisation(#sv); @(#sv) = #v0; ...}
 {.. #typeof(#sv) #v0 = (short) #seIntLong; @(#sv) = #v0; ...}
-{.. #typeof(#v0) #v0 = #create-object(#n); #constructorCall(#v0, #n); #postWork(#v0); ...}
-{.. #typeof(#v0) #v0 = #create-object(#n); #constructorCall(#v0, #n); #postWork(#v0); #lhs = #v0; ...}
+{.. #typeof(#v0) #v0 = #createObject(#n); #constructorCall(#v0, #n); #postWork(#v0); ...}
+{.. #typeof(#v0) #v0 = #createObject(#n); #constructorCall(#v0, #n); #postWork(#v0); #lhs = #v0; ...}
 {.. #typeof(#v) #v0=#v; #typeof(#nse) #v1=#nse; #v0.#a=#v1;...}
 {.. #unpack(for(#loopInit; #guard; #forupdates) #s); ...}
 {.. #unwindLoop (for(#i; #e; #sel) {#s}); ...}

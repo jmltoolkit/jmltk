@@ -62,6 +62,10 @@ child list. Breaking API and grammar change ⇒ major bump (`1.0.0` → `2.0.0-S
   → `#unwindLoopBounded`, `#unwind-loop` → `#unwindLoop`, `#special-constructor-call` →
   `#specialConstructorCall`, `#post-work` → `#postWork`, `#constructor-call` →
   `#constructorCall`. The `schemajava.txt` test corpus is updated accordingly.
+- The expression-position constructs `#static-evaluate` / `#create-object` /
+  `#length-reference` are renamed to `#staticEvaluate` / `#createObject` /
+  `#lengthReference` and their dedicated tokens and grammar productions are removed; the
+  camelCased forms parse as plain `MethodCallExpr` calls (like any non-reserved `#name(…)`).
 - `ObservableProperty`: `SCHEMAS` is replaced by `CHILDREN`.
 
 **Changed**
@@ -74,8 +78,8 @@ child list. Breaking API and grammar change ⇒ major bump (`1.0.0` → `2.0.0-S
   statement (`for`/`while`/`do`/`if`/`switch`/`try`/`synchronized`/`assert`/`break`/`continue`/
   `return`/`throw`).
 - Out of scope (unchanged): `KeyMetaConstructType` (`#typeof`) and `KeyMetaConstructExpression`
-  (`#isstatic`, `#static-evaluate`, `#create-object`, `#length-reference`) keep their dedicated
-  tokens and hyphenated names; renaming them is a possible follow-up.
+  (`#isstatic`) keep their dedicated tokens, as do the `#set` / `#commit` / `#finish` /
+  `#abort` / `#catchAll` statement tokens.
 
 **Added**
 
@@ -85,6 +89,8 @@ child list. Breaking API and grammar change ⇒ major bump (`1.0.0` → `2.0.0-S
   preserves the ordered arguments; mixed argument shapes; labeled-statement arguments; the
   no-semicolon forms `#forToWhile`/`#switchToIf`; and non-reserved `#name(…)` staying an
   expression statement.
+- Fallback tests for the renamed expression-position constructs: `#createObject(…)`,
+  `#lengthReference(…)` and `#staticEvaluate(…)` parse as `MethodCallExpr` and round-trip.
 
 **Docs**
 

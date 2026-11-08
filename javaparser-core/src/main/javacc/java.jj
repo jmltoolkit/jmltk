@@ -777,9 +777,6 @@ TOKEN :
 | <COMMIT: "#commit" >
 | <FINISH: "#finish" >
 | <ABORT: "#abort" >
-| <STATIC_EVALUATE: "#static-evaluate" >
-| <CREATE_OBJECT: "#create-object" >
-| <LENGTHREF: "#length-reference" >
 | <RESULTARROW: "result->"> // $result =
 }
 
@@ -4341,10 +4338,6 @@ Expression UnaryExpression():
         { ret = new UnaryExpr(range(begin, token()), ret, op); }
      |
         ret = UnaryExpressionNotPlusMinus()
-     |
-       ret = KeyCreateObjectSV()
-     |
-       ret = KeyLengthReferenceSV()
     )
     { return ret; }
 }
@@ -4836,8 +4829,6 @@ Expression Literal():
         ret = BooleanLiteral()
      |
         ret = NullLiteral()
-     |
-         ret = KeyStaticEvaluate()
      |
          ret = IsStaticMC()
     )
@@ -8401,39 +8392,6 @@ KeyMethodSignatureSV KeyMethodSignatureSV() : {}
     <SVIDENTIFIER>
     {
         return new KeyMethodSignatureSV(token().toTokenRange(), token().getText());
-    }
-}
-
-KeyMetaConstructExpression KeyStaticEvaluate():
-{
-    JavaToken begin; Expression child;
-}
-{
-    "#static-evaluate" {begin=token();}  "(" child = InstanceOfExpression() ")"
-    {
-        return new KeyMetaConstructExpression(range(token(),token()), begin, child);
-    }
-}
-
-KeyMetaConstructExpression KeyCreateObjectSV():
-{
-    JavaToken begin; Expression child;
-}
-{
-    "#create-object"  {begin=token();} "(" child = ExpressionSV()  ")"
-    {
-        return new KeyMetaConstructExpression(range(begin, token()), "#create-object", child);
-    }
-}
-
-KeyMetaConstructExpression KeyLengthReferenceSV():
-{
-    JavaToken begin; Expression child;
-}
-{
-    "#length-reference"  {begin=token();} "(" child = ExpressionSV()  ")"
-    {
-        return new KeyMetaConstructExpression(range(begin, token()), "#length-reference", child);
     }
 }
 

@@ -32,6 +32,65 @@ migration the version lives in `gradle.properties`.
 
 ---
 
+## Unreleased — 2.0.0-SNAPSHOT
+
+Generic KeY meta-construct statement (feature branch `feat/generic-keymeta-construct`): one
+function-call-style production `#name(arg1, …, argN)` replaces the 23 name-specific
+`KeyMetaConstructStatement()` alternatives, the construct name is lexed as `SVIDENTIFIER`
+instead of a dedicated token, and `KeyMetaConstruct` stores its arguments in a single ordered
+child list. Breaking API and grammar change ⇒ major bump (`1.0.0` → `2.0.0-SNAPSHOT`).
+
+**Breaking**
+
+- `KeyMetaConstruct`: `getChild()` (`Node`) + `getSchemas()` (`NodeList<Node>`) are replaced by a
+  single ordered `getChildren()` (`NodeList<Node>`). Parser constructor is now
+  `KeyMetaConstruct(TokenRange, String kind, NodeList<Node> children)` with varargs helpers
+  `(TokenRange, String | JavaToken, Node...)`; fluent accessors `kind()` / `children()`.
+- Grammar: the 23 dedicated `#name` statement tokens are deleted. Construct names are lexed as
+  `SVIDENTIFIER` and disambiguated in `Statement()` by a pure semantic lookahead over the
+  reserved-name set (`GeneratedJavaParserBase.isKeyMetaConstructName`). A statement-level
+  `#name(…)` with a *non-reserved* name is parsed as a plain expression statement, exactly as
+  before; a bare `#ident` without `(` remains a statement placeholder.
+- Construct names containing hyphens are renamed to camelCase, so every `#name` is a valid Java
+  identifier: `#switch-to-if` → `#switchToIf`, `#do-break` → `#doBreak`, `#enhancedfor-elim` →
+  `#enhancedforElim`, `#evaluate-arguments` → `#evaluateArguments`, `#expand-method-body` →
+  `#expandMethodBody`, `#for-to-while` → `#forToWhile`, `#method-call` → `#methodCall`,
+  `#static-initialisation` → `#staticInitialisation`, `#array-post-declaration` →
+  `#arrayPostDeclaration`, `#resolve-multiple-var-decl` → `#resolveMultipleVarDecl`,
+  `#init-array-creation-transient` → `#initArrayCreationTransient`, `#init-array-assignments` →
+  `#initArrayAssignments`, `#init-array-creation` → `#initArrayCreation`, `#unwind-loop-bounded`
+  → `#unwindLoopBounded`, `#unwind-loop` → `#unwindLoop`, `#special-constructor-call` →
+  `#specialConstructorCall`, `#post-work` → `#postWork`, `#constructor-call` →
+  `#constructorCall`. The `schemajava.txt` test corpus is updated accordingly.
+- `ObservableProperty`: `SCHEMAS` is replaced by `CHILDREN`.
+
+**Changed**
+
+- The trailing `;` of a meta-construct statement is uniformly optional (previously mandatory for
+  most constructs and absent for `#forToWhile`/`#switchToIf`). The pretty printer does not print
+  a `;`, keeping the canonical no-semicolon form for the loop/if transformers.
+- Arguments may be a schema variable (bare `#ident` → `KeyExpressionSV`), a nested construct
+  call (`#mn(#elist)`), an assignment, a labeled statement (`#lb0: break #lb1;`), or a control
+  statement (`for`/`while`/`do`/`if`/`switch`/`try`/`synchronized`/`assert`/`break`/`continue`/
+  `return`/`throw`).
+- Out of scope (unchanged): `KeyMetaConstructType` (`#typeof`) and `KeyMetaConstructExpression`
+  (`#isstatic`, `#static-evaluate`, `#create-object`, `#length-reference`) keep their dedicated
+  tokens and hyphenated names; renaming them is a possible follow-up.
+
+**Added**
+
+- `KeyMetaConstructArg()` grammar production; the now-unused `VariableSV()`/`JumpLabelSV()`
+  productions are removed.
+- `KeyMetaConstructTest` (javaparser-key-testing): round-trip tests — parse → print → re-parse
+  preserves the ordered arguments; mixed argument shapes; labeled-statement arguments; the
+  no-semicolon forms `#forToWhile`/`#switchToIf`; and non-reserved `#name(…)` staying an
+  expression statement.
+
+**Docs**
+
+- The jmltoolkit.github.io documentation of the meta-construct names must be updated to the new
+  camelCase identifiers and the generic `#name(…)` syntax.
+
 ## Combined releases (JML + KeY, this repository)
 
 ### Version 3.28.2-J8.0-K13.6  (2026-10-25, prepared)

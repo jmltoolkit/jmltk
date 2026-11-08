@@ -1592,9 +1592,8 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
 
     @Override
     public Integer visit(final KeyMetaConstruct n, final Void arg) {
-        return (n.getChild().accept(this, arg)) * 31
+        return (n.getChildren().accept(this, arg)) * 31
                 + (n.getKind().hashCode()) * 31
-                + (n.getSchemas().accept(this, arg)) * 31
                 + (n.getAssociatedSpecificationComments().isPresent()
                                 ? n.getAssociatedSpecificationComments().get().accept(this, arg)
                                 : 0)

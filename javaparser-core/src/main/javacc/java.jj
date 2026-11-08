@@ -770,36 +770,13 @@ TOKEN :
 | < CCAT: "ccat" >
 | < BREAKTYPE: "\\Break" >
 | < TYPEOF: "#typeof" >
-| < SWITCHTOIF: "#switch-to-if" >
-| < UNPACK: "#unpack" >
-| < REATTACHLOOPINVARIANT: "#reattachLoopInvariant" >
-| < FORINITUNFOLDTRANSFORMER: "#forInitUnfoldTransformer" >
-| < LOOPSCOPEINVARIANTTRANSFORMER: "#loopScopeInvariantTransformer" >
 | < SETSV: "#set" >
 | < ISSTATIC: "#isstatic" >
-| < EVALARGS: "#evaluate-arguments" >
-| < REPLACEARGS: "#replace" >
-| <UNWINDLOOP: "#unwind-loop" >
 | <CATCHALL: "#catchAll" >
 //| <BEGIN: "#begin" >
 | <COMMIT: "#commit" >
 | <FINISH: "#finish" >
 | <ABORT: "#abort" >
-| <UNWIND_LOOP_BOUNDED: "#unwind-loop-bounded" >
-| <FORTOWHILE: "#for-to-while" >
-| <DOBREAK: "#do-break" >
-| <METHODCALL: "#method-call" >
-| <EXPANDMETHODBODY: "#expand-method-body" >
-| <CONSTRUCTORCALL: "#constructor-call" >
-| <SPECIALCONSTRUCTORECALL: "#special-constructor-call" >
-| <POSTWORK: "#post-work" >
-| <STATICINITIALIZATION: "#static-initialisation" >
-| <RESOLVE_MULTIPLE_VAR_DECL: "#resolve-multiple-var-decl" >
-| <ARRAY_POST_DECL: "#array-post-declaration" >
-| <ARRAY_INIT_CREATION: "#init-array-creation" >
-| <ARRAY_INIT_CREATION_TRANSIENT: "#init-array-creation-transient" >
-| <ARRAY_INIT_CREATION_ASSIGNMENTS: "#init-array-assignments" >
-| <ENHANCEDFOR_ELIM: "#enhancedfor-elim" >
 | <STATIC_EVALUATE: "#static-evaluate" >
 | <CREATE_OBJECT: "#create-object" >
 | <LENGTHREF: "#length-reference" >
@@ -5121,8 +5098,9 @@ Statement Statement():
             | LOOKAHEAD(KeyMethodBodyStatement()) ret = KeyMethodBodyStatement()
             | ret = Block()
             | ret = EmptyStatement()
+            | LOOKAHEAD({ isKeyMetaConstructName(getToken(1).image) && getToken(2).kind == LPAREN })
+            ret = KeyMetaConstructStatement()
             | LOOKAHEAD(24) ret = StatementExpression()
-            | ret = KeyMetaConstructStatement()
             | LOOKAHEAD(2) ret = StatementSV()
             | ret = SwitchStatement()
             | ret = IfStatement()
@@ -8281,18 +8259,6 @@ KeyMetaConstructExpression IsStaticMC() :
     }
 }
 
-KeyProgramVariableSV VariableSV() :
-{
-    KeyProgramVariableSV result;
-}
-{
-    <SVIDENTIFIER>
-	{
-	    return new KeyProgramVariableSV(token().toTokenRange(), token().getText());
-	}
-}
-
-
 KeyExpressionSV ExpressionSV() :
 {
     KeyExpressionSV result;
@@ -8337,110 +8303,54 @@ KeyStatementSV StatementSV() :
 
 KeyMetaConstruct KeyMetaConstructStatement() :
 {
-    Statement loopStat;
     JavaToken begin;
-    TryStmt tryStat;
-    CastExpr typeCast;
-    LabeledStmt labStat;
-    Statement stat;
-    Expression methRef, consRef, activeAccess;
-    KeyProgramVariableSV sv = null;
-    KeyExecCtxtSV execsv = null;
-    KeyJumpLabelSV innerLabel=null, outerLabel=null;
-    NodeList<Expression> loopInit;
-    KeyMetaConstruct ret;
+    String kind;
+    Node arg;
+    NodeList<Node> args = emptyNodeList();
 }
 {
-  (
-        "#unwind-loop" {begin=token();} "("
-            [ LOOKAHEAD(2) innerLabel = JumpLabelSV() ","]
-            [ LOOKAHEAD(2) outerLabel = JumpLabelSV() ","]
-              (  loopStat = WhileStatement()
-               | loopStat = ForStatement()
-               | loopStat = DoStatement()
-              )
-        ")" ";"
-        { ret =  new KeyMetaConstruct(range(begin, token()), "#unwind-loop", loopStat, innerLabel, outerLabel); }
- |
-        "#unwind-loop-bounded" {begin=token();} "("
-            innerLabel = JumpLabelSV() "," outerLabel = JumpLabelSV() ","
-            (  loopStat = WhileStatement()
-            | loopStat = ForStatement()
-            | loopStat = DoStatement()
-            )
-        ")" ";"
-        { ret =  new KeyMetaConstruct(range(begin, token()), "#unwind-loop-bounded", loopStat, innerLabel, outerLabel); }
- |
-       <FORINITUNFOLDTRANSFORMER> {begin=token();} "(" ( loopInit=ForInit() ) ")" ";"
-       { ret =  new KeyMetaConstruct(range(begin, token()), begin, loopInit.get(0)); }
- |
-        <LOOPSCOPEINVARIANTTRANSFORMER> {begin=token();} "(" ( loopStat=WhileStatement() ) ")" ";"
-        { ret =  new KeyMetaConstruct(range(begin, token()), begin, loopStat); }
- |
-        <UNPACK> {begin=token();} "(" loopStat=ForStatement() ")" ";"
-        { ret =  new KeyMetaConstruct(range(begin, token()), begin, loopStat); }
-  |
-        "#for-to-while" {begin=token();} "(" innerLabel = JumpLabelSV() "," outerLabel = JumpLabelSV() "," stat = Statement() ")"
-        { ret =   new KeyMetaConstruct(range(begin, token()), begin, stat, innerLabel, outerLabel); }
-  |
-        <SWITCHTOIF> {begin=token();} "(" stat = Statement() ")"
-        {  ret =  new KeyMetaConstruct(range(begin, token()), begin, stat); }
-  |
-        "#do-break" {begin=token();} "(" labStat=LabeledStatement() ")" ";"
-        { ret =  new KeyMetaConstruct(range(begin, token()), begin, labStat); }
-  |
-        "#evaluate-arguments" {begin=token();} "(" methRef = Expression() ")" ";"
-        { ret =  new KeyMetaConstruct(range(begin, token()), begin, methRef); }
-  |
-        "#replace" {begin=token();} "(" stat = Statement() "," sv = VariableSV() ")" ";"
-        { ret =  new KeyMetaConstruct(range(begin, token()), begin, stat, sv); }
-  |
-        "#method-call" {begin=token();} "("
-            [  LOOKAHEAD(2) sv = VariableSV() ","]
-            [  LOOKAHEAD(2) execsv = ExecutionContextSV() ","]
-            methRef = PrimaryExpression()
-        ")" ";"
-        { ret =  new KeyMetaConstruct(range(begin, token()), begin, methRef, sv, execsv); }
-  |
-        "#expand-method-body" {begin=token();} "(" stat = Statement() ("," sv = VariableSV() )?  ")" ";"
-        { ret =  new KeyMetaConstruct(range(begin, token()), begin, stat, sv); }
-  |
-        "#constructor-call" {begin=token();} "(" sv = VariableSV() "," consRef = ExpressionSV() ")" ";"
-        { ret =  new KeyMetaConstruct(range(begin, token()), begin, consRef, sv); }
-  |
-        "#special-constructor-call" {begin=token();} "(" consRef = ExpressionSV() ")" ";"
-        { ret =  new KeyMetaConstruct(range(begin, token()), begin, consRef); }
-  |
-        "#post-work" {begin=token();} "(" consRef = ExpressionSV() ")" ";"
-        { ret =  new KeyMetaConstruct(range(begin, token()), begin, consRef); }
-  |
-        "#static-initialisation" {begin=token();} "(" activeAccess = PrimaryExpression() ")" ";"
-        { ret =  new KeyMetaConstruct(range(begin, token()), begin, activeAccess); }
-  |
-        "#resolve-multiple-var-decl" {begin=token();} "(" stat = Statement() ")" ";"
-        { ret =  new KeyMetaConstruct(range(begin, token()), begin, stat); }
-  |
-        "#array-post-declaration" {begin=token();} "(" stat = Statement() ")" ";"
-        { ret =  new KeyMetaConstruct(range(begin, token()), begin, stat); }
-  |
-        "#init-array-creation" {begin=token();} "(" sv = VariableSV() "," consRef = ExpressionSV() ")" ";"
-        { ret =  new KeyMetaConstruct(range(begin, token()), begin, consRef, sv); }
-  |
-        "#init-array-creation-transient" {begin=token();} "(" sv = VariableSV() "," consRef = ExpressionSV() ")" ";"
-        { ret =  new KeyMetaConstruct(range(begin, token()), begin, consRef, sv); }
-  |
-        "#init-array-assignments" {begin=token();} "(" sv = VariableSV() "," consRef = ExpressionSV() ")" ";"
-        { ret =  new KeyMetaConstruct(range(begin, token()), begin, consRef, sv); }
-  |
-        "#enhancedfor-elim" {begin=token();} "(" loopStat=ForStatement() ")" ";"
-        { ret =  new KeyMetaConstruct(range(begin, token()), begin, loopStat); }
-  |
-        <REATTACHLOOPINVARIANT> {begin=token();} "(" loopStat = WhileStatement() ")" ";"
-        { ret =  new KeyMetaConstruct(range(begin, token()), begin, loopStat); }
-  )
-  { return ret; }
+    <SVIDENTIFIER>
+    {
+        begin = token();
+        kind = token().getText();
+    }
+    "("
+    [
+        arg = KeyMetaConstructArg() { args.add(arg); }
+        ( "," arg = KeyMetaConstructArg() { args.add(arg); } )*
+    ]
+    ")"
+    [ ";" ]
+    {
+        return new KeyMetaConstruct(range(begin, token()), kind, args);
+    }
 }
 
+Node KeyMetaConstructArg() :
+{
+    Node r;
+}
+{
+    // A bare schema variable, e.g. "#innerLabel" or "#ex", directly followed by "," or ")".
+    LOOKAHEAD( <SVIDENTIFIER> ( "," | ")" ) )
+    <SVIDENTIFIER>
+    {
+        return new KeyExpressionSV(token().toTokenRange(), token().getText());
+    }
+  |
+    // A labeled statement, e.g. "#lb0: break #lb1;"
+    LOOKAHEAD( (<SVIDENTIFIER> | <IDENTIFIER>) ":" )
+    r = Statement()
+    { return r; }
+  |
+    // A control-flow statement, e.g. "for (...) #s", "while (#nse) #body", "do #s while (#e);"
+    LOOKAHEAD( "{" | "for" | "while" | "do" | "if" | "switch" | "try" | "synchronized" | "assert" | "break" | "continue" | "return" | "throw" )
+    r = Statement()
+    { return r; }
+  |
+    r = Expression()
+    { return r; }
+}
 
 KeyContextStatementBlock StartBlock() :
 {
@@ -8477,15 +8387,6 @@ KeyContextStatementBlock StartBlock() :
         }
    }
 }
-
-KeyJumpLabelSV JumpLabelSV() : {}
-{
-    <SVIDENTIFIER>
-	{
-        return new KeyJumpLabelSV(token().toTokenRange(), token().getText());
-	}
-}
-
 
 KeyExecCtxtSV ExecutionContextSV() : {}
 {

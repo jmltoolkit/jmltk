@@ -765,8 +765,7 @@ public final class JavaParserMetaModel {
         keyExpressionSVMetaModel.getConstructorParameters().add(keyExpressionSVMetaModel.textPropertyMetaModel);
         keyJumpLabelSVMetaModel.getConstructorParameters().add(keyJumpLabelSVMetaModel.textPropertyMetaModel);
         keyMetaConstructMetaModel.getConstructorParameters().add(keyMetaConstructMetaModel.kindPropertyMetaModel);
-        keyMetaConstructMetaModel.getConstructorParameters().add(keyMetaConstructMetaModel.childPropertyMetaModel);
-        keyMetaConstructMetaModel.getConstructorParameters().add(keyMetaConstructMetaModel.schemasPropertyMetaModel);
+        keyMetaConstructMetaModel.getConstructorParameters().add(keyMetaConstructMetaModel.childrenPropertyMetaModel);
         keyMetaConstructExpressionMetaModel
                 .getConstructorParameters()
                 .add(keyMetaConstructExpressionMetaModel.textPropertyMetaModel);
@@ -4833,16 +4832,18 @@ public final class JavaParserMetaModel {
         keyJumpLabelSVMetaModel.textPropertyMetaModel = new PropertyMetaModel(
                 keyJumpLabelSVMetaModel, "text", java.lang.String.class, Optional.empty(), false, false, false, false);
         keyJumpLabelSVMetaModel.getDeclaredPropertyMetaModels().add(keyJumpLabelSVMetaModel.textPropertyMetaModel);
-        keyMetaConstructMetaModel.childPropertyMetaModel = new PropertyMetaModel(
+        keyMetaConstructMetaModel.childrenPropertyMetaModel = new PropertyMetaModel(
                 keyMetaConstructMetaModel,
-                "child",
+                "children",
                 com.github.javaparser.ast.Node.class,
                 Optional.of(nodeMetaModel),
                 false,
                 false,
-                false,
+                true,
                 false);
-        keyMetaConstructMetaModel.getDeclaredPropertyMetaModels().add(keyMetaConstructMetaModel.childPropertyMetaModel);
+        keyMetaConstructMetaModel
+                .getDeclaredPropertyMetaModels()
+                .add(keyMetaConstructMetaModel.childrenPropertyMetaModel);
         keyMetaConstructMetaModel.kindPropertyMetaModel = new PropertyMetaModel(
                 keyMetaConstructMetaModel,
                 "kind",
@@ -4853,18 +4854,6 @@ public final class JavaParserMetaModel {
                 false,
                 false);
         keyMetaConstructMetaModel.getDeclaredPropertyMetaModels().add(keyMetaConstructMetaModel.kindPropertyMetaModel);
-        keyMetaConstructMetaModel.schemasPropertyMetaModel = new PropertyMetaModel(
-                keyMetaConstructMetaModel,
-                "schemas",
-                com.github.javaparser.ast.Node.class,
-                Optional.of(nodeMetaModel),
-                false,
-                false,
-                true,
-                false);
-        keyMetaConstructMetaModel
-                .getDeclaredPropertyMetaModels()
-                .add(keyMetaConstructMetaModel.schemasPropertyMetaModel);
         keyMetaConstructExpressionMetaModel.childPropertyMetaModel = new PropertyMetaModel(
                 keyMetaConstructExpressionMetaModel,
                 "child",

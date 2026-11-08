@@ -365,36 +365,13 @@ public class TokenTypes {
             case CCAT:
             case BREAKTYPE:
             case TYPEOF:
-            case SWITCHTOIF:
-            case UNPACK:
-            case REATTACHLOOPINVARIANT:
-            case FORINITUNFOLDTRANSFORMER:
-            case LOOPSCOPEINVARIANTTRANSFORMER:
             case SETSV:
             case ISSTATIC:
-            case EVALARGS:
-            case REPLACEARGS:
-            case UNWINDLOOP:
             case CATCHALL:
             case BEGIN:
             case COMMIT:
             case FINISH:
             case ABORT:
-            case UNWIND_LOOP_BOUNDED:
-            case FORTOWHILE:
-            case DOBREAK:
-            case METHODCALL:
-            case EXPANDMETHODBODY:
-            case CONSTRUCTORCALL:
-            case SPECIALCONSTRUCTORECALL:
-            case POSTWORK:
-            case STATICINITIALIZATION:
-            case RESOLVE_MULTIPLE_VAR_DECL:
-            case ARRAY_POST_DECL:
-            case ARRAY_INIT_CREATION:
-            case ARRAY_INIT_CREATION_TRANSIENT:
-            case ARRAY_INIT_CREATION_ASSIGNMENTS:
-            case ENHANCEDFOR_ELIM:
             case STATIC_EVALUATE:
             case CREATE_OBJECT:
             case LENGTHREF:

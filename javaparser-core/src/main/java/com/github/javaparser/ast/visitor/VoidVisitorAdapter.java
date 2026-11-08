@@ -1179,8 +1179,7 @@ public abstract class VoidVisitorAdapter<A> implements VoidVisitor<A> {
 
     @Override
     public void visit(final KeyMetaConstruct n, final A arg) {
-        n.getChild().accept(this, arg);
-        n.getSchemas().forEach(p -> p.accept(this, arg));
+        n.getChildren().forEach(p -> p.accept(this, arg));
         n.getAssociatedSpecificationComments().ifPresent(l -> l.forEach(v -> v.accept(this, arg)));
         n.getComment().ifPresent(l -> l.accept(this, arg));
     }

@@ -1024,11 +1024,12 @@ public class PrettyPrintVisitor implements VoidVisitor<Void> {
         printComment(n.getComment(), arg);
         printer.print(n.getKind());
         printer.print("(");
-        for (Node schema : n.getSchemas()) {
-            schema.accept(this, arg);
-            printer.print(", ");
+        for (int i = 0; i < n.getChildren().size(); i++) {
+            n.getChildren().get(i).accept(this, arg);
+            if (i + 1 < n.getChildren().size()) {
+                printer.print(", ");
+            }
         }
-        n.getChild().accept(this, arg);
         printer.print(")");
     }
 

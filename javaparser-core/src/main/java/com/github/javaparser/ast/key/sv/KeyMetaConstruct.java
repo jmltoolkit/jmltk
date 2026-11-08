@@ -31,28 +31,24 @@ public class KeyMetaConstruct extends Statement {
 
     private String kind;
 
-    private Node child;
-
-    private NodeList<Node> schemas = new NodeList<>();
+    private NodeList<Node> children = new NodeList<>();
 
     @AllFieldsConstructor
-    public KeyMetaConstruct(String kind, Node child, NodeList<Node> schemas) {
+    public KeyMetaConstruct(String kind, NodeList<Node> children) {
         this.kind = kind;
-        this.child = child;
-        this.schemas = schemas;
+        this.children = children;
     }
 
-    public KeyMetaConstruct(TokenRange range, String kind, Node child, Node... schemas) {
+    public KeyMetaConstruct(TokenRange range, String kind, Node... children) {
         super(range);
         this.kind = kind;
-        this.child = child;
-        for (Node schema : schemas) {
-            if (schema != null) this.schemas.add(schema);
+        for (Node child : children) {
+            if (child != null) this.children.add(child);
         }
     }
 
-    public KeyMetaConstruct(TokenRange range, JavaToken kind, Node child, Node... schemas) {
-        this(range, kind.getText(), child, schemas);
+    public KeyMetaConstruct(TokenRange range, JavaToken kind, Node... children) {
+        this(range, kind.getText(), children);
     }
 
     @Override
@@ -65,24 +61,6 @@ public class KeyMetaConstruct extends Statement {
     @Generated("com.github.javaparser.generator.core.node.AcceptGenerator")
     public <A> void accept(final VoidVisitor<A> v, final A arg) {
         v.visit(this, arg);
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public Node getChild() {
-        return child;
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public KeyMetaConstruct setChild(final @NonNull() Node child) {
-        assertNotNull(child);
-        if (child == this.child) {
-            return this;
-        }
-        notifyPropertyChange(ObservableProperty.CHILD, this.child, child);
-        if (this.child != null) this.child.setParentNode(null);
-        this.child = child;
-        setAsParentNodeOf(child);
-        return this;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
@@ -102,20 +80,20 @@ public class KeyMetaConstruct extends Statement {
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public NodeList<Node> getSchemas() {
-        return schemas;
+    public NodeList<Node> getChildren() {
+        return children;
     }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public KeyMetaConstruct setSchemas(final @NonNull() NodeList<Node> schemas) {
-        assertNotNull(schemas);
-        if (schemas == this.schemas) {
+    public KeyMetaConstruct setChildren(final @NonNull() NodeList<Node> children) {
+        assertNotNull(children);
+        if (children == this.children) {
             return this;
         }
-        notifyPropertyChange(ObservableProperty.SCHEMAS, this.schemas, schemas);
-        if (this.schemas != null) this.schemas.setParentNode(null);
-        this.schemas = schemas;
-        setAsParentNodeOf(schemas);
+        notifyPropertyChange(ObservableProperty.CHILDREN, this.children, children);
+        if (this.children != null) this.children.setParentNode(null);
+        this.children = children;
+        setAsParentNodeOf(children);
         return this;
     }
 
@@ -125,9 +103,9 @@ public class KeyMetaConstruct extends Statement {
         if (node == null) {
             return false;
         }
-        for (int i = 0; i < schemas.size(); i++) {
-            if (schemas.get(i) == node) {
-                schemas.remove(i);
+        for (int i = 0; i < children.size(); i++) {
+            if (children.get(i) == node) {
+                children.remove(i);
                 return true;
             }
         }
@@ -140,13 +118,9 @@ public class KeyMetaConstruct extends Statement {
         if (node == null) {
             return false;
         }
-        if (node == child) {
-            setChild((Node) replacementNode);
-            return true;
-        }
-        for (int i = 0; i < schemas.size(); i++) {
-            if (schemas.get(i) == node) {
-                schemas.set(i, (Node) replacementNode);
+        for (int i = 0; i < children.size(); i++) {
+            if (children.get(i) == node) {
+                children.set(i, (Node) replacementNode);
                 return true;
             }
         }
@@ -169,11 +143,10 @@ public class KeyMetaConstruct extends Statement {
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public KeyMetaConstruct(TokenRange tokenRange, String kind, Node child, NodeList<Node> schemas) {
+    public KeyMetaConstruct(TokenRange tokenRange, String kind, NodeList<Node> children) {
         super(tokenRange);
         setKind(kind);
-        setChild(child);
-        setSchemas(schemas);
+        setChildren(children);
         customInitialization();
     }
 
@@ -203,19 +176,13 @@ public class KeyMetaConstruct extends Statement {
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @NonNull() Node child() {
-        return Objects.requireNonNull(child);
-    }
-
-    @com.github.javaparser.ast.key.IgnoreLexPrinting()
-    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
     public @NonNull() String kind() {
         return Objects.requireNonNull(kind);
     }
 
     @com.github.javaparser.ast.key.IgnoreLexPrinting()
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
-    public @NonNull() NodeList<Node> schemas() {
-        return Objects.requireNonNull(schemas);
+    public @NonNull() NodeList<Node> children() {
+        return Objects.requireNonNull(children);
     }
 }

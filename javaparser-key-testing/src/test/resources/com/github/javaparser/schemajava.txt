@@ -3,7 +3,7 @@
 {.. {} ...}
 {.. #abortJavaCardTransaction; ...}
 {.. #arraypost ...}
-{.. #array-post-declaration(#arraypost); ...}
+{.. #arrayPostDeclaration(#arraypost); ...}
 {.. assert #e1; ...}
 {.. assert #e1 : #e2; ...}
 {.. assert false : "Access permission check-point (read)."; ...}
@@ -43,7 +43,7 @@
 {.. continue #lb; ...}
 {.. { continue #lb; #slist } ...}
 {.. { continue; #slist } ...}
-{.. #do-break(#lb0: break #lb1;); ...}
+{.. #doBreak(#lb0: break #lb1;); ...}
 {.. { do #s while (#e); } ...}
 {.. do #s while (#e); ...}
 {.. #e0.#attribute %= #e; ...}
@@ -78,11 +78,11 @@
 {.. #e[#e0]--; ...}
 {.. ++#e[#e0]; ...}
 {.. --#e[#e0]; ...}
-{ .. #enhancedfor-elim(for (#ty #id : #e) #stm); ... }
-{.. #evaluate-arguments(#lhs = #nsmr); ...}
-{.. #evaluate-arguments(#lhs = #nsn); ...}
-{.. #evaluate-arguments(#nsmr); ...}
-{.. #evaluate-arguments(#nsn); ...}
+{ .. #enhancedforElim(for (#ty #id : #e) #stm); ... }
+{.. #evaluateArguments(#lhs = #nsmr); ...}
+{.. #evaluateArguments(#lhs = #nsn); ...}
+{.. #evaluateArguments(#nsmr); ...}
+{.. #evaluateArguments(#nsn); ...}
 {.. exec { break; } ccat #cs ...}
 {.. exec { break #lb; } ccat #cs ...}
 {.. exec { break #lb; #slist } ccat ( \Break #lb1 ) { #slist1 } ccat #cs ...}
@@ -156,7 +156,7 @@
 {.. exec { throw #se; #slist } ccat ( \Return #t #v ) { #slist1 } ccat #cs ...}
 {.. exec { throw #se; #slist } ccat ( #t #v0 ) { #slist1 } ...}
 {.. exec { throw #se; #slist } ccat ( #t #v0 ) { #slist1 } ccat ( #t2 #v1 ) { #slist3 } ccat #cs ...}
-{.. #expand-method-body(#mb); ...}
+{.. #expandMethodBody(#mb); ...}
 {.. final #t #v0; ...}
 {.. final #t #v0; #v0 = #vi; ...}
 {.. final #t #v0 = #vi; ...}
@@ -172,7 +172,7 @@
 {.. for(#loopInit; #guard; #forupdates) #s ...}
 {.. { for(#loopInit; #guard;) #s } ...}
 {.. for(#loopInit; #guard;) #s ...}
-{.. #for-to-while(#innerLabel, #outerLabel, #forloop) ...}
+{.. #forToWhile(#innerLabel, #outerLabel, #forloop) ...}
 { .. for (#ty #id : #e) #stm ... }
 { .. for (#ty #id: #nse) #stm ... }
 # {.. ghost #t #v0; ...}
@@ -494,12 +494,12 @@
 {.. loop-scope(#lhs) { throw #se; #slist } ...}
 {.. #mb ...}
 {.. merge_point(#lhs); ...}
-{.. #method-call(#ex, #mn(#elist)); ...}
-{.. #method-call(#ex, super.#mn(#elist)); ...}
-{.. #method-call(#mn(#elist)); ...}
-{.. #method-call(#se.#mn(#selist)); ...}
-{.. #method-call(#t.#mn(#elist)); ...}
-{.. #method-call(#v0, #se.#mn(#elist)); ...}
+{.. #methodCall(#ex, #mn(#elist)); ...}
+{.. #methodCall(#ex, super.#mn(#elist)); ...}
+{.. #methodCall(#mn(#elist)); ...}
+{.. #methodCall(#se.#mn(#selist)); ...}
+{.. #methodCall(#t.#mn(#elist)); ...}
+{.. #methodCall(#v0, #se.#mn(#elist)); ...}
 {.. method-frame(#ex):{} ...}
 {.. method-frame(#ex):{return #se; #slist} ...}
 {.. method-frame(#ex):{return; #slist} ...}
@@ -515,7 +515,7 @@
 {.. #nsmr ...}
 {.. #nsn ...}
 {.. #reattachLoopInvariant(while (#nse) #body); ... }
-{.. #resolve-multiple-var-decl(#multvardecl); ...}
+{.. #resolveMultipleVarDecl(#multvardecl); ...}
 {.. { return; } ...}
 {.. return; ...}
 {.. return #nse; ...}
@@ -540,14 +540,14 @@
 {.. { #slist2 } return; ...}
 {.. { #slist } { #slist1 } ...}
 {.. { { #slist } { #slist1 } } ...}
-{.. #special-constructor-call(#scr); ...}
-{.. #static-initialisation(#mn(#elist)); #method-call(#ex, #mn(#elist)); ...}
-{.. #static-initialisation(#mn(#elist)); #typeof(#lhs) #v0; #method-call(#ex, #v0, #mn(#elist)); #lhs = #v0; ...}
-{.. #static-initialisation(#se.#mn(#elist)); #method-call(#v0, #se.#mn(#elist)); ...}
-{.. #static-initialisation(#se.#mn(#elist)); #typeof(#lhs) #v0; #method-call(#v0, #se.#mn(#elist)); #lhs = #v0; ...}
-{.. #static-initialisation(#sv); #lhs = @(#sv); ...}
-{.. #static-initialisation(#t.#mn(#elist)); #method-call(#t.#mn(#elist)); ...}
-{.. #static-initialisation(#t.#mn(#elist)); #typeof(#lhs) #v0; #method-call(#v0, #t.#mn(#elist)); #lhs = #v0; ...}
+{.. #specialConstructorCall(#scr); ...}
+{.. #staticInitialisation(#mn(#elist)); #methodCall(#ex, #mn(#elist)); ...}
+{.. #staticInitialisation(#mn(#elist)); #typeof(#lhs) #v0; #methodCall(#ex, #v0, #mn(#elist)); #lhs = #v0; ...}
+{.. #staticInitialisation(#se.#mn(#elist)); #methodCall(#v0, #se.#mn(#elist)); ...}
+{.. #staticInitialisation(#se.#mn(#elist)); #typeof(#lhs) #v0; #methodCall(#v0, #se.#mn(#elist)); #lhs = #v0; ...}
+{.. #staticInitialisation(#sv); #lhs = @(#sv); ...}
+{.. #staticInitialisation(#t.#mn(#elist)); #methodCall(#t.#mn(#elist)); ...}
+{.. #staticInitialisation(#t.#mn(#elist)); #typeof(#lhs) #v0; #methodCall(#v0, #t.#mn(#elist)); #lhs = #v0; ...}
 {.. #sv = #arr[#idx]; ...}
 {.. #sv = (byte) #seShortIntLong; ...}
 {.. #sv = (char) #seByteShortIntLong; ...}
@@ -570,7 +570,7 @@
 {.. #sv = (short) #seIntLong; ...}
 {.. #sv = #v1.#a; ...}
 {.. #sw ...}
-{.. #switch-to-if(#sw) ...}
+{.. #switchToIf(#sw) ...}
 {.. synchronized(#cr){} ...}
 {.. synchronized(#nsencr){ #slist } ...}
 {.. synchronized(#se){} ...}
@@ -612,7 +612,7 @@
 {.. #t #v0 = #vi; ...}
 {.. { #t #v; #v = (#t) #se; #slist1 } ...}
 { .. { #typeof(#a) #a = #e; for(int #v0 = 0; #v0 < #length-reference(#a); #v0 ++) { #ty #id = #a[#v0]; #stm } } ... }
-{.. #typeof(#a) #v0 = #v1.#a; #static-initialisation(#sv); @(#sv) = #v0; ...}
+{.. #typeof(#a) #v0 = #v1.#a; #staticInitialisation(#sv); @(#sv) = #v0; ...}
 {.. #typeof(#a) #v0 = #v1.#a; @(#sv) = #v0; ...}
 {.. #typeof(#e0) #v0=#e0; #typeof(#e) #v1=#e; #v0[#v1]=#e1; #lhs0=#v0[#v1]; ...}
 {.. #typeof(#e0) #v0=#e0; #typeof(#e) #v1=#e; #v0[#v1] = (#typeof(#e0[#e]))(#v0[#v1] % #e1); ...}
@@ -660,7 +660,7 @@
 {.. #typeof(#e0) #v=#e0; #v.#attribute = (#typeof(#attribute))(#v.#attribute >>> #e); ...}
 {.. #typeof(#e0) #v=#e0; #v.#attribute = (#typeof(#attribute))(#v.#attribute ^ #e); ...}
 {.. #typeof(#e0) #v=#e0; #v.#attribute = (#typeof(#attribute))(#v.#attribute | #e); ...}
-{.. #typeof(#e) #v0 = #e; #static-initialisation(#sv); @(#sv) = #v0; ...}
+{.. #typeof(#e) #v0 = #e; #staticInitialisation(#sv); @(#sv) = #v0; ...}
 {.. #typeof(#e) #v0 = #e; @(#sv) = #v0; ...}
 {.. #typeof(#e) #v0=#e; #typeof(#nse0) #v1 = #nse0; #lhs = #v0 != #v1; ...}
 {.. #typeof(#e) #v0=#e; #typeof(#nse0) #v1 = #nse0; #lhs = #v0 < #v1; ...}
@@ -693,13 +693,13 @@
 {.. #typeof(#e) #v=#e; #v.#attribute = (#typeof(#attribute))(#v.#attribute-1); #lhs = #v.#attribute; ...}
 {.. #typeof(#lhs0) #v = #lhs1; #lhs1 = (#typeof(#lhs1))(#lhs1+1); #lhs0 = #v; ...}
 {.. #typeof(#lhs0) #v = #lhs1; #lhs1 = (#typeof(#lhs1))(#lhs1-1); #lhs0 = #v; ...}
-{.. #typeof(#lhs) #v0; #init-array-creation(#v0, #arrayinitializer); #lhs = #v0; ...}
-{.. #typeof(#lhs) #v0; #method-call(#ex, #v0, #mn(#elist)); #lhs = #v0; ...}
-{.. #typeof(#lhs) #v0; #method-call(#ex, #v0, super.#mn(#elist)); #lhs = #v0; ...}
-{.. #typeof(#lhs) #v0; #method-call(#v0, #se.#mn(#elist)); #lhs = #v0; ...}
-{.. #typeof(#lhs) #v0; #method-call(#v0, #se.#mn(#selist)); #lhs = #v0; ...}
-{.. #typeof(#lhs) #v0; #method-call(#v0, #t.#mn(#elist)); #lhs = #v0; ...}
-{.. #typeof(#na) #v0; #init-array-creation(#v0, #na); #lhs = #v0; ...}
+{.. #typeof(#lhs) #v0; #initArrayCreation(#v0, #arrayinitializer); #lhs = #v0; ...}
+{.. #typeof(#lhs) #v0; #methodCall(#ex, #v0, #mn(#elist)); #lhs = #v0; ...}
+{.. #typeof(#lhs) #v0; #methodCall(#ex, #v0, super.#mn(#elist)); #lhs = #v0; ...}
+{.. #typeof(#lhs) #v0; #methodCall(#v0, #se.#mn(#elist)); #lhs = #v0; ...}
+{.. #typeof(#lhs) #v0; #methodCall(#v0, #se.#mn(#selist)); #lhs = #v0; ...}
+{.. #typeof(#lhs) #v0; #methodCall(#v0, #t.#mn(#elist)); #lhs = #v0; ...}
+{.. #typeof(#na) #v0; #initArrayCreation(#v0, #na); #lhs = #v0; ...}
 {.. #typeof(#nse0) #v0 = #nse0; #lhs = #v0 != #se; ...}
 {.. #typeof(#nse0) #v0 = #nse0; #lhs = #v0 < #se; ...}
 {.. #typeof(#nse0) #v0 = #nse0; #lhs = #v0 <= #se; ...}
@@ -758,25 +758,25 @@
 {.. #typeof(#nse) #v=#nse; #lhs=#v | #se; ...}
 {.. #typeof(#se) #v0 = #se; { #slist2 } return #v0; ...}
 {.. #typeof(#se) #v0 = #se; throw #v0; ...}
-{.. #typeof(#sv) #v0 = #arr[#idx]; #static-initialisation(#sv); @(#sv) = #v0; ...}
+{.. #typeof(#sv) #v0 = #arr[#idx]; #staticInitialisation(#sv); @(#sv) = #v0; ...}
 {.. #typeof(#sv) #v0 = #arr[#idx]; @(#sv) = #v0; ...}
-{.. #typeof(#sv) #v0 = (byte) #seShortIntLong; #static-initialisation(#sv); @(#sv) = #v0; ...}
+{.. #typeof(#sv) #v0 = (byte) #seShortIntLong; #staticInitialisation(#sv); @(#sv) = #v0; ...}
 {.. #typeof(#sv) #v0 = (byte) #seShortIntLong; @(#sv) = #v0; ...}
-{.. #typeof(#sv) #v0 = (char) #seByteShortIntLong; #static-initialisation(#sv); @(#sv) = #v0; ...}
+{.. #typeof(#sv) #v0 = (char) #seByteShortIntLong; #staticInitialisation(#sv); @(#sv) = #v0; ...}
 {.. #typeof(#sv) #v0 = (char) #seByteShortIntLong; @(#sv) = #v0; ...}
-{.. #typeof(#sv) #v0 = (int) #seLong; #static-initialisation(#sv); @(#sv) = #v0; ...}
+{.. #typeof(#sv) #v0 = (int) #seLong; #staticInitialisation(#sv); @(#sv) = #v0; ...}
 {.. #typeof(#sv) #v0 = (int) #seLong; @(#sv) = #v0; ...}
 {.. #typeof(#sv) #v0 = #left >>> #right; ...}
-{.. #typeof(#sv) #v0 = #left % #right; #static-initialisation(#sv); @(#sv) = #v0; ...}
-{.. #typeof(#sv) #v0 = #left & #right; #static-initialisation(#sv); @(#sv) = #v0; ...}
-{.. #typeof(#sv) #v0 = #left * #right; #static-initialisation(#sv); @(#sv) = #v0; ...}
-{.. #typeof(#sv) #v0 = #left + #right; #static-initialisation(#sv); @(#sv) = #v0; ...}
-{.. #typeof(#sv) #v0 = #left - #right; #static-initialisation(#sv); @(#sv) = #v0; ...}
-{.. #typeof(#sv) #v0 = #left / #right; #static-initialisation(#sv); @(#sv) = #v0; ...}
-{.. #typeof(#sv) #v0 = #left << #right; #static-initialisation(#sv); @(#sv) = #v0; ...}
-{.. #typeof(#sv) #v0 = #left >> #right; #static-initialisation(#sv); @(#sv) = #v0; ...}
-{.. #typeof(#sv) #v0 = #left ^ #right; #static-initialisation(#sv); @(#sv) = #v0; ...}
-{.. #typeof(#sv) #v0 = #left | #right; #static-initialisation(#sv); @(#sv) = #v0; ...}
+{.. #typeof(#sv) #v0 = #left % #right; #staticInitialisation(#sv); @(#sv) = #v0; ...}
+{.. #typeof(#sv) #v0 = #left & #right; #staticInitialisation(#sv); @(#sv) = #v0; ...}
+{.. #typeof(#sv) #v0 = #left * #right; #staticInitialisation(#sv); @(#sv) = #v0; ...}
+{.. #typeof(#sv) #v0 = #left + #right; #staticInitialisation(#sv); @(#sv) = #v0; ...}
+{.. #typeof(#sv) #v0 = #left - #right; #staticInitialisation(#sv); @(#sv) = #v0; ...}
+{.. #typeof(#sv) #v0 = #left / #right; #staticInitialisation(#sv); @(#sv) = #v0; ...}
+{.. #typeof(#sv) #v0 = #left << #right; #staticInitialisation(#sv); @(#sv) = #v0; ...}
+{.. #typeof(#sv) #v0 = #left >> #right; #staticInitialisation(#sv); @(#sv) = #v0; ...}
+{.. #typeof(#sv) #v0 = #left ^ #right; #staticInitialisation(#sv); @(#sv) = #v0; ...}
+{.. #typeof(#sv) #v0 = #left | #right; #staticInitialisation(#sv); @(#sv) = #v0; ...}
 {.. #typeof(#sv) #v0 = #left % #right; @(#sv) = #v0; ...}
 {.. #typeof(#sv) #v0 = #left & #right; @(#sv) = #v0; ...}
 {.. #typeof(#sv) #v0 = #left * #right; @(#sv) = #v0; ...}
@@ -787,22 +787,22 @@
 {.. #typeof(#sv) #v0 = #left >> #right; @(#sv) = #v0; ...}
 {.. #typeof(#sv) #v0 = #left ^ #right; @(#sv) = #v0; ...}
 {.. #typeof(#sv) #v0 = #left | #right; @(#sv) = #v0; ...}
-{.. #typeof(#sv) #v0 = - #left; #static-initialisation(#sv); @(#sv) = #v0; ...}
-{.. #typeof(#sv) #v0 = ~ #left; #static-initialisation(#sv); @(#sv) = #v0; ...}
+{.. #typeof(#sv) #v0 = - #left; #staticInitialisation(#sv); @(#sv) = #v0; ...}
+{.. #typeof(#sv) #v0 = ~ #left; #staticInitialisation(#sv); @(#sv) = #v0; ...}
 {.. #typeof(#sv) #v0 = - #left; @(#sv) = #v0; ...}
 {.. #typeof(#sv) #v0 = ~ #left; @(#sv) = #v0; ...}
-{.. #typeof(#sv) #v0 = (short) #seIntLong; #static-initialisation(#sv); @(#sv) = #v0; ...}
+{.. #typeof(#sv) #v0 = (short) #seIntLong; #staticInitialisation(#sv); @(#sv) = #v0; ...}
 {.. #typeof(#sv) #v0 = (short) #seIntLong; @(#sv) = #v0; ...}
-{.. #typeof(#v0) #v0 = #create-object(#n); #constructor-call(#v0, #n); #post-work(#v0); ...}
-{.. #typeof(#v0) #v0 = #create-object(#n); #constructor-call(#v0, #n); #post-work(#v0); #lhs = #v0; ...}
+{.. #typeof(#v0) #v0 = #create-object(#n); #constructorCall(#v0, #n); #postWork(#v0); ...}
+{.. #typeof(#v0) #v0 = #create-object(#n); #constructorCall(#v0, #n); #postWork(#v0); #lhs = #v0; ...}
 {.. #typeof(#v) #v0=#v; #typeof(#nse) #v1=#nse; #v0.#a=#v1;...}
 {.. #unpack(for(#loopInit; #guard; #forupdates) #s); ...}
-{.. #unwind-loop (for(#i; #e; #sel) {#s}); ...}
-{.. #unwind-loop (#innerLabel, #outerLabel, do #s while(#e);); ...}
-{.. #unwind-loop(#innerLabel, #outerLabel, for(; #guard; #forupdates) #s); ...}
-{.. #unwind-loop(#innerLabel, #outerLabel, for(; #guard;) #s); ...}
-{.. #unwind-loop(#innerLabel, #outerLabel, for(#loopInit; #guard;) #s); ...}
-{.. #unwind-loop (#innerLabel, #outerLabel, while(#e) #s); ...}
+{.. #unwindLoop (for(#i; #e; #sel) {#s}); ...}
+{.. #unwindLoop (#innerLabel, #outerLabel, do #s while(#e);); ...}
+{.. #unwindLoop(#innerLabel, #outerLabel, for(; #guard; #forupdates) #s); ...}
+{.. #unwindLoop(#innerLabel, #outerLabel, for(; #guard;) #s); ...}
+{.. #unwindLoop(#innerLabel, #outerLabel, for(#loopInit; #guard;) #s); ...}
+{.. #unwindLoop (#innerLabel, #outerLabel, while(#e) #s); ...}
 {.. #v0 = @(#sv); ...}
 {.. #v0 = #v.#a; ...}
 {.. #v0 = #v.#length; ...}

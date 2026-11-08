@@ -32,13 +32,14 @@ migration the version lives in `gradle.properties`.
 
 ---
 
-## Unreleased — 2.0.0-SNAPSHOT
+## Unreleased — 1.0.1-SNAPSHOT
 
 Generic KeY meta-construct statement (feature branch `feat/generic-keymeta-construct`): one
 function-call-style production `#name(arg1, …, argN)` replaces the 23 name-specific
 `KeyMetaConstructStatement()` alternatives, the construct name is lexed as `SVIDENTIFIER`
 instead of a dedicated token, and `KeyMetaConstruct` stores its arguments in a single ordered
-child list. Breaking API and grammar change ⇒ major bump (`1.0.0` → `2.0.0-SNAPSHOT`).
+child list. Breaking API and grammar change; carried on the 1.0.x release line
+(`1.0.0` → `1.0.1-SNAPSHOT`).
 
 **Breaking**
 

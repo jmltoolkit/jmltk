@@ -372,9 +372,6 @@ public class TokenTypes {
             case COMMIT:
             case FINISH:
             case ABORT:
-            case STATIC_EVALUATE:
-            case CREATE_OBJECT:
-            case LENGTHREF:
             case KEYIDENTIFIER:
             case SOURCE:
             case RESULTARROW:

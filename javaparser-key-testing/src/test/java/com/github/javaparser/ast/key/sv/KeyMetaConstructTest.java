@@ -103,7 +103,8 @@ class KeyMetaConstructTest {
 
             // print -> re-parse -> print is stable
             String printed = stmt.toString();
-            ExpressionStmt reparsed = (ExpressionStmt) parse("{" + printed + "}").getStatements().get(0);
+            ExpressionStmt reparsed =
+                    (ExpressionStmt) parse("{" + printed + "}").getStatements().get(0);
             assertThat(reparsed.toString()).as(c[0]).isEqualTo(printed);
         }
     }
@@ -111,8 +112,8 @@ class KeyMetaConstructTest {
     @Test
     void renamedExpressionConstructsWorkInAssignmentPosition() {
         // as in the KeY corpus: "#v0 = #createObject(#n)"
-        ExpressionStmt stmt =
-                (ExpressionStmt) parse("{.. #v0 = #createObject(#n); ...}").getStatements().get(0);
+        ExpressionStmt stmt = (ExpressionStmt)
+                parse("{.. #v0 = #createObject(#n); ...}").getStatements().get(0);
         AssignmentExpr assign = (AssignmentExpr) stmt.getExpression();
         assertThat(((KeyExpressionSV) assign.getTarget()).getText()).isEqualTo("#v0");
         MethodCallExpr call = (MethodCallExpr) assign.getValue();

@@ -7,7 +7,7 @@ package com.github.javaparser.ast.key.sv;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
-import com.github.javaparser.ast.expr.AssignmentExpr;
+import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.stmt.BreakStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
@@ -99,7 +99,7 @@ class KeyMetaConstructTest {
             MethodCallExpr call = (MethodCallExpr) stmt.getExpression();
             assertThat(call.getName().toString()).as(c[0]).isEqualTo(c[1]);
             assertThat(call.getArguments()).as(c[0]).hasSize(1);
-            assertThat(((KeyExpressionSV) call.getArgument(0)).getText()).isEqualTo(c[2]);
+            assertThat(call.getArgument(0).toString()).as(c[0]).isEqualTo(c[2]);
 
             // print -> re-parse -> print is stable
             String printed = stmt.toString();
@@ -114,8 +114,8 @@ class KeyMetaConstructTest {
         // as in the KeY corpus: "#v0 = #createObject(#n)"
         ExpressionStmt stmt = (ExpressionStmt)
                 parse("{.. #v0 = #createObject(#n); ...}").getStatements().get(0);
-        AssignmentExpr assign = (AssignmentExpr) stmt.getExpression();
-        assertThat(((KeyExpressionSV) assign.getTarget()).getText()).isEqualTo("#v0");
+        AssignExpr assign = (AssignExpr) stmt.getExpression();
+        assertThat(assign.getTarget().toString()).isEqualTo("#v0");
         MethodCallExpr call = (MethodCallExpr) assign.getValue();
         assertThat(call.getName().toString()).isEqualTo("#createObject");
     }

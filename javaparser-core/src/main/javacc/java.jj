@@ -5089,7 +5089,7 @@ Statement Statement():
             | LOOKAHEAD(KeyMethodBodyStatement()) ret = KeyMethodBodyStatement()
             | ret = Block()
             | ret = EmptyStatement()
-            | LOOKAHEAD({ isKeyMetaConstructName(getToken(1).image) && getToken(2).kind == LPAREN })
+            | LOOKAHEAD( <SVIDENTIFIER> "(" )
             ret = KeyMetaConstructStatement()
             | LOOKAHEAD(24) ret = StatementExpression()
             | LOOKAHEAD(2) ret = StatementSV()

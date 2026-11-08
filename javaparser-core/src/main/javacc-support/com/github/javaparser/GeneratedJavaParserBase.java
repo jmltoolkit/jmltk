@@ -17,7 +17,6 @@ import com.github.javaparser.ast.type.*;
 import com.github.javaparser.utils.Pair;
 
 import java.util.*;
-import java.util.Set;
 
 import static com.github.javaparser.GeneratedJavaParserConstants.EOF;
 import static com.github.javaparser.ast.type.ArrayType.unwrapArrayTypes;
@@ -29,48 +28,6 @@ import static com.github.javaparser.utils.Utils.assertNotNull;
  */
 abstract class GeneratedJavaParserBase {
     protected NodeList<JmlDoc> lambdaDocs = null;
-
-    /**
-     * The reserved names of the generic {@code #name(arg, ...)} meta-construct statements.
-     *
-     * <p>Every KeY meta-construct is parsed by the single generic production
-     * {@code KeyMetaConstructStatement()} whose name is matched as {@code SVIDENTIFIER}. The
-     * parser cannot tell a meta-construct statement such as {@code #methodCall(...)} from an
-     * ordinary expression statement such as {@code #mn(...)} by syntax alone, so this set of
-     * names is used to route the statement to the meta-construct node. All names are valid Java
-     * identifiers.
-     */
-    private static final Set<String> KEY_META_CONSTRUCT_NAMES = Set.of(
-            "#arrayPostDeclaration",
-            "#constructorCall",
-            "#doBreak",
-            "#enhancedforElim",
-            "#evaluateArguments",
-            "#expandMethodBody",
-            "#forInitUnfoldTransformer",
-            "#forToWhile",
-            "#initArrayAssignments",
-            "#initArrayCreation",
-            "#initArrayCreationTransient",
-            "#loopScopeInvariantTransformer",
-            "#methodCall",
-            "#postWork",
-            "#reattachLoopInvariant",
-            "#replace",
-            "#resolveMultipleVarDecl",
-            "#specialConstructorCall",
-            "#staticInitialisation",
-            "#switchToIf",
-            "#unpack",
-            "#unwindLoop",
-            "#unwindLoopBounded");
-
-    /**
-     * @return {@code true} if {@code name} is one of the reserved {@code #name(...)} meta-construct statements
-     */
-    static boolean isKeyMetaConstructName(String name) {
-        return name != null && KEY_META_CONSTRUCT_NAMES.contains(name);
-    }
 
     //// Interface with the generated code
     abstract GeneratedJavaParserTokenManager getTokenSource();

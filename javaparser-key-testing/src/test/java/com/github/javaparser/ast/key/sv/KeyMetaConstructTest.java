@@ -75,36 +75,40 @@ class KeyMetaConstructTest {
     }
 
     @Test
-    void nonReservedNameRemainsAnExpressionStatement() {
-        // "#custom" is not a reserved meta-construct name, so it stays an expression statement
+    void nonReservedNameAlsoParsesAsMetaConstruct() {
+        // There is no reserved-name set anymore: any "#name(...)" statement is routed to the
+        // generic production by the syntactic lookahead <SVIDENTIFIER> "("
         KeyContextStatementBlock block = parse("{.. #custom(#a, #b); ...}");
 
-        ExpressionStmt stmt = (ExpressionStmt) block.getStatements().get(0);
-        MethodCallExpr call = (MethodCallExpr) stmt.getExpression();
-        assertThat(call.getName().toString()).isEqualTo("#custom");
-        assertThat(call.getArguments()).hasSize(2);
+        KeyMetaConstruct kmc = block.getStatements().get(0).asKeyMetaConstruct();
+        assertThat(kmc.getKind()).isEqualTo("#custom");
+        assertThat(kmc.getChildren()).hasSize(2);
+        assertThat(((KeyExpressionSV) kmc.getChildren().get(0)).getText()).isEqualTo("#a");
+        assertThat(((KeyExpressionSV) kmc.getChildren().get(1)).getText()).isEqualTo("#b");
     }
 
     @Test
-    void renamedExpressionConstructsFallBackToMethodCalls() {
+    void renamedExpressionConstructsParseAsMetaConstructs() {
         // "#create-object" / "#length-reference" / "#static-evaluate" lost their dedicated
-        // productions and now parse like any non-reserved "#name(...)"
+        // productions; in statement position they are now parsed by the generic production
+        // like any other "#name(...)"
         String[][] cases = {
             {"{.. #createObject(#n); ...}", "#createObject", "#n"},
             {"{.. #lengthReference(#a); ...}", "#lengthReference", "#a"},
             {"{.. #staticEvaluate(#e); ...}", "#staticEvaluate", "#e"},
         };
         for (String[] c : cases) {
-            ExpressionStmt stmt = (ExpressionStmt) parse(c[0]).getStatements().get(0);
-            MethodCallExpr call = (MethodCallExpr) stmt.getExpression();
-            assertThat(call.getName().toString()).as(c[0]).isEqualTo(c[1]);
-            assertThat(call.getArguments()).as(c[0]).hasSize(1);
-            assertThat(call.getArgument(0).toString()).as(c[0]).isEqualTo(c[2]);
+            KeyMetaConstruct kmc = parse(c[0]).getStatements().get(0).asKeyMetaConstruct();
+            assertThat(kmc.getKind()).as(c[0]).isEqualTo(c[1]);
+            assertThat(kmc.getChildren()).as(c[0]).hasSize(1);
+            assertThat(((KeyExpressionSV) kmc.getChildren().get(0)).getText())
+                    .as(c[0])
+                    .isEqualTo(c[2]);
 
             // print -> re-parse -> print is stable
-            String printed = stmt.toString();
-            ExpressionStmt reparsed =
-                    (ExpressionStmt) parse("{" + printed + "}").getStatements().get(0);
+            String printed = kmc.toString();
+            KeyMetaConstruct reparsed =
+                    parse("{" + printed + "}").getStatements().get(0).asKeyMetaConstruct();
             assertThat(reparsed.toString()).as(c[0]).isEqualTo(printed);
         }
     }

@@ -48,9 +48,13 @@ child list. Breaking API and grammar change; carried on the 1.0.x release line
   `KeyMetaConstruct(TokenRange, String kind, NodeList<Node> children)` with varargs helpers
   `(TokenRange, String | JavaToken, Node...)`; fluent accessors `kind()` / `children()`.
 - Grammar: the 23 dedicated `#name` statement tokens are deleted. Construct names are lexed as
-  `SVIDENTIFIER` and disambiguated in `Statement()` by the syntactic lookahead
-  `<SVIDENTIFIER> "("`: any statement-level `#name(…)` — reserved or not — is parsed as a
-  `KeyMetaConstruct`; a bare `#ident` without `(` remains a statement placeholder.
+  `SVIDENTIFIER`; in `Statement()`, `#name(…)` is first matched against the
+  method-call-statement shape (a `StatementExpression()` production lookahead): if all
+  arguments are expressions and the statement ends with `;`, it is parsed as a plain
+  `ExpressionStmt`/`MethodCallExpr` — for any name, reserved or not. A `KeyMetaConstruct` is
+  materialized only where a `MethodCallExpr` cannot carry the call: at least one statement
+  argument, or a call without a trailing `;` (the `#forToWhile`/`#switchToIf` forms). A bare
+  `#ident` without `(` remains a statement placeholder.
 - Construct names containing hyphens are renamed to camelCase, so every `#name` is a valid Java
   identifier: `#switch-to-if` → `#switchToIf`, `#do-break` → `#doBreak`, `#enhancedfor-elim` →
   `#enhancedforElim`, `#evaluate-arguments` → `#evaluateArguments`, `#expand-method-body` →
@@ -64,10 +68,9 @@ child list. Breaking API and grammar change; carried on the 1.0.x release line
   `#constructorCall`. The `schemajava.txt` test corpus is updated accordingly.
 - The expression-position constructs `#static-evaluate` / `#create-object` /
   `#length-reference` are renamed to `#staticEvaluate` / `#createObject` /
-  `#lengthReference` and their dedicated tokens and grammar productions are removed. In
-  statement position the camelCased forms are parsed by the generic production like any
-  other `#name(…)`; in expression position (e.g. `#v0 = #createObject(#n)`) they parse as
-  plain `MethodCallExpr` calls.
+  `#lengthReference` and their dedicated tokens and grammar productions are removed. Their
+  camelCased forms take expression arguments only, so they parse as plain `MethodCallExpr`
+  calls in both statement position and expression position (e.g. `#v0 = #createObject(#n)`).
 - `ObservableProperty`: `SCHEMAS` is replaced by `CHILDREN`.
 
 **Changed**
@@ -87,13 +90,14 @@ child list. Breaking API and grammar change; carried on the 1.0.x release line
 
 - `KeyMetaConstructArg()` grammar production; the now-unused `VariableSV()`/`JumpLabelSV()`
   productions are removed.
-- `KeyMetaConstructTest` (javaparser-key-testing): round-trip tests — parse → print → re-parse
-  preserves the ordered arguments; mixed argument shapes; labeled-statement arguments; the
-  no-semicolon forms `#forToWhile`/`#switchToIf`; and non-reserved `#name(…)` parsing as a
-  `KeyMetaConstruct` as well.
+- `KeyMetaConstructTest` (javaparser-key-testing): statement arguments (labeled statements,
+  loop statements) and the no-semicolon forms `#forToWhile`/`#switchToIf` parse as a
+  `KeyMetaConstruct` — parse → print → re-parse round-trips preserve the ordered arguments —
+  while expression-argument `#name(…)` calls, reserved or not, parse as a method-call
+  statement.
 - Tests for the renamed expression-position constructs: `#createObject(…)`,
-  `#lengthReference(…)` and `#staticEvaluate(…)` parse as a `KeyMetaConstruct` in statement
-  position (round-trip) and as a `MethodCallExpr` in expression position.
+  `#lengthReference(…)` and `#staticEvaluate(…)` parse as a `MethodCallExpr` in both statement
+  position (round-trip) and expression position.
 
 **Docs**
 

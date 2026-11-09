@@ -7,11 +7,16 @@ package com.github.javaparser.ast.key.sv;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
+import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.expr.AssignExpr;
+import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.stmt.BreakStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
+import com.github.javaparser.ast.stmt.ForEachStmt;
 import com.github.javaparser.ast.stmt.LabeledStmt;
+import com.github.javaparser.ast.stmt.WhileStmt;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,38 +35,9 @@ class KeyMetaConstructTest {
     }
 
     @Test
-    void parsesBareIdentifierArgumentsInOrder() {
-        // "#forToWhile" (unlike most constructs) takes no trailing semicolon
-        KeyContextStatementBlock block = parse("{.. #forToWhile(#innerLabel, #outerLabel, #forloop) ...}");
-
-        KeyMetaConstruct kmc = block.getStatements().get(0).asKeyMetaConstruct();
-        assertThat(kmc.getKind()).isEqualTo("#forToWhile");
-        assertThat(kmc.getChildren()).hasSize(3);
-        assertThat(((KeyExpressionSV) kmc.getChildren().get(0)).getText()).isEqualTo("#innerLabel");
-        assertThat(((KeyExpressionSV) kmc.getChildren().get(1)).getText()).isEqualTo("#outerLabel");
-        assertThat(((KeyExpressionSV) kmc.getChildren().get(2)).getText()).isEqualTo("#forloop");
-    }
-
-    @Test
-    void parsesMixedArgumentShapesInOrder() {
-        KeyContextStatementBlock block = parse("{.. #methodCall(#ex, #mn(#elist), #forloop); ...}");
-
-        KeyMetaConstruct kmc = block.getStatements().get(0).asKeyMetaConstruct();
-        assertThat(kmc.getKind()).isEqualTo("#methodCall");
-        assertThat(kmc.getChildren()).hasSize(3);
-
-        // bare "#ex" -> KeyExpressionSV
-        assertThat(((KeyExpressionSV) kmc.getChildren().get(0)).getText()).isEqualTo("#ex");
-        // "#mn(#elist)" -> method call expression
-        MethodCallExpr call = (MethodCallExpr) kmc.getChildren().get(1);
-        assertThat(call.getName().toString()).isEqualTo("#mn");
-        assertThat(call.getArgument(0).toString()).isEqualTo("#elist");
-        // bare "#forloop" as last argument (before the closing parenthesis)
-        assertThat(((KeyExpressionSV) kmc.getChildren().get(2)).getText()).isEqualTo("#forloop");
-    }
-
-    @Test
-    void parsesLabeledStatementAsArgument() {
+    void statementArgumentIsParsedAsMetaConstruct() {
+        // "#doBreak" takes a labeled statement; a MethodCallExpr cannot carry a statement
+        // argument, so the construct is materialized as a KeyMetaConstruct
         KeyContextStatementBlock block = parse("{.. #doBreak(#lb0: break #lb1;); ...}");
 
         KeyMetaConstruct kmc = block.getStatements().get(0).asKeyMetaConstruct();
@@ -75,40 +51,101 @@ class KeyMetaConstructTest {
     }
 
     @Test
-    void nonReservedNameAlsoParsesAsMetaConstruct() {
-        // There is no reserved-name set anymore: any "#name(...)" statement is routed to the
-        // generic production by the syntactic lookahead <SVIDENTIFIER> "("
-        KeyContextStatementBlock block = parse("{.. #custom(#a, #b); ...}");
+    void controlStatementArgumentsAreParsedAsMetaConstructs() {
+        // as in the KeY corpus: the loop statement is a real statement, not a schema variable
+        KeyMetaConstruct enhancedforElim = parse("{.. #enhancedforElim(for (#ty #id : #e) #stm); ...}")
+                .getStatements()
+                .get(0)
+                .asKeyMetaConstruct();
+        assertThat(enhancedforElim.getKind()).isEqualTo("#enhancedforElim");
+        assertThat(enhancedforElim.getChildren()).hasSize(1);
+        assertThat((Node) enhancedforElim.getChildren().get(0)).isInstanceOf(ForEachStmt.class);
 
-        KeyMetaConstruct kmc = block.getStatements().get(0).asKeyMetaConstruct();
-        assertThat(kmc.getKind()).isEqualTo("#custom");
-        assertThat(kmc.getChildren()).hasSize(2);
-        assertThat(((KeyExpressionSV) kmc.getChildren().get(0)).getText()).isEqualTo("#a");
-        assertThat(((KeyExpressionSV) kmc.getChildren().get(1)).getText()).isEqualTo("#b");
+        KeyMetaConstruct reattachLoopInvariant = parse("{.. #reattachLoopInvariant(while (#nse) #body); ...}")
+                .getStatements()
+                .get(0)
+                .asKeyMetaConstruct();
+        assertThat(reattachLoopInvariant.getKind()).isEqualTo("#reattachLoopInvariant");
+        assertThat(reattachLoopInvariant.getChildren()).hasSize(1);
+        assertThat((Node) reattachLoopInvariant.getChildren().get(0)).isInstanceOf(WhileStmt.class);
     }
 
     @Test
-    void renamedExpressionConstructsParseAsMetaConstructs() {
+    void expressionOnlyArgumentsRemainAnExpressionStatement() {
+        // all arguments are expressions or bare schema variables, so a MethodCallExpr is
+        // sufficient and the statement is a plain method-call statement, reserved name or not
+        for (String[] c : new String[][] {
+            {"{.. #custom(#a, #b); ...}", "#custom", "2"},
+            {"{.. #switchToIf(#sw); ...}", "#switchToIf", "1"},
+        }) {
+            ExpressionStmt stmt = (ExpressionStmt) parse(c[0]).getStatements().get(0);
+            MethodCallExpr call = (MethodCallExpr) stmt.getExpression();
+            assertThat(call.getName().toString()).as(c[0]).isEqualTo(c[1]);
+            assertThat(call.getArguments()).as(c[0]).hasSize(Integer.parseInt(c[2]));
+            // bare schema variables are represented the same way as in expression position
+            for (Expression arg : call.getArguments()) {
+                assertThat(arg).as(c[0]).isInstanceOf(NameExpr.class);
+            }
+        }
+    }
+
+    @Test
+    void formsWithoutSemicolonAreParsedAsMetaConstructs() {
+        // "#forToWhile" and "#switchToIf" are written without a trailing ";", so they do not
+        // form a method-call statement and are materialized as KeyMetaConstructs
+        KeyMetaConstruct forToWhile = parse("{.. #forToWhile(#innerLabel, #outerLabel, #forloop) ...}")
+                .getStatements()
+                .get(0)
+                .asKeyMetaConstruct();
+        assertThat(forToWhile.getKind()).isEqualTo("#forToWhile");
+        assertThat(forToWhile.getChildren()).hasSize(3);
+        for (Node child : forToWhile.getChildren()) {
+            assertThat(child).isInstanceOf(KeyExpressionSV.class);
+        }
+
+        KeyMetaConstruct switchToIf =
+                parse("{.. #switchToIf(#sw) ...}").getStatements().get(0).asKeyMetaConstruct();
+        assertThat(switchToIf.getKind()).isEqualTo("#switchToIf");
+        assertThat(switchToIf.getChildren()).hasSize(1);
+        assertThat(switchToIf.getChildren().get(0)).isInstanceOf(KeyExpressionSV.class);
+    }
+
+    @Test
+    void nestedExpressionArgumentsStayExpressions() {
+        // "#mn(#elist)" is a method-call expression argument, not a bare schema variable
+        ExpressionStmt stmt = (ExpressionStmt) parse("{.. #methodCall(#ex, #mn(#elist), #forloop); ...}")
+                .getStatements()
+                .get(0);
+        MethodCallExpr call = (MethodCallExpr) stmt.getExpression();
+        assertThat(call.getArguments()).hasSize(3);
+        assertThat(call.getArgument(0).toString()).isEqualTo("#ex");
+        MethodCallExpr nested = call.getArgument(1).asMethodCallExpr();
+        assertThat(nested.getName().toString()).isEqualTo("#mn");
+        assertThat(nested.getArgument(0).toString()).isEqualTo("#elist");
+        assertThat(call.getArgument(2).toString()).isEqualTo("#forloop");
+    }
+
+    @Test
+    void renamedExpressionConstructsFallBackToMethodCalls() {
         // "#create-object" / "#length-reference" / "#static-evaluate" lost their dedicated
-        // productions; in statement position they are now parsed by the generic production
-        // like any other "#name(...)"
+        // productions; their renamed forms take expression arguments only, so in statement
+        // position they parse as a plain method-call statement
         String[][] cases = {
             {"{.. #createObject(#n); ...}", "#createObject", "#n"},
             {"{.. #lengthReference(#a); ...}", "#lengthReference", "#a"},
             {"{.. #staticEvaluate(#e); ...}", "#staticEvaluate", "#e"},
         };
         for (String[] c : cases) {
-            KeyMetaConstruct kmc = parse(c[0]).getStatements().get(0).asKeyMetaConstruct();
-            assertThat(kmc.getKind()).as(c[0]).isEqualTo(c[1]);
-            assertThat(kmc.getChildren()).as(c[0]).hasSize(1);
-            assertThat(((KeyExpressionSV) kmc.getChildren().get(0)).getText())
-                    .as(c[0])
-                    .isEqualTo(c[2]);
+            ExpressionStmt stmt = (ExpressionStmt) parse(c[0]).getStatements().get(0);
+            MethodCallExpr call = (MethodCallExpr) stmt.getExpression();
+            assertThat(call.getName().toString()).as(c[0]).isEqualTo(c[1]);
+            assertThat(call.getArguments()).as(c[0]).hasSize(1);
+            assertThat(call.getArgument(0).toString()).as(c[0]).isEqualTo(c[2]);
 
             // print -> re-parse -> print is stable
-            String printed = kmc.toString();
-            KeyMetaConstruct reparsed =
-                    parse("{" + printed + "}").getStatements().get(0).asKeyMetaConstruct();
+            String printed = stmt.toString();
+            ExpressionStmt reparsed =
+                    (ExpressionStmt) parse("{" + printed + "}").getStatements().get(0);
             assertThat(reparsed.toString()).as(c[0]).isEqualTo(printed);
         }
     }
@@ -127,10 +164,9 @@ class KeyMetaConstructTest {
     @Test
     void printReparsePrintRoundTripPreservesArguments() {
         String[] schemas = {
-            "{.. #methodCall(#ex, #mn(#elist), #forloop); ...}",
-            "{.. #forToWhile(#innerLabel, #outerLabel, #forloop) ...}",
-            "{.. #switchToIf(#sw) ...}",
             "{.. #doBreak(#lb0: break #lb1;); ...}",
+            "{.. #enhancedforElim(for (#ty #id : #e) #stm); ...}",
+            "{.. #reattachLoopInvariant(while (#nse) #body); ...}",
         };
         for (String schema : schemas) {
             KeyMetaConstruct first = parse(schema).getStatements().get(0).asKeyMetaConstruct();

@@ -2719,21 +2719,6 @@ public abstract class GenericListVisitorAdapter<R, A> implements GenericVisitor<
     }
 
     @Override
-    public List<R> visit(final KeyMergePointStmt n, final A arg) {
-        List<R> result = new ArrayList<>();
-        List<R> tmp;
-        {
-            tmp = n.getExpr().accept(this, arg);
-            if (tmp != null) result.addAll(tmp);
-        }
-        if (n.getComment().isPresent()) {
-            tmp = n.getComment().get().accept(this, arg);
-            if (tmp != null) result.addAll(tmp);
-        }
-        return result;
-    }
-
-    @Override
     public List<R> visit(final KeyMethodBodyStatement n, final A arg) {
         List<R> result = new ArrayList<>();
         List<R> tmp;

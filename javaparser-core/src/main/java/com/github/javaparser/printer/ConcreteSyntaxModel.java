@@ -1600,14 +1600,6 @@ public class ConcreteSyntaxModel {
                         newline(),
                         token(RBRACE)));
         concreteSyntaxModelByClass.put(
-                KeyMergePointStmt.class,
-                sequence(
-                        string(GeneratedJavaParserConstants.MERGE_POINT, "merge_point"),
-                        token(LPAREN),
-                        child(EXPR),
-                        token(RPAREN),
-                        semicolon()));
-        concreteSyntaxModelByClass.put(
                 KeyMetaConstructExpression.class,
                 sequence(attribute(TEXT), token(LPAREN), child(CHILD), token(RPAREN)));
         concreteSyntaxModelByClass.put(

@@ -614,26 +614,6 @@ public abstract class Statement extends Node {
     public void ifKeyLoopScopeBlock(Consumer<KeyLoopScopeBlockStmt> action) {}
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public boolean isKeyMergePointStatement() {
-        return false;
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public KeyMergePointStmt asKeyMergePointStatement() {
-        throw new IllegalStateException(f(
-                "%s is not KeyMergePointStatement, it is %s",
-                this, this.getClass().getSimpleName()));
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public Optional<KeyMergePointStmt> toKeyMergePointStatement() {
-        return Optional.empty();
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifKeyMergePointStatement(Consumer<KeyMergePointStmt> action) {}
-
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public boolean isKeyMetaConstruct() {
         return false;
     }
@@ -958,25 +938,6 @@ public abstract class Statement extends Node {
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public void ifKeyLoopScopeBlockStmt(Consumer<KeyLoopScopeBlockStmt> action) {}
-
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public boolean isKeyMergePointStmt() {
-        return false;
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public KeyMergePointStmt asKeyMergePointStmt() {
-        throw new IllegalStateException(
-                f("%s is not KeyMergePointStmt, it is %s", this, this.getClass().getSimpleName()));
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public Optional<KeyMergePointStmt> toKeyMergePointStmt() {
-        return Optional.empty();
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifKeyMergePointStmt(Consumer<KeyMergePointStmt> action) {}
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public boolean isKeyMethodCallStmt() {

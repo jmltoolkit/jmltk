@@ -106,6 +106,17 @@ Index+element multi-binding (`int i, T e : a[i]`) stays deferred. Feature ⇒ mi
   `ModelDeclarationInMethodTest`, commit `1381d5d73`). Local ghost variables (`/*@ ghost int local; */`),
   which JML deliberately allows inside methods, keep parsing.
 
+**Removed**
+
+- AST + grammar: `KeyMergePointStmt` (KeY ProofJava merge points, `merge_point ( <expr> );`; introduced in
+  1.0.0, `d71ad6e6c`) — the `KeyMergePointStatement()` grammar rule, its `ConcreteSyntaxModel` and
+  pretty-printer entries, all generated visitor/metamodel support, and the `isKeyMergePointStmt` /
+  `asKeyMergePointStmt` / `toKeyMergePointStmt` / `ifKeyMergePointStmt` type-casting methods on `Statement`
+  are gone. The `MERGE_POINT` token is retained by `JmlMergePointStmt` (the JML
+  `merge_point \by …;` form). **Breaking**: the KeY ProofJava form `merge_point ( expr );` is no longer
+  supported — code containing it now fails to parse (parse problem reported; the enclosing block is marked
+  unparsable, `ParseResult.isSuccessful()` is `false`).
+
 ---
 
 ## Combined releases (JML + KeY, this repository)

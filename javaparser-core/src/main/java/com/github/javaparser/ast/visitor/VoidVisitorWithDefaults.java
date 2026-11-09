@@ -711,11 +711,6 @@ public abstract class VoidVisitorWithDefaults<A> implements VoidVisitor<A> {
     }
 
     @Override
-    public void visit(final KeyMergePointStmt n, final A arg) {
-        defaultAction(n, arg);
-    }
-
-    @Override
     public void visit(final KeyMethodBodyStatement n, final A arg) {
         defaultAction(n, arg);
     }

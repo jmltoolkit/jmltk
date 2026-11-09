@@ -625,11 +625,6 @@ public class ObjectIdentityHashCodeVisitor implements GenericVisitor<Integer, Vo
     }
 
     @Override
-    public Integer visit(final KeyMergePointStmt n, final Void arg) {
-        return n.hashCode();
-    }
-
-    @Override
     public Integer visit(final KeyMethodBodyStatement n, final Void arg) {
         return n.hashCode();
     }

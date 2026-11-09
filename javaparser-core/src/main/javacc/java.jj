@@ -5158,7 +5158,6 @@ Statement Statement():
             | ret = TryStatement()
             // KEY
             | ret = KeyTransactionStatement()
-            | ret = KeyMergePointStatement()
             | ret = KeyLoopScope()
             | ret = KeyCatchAllStatement()
             | ret = KeyExecStatement()
@@ -8369,20 +8368,6 @@ KeyLoopScopeBlockStmt KeyLoopScope() :
   block = Block()
   { return new KeyLoopScopeBlockStmt(range(begin, token()), indexPV, block); }
 }
-
-KeyMergePointStmt KeyMergePointStatement() :
-{
-    Expression expr = null;
-    KeyMergePointStmt result;
-    JavaToken begin;
-}
-{
-  <MERGE_POINT>  { begin = token(); }
-  "(" expr = Expression() ")"
-  ";"
-  { return new KeyMergePointStmt(range(begin, token()), expr); }
-}
-
 
 KeyExecStmt KeyExecStatement() :
 {

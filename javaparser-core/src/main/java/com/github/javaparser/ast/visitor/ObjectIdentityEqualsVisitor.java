@@ -713,11 +713,6 @@ public class ObjectIdentityEqualsVisitor implements GenericVisitor<Boolean, Visi
     }
 
     @Override
-    public Boolean visit(final KeyMergePointStmt n, final Visitable arg) {
-        return n == arg;
-    }
-
-    @Override
     public Boolean visit(final KeyMethodBodyStatement n, final Visitable arg) {
         return n == arg;
     }

@@ -1397,14 +1397,6 @@ public class EqualsVisitor implements GenericVisitor<Boolean, Visitable> {
     }
 
     @Override
-    public Boolean visit(final KeyMergePointStmt n, final Visitable arg) {
-        final KeyMergePointStmt n2 = (KeyMergePointStmt) arg;
-        if (!nodeEquals(n.getExpr(), n2.getExpr())) return false;
-        if (!nodeEquals(n.getComment(), n2.getComment())) return false;
-        return true;
-    }
-
-    @Override
     public Boolean visit(final KeyMethodBodyStatement n, final Visitable arg) {
         final KeyMethodBodyStatement n2 = (KeyMethodBodyStatement) arg;
         if (!nodeEquals(n.getExpr(), n2.getExpr())) return false;

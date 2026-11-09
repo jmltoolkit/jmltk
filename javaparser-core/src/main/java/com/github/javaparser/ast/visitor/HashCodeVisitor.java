@@ -990,12 +990,6 @@ public class HashCodeVisitor implements GenericVisitor<Integer, Void> {
     }
 
     @Override
-    public Integer visit(final KeyMergePointStmt n, final Void arg) {
-        return (n.getExpr().accept(this, arg)) * 31
-                + (n.getComment().isPresent() ? n.getComment().get().accept(this, arg) : 0);
-    }
-
-    @Override
     public Integer visit(final KeyMethodBodyStatement n, final Void arg) {
         return (n.getExpr().accept(this, arg)) * 31
                 + (n.getName().isPresent() ? n.getName().get().accept(this, arg) : 0) * 31

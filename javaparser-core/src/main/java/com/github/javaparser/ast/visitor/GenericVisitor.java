@@ -259,8 +259,6 @@ public interface GenericVisitor<R, A> {
 
     R visit(KeyLoopScopeBlockStmt n, A arg);
 
-    R visit(KeyMergePointStmt n, A arg);
-
     R visit(KeyMethodBodyStatement n, A arg);
 
     R visit(KeyMethodCallStmt n, A arg);

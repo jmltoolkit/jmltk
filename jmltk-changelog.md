@@ -112,10 +112,15 @@ Index+element multi-binding (`int i, T e : a[i]`) stays deferred. Feature ⇒ mi
   1.0.0, `d71ad6e6c`) — the `KeyMergePointStatement()` grammar rule, its `ConcreteSyntaxModel` and
   pretty-printer entries, all generated visitor/metamodel support, and the `isKeyMergePointStmt` /
   `asKeyMergePointStmt` / `toKeyMergePointStmt` / `ifKeyMergePointStmt` type-casting methods on `Statement`
-  are gone. The `MERGE_POINT` token is retained by `JmlMergePointStmt` (the JML
-  `merge_point \by …;` form). **Breaking**: the KeY ProofJava form `merge_point ( expr );` is no longer
-  supported — code containing it now fails to parse (parse problem reported; the enclosing block is marked
-  unparsable, `ParseResult.isSuccessful()` is `false`).
+  are gone. The `MERGE_POINT` lexer token is gone as well: `merge_point` is no longer a reserved word and
+  is recognized as a JML merge point contextually — the same identifier-by-image pattern as `obtain` and
+  `use_lemma` — only when directly followed by `;` or one of the `\by` / `\lattice` / `\predicate` options,
+  in both the `merge_point` and the KeY `$mergePoint` spelling (PR #97, `b8136e914` + follow-up). The KeY
+  ProofJava form `merge_point ( expr );` therefore no longer parses as a merge point at all — with a
+  following `(` it is an ordinary method invocation (`ExpressionStmt` of a `MethodCallExpr`) — and
+  `merge_point` can be used as a plain identifier (fields, local variables, method names). **Breaking**:
+  the AST class and the `JavaToken.MERGE_POINT` kind are gone, and the numeric `JavaToken` kinds of all
+  subsequent token types are shifted down by one.
 
 ---
 

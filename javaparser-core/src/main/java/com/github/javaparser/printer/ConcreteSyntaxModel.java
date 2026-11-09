@@ -1445,7 +1445,7 @@ public class ConcreteSyntaxModel {
         concreteSyntaxModelByClass.put(
                 JmlMergePointStmt.class,
                 sequence(
-                        string(GeneratedJavaParserConstants.MERGE_POINT, "merge_point"),
+                        string(GeneratedJavaParserConstants.IDENTIFIER, "merge_point"),
                         conditional(
                                 BY,
                                 IS_PRESENT,

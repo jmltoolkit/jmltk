@@ -771,7 +771,6 @@ TOKEN :
 | < BREAKTYPE: "\\Break" >
 | < TYPEOF: "#typeof" >
 | < SETSV: "#set" >
-| < ISSTATIC: "#isstatic" >
 | <CATCHALL: "#catchAll" >
 //| <BEGIN: "#begin" >
 | <COMMIT: "#commit" >
@@ -4829,8 +4828,6 @@ Expression Literal():
         ret = BooleanLiteral()
      |
         ret = NullLiteral()
-     |
-         ret = IsStaticMC()
     )
     { return ret; }
 }
@@ -8238,17 +8235,6 @@ KeyMetaConstructType TypeMC(NodeList<AnnotationExpr> annotations) :
      }
 }
 
-
-KeyMetaConstructExpression IsStaticMC() :
-{
-    Expression e; JavaToken begin;
-}
-{
-    <ISSTATIC> {begin=token();} "(" e = Expression() ")"
-    {
-        return new KeyMetaConstructExpression(range(begin, token()), begin, e);
-    }
-}
 
 KeyExpressionSV ExpressionSV() :
 {

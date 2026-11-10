@@ -126,6 +126,29 @@ class KeyMetaConstructTest {
     }
 
     @Test
+    void isstaticFallsBackToMethodCall() {
+        // "#isstatic" lost its dedicated production: it parses like any other "#name(...)"
+        ExpressionStmt stmt = (ExpressionStmt)
+                parse("{.. #isstatic(#a, #b); ...}").getStatements().get(0);
+        MethodCallExpr call = (MethodCallExpr) stmt.getExpression();
+        assertThat(call.getName().toString()).isEqualTo("#isstatic");
+        assertThat(call.getArguments()).hasSize(2);
+        assertThat(call.getArgument(0).toString()).isEqualTo("#a");
+        assertThat(call.getArgument(1).toString()).isEqualTo("#b");
+
+        // expression position as well
+        ExpressionStmt assignStmt = (ExpressionStmt)
+                parse("{.. #v0 = #isstatic(#a); ...}").getStatements().get(0);
+        MethodCallExpr value = (MethodCallExpr) ((AssignExpr) assignStmt.getExpression()).getValue();
+        assertThat(value.getName().toString()).isEqualTo("#isstatic");
+        assertThat(value.getArguments()).hasSize(1);
+
+        // print -> re-parse is stable
+        String printed = stmt.toString();
+        assertThat(parse("{" + printed + "}").getStatements().get(0).toString()).isEqualTo(printed);
+    }
+
+    @Test
     void printReparsePrintRoundTripPreservesArguments() {
         String[] schemas = {
             "{.. #methodCall(#ex, #mn(#elist), #forloop); ...}",

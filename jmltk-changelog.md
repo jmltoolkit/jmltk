@@ -66,8 +66,13 @@ child list. Breaking API and grammar change; carried on the 1.0.x release line
   `#constructorCall`. The `schemajava.txt` test corpus is updated accordingly.
 - The expression-position constructs `#static-evaluate` / `#create-object` /
   `#length-reference` are renamed to `#staticEvaluate` / `#createObject` /
-  `#lengthReference` and their dedicated tokens and grammar productions are removed; the
-  camelCased forms parse as plain `MethodCallExpr` calls (like any non-reserved `#name(…)`).
+  `#lengthReference`, and the `#isstatic` token with its `IsStaticMC()` production is
+  removed. `#create-object` and `#length-reference` are adopted as `#createObject` and
+  `#lengthReference` for use in KeY schemas. None of the four is given any special case in
+  the grammar: `#staticEvaluate(…)`, `#createObject(…)`, `#lengthReference(…)` and
+  `#isstatic(…)` parse as plain `MethodCallExpr` calls in both expression and statement
+  position (like any non-reserved `#name(…)`). The `KeyMetaConstructExpression` AST node is
+  no longer produced by the parser.
 - `ObservableProperty`: `SCHEMAS` is replaced by `CHILDREN`.
 
 **Changed**
@@ -79,9 +84,8 @@ child list. Breaking API and grammar change; carried on the 1.0.x release line
   call (`#mn(#elist)`), an assignment, a labeled statement (`#lb0: break #lb1;`), or a control
   statement (`for`/`while`/`do`/`if`/`switch`/`try`/`synchronized`/`assert`/`break`/`continue`/
   `return`/`throw`).
-- Out of scope (unchanged): `KeyMetaConstructType` (`#typeof`) and `KeyMetaConstructExpression`
-  (`#isstatic`) keep their dedicated tokens, as do the `#set` / `#commit` / `#finish` /
-  `#abort` / `#catchAll` statement tokens.
+- Out of scope (unchanged): `KeyMetaConstructType` (`#typeof`) keeps its dedicated token, as
+  do the `#set` / `#commit` / `#finish` / `#abort` / `#catchAll` statement tokens.
 
 **Added**
 
@@ -99,7 +103,9 @@ child list. Breaking API and grammar change; carried on the 1.0.x release line
   no-semicolon forms `#forToWhile`/`#switchToIf`; and non-reserved `#name(…)` staying an
   expression statement. Configured-name tests: full replacement (a custom name becomes a
   meta-construct while a standard one falls back), an empty set (expression statement with `;`,
-  parse failure without), and a custom construct round-trip.
+  parse failure without), and a custom construct round-trip. The `#isstatic(…)` fallback test
+  (two-argument statement form, one-argument expression form, round-trip) covers the removed
+  `#isstatic` production.
 - Fallback tests for the renamed expression-position constructs: `#createObject(…)`,
   `#lengthReference(…)` and `#staticEvaluate(…)` parse as `MethodCallExpr` and round-trip.
 

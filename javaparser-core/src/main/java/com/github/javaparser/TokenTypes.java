@@ -366,7 +366,6 @@ public class TokenTypes {
             case BREAKTYPE:
             case TYPEOF:
             case SETSV:
-            case ISSTATIC:
             case CATCHALL:
             case BEGIN:
             case COMMIT:

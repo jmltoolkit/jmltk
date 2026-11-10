@@ -5089,13 +5089,9 @@ Statement Statement():
             | LOOKAHEAD(KeyMethodBodyStatement()) ret = KeyMethodBodyStatement()
             | ret = Block()
             | ret = EmptyStatement()
-            // A meta-construct call "#name(...)" whose arguments are all expressions is a
-            // plain method-call statement. The production lookahead only matches that shape,
-            // so "#name(...)" with a statement argument (or without a trailing ";") falls
-            // through to the KeyMetaConstruct branch below.
-            | LOOKAHEAD(StatementExpression()) ret = StatementExpression()
-            | LOOKAHEAD( <SVIDENTIFIER> "(" )
+            | LOOKAHEAD({ isKeyMetaConstructName(getToken(1).image) && getToken(2).kind == LPAREN })
             ret = KeyMetaConstructStatement()
+            | LOOKAHEAD(24) ret = StatementExpression()
             | LOOKAHEAD(2) ret = StatementSV()
             | ret = SwitchStatement()
             | ret = IfStatement()

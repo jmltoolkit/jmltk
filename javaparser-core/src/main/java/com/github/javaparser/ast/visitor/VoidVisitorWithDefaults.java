@@ -740,11 +740,6 @@ public abstract class VoidVisitorWithDefaults<A> implements VoidVisitor<A> {
     }
 
     @Override
-    public void visit(final KeyMetaConstructExpression n, final A arg) {
-        defaultAction(n, arg);
-    }
-
-    @Override
     public void visit(final KeyMetaConstruct n, final A arg) {
         defaultAction(n, arg);
     }

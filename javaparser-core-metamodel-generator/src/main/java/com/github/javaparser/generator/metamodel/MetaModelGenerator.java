@@ -265,7 +265,6 @@ public class MetaModelGenerator extends AbstractGenerator {
             add(KeyExpressionSV.class);
             add(KeyJumpLabelSV.class);
             add(KeyMetaConstruct.class);
-            add(KeyMetaConstructExpression.class);
             add(KeyMetaConstructType.class);
             add(KeyMethodSignatureSV.class);
             add(KeyPassiveExpression.class);

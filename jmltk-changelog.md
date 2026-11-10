@@ -71,8 +71,10 @@ child list. Breaking API and grammar change; carried on the 1.0.x release line
   `#lengthReference` for use in KeY schemas. None of the four is given any special case in
   the grammar: `#staticEvaluate(…)`, `#createObject(…)`, `#lengthReference(…)` and
   `#isstatic(…)` parse as plain `MethodCallExpr` calls in both expression and statement
-  position (like any non-reserved `#name(…)`). The `KeyMetaConstructExpression` AST node is
-  no longer produced by the parser.
+  position (like any non-reserved `#name(…)`). The `KeyMetaConstructExpression` AST node —
+  whose only parser producer was `#isstatic` — is removed, along with
+  `Expression.asKeyMetaConstructExpression()` and its visitor/metamodel/pretty-printer
+  entries.
 - `ObservableProperty`: `SCHEMAS` is replaced by `CHILDREN`.
 
 **Changed**

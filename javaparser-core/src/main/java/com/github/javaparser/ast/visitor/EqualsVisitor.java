@@ -1584,16 +1584,6 @@ public class EqualsVisitor implements GenericVisitor<Boolean, Visitable> {
     }
 
     @Override
-    public Boolean visit(final KeyMetaConstructExpression n, final Visitable arg) {
-        final KeyMetaConstructExpression n2 = (KeyMetaConstructExpression) arg;
-        if (!nodeEquals(n.getChild(), n2.getChild())) return false;
-        if (!objEquals(n.getText(), n2.getText())) return false;
-        if (!nodesEquals(n.getAssociatedSpecificationComments(), n2.getAssociatedSpecificationComments())) return false;
-        if (!nodeEquals(n.getComment(), n2.getComment())) return false;
-        return true;
-    }
-
-    @Override
     public Boolean visit(final KeyMetaConstruct n, final Visitable arg) {
         final KeyMetaConstruct n2 = (KeyMetaConstruct) arg;
         if (!nodesEquals(n.getChildren(), n2.getChildren())) return false;

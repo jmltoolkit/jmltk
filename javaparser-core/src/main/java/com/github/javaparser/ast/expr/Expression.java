@@ -13,7 +13,6 @@ import com.github.javaparser.ast.key.KeyEscapeExpression;
 import com.github.javaparser.ast.key.KeyPassiveExpression;
 import com.github.javaparser.ast.key.KeyTransactionStmt;
 import com.github.javaparser.ast.key.sv.KeyExpressionSV;
-import com.github.javaparser.ast.key.sv.KeyMetaConstructExpression;
 import com.github.javaparser.ast.key.sv.KeyProgramVariableSV;
 import com.github.javaparser.ast.nodeTypes.NodeWithOptionalScope;
 import com.github.javaparser.ast.nodeTypes.NodeWithTypeArguments;
@@ -1008,26 +1007,6 @@ public abstract class Expression extends Node {
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public void ifKeyExpressionSV(Consumer<KeyExpressionSV> action) {}
-
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public boolean isKeyMetaConstructExpression() {
-        return false;
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public KeyMetaConstructExpression asKeyMetaConstructExpression() {
-        throw new IllegalStateException(f(
-                "%s is not KeyMetaConstructExpression, it is %s",
-                this, this.getClass().getSimpleName()));
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public Optional<KeyMetaConstructExpression> toKeyMetaConstructExpression() {
-        return Optional.empty();
-    }
-
-    @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
-    public void ifKeyMetaConstructExpression(Consumer<KeyMetaConstructExpression> action) {}
 
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public boolean isKeyPassiveExpression() {

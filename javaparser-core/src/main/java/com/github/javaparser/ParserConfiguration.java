@@ -72,7 +72,6 @@ public class ParserConfiguration {
     }
 
     // endregion
-
     // region key
     /**
      * The default reserved names of the generic {@code #name(arg, ...)} KeY meta-construct

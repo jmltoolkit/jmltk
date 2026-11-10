@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.github.javaparser.ParserConfiguration.LanguageLevel.POPULAR;
@@ -68,6 +69,67 @@ public class ParserConfiguration {
 
     public boolean isProcessJml() {
         return this.preprocessJml;
+    }
+
+    // endregion
+
+    // region key
+    /**
+     * The default reserved names of the generic {@code #name(arg, ...)} KeY meta-construct
+     * statements. Names are given exactly as they appear in the source, i.e. including the
+     * leading {@code #}. A {@code #name(...)} statement in a KeY schema is parsed as a
+     * {@code KeyMetaConstruct} if and only if its name is contained in the configured set
+     * (see {@link #setKeyMetaConstructNames(Set)}).
+     */
+    public static final Set<String> DEFAULT_KEY_META_CONSTRUCT_NAMES = Set.of(
+            "#arrayPostDeclaration",
+            "#constructorCall",
+            "#doBreak",
+            "#enhancedforElim",
+            "#evaluateArguments",
+            "#expandMethodBody",
+            "#forInitUnfoldTransformer",
+            "#forToWhile",
+            "#initArrayAssignments",
+            "#initArrayCreation",
+            "#initArrayCreationTransient",
+            "#loopScopeInvariantTransformer",
+            "#methodCall",
+            "#postWork",
+            "#reattachLoopInvariant",
+            "#replace",
+            "#resolveMultipleVarDecl",
+            "#specialConstructorCall",
+            "#staticInitialisation",
+            "#switchToIf",
+            "#unpack",
+            "#unwindLoop",
+            "#unwindLoopBounded");
+
+    private Set<String> keyMetaConstructNames = DEFAULT_KEY_META_CONSTRUCT_NAMES;
+
+    /**
+     * Replaces the reserved names of the generic {@code #name(arg, ...)} KeY meta-construct
+     * statements. This is a full replacement: any name not in the given set (including all
+     * names of {@link #DEFAULT_KEY_META_CONSTRUCT_NAMES}, unless repeated here) stops parsing
+     * as a {@code KeyMetaConstruct} and falls back to an ordinary expression statement.
+     * An empty set disables meta-construct parsing entirely.
+     *
+     * @param names the reserved names, given exactly as they appear in the source (with a
+     *              leading {@code #}); must not be null nor contain null elements
+     * @return this configuration
+     */
+    public ParserConfiguration setKeyMetaConstructNames(Set<String> names) {
+        this.keyMetaConstructNames = Set.copyOf(names);
+        return this;
+    }
+
+    /**
+     * @return the currently configured reserved names of the generic {@code #name(arg, ...)}
+     *         KeY meta-construct statements; defaults to {@link #DEFAULT_KEY_META_CONSTRUCT_NAMES}
+     */
+    public Set<String> getKeyMetaConstructNames() {
+        return keyMetaConstructNames;
     }
 
     // endregion

@@ -39,37 +39,28 @@ abstract class GeneratedJavaParserBase {
      * ordinary expression statement such as {@code #mn(...)} by syntax alone, so this set of
      * names is used to route the statement to the meta-construct node. All names are valid Java
      * identifiers.
+     *
+     * <p>The set is pushed from the {@link ParserConfiguration} by the {@link JavaParser} on
+     * every parse (see {@link #setKeyMetaConstructNames(Set)}); the default is
+     * {@link ParserConfiguration#DEFAULT_KEY_META_CONSTRUCT_NAMES}.
      */
-    private static final Set<String> KEY_META_CONSTRUCT_NAMES = Set.of(
-            "#arrayPostDeclaration",
-            "#constructorCall",
-            "#doBreak",
-            "#enhancedforElim",
-            "#evaluateArguments",
-            "#expandMethodBody",
-            "#forInitUnfoldTransformer",
-            "#forToWhile",
-            "#initArrayAssignments",
-            "#initArrayCreation",
-            "#initArrayCreationTransient",
-            "#loopScopeInvariantTransformer",
-            "#methodCall",
-            "#postWork",
-            "#reattachLoopInvariant",
-            "#replace",
-            "#resolveMultipleVarDecl",
-            "#specialConstructorCall",
-            "#staticInitialisation",
-            "#switchToIf",
-            "#unpack",
-            "#unwindLoop",
-            "#unwindLoopBounded");
+    private Set<String> keyMetaConstructNames = ParserConfiguration.DEFAULT_KEY_META_CONSTRUCT_NAMES;
+
+    /**
+     * Replaces the reserved names of the {@code #name(...)} meta-construct statements used by
+     * {@link #isKeyMetaConstructName(String)} to route statements to the meta-construct node.
+     *
+     * @param names the new reserved names; must not be null
+     */
+    void setKeyMetaConstructNames(Set<String> names) {
+        this.keyMetaConstructNames = names;
+    }
 
     /**
      * @return {@code true} if {@code name} is one of the reserved {@code #name(...)} meta-construct statements
      */
-    static boolean isKeyMetaConstructName(String name) {
-        return name != null && KEY_META_CONSTRUCT_NAMES.contains(name);
+    boolean isKeyMetaConstructName(String name) {
+        return name != null && keyMetaConstructNames.contains(name);
     }
 
     //// Interface with the generated code

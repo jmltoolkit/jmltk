@@ -14,6 +14,8 @@ import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.LabeledStmt;
 import org.junit.jupiter.api.Test;
 
+import java.util.Set;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class KeyMetaConstructTest {
@@ -21,8 +23,11 @@ class KeyMetaConstructTest {
     private KeyContextStatementBlock parse(String schema) {
         ParserConfiguration config = new ParserConfiguration();
         config.setPreprocessUnicodeEscapes(true);
-        JavaParser parser = new JavaParser(config);
-        ParseResult<KeyContextStatementBlock> result = parser.parseSchemaBlock(schema);
+        return parseWithConfig(config, schema);
+    }
+
+    private KeyContextStatementBlock parseWithConfig(ParserConfiguration config, String schema) {
+        ParseResult<KeyContextStatementBlock> result = new JavaParser(config).parseSchemaBlock(schema);
         assertThat(result.isSuccessful())
                 .as("Parsing of '%s' failed: %s", schema, result.getProblems())
                 .isTrue();
@@ -146,5 +151,76 @@ class KeyMetaConstructTest {
                         .isEqualTo(first.getChildren().get(i).toString());
             }
         }
+    }
+
+    @Test
+    void defaultReservedNamesCoverTheStandardConstructs() {
+        assertThat(ParserConfiguration.DEFAULT_KEY_META_CONSTRUCT_NAMES)
+                .hasSize(23)
+                .contains("#arrayPostDeclaration", "#forToWhile", "#methodCall", "#switchToIf", "#unwindLoop");
+    }
+
+    @Test
+    void configuredNamesFullyReplaceTheDefaults() {
+        ParserConfiguration config = new ParserConfiguration();
+        config.setPreprocessUnicodeEscapes(true);
+        config.setKeyMetaConstructNames(Set.of("#custom"));
+
+        // the configured name now parses as a meta-construct
+        KeyMetaConstruct kmc = parseWithConfig(config, "{.. #custom(#a, #b); ...}")
+                .getStatements()
+                .get(0)
+                .asKeyMetaConstruct();
+        assertThat(kmc.getKind()).isEqualTo("#custom");
+        assertThat(kmc.getChildren()).hasSize(2);
+
+        // the default names are no longer reserved: the call falls through to an expression statement
+        ExpressionStmt stmt =
+                (ExpressionStmt) parseWithConfig(config, "{.. #methodCall(#ex, #mn(#elist), #forloop); ...}")
+                        .getStatements()
+                        .get(0);
+        MethodCallExpr call = (MethodCallExpr) stmt.getExpression();
+        assertThat(call.getName().toString()).isEqualTo("#methodCall");
+        assertThat(call.getArguments()).hasSize(3);
+    }
+
+    @Test
+    void emptySetDisablesAllMetaConstructs() {
+        ParserConfiguration config = new ParserConfiguration();
+        config.setPreprocessUnicodeEscapes(true);
+        config.setKeyMetaConstructNames(Set.of());
+
+        // with a trailing ";" the call still parses, but as an expression statement
+        ExpressionStmt stmt =
+                (ExpressionStmt) parseWithConfig(config, "{.. #methodCall(#ex, #mn(#elist), #forloop); ...}")
+                        .getStatements()
+                        .get(0);
+        assertThat(((MethodCallExpr) stmt.getExpression()).getName().toString()).isEqualTo("#methodCall");
+
+        // without the trailing ";" no statement production matches at all
+        ParseResult<KeyContextStatementBlock> failed =
+                new JavaParser(config).parseSchemaBlock("{.. #forToWhile(#innerLabel, #outerLabel, #forloop) ...}");
+        assertThat(failed.isSuccessful()).isFalse();
+    }
+
+    @Test
+    void configuredCustomConstructRoundTrips() {
+        ParserConfiguration config = new ParserConfiguration();
+        config.setPreprocessUnicodeEscapes(true);
+        config.setKeyMetaConstructNames(Set.of("#myConstruct"));
+
+        KeyMetaConstruct first = parseWithConfig(config, "{.. #myConstruct(#x, #y(#z)); ...}")
+                .getStatements()
+                .get(0)
+                .asKeyMetaConstruct();
+        String printed = first.toString();
+
+        KeyMetaConstruct reparsed = parseWithConfig(config, "{" + printed + "}")
+                .getStatements()
+                .get(0)
+                .asKeyMetaConstruct();
+        assertThat(reparsed.toString()).isEqualTo(printed);
+        assertThat(reparsed.getKind()).isEqualTo(first.getKind());
+        assertThat(reparsed.getChildren()).hasSameSizeAs(first.getChildren());
     }
 }

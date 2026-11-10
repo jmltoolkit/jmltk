@@ -49,9 +49,10 @@ child list. Breaking API and grammar change; carried on the 1.0.x release line
   `(TokenRange, String | JavaToken, Node...)`; fluent accessors `kind()` / `children()`.
 - Grammar: the 23 dedicated `#name` statement tokens are deleted. Construct names are lexed as
   `SVIDENTIFIER` and disambiguated in `Statement()` by a pure semantic lookahead over the
-  reserved-name set (`GeneratedJavaParserBase.isKeyMetaConstructName`). A statement-level
-  `#name(…)` with a *non-reserved* name is parsed as a plain expression statement, exactly as
-  before; a bare `#ident` without `(` remains a statement placeholder.
+  reserved-name set (`GeneratedJavaParserBase.isKeyMetaConstructName`), which is now configurable
+  per parser configuration (see **Added** below). A statement-level `#name(…)` with a
+  *non-reserved* name is parsed as a plain expression statement, exactly as before; a bare
+  `#ident` without `(` remains a statement placeholder.
 - Construct names containing hyphens are renamed to camelCase, so every `#name` is a valid Java
   identifier: `#switch-to-if` → `#switchToIf`, `#do-break` → `#doBreak`, `#enhancedfor-elim` →
   `#enhancedforElim`, `#evaluate-arguments` → `#evaluateArguments`, `#expand-method-body` →
@@ -84,12 +85,21 @@ child list. Breaking API and grammar change; carried on the 1.0.x release line
 
 **Added**
 
+- `ParserConfiguration`: the reserved names of the generic `#name(…)` meta-construct statements
+  are now configurable — `setKeyMetaConstructNames(Set<String>)` / `getKeyMetaConstructNames()`,
+  with the previous 23-name table moved to the public constant
+  `ParserConfiguration.DEFAULT_KEY_META_CONSTRUCT_NAMES` (the default). Semantics are full
+  replacement: names outside the configured set fall back to ordinary expression statements, and
+  an empty set disables meta-construct parsing. The configured set is pushed into the parser on
+  every parse, like the other configuration values.
 - `KeyMetaConstructArg()` grammar production; the now-unused `VariableSV()`/`JumpLabelSV()`
   productions are removed.
 - `KeyMetaConstructTest` (javaparser-key-testing): round-trip tests — parse → print → re-parse
   preserves the ordered arguments; mixed argument shapes; labeled-statement arguments; the
   no-semicolon forms `#forToWhile`/`#switchToIf`; and non-reserved `#name(…)` staying an
-  expression statement.
+  expression statement. Configured-name tests: full replacement (a custom name becomes a
+  meta-construct while a standard one falls back), an empty set (expression statement with `;`,
+  parse failure without), and a custom construct round-trip.
 - Fallback tests for the renamed expression-position constructs: `#createObject(…)`,
   `#lengthReference(…)` and `#staticEvaluate(…)` parse as `MethodCallExpr` and round-trip.
 

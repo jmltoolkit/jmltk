@@ -774,7 +774,6 @@ public final class JavaParserMetaModel {
         keyLoopScopeBlockStmtMetaModel
                 .getConstructorParameters()
                 .add(keyLoopScopeBlockStmtMetaModel.blockPropertyMetaModel);
-        keyMergePointStmtMetaModel.getConstructorParameters().add(keyMergePointStmtMetaModel.exprPropertyMetaModel);
         keyMethodBodyStatementMetaModel
                 .getConstructorParameters()
                 .add(keyMethodBodyStatementMetaModel.namePropertyMetaModel);
@@ -965,7 +964,6 @@ public final class JavaParserMetaModel {
         nodeMetaModels.add(keyJumpLabelSVMetaModel);
         nodeMetaModels.add(keyLoopScopeBlockStmtMetaModel);
         nodeMetaModels.add(keyMarkerStatementMetaModel);
-        nodeMetaModels.add(keyMergePointStmtMetaModel);
         nodeMetaModels.add(keyMetaConstructExpressionMetaModel);
         nodeMetaModels.add(keyMetaConstructMetaModel);
         nodeMetaModels.add(keyMetaConstructTypeMetaModel);
@@ -4968,18 +4966,6 @@ public final class JavaParserMetaModel {
         keyLoopScopeBlockStmtMetaModel
                 .getDeclaredPropertyMetaModels()
                 .add(keyLoopScopeBlockStmtMetaModel.indexPVPropertyMetaModel);
-        keyMergePointStmtMetaModel.exprPropertyMetaModel = new PropertyMetaModel(
-                keyMergePointStmtMetaModel,
-                "expr",
-                com.github.javaparser.ast.expr.Expression.class,
-                Optional.of(expressionMetaModel),
-                false,
-                false,
-                false,
-                false);
-        keyMergePointStmtMetaModel
-                .getDeclaredPropertyMetaModels()
-                .add(keyMergePointStmtMetaModel.exprPropertyMetaModel);
         keyMethodBodyStatementMetaModel.exprPropertyMetaModel = new PropertyMetaModel(
                 keyMethodBodyStatementMetaModel,
                 "expr",
@@ -5985,10 +5971,6 @@ public final class JavaParserMetaModel {
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     public static final KeyLoopScopeBlockStmtMetaModel keyLoopScopeBlockStmtMetaModel =
             new KeyLoopScopeBlockStmtMetaModel(Optional.of(statementMetaModel));
-
-    @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
-    public static final KeyMergePointStmtMetaModel keyMergePointStmtMetaModel =
-            new KeyMergePointStmtMetaModel(Optional.of(statementMetaModel));
 
     @Generated("com.github.javaparser.generator.metamodel.NodeMetaModelGenerator")
     public static final KeyMethodBodyStatementMetaModel keyMethodBodyStatementMetaModel =

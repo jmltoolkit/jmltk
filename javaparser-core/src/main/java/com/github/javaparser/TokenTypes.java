@@ -358,7 +358,6 @@ public class TokenTypes {
             case TRANSACTIONABORT:
             case RETURNTYPE:
             case LOOPSCOPE:
-            case MERGE_POINT:
             case METHODFRAME:
             case SHARP:
             case EXEC:

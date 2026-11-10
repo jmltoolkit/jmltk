@@ -1499,13 +1499,6 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
     }
 
     @Override
-    public void visit(KeyMergePointStmt n, Void arg) {
-        printOrphanCommentsBeforeThisChildNode(n);
-        printComment(n.getComment(), arg);
-        printer.print("merge_point");
-    }
-
-    @Override
     public void visit(KeyMethodBodyStatement n, Void arg) {
         printOrphanCommentsBeforeThisChildNode(n);
         printComment(n.getComment(), arg);

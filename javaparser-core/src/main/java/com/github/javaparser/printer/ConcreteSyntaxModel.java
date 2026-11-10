@@ -1445,7 +1445,7 @@ public class ConcreteSyntaxModel {
         concreteSyntaxModelByClass.put(
                 JmlMergePointStmt.class,
                 sequence(
-                        string(GeneratedJavaParserConstants.MERGE_POINT, "merge_point"),
+                        string(GeneratedJavaParserConstants.IDENTIFIER, "merge_point"),
                         conditional(
                                 BY,
                                 IS_PRESENT,
@@ -1599,14 +1599,6 @@ public class ConcreteSyntaxModel {
                         attribute(BLOCK),
                         newline(),
                         token(RBRACE)));
-        concreteSyntaxModelByClass.put(
-                KeyMergePointStmt.class,
-                sequence(
-                        string(GeneratedJavaParserConstants.MERGE_POINT, "merge_point"),
-                        token(LPAREN),
-                        child(EXPR),
-                        token(RPAREN),
-                        semicolon()));
         concreteSyntaxModelByClass.put(
                 KeyMetaConstructExpression.class,
                 sequence(attribute(TEXT), token(LPAREN), child(CHILD), token(RPAREN)));

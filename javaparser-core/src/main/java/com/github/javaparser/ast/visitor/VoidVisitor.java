@@ -255,8 +255,6 @@ public interface VoidVisitor<A> {
 
     void visit(KeyLoopScopeBlockStmt n, A arg);
 
-    void visit(KeyMergePointStmt n, A arg);
-
     void visit(KeyMethodBodyStatement n, A arg);
 
     void visit(KeyMethodCallStmt n, A arg);

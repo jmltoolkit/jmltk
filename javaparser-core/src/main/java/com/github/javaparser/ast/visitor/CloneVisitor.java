@@ -1826,17 +1826,6 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
     }
 
     @Override
-    public Visitable visit(final KeyMergePointStmt n, final Object arg) {
-        Expression expr = cloneNode(n.getExpr(), arg);
-        Comment comment = cloneNode(n.getComment(), arg);
-        KeyMergePointStmt r = new KeyMergePointStmt(n.getTokenRange().orElse(null), expr);
-        r.setComment(comment);
-        n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
-        copyData(n, r);
-        return r;
-    }
-
-    @Override
     public Visitable visit(final KeyMethodBodyStatement n, final Object arg) {
         Expression expr = cloneNode(n.getExpr(), arg);
         Name name = cloneNode(n.getName(), arg);

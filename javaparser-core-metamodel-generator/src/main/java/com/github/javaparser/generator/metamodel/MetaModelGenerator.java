@@ -258,7 +258,6 @@ public class MetaModelGenerator extends AbstractGenerator {
             add(KeyExecStmt.class);
             add(KeyExecutionContext.class);
             add(KeyLoopScopeBlockStmt.class);
-            add(KeyMergePointStmt.class);
             add(KeyMethodBodyStatement.class);
             add(KeyMethodCallStmt.class);
             add(KeyMethodSignature.class);

@@ -475,11 +475,6 @@ public class DefaultVisitorAdapter implements GenericVisitor<ResolvedType, Boole
     }
 
     @Override
-    public ResolvedType visit(KeyMergePointStmt n, Boolean arg) {
-        throw new UnsupportedOperationException(n.getClass().getCanonicalName());
-    }
-
-    @Override
     public ResolvedType visit(KeyMethodBodyStatement n, Boolean arg) {
         throw new UnsupportedOperationException(n.getClass().getCanonicalName());
     }

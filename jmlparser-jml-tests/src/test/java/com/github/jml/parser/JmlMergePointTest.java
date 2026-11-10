@@ -8,8 +8,11 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.jml.stmt.JmlMergePointStmt;
+import com.github.javaparser.ast.stmt.ExpressionStmt;
+import com.github.javaparser.ast.stmt.Statement;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -122,5 +125,48 @@ class JmlMergePointTest {
                 .isEqualTo("/*@ merge_point \\by \"MergeByPredicateAbstraction\" "
                         + "\\lattice \"conjunctive\" \\predicate (int x) : "
                         + "x >= 0, x == \\old(b) || x == -\\old(b);*/");
+    }
+
+    @Test
+    void dollarForm() {
+        JmlMergePointStmt stmt = parseMergePoint("$mergePoint;");
+        assertThat(stmt.getBy()).isEmpty();
+        assertThat(stmt.getLattice()).isEmpty();
+        assertThat(stmt.getPredicateVariable()).isEmpty();
+        assertThat(stmt.getPredicates()).isEmpty();
+    }
+
+    @Test
+    void proofJavaCallFormParsesAsMethodCall() {
+        // `merge_point` is not a reserved word: with a following "( ... )" it is an
+        // ordinary method invocation, not a merge point.
+        JavaParser plain = new JavaParser();
+        ParseResult<CompilationUnit> result = plain.parse("class Foo {\nvoid m() {\nmerge_point ( x );\n}\n}\n");
+        Assertions.assertTrue(result.isSuccessful(), () -> result.getProblems().toString());
+        Statement stmt = result.getResult()
+                .orElseThrow()
+                .findFirst(com.github.javaparser.ast.body.ClassOrInterfaceDeclaration.class)
+                .orElseThrow()
+                .getMethods()
+                .get(0)
+                .getBody()
+                .orElseThrow()
+                .getStatements()
+                .get(0);
+        assertThat(stmt).isInstanceOf(ExpressionStmt.class);
+        assertThat(((ExpressionStmt) stmt).getExpression()).isInstanceOf(MethodCallExpr.class);
+        MethodCallExpr call = (MethodCallExpr) ((ExpressionStmt) stmt).getExpression();
+        assertThat(call.getNameAsString()).isEqualTo("merge_point");
+        assertThat(call.getArguments()).hasSize(1);
+        assertThat(call.getScope()).isEmpty();
+    }
+
+    @Test
+    void mergePointIsUsableAsIdentifier() {
+        JavaParser plain = new JavaParser();
+        ParseResult<CompilationUnit> result = plain.parse("class Foo {\nint merge_point = 5;\n}\n");
+        Assertions.assertTrue(result.isSuccessful(), () -> result.getProblems().toString());
+        assertThat(result.getResult().orElseThrow().findFirst(JmlMergePointStmt.class))
+                .isEmpty();
     }
 }

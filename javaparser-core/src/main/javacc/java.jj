@@ -132,6 +132,21 @@ final class GeneratedJavaParser extends GeneratedJavaParserBase {
     GeneratedJavaParserTokenManager getTokenSource() {
         return token_source;
     }
+
+    /* Contextual keyword check for the JML merge-point statement: {@code merge_point}
+     * (or the KeY {@code $mergePoint} spelling, a valid identifier here) is a merge point
+     * only when directly followed by {@code ;} or one of the {@code \by}/{@code \lattice}/
+     * {@code \predicate} options. When followed by {@code ( ... )} it is an ordinary
+     * method invocation. */
+    boolean isJmlMergePointStatement() {
+        Token next = getToken(1);
+        if (next.kind != IDENTIFIER
+                || (!"merge_point".equals(next.image) && !"$mergePoint".equals(next.image))) {
+            return false;
+        }
+        Token after = getToken(2);
+        return after.kind == SEMICOLON || after.kind == BY || after.kind == JML_IDENTIFIER;
+    }
 }
 PARSER_END(GeneratedJavaParser)
 
@@ -765,7 +780,6 @@ TOKEN :
 | < TRANSACTIONABORT: "#abortJavaCardTransaction" >
 | < RETURNTYPE: "\\Return" >
 | < LOOPSCOPE: "loop-scope" | "$loopScope" >
-| < MERGE_POINT: "merge_point" | "$mergePoint" >
 | < METHODFRAME: "method-frame" | "$methodFrame" >
 | < EXEC: "exec" >
 | < CONTINUETYPE: "\\Continue" >
@@ -5136,6 +5150,7 @@ Statement Statement():
         (
              LOOKAHEAD(3) ret = AssertStatement() //precedence over JML assert
 		    | LOOKAHEAD(3) ret = JmlStatement()
+            | LOOKAHEAD({ isJmlMergePointStatement() }) ret = JmlMergePoint()
 			| LOOKAHEAD(2) ret = LabeledStatement()
             | LOOKAHEAD(3) ret = YieldStatement()
             | LOOKAHEAD(2) ret = KeyMethodCallStatement()
@@ -5158,7 +5173,6 @@ Statement Statement():
             | ret = TryStatement()
             // KEY
             | ret = KeyTransactionStatement()
-            | ret = KeyMergePointStatement()
             | ret = KeyLoopScope()
             | ret = KeyCatchAllStatement()
             | ret = KeyExecStatement()
@@ -7054,6 +7068,10 @@ ArbitraryNodeContainer JmlMethodLevelStart():
     statement = JmlSpecialStatement() { ret.getChildren().add(statement); }
   | LOOKAHEAD(4)
     statement = JmlStatement()       { ret.getChildren().add(statement); }
+  | LOOKAHEAD(
+        { isJmlMergePointStatement() }
+      )
+      statement = JmlMergePoint()    { ret.getChildren().add(statement); }
   | LOOKAHEAD(4)
     contracts = JmlRefiningContract() { ret.getChildren().addAll(contracts); }
   | jmlModifiersInner(mods)           { ret.getChildren().addAll(mods); mods.clear();}
@@ -7110,8 +7128,6 @@ JmlStatement JmlStatement():
     { ret =  new JmlGhostStmt(range(begin, token()), new NodeList<>(), stmt); }
   | <UNREACHABLE> {begin=token();} ";"
     { ret =  new JmlUnreachableStmt(range(begin, token()), new NodeList<>()); }
-  | ret = JmlMergePoint()
-
   )
   { return ret; }
 }
@@ -7148,6 +7164,10 @@ JmlStatement JmlSpecialStatement():
  * string literal in the AST. {@code \\by} is a dedicated token (shared with JML proof scripts),
  * so the option matches on the token image and accepts either the {@code BY} or the
  * {@code JML_IDENTIFIER} token kind.
+ *
+ * {@code merge_point} itself is not a reserved word: it is matched contextually as a plain
+ * identifier (see {@link #isJmlMergePointStatement()}). When directly followed by
+ * {@code ( ... )} it is an ordinary method invocation, not a merge point.
  */
 JmlMergePointStmt JmlMergePoint():
 {
@@ -7157,7 +7177,7 @@ JmlMergePointStmt JmlMergePoint():
     NodeList<Expression> predicates = null;
 }
 {
-    <MERGE_POINT> { begin = token(); }
+    <IDENTIFIER> { begin = token(); }
     [ LOOKAHEAD({ "\\by".equals(getToken(1).image) })
       ( <BY> | <JML_IDENTIFIER> ) by = JmlKeyValue() ]
     [ LOOKAHEAD({ getToken(1).kind == JML_IDENTIFIER && "\\lattice".equals(getToken(1).image) })
@@ -8369,20 +8389,6 @@ KeyLoopScopeBlockStmt KeyLoopScope() :
   block = Block()
   { return new KeyLoopScopeBlockStmt(range(begin, token()), indexPV, block); }
 }
-
-KeyMergePointStmt KeyMergePointStatement() :
-{
-    Expression expr = null;
-    KeyMergePointStmt result;
-    JavaToken begin;
-}
-{
-  <MERGE_POINT>  { begin = token(); }
-  "(" expr = Expression() ")"
-  ";"
-  { return new KeyMergePointStmt(range(begin, token()), expr); }
-}
-
 
 KeyExecStmt KeyExecStatement() :
 {

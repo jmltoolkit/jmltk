@@ -1600,19 +1600,7 @@ public class ConcreteSyntaxModel {
                         newline(),
                         token(RBRACE)));
         concreteSyntaxModelByClass.put(
-                KeyMetaConstructExpression.class,
-                sequence(attribute(TEXT), token(LPAREN), child(CHILD), token(RPAREN)));
-        concreteSyntaxModelByClass.put(
-                KeyMetaConstruct.class,
-                sequence(
-                        attribute(KIND),
-                        token(LPAREN),
-                        child(CHILD),
-                        conditional(
-                                SCHEMAS,
-                                IS_NOT_EMPTY,
-                                sequence(comma(), space(), list(SCHEMAS, sequence(comma(), space())))),
-                        token(RPAREN)));
+                KeyMetaConstruct.class, sequence(attribute(KIND), token(LPAREN), child(CHILDREN), token(RPAREN)));
         concreteSyntaxModelByClass.put(
                 KeyMetaConstructType.class, sequence(token(TYPEOF), token(LPAREN), child(EXPR), token(RPAREN)));
         concreteSyntaxModelByClass.put(

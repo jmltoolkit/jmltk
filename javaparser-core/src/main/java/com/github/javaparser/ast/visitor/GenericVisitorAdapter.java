@@ -2717,28 +2717,10 @@ public abstract class GenericVisitorAdapter<R, A> implements GenericVisitor<R, A
     }
 
     @Override
-    public R visit(final KeyMetaConstructExpression n, final A arg) {
-        R result;
-        {
-            result = n.getChild().accept(this, arg);
-            if (result != null) return result;
-        }
-        if (n.getComment().isPresent()) {
-            result = n.getComment().get().accept(this, arg);
-            if (result != null) return result;
-        }
-        return null;
-    }
-
-    @Override
     public R visit(final KeyMetaConstruct n, final A arg) {
         R result;
         {
-            result = n.getChild().accept(this, arg);
-            if (result != null) return result;
-        }
-        {
-            result = n.getSchemas().accept(this, arg);
+            result = n.getChildren().accept(this, arg);
             if (result != null) return result;
         }
         if (n.getComment().isPresent()) {

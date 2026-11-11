@@ -1519,23 +1519,10 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
     }
 
     @Override
-    public Visitable visit(final KeyMetaConstructExpression n, final A arg) {
-        Expression child = (Expression) n.getChild().accept(this, arg);
-        Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
-        if (child == null) return null;
-        n.setChild(child);
-        n.setComment(comment);
-        return n;
-    }
-
-    @Override
     public Visitable visit(final KeyMetaConstruct n, final A arg) {
-        Node child = (Node) n.getChild().accept(this, arg);
-        NodeList<Node> schemas = modifyList(n.getSchemas(), arg);
+        NodeList<Node> children = modifyList(n.getChildren(), arg);
         Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null);
-        if (child == null) return null;
-        n.setChild(child);
-        n.setSchemas(schemas);
+        n.setChildren(children);
         n.setComment(comment);
         return n;
     }

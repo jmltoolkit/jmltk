@@ -868,15 +868,8 @@ public class NoCommentHashCodeVisitor implements GenericVisitor<Integer, Void> {
     }
 
     @Override
-    public Integer visit(final KeyMetaConstructExpression n, final Void arg) {
-        return (n.getChild().accept(this, arg)) * 31 + (n.getText().hashCode());
-    }
-
-    @Override
     public Integer visit(final KeyMetaConstruct n, final Void arg) {
-        return (n.getChild().accept(this, arg)) * 31
-                + (n.getKind().hashCode()) * 31
-                + (n.getSchemas().accept(this, arg));
+        return (n.getChildren().accept(this, arg)) * 31 + (n.getKind().hashCode());
     }
 
     @Override

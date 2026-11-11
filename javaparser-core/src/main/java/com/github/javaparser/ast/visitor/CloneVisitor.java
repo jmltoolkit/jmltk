@@ -2170,27 +2170,12 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
     }
 
     @Override
-    public Visitable visit(final KeyMetaConstructExpression n, final Object arg) {
-        Expression child = cloneNode(n.getChild(), arg);
-        NodeList<Comment> associatedSpecificationComments =
-                cloneList(n.getAssociatedSpecificationComments().orElse(null), arg);
-        Comment comment = cloneNode(n.getComment(), arg);
-        KeyMetaConstructExpression r =
-                new KeyMetaConstructExpression(n.getTokenRange().orElse(null), n.getText(), child);
-        r.setComment(comment);
-        n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
-        copyData(n, r);
-        return r;
-    }
-
-    @Override
     public Visitable visit(final KeyMetaConstruct n, final Object arg) {
-        Node child = cloneNode(n.getChild(), arg);
-        NodeList<Node> schemas = cloneList(n.getSchemas(), arg);
+        NodeList<Node> children = cloneList(n.getChildren(), arg);
         NodeList<Comment> associatedSpecificationComments =
                 cloneList(n.getAssociatedSpecificationComments().orElse(null), arg);
         Comment comment = cloneNode(n.getComment(), arg);
-        KeyMetaConstruct r = new KeyMetaConstruct(n.getTokenRange().orElse(null), n.getKind(), child, schemas);
+        KeyMetaConstruct r = new KeyMetaConstruct(n.getTokenRange().orElse(null), n.getKind(), children);
         r.setComment(comment);
         n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
         copyData(n, r);

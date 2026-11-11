@@ -489,11 +489,6 @@ public class DefaultVisitorAdapter implements GenericVisitor<ResolvedType, Boole
     }
 
     @Override
-    public ResolvedType visit(KeyMetaConstructExpression n, Boolean arg) {
-        throw new UnsupportedOperationException(n.getClass().getCanonicalName());
-    }
-
-    @Override
     public ResolvedType visit(KeyMetaConstruct n, Boolean arg) {
         throw new UnsupportedOperationException(n.getClass().getCanonicalName());
     }

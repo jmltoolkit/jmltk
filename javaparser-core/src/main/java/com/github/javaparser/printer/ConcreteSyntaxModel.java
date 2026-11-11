@@ -1386,8 +1386,9 @@ public class ConcreteSyntaxModel {
                         newline(),
                         token(RBRACE)));
         concreteSyntaxModelByClass.put(KeyMergePointStmt.class, sequence());
-        concreteSyntaxModelByClass.put(KeyMetaConstructExpression.class, sequence());
-        concreteSyntaxModelByClass.put(KeyMetaConstruct.class, sequence());
+        concreteSyntaxModelByClass.put(
+                KeyMetaConstruct.class,
+                sequence(attribute(KIND), token(LPAREN), list(CHILDREN, sequence(comma(), space())), token(RPAREN)));
         concreteSyntaxModelByClass.put(KeyMetaConstructType.class, sequence());
         concreteSyntaxModelByClass.put(KeyMethodBodyStatement.class, sequence());
         concreteSyntaxModelByClass.put(KeyMethodCallStmt.class, sequence());

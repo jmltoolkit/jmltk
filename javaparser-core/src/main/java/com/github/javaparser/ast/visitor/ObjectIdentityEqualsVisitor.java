@@ -742,11 +742,6 @@ public class ObjectIdentityEqualsVisitor implements GenericVisitor<Boolean, Visi
     }
 
     @Override
-    public Boolean visit(final KeyMetaConstructExpression n, final Visitable arg) {
-        return n == arg;
-    }
-
-    @Override
     public Boolean visit(final KeyMetaConstruct n, final Visitable arg) {
         return n == arg;
     }

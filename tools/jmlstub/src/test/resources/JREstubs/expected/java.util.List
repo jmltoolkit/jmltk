@@ -32,14 +32,6 @@ public abstract interface List extends java.util.SequencedCollection {
         accessible true;
         
     */
-    public abstract E get(int arg0);
-
-    /*@ public normal_behavior
-        requires true;
-        ensures true;
-        accessible true;
-        
-    */
     public abstract boolean equals(java.lang.Object arg0);
 
     /*@ public normal_behavior
@@ -104,6 +96,14 @@ public abstract interface List extends java.util.SequencedCollection {
         accessible true;
         
     */
+    public abstract void add(int arg0, E arg1);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
     public abstract boolean add(E arg0);
 
     /*@ public normal_behavior
@@ -112,7 +112,7 @@ public abstract interface List extends java.util.SequencedCollection {
         accessible true;
         
     */
-    public abstract void add(int arg0, E arg1);
+    public abstract E get(int arg0);
 
     /*@ public normal_behavior
         requires true;
@@ -128,7 +128,7 @@ public abstract interface List extends java.util.SequencedCollection {
         accessible true;
         
     */
-    public abstract java.lang.Object[] toArray();
+    public abstract T[] toArray(T[] arg0);
 
     /*@ public normal_behavior
         requires true;
@@ -136,7 +136,7 @@ public abstract interface List extends java.util.SequencedCollection {
         accessible true;
         
     */
-    public abstract T[] toArray(T[] arg0);
+    public abstract java.lang.Object[] toArray();
 
     /*@ public normal_behavior
         requires true;
@@ -152,47 +152,7 @@ public abstract interface List extends java.util.SequencedCollection {
         accessible true;
         
     */
-    public static java.util.List<E> of(E arg0, E arg1, E arg2);
-
-    /*@ public normal_behavior
-        requires true;
-        ensures true;
-        accessible true;
-        
-    */
-    public static java.util.List<E> of(E arg0, E arg1, E arg2, E arg3);
-
-    /*@ public normal_behavior
-        requires true;
-        ensures true;
-        accessible true;
-        
-    */
-    public static java.util.List<E> of(E arg0, E arg1, E arg2, E arg3, E arg4);
-
-    /*@ public normal_behavior
-        requires true;
-        ensures true;
-        accessible true;
-        
-    */
-    public static java.util.List<E> of(E arg0, E arg1, E arg2, E arg3, E arg4, E arg5, E arg6, E arg7, E arg8, E arg9);
-
-    /*@ public normal_behavior
-        requires true;
-        ensures true;
-        accessible true;
-        
-    */
-    public static java.util.List<E> of(E arg0, E arg1, E arg2, E arg3, E arg4, E arg5, E arg6, E arg7, E arg8);
-
-    /*@ public normal_behavior
-        requires true;
-        ensures true;
-        accessible true;
-        
-    */
-    public static java.util.List<E> of();
+    public static java.util.List<E> of(E arg0, E arg1, E arg2, E arg3, E arg4, E arg5, E arg6);
 
     /*@ public normal_behavior
         requires true;
@@ -208,15 +168,7 @@ public abstract interface List extends java.util.SequencedCollection {
         accessible true;
         
     */
-    public static java.util.List<E> of(E arg0, E arg1);
-
-    /*@ public normal_behavior
-        requires true;
-        ensures true;
-        accessible true;
-        
-    */
-    public static java.util.List<E> of(E arg0, E arg1, E arg2, E arg3, E arg4, E arg5, E arg6);
+    public static java.util.List<E> of();
 
     /*@ public normal_behavior
         requires true;
@@ -232,7 +184,39 @@ public abstract interface List extends java.util.SequencedCollection {
         accessible true;
         
     */
-    public static transient java.util.List<E> of(E[] arg0);
+    public static java.util.List<E> of(E arg0, E arg1, E arg2, E arg3, E arg4, E arg5, E arg6, E arg7, E arg8);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.util.List<E> of(E arg0, E arg1, E arg2, E arg3);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.util.List<E> of(E arg0, E arg1, E arg2);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.util.List<E> of(E arg0, E arg1, E arg2, E arg3, E arg4);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.util.List<E> of(E arg0, E arg1);
 
     /*@ public normal_behavior
         requires true;
@@ -241,6 +225,22 @@ public abstract interface List extends java.util.SequencedCollection {
         
     */
     public static java.util.List<E> of(E arg0, E arg1, E arg2, E arg3, E arg4, E arg5);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static transient java.util.List<E> of(E[] arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public static java.util.List<E> of(E arg0, E arg1, E arg2, E arg3, E arg4, E arg5, E arg6, E arg7, E arg8, E arg9);
 
     /*@ public normal_behavior
         requires true;
@@ -264,7 +264,7 @@ public abstract interface List extends java.util.SequencedCollection {
         accessible true;
         
     */
-    public abstract boolean addAll(java.util.Collection<? extends E> arg0);
+    public abstract boolean addAll(int arg0, java.util.Collection<? extends E> arg1);
 
     /*@ public normal_behavior
         requires true;
@@ -272,7 +272,7 @@ public abstract interface List extends java.util.SequencedCollection {
         accessible true;
         
     */
-    public abstract boolean addAll(int arg0, java.util.Collection<? extends E> arg1);
+    public abstract boolean addAll(java.util.Collection<? extends E> arg0);
 
     /*@ public normal_behavior
         requires true;

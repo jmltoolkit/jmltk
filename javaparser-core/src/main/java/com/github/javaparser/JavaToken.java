@@ -537,117 +537,90 @@ public class JavaToken {
         CCAT(286),
         BREAKTYPE(287),
         TYPEOF(288),
-        SWITCHTOIF(289),
-        UNPACK(290),
-        REATTACHLOOPINVARIANT(291),
-        FORINITUNFOLDTRANSFORMER(292),
-        LOOPSCOPEINVARIANTTRANSFORMER(293),
-        SETSV(294),
-        ISSTATIC(295),
-        EVALARGS(296),
-        REPLACEARGS(297),
-        UNWINDLOOP(298),
-        CATCHALL(299),
-        COMMIT(300),
-        FINISH(301),
-        ABORT(302),
-        UNWIND_LOOP_BOUNDED(303),
-        FORTOWHILE(304),
-        DOBREAK(305),
-        METHODCALL(306),
-        EXPANDMETHODBODY(307),
-        CONSTRUCTORCALL(308),
-        SPECIALCONSTRUCTORECALL(309),
-        POSTWORK(310),
-        STATICINITIALIZATION(311),
-        RESOLVE_MULTIPLE_VAR_DECL(312),
-        ARRAY_POST_DECL(313),
-        ARRAY_INIT_CREATION(314),
-        ARRAY_INIT_CREATION_TRANSIENT(315),
-        ARRAY_INIT_CREATION_ASSIGNMENTS(316),
-        ENHANCEDFOR_ELIM(317),
-        STATIC_EVALUATE(318),
-        CREATE_OBJECT(319),
-        LENGTHREF(320),
-        RESULTARROW(321),
-        LONG_LITERAL(322),
-        INTEGER_LITERAL(323),
-        DECIMAL_LITERAL(324),
-        HEX_LITERAL(325),
-        OCTAL_LITERAL(326),
-        BINARY_LITERAL(327),
-        FLOATING_POINT_LITERAL(328),
-        DECIMAL_FLOATING_POINT_LITERAL(329),
-        DECIMAL_EXPONENT(330),
-        HEXADECIMAL_FLOATING_POINT_LITERAL(331),
-        HEXADECIMAL_EXPONENT(332),
-        HEX_DIGITS(333),
-        UNICODE_ESCAPE(334),
-        CHARACTER_LITERAL(335),
-        STRING_LITERAL(336),
-        ENTER_TEXT_BLOCK(337),
-        TEXT_BLOCK_LITERAL(338),
-        TEXT_BLOCK_CONTENT(339),
-        IDENTIFIER(340),
-        JML_IDENTIFIER(341),
-        SVIDENTIFIER(342),
-        KEYIDENTIFIER(343),
-        NON_UNDERSCORE_LETTER(344),
-        PART_LETTER(345),
-        LPAREN(346),
-        RPAREN(347),
-        LBRACE(348),
-        RBRACE(349),
-        LBRACKET(350),
-        RBRACKET(351),
-        SEMICOLON(352),
-        COMMA(353),
-        DOTDOT(354),
-        ELLIPSIS(355),
-        DOT(356),
-        AT(357),
-        DOUBLECOLON(358),
-        ASSIGN(359),
-        LT(360),
-        BANG(361),
-        TILDE(362),
-        HOOK(363),
-        COLON(364),
-        ARROW(365),
-        EQ(366),
-        GE(367),
-        LE(368),
-        NE(369),
-        SC_AND(370),
-        SC_OR(371),
-        INCR(372),
-        DECR(373),
-        PLUS(374),
-        MINUS(375),
-        STAR(376),
-        SLASH(377),
-        BIT_AND(378),
-        BIT_OR(379),
-        XOR(380),
-        REM(381),
-        LSHIFT(382),
-        SHARP(383),
-        PLUSASSIGN(384),
-        MINUSASSIGN(385),
-        STARASSIGN(386),
-        SLASHASSIGN(387),
-        ANDASSIGN(388),
-        ORASSIGN(389),
-        XORASSIGN(390),
-        REMASSIGN(391),
-        LSHIFTASSIGN(392),
-        RSIGNEDSHIFTASSIGN(393),
-        RUNSIGNEDSHIFTASSIGN(394),
-        RUNSIGNEDSHIFT(395),
-        RSIGNEDSHIFT(396),
-        GT(397),
-        CTRL_Z(398),
-        UNNAMED_PLACEHOLDER(399);
+        SETSV(289),
+        CATCHALL(290),
+        COMMIT(291),
+        FINISH(292),
+        ABORT(293),
+        RESULTARROW(294),
+        LONG_LITERAL(295),
+        INTEGER_LITERAL(296),
+        DECIMAL_LITERAL(297),
+        HEX_LITERAL(298),
+        OCTAL_LITERAL(299),
+        BINARY_LITERAL(300),
+        FLOATING_POINT_LITERAL(301),
+        DECIMAL_FLOATING_POINT_LITERAL(302),
+        DECIMAL_EXPONENT(303),
+        HEXADECIMAL_FLOATING_POINT_LITERAL(304),
+        HEXADECIMAL_EXPONENT(305),
+        HEX_DIGITS(306),
+        UNICODE_ESCAPE(307),
+        CHARACTER_LITERAL(308),
+        STRING_LITERAL(309),
+        ENTER_TEXT_BLOCK(310),
+        TEXT_BLOCK_LITERAL(311),
+        TEXT_BLOCK_CONTENT(312),
+        IDENTIFIER(313),
+        JML_IDENTIFIER(314),
+        SVIDENTIFIER(315),
+        KEYIDENTIFIER(316),
+        NON_UNDERSCORE_LETTER(317),
+        PART_LETTER(318),
+        LPAREN(319),
+        RPAREN(320),
+        LBRACE(321),
+        RBRACE(322),
+        LBRACKET(323),
+        RBRACKET(324),
+        SEMICOLON(325),
+        COMMA(326),
+        DOTDOT(327),
+        ELLIPSIS(328),
+        DOT(329),
+        AT(330),
+        DOUBLECOLON(331),
+        ASSIGN(332),
+        LT(333),
+        BANG(334),
+        TILDE(335),
+        HOOK(336),
+        COLON(337),
+        ARROW(338),
+        EQ(339),
+        GE(340),
+        LE(341),
+        NE(342),
+        SC_AND(343),
+        SC_OR(344),
+        INCR(345),
+        DECR(346),
+        PLUS(347),
+        MINUS(348),
+        STAR(349),
+        SLASH(350),
+        BIT_AND(351),
+        BIT_OR(352),
+        XOR(353),
+        REM(354),
+        LSHIFT(355),
+        SHARP(356),
+        PLUSASSIGN(357),
+        MINUSASSIGN(358),
+        STARASSIGN(359),
+        SLASHASSIGN(360),
+        ANDASSIGN(361),
+        ORASSIGN(362),
+        XORASSIGN(363),
+        REMASSIGN(364),
+        LSHIFTASSIGN(365),
+        RSIGNEDSHIFTASSIGN(366),
+        RUNSIGNEDSHIFTASSIGN(367),
+        RUNSIGNEDSHIFT(368),
+        RSIGNEDSHIFT(369),
+        GT(370),
+        CTRL_Z(371),
+        UNNAMED_PLACEHOLDER(372);
 
         private final int kind;
 
@@ -657,228 +630,174 @@ public class JavaToken {
 
         public static Kind valueOf(int kind) {
             switch (kind) {
-                case 399:
-                    return UNNAMED_PLACEHOLDER;
-                case 398:
-                    return CTRL_Z;
-                case 397:
-                    return GT;
-                case 396:
-                    return RSIGNEDSHIFT;
-                case 395:
-                    return RUNSIGNEDSHIFT;
-                case 394:
-                    return RUNSIGNEDSHIFTASSIGN;
-                case 393:
-                    return RSIGNEDSHIFTASSIGN;
-                case 392:
-                    return LSHIFTASSIGN;
-                case 391:
-                    return REMASSIGN;
-                case 390:
-                    return XORASSIGN;
-                case 389:
-                    return ORASSIGN;
-                case 388:
-                    return ANDASSIGN;
-                case 387:
-                    return SLASHASSIGN;
-                case 386:
-                    return STARASSIGN;
-                case 385:
-                    return MINUSASSIGN;
-                case 384:
-                    return PLUSASSIGN;
-                case 383:
-                    return SHARP;
-                case 382:
-                    return LSHIFT;
-                case 381:
-                    return REM;
-                case 380:
-                    return XOR;
-                case 379:
-                    return BIT_OR;
-                case 378:
-                    return BIT_AND;
-                case 377:
-                    return SLASH;
-                case 376:
-                    return STAR;
-                case 375:
-                    return MINUS;
-                case 374:
-                    return PLUS;
-                case 373:
-                    return DECR;
                 case 372:
-                    return INCR;
+                    return UNNAMED_PLACEHOLDER;
                 case 371:
-                    return SC_OR;
+                    return CTRL_Z;
                 case 370:
-                    return SC_AND;
+                    return GT;
                 case 369:
-                    return NE;
+                    return RSIGNEDSHIFT;
                 case 368:
-                    return LE;
+                    return RUNSIGNEDSHIFT;
                 case 367:
-                    return GE;
+                    return RUNSIGNEDSHIFTASSIGN;
                 case 366:
-                    return EQ;
+                    return RSIGNEDSHIFTASSIGN;
                 case 365:
-                    return ARROW;
+                    return LSHIFTASSIGN;
                 case 364:
-                    return COLON;
+                    return REMASSIGN;
                 case 363:
-                    return HOOK;
+                    return XORASSIGN;
                 case 362:
-                    return TILDE;
+                    return ORASSIGN;
                 case 361:
-                    return BANG;
+                    return ANDASSIGN;
                 case 360:
-                    return LT;
+                    return SLASHASSIGN;
                 case 359:
-                    return ASSIGN;
+                    return STARASSIGN;
                 case 358:
-                    return DOUBLECOLON;
+                    return MINUSASSIGN;
                 case 357:
-                    return AT;
+                    return PLUSASSIGN;
                 case 356:
-                    return DOT;
+                    return SHARP;
                 case 355:
-                    return ELLIPSIS;
+                    return LSHIFT;
                 case 354:
-                    return DOTDOT;
+                    return REM;
                 case 353:
-                    return COMMA;
+                    return XOR;
                 case 352:
-                    return SEMICOLON;
+                    return BIT_OR;
                 case 351:
-                    return RBRACKET;
+                    return BIT_AND;
                 case 350:
-                    return LBRACKET;
+                    return SLASH;
                 case 349:
-                    return RBRACE;
+                    return STAR;
                 case 348:
-                    return LBRACE;
+                    return MINUS;
                 case 347:
-                    return RPAREN;
+                    return PLUS;
                 case 346:
-                    return LPAREN;
+                    return DECR;
                 case 345:
-                    return PART_LETTER;
+                    return INCR;
                 case 344:
-                    return NON_UNDERSCORE_LETTER;
+                    return SC_OR;
                 case 343:
-                    return KEYIDENTIFIER;
+                    return SC_AND;
                 case 342:
-                    return SVIDENTIFIER;
+                    return NE;
                 case 341:
-                    return JML_IDENTIFIER;
+                    return LE;
                 case 340:
-                    return IDENTIFIER;
+                    return GE;
                 case 339:
-                    return TEXT_BLOCK_CONTENT;
+                    return EQ;
                 case 338:
-                    return TEXT_BLOCK_LITERAL;
+                    return ARROW;
                 case 337:
-                    return ENTER_TEXT_BLOCK;
+                    return COLON;
                 case 336:
-                    return STRING_LITERAL;
+                    return HOOK;
                 case 335:
-                    return CHARACTER_LITERAL;
+                    return TILDE;
                 case 334:
-                    return UNICODE_ESCAPE;
+                    return BANG;
                 case 333:
-                    return HEX_DIGITS;
+                    return LT;
                 case 332:
-                    return HEXADECIMAL_EXPONENT;
+                    return ASSIGN;
                 case 331:
-                    return HEXADECIMAL_FLOATING_POINT_LITERAL;
+                    return DOUBLECOLON;
                 case 330:
-                    return DECIMAL_EXPONENT;
+                    return AT;
                 case 329:
-                    return DECIMAL_FLOATING_POINT_LITERAL;
+                    return DOT;
                 case 328:
-                    return FLOATING_POINT_LITERAL;
+                    return ELLIPSIS;
                 case 327:
-                    return BINARY_LITERAL;
+                    return DOTDOT;
                 case 326:
-                    return OCTAL_LITERAL;
+                    return COMMA;
                 case 325:
-                    return HEX_LITERAL;
+                    return SEMICOLON;
                 case 324:
-                    return DECIMAL_LITERAL;
+                    return RBRACKET;
                 case 323:
-                    return INTEGER_LITERAL;
+                    return LBRACKET;
                 case 322:
-                    return LONG_LITERAL;
+                    return RBRACE;
                 case 321:
-                    return RESULTARROW;
+                    return LBRACE;
                 case 320:
-                    return LENGTHREF;
+                    return RPAREN;
                 case 319:
-                    return CREATE_OBJECT;
+                    return LPAREN;
                 case 318:
-                    return STATIC_EVALUATE;
+                    return PART_LETTER;
                 case 317:
-                    return ENHANCEDFOR_ELIM;
+                    return NON_UNDERSCORE_LETTER;
                 case 316:
-                    return ARRAY_INIT_CREATION_ASSIGNMENTS;
+                    return KEYIDENTIFIER;
                 case 315:
-                    return ARRAY_INIT_CREATION_TRANSIENT;
+                    return SVIDENTIFIER;
                 case 314:
-                    return ARRAY_INIT_CREATION;
+                    return JML_IDENTIFIER;
                 case 313:
-                    return ARRAY_POST_DECL;
+                    return IDENTIFIER;
                 case 312:
-                    return RESOLVE_MULTIPLE_VAR_DECL;
+                    return TEXT_BLOCK_CONTENT;
                 case 311:
-                    return STATICINITIALIZATION;
+                    return TEXT_BLOCK_LITERAL;
                 case 310:
-                    return POSTWORK;
+                    return ENTER_TEXT_BLOCK;
                 case 309:
-                    return SPECIALCONSTRUCTORECALL;
+                    return STRING_LITERAL;
                 case 308:
-                    return CONSTRUCTORCALL;
+                    return CHARACTER_LITERAL;
                 case 307:
-                    return EXPANDMETHODBODY;
+                    return UNICODE_ESCAPE;
                 case 306:
-                    return METHODCALL;
+                    return HEX_DIGITS;
                 case 305:
-                    return DOBREAK;
+                    return HEXADECIMAL_EXPONENT;
                 case 304:
-                    return FORTOWHILE;
+                    return HEXADECIMAL_FLOATING_POINT_LITERAL;
                 case 303:
-                    return UNWIND_LOOP_BOUNDED;
+                    return DECIMAL_EXPONENT;
                 case 302:
-                    return ABORT;
+                    return DECIMAL_FLOATING_POINT_LITERAL;
                 case 301:
-                    return FINISH;
+                    return FLOATING_POINT_LITERAL;
                 case 300:
-                    return COMMIT;
+                    return BINARY_LITERAL;
                 case 299:
-                    return CATCHALL;
+                    return OCTAL_LITERAL;
                 case 298:
-                    return UNWINDLOOP;
+                    return HEX_LITERAL;
                 case 297:
-                    return REPLACEARGS;
+                    return DECIMAL_LITERAL;
                 case 296:
-                    return EVALARGS;
+                    return INTEGER_LITERAL;
                 case 295:
-                    return ISSTATIC;
+                    return LONG_LITERAL;
                 case 294:
-                    return SETSV;
+                    return RESULTARROW;
                 case 293:
-                    return LOOPSCOPEINVARIANTTRANSFORMER;
+                    return ABORT;
                 case 292:
-                    return FORINITUNFOLDTRANSFORMER;
+                    return FINISH;
                 case 291:
-                    return REATTACHLOOPINVARIANT;
+                    return COMMIT;
                 case 290:
-                    return UNPACK;
+                    return CATCHALL;
                 case 289:
-                    return SWITCHTOIF;
+                    return SETSV;
                 case 288:
                     return TYPEOF;
                 case 287:

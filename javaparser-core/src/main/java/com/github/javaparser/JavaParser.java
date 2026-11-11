@@ -79,6 +79,7 @@ public final class JavaParser {
         }
         astParser.setTabSize(configuration.getTabSize());
         astParser.setStoreTokens(configuration.isStoreTokens());
+        astParser.setKeyMetaConstructNames(configuration.getKeyMetaConstructNames());
         ParserConfiguration.LanguageLevel languageLevel = configuration.getLanguageLevel();
         if (languageLevel != null) {
             if (languageLevel.isYieldSupported()) {

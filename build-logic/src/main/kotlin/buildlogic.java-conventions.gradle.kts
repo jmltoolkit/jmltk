@@ -75,6 +75,26 @@ testing {
     }
 }
 
+tasks.named<Test>("test") {
+    useJUnitPlatform()
+
+    maxHeapSize = "1G"
+
+    testLogging {
+        events("passed")
+    }
+}
+
+tasks.jar {
+    manifest {
+        attributes(
+            mapOf(
+                "Implementation-Title" to project.name,
+                "Implementation-Version" to project.version,
+            ),
+        )
+    }
+}
 
 configure<com.diffplug.gradle.spotless.SpotlessExtension> {
     java {

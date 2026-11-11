@@ -8,6 +8,7 @@ import com.github.javaparser.ast.body.VariableDeclarator
 import com.github.javaparser.ast.expr.CharLiteralExpr
 import com.github.javaparser.ast.expr.IntegerLiteralExpr
 import com.github.javaparser.ast.expr.LongLiteralExpr
+import com.github.javaparser.ast.expr.UnaryExpr
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType
 import io.github.jmltoolkit.smt.model.SExpr
 import io.github.jmltoolkit.smt.model.SmtType
@@ -20,9 +21,19 @@ import java.math.BigInteger
 class IntArithmeticTranslator(smtLog: SmtQuery) : BitVectorArithmeticTranslator((smtLog)) {
     private val term: SmtTermFactory = SmtTermFactory
 
+    override fun unary(operator: UnaryExpr.Operator, accept: SExpr): SExpr =
+        if (operator == UnaryExpr.Operator.MINUS) {
+            term.subtract(term.makeInt("0"), accept)
+        } else {
+            super.unary(operator, accept)
+        }
+
     override fun makeChar(n: CharLiteralExpr): SExpr = term.makeInt("" + n.asChar().code)
 
-    override fun makeLong(n: LongLiteralExpr): SExpr = term.makeInt("" + n.value)
+    override fun makeLong(n: LongLiteralExpr): SExpr =
+        // `value` keeps the `L`/`l` suffix; longLiteralValue strips it and
+        // resolves the radix (see the sibling BitVectorArithmeticTranslator)
+        term.makeInt(longLiteralValue(n).toString())
 
     override fun makeInt(n: IntegerLiteralExpr): SExpr = term.makeInt("" + n.value)
 
@@ -35,6 +46,7 @@ class IntArithmeticTranslator(smtLog: SmtQuery) : BitVectorArithmeticTranslator(
     }
 
     override fun getPrimitiveType(rType: ResolvedPrimitiveType) = when (rType) {
+        ResolvedPrimitiveType.BOOLEAN -> SmtType.BOOL
         ResolvedPrimitiveType.FLOAT, ResolvedPrimitiveType.DOUBLE -> SmtType.REAL
         else -> SmtType.INT
     }

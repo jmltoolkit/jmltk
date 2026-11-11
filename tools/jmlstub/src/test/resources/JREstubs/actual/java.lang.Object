@@ -1,0 +1,144 @@
+package java.lang;
+
+public class Object {
+
+    public Object();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    also
+        public exceptional_behavior
+        requires true;
+        ensures true;
+        signals (Throwable e) true;
+        accessible true;
+        
+    */
+    protected void finalize() throws Throwable;
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    also
+        public exceptional_behavior
+        requires true;
+        ensures true;
+        signals (InterruptedException e) true;
+        accessible true;
+        
+    */
+    private final native void wait0(long arg0) throws InterruptedException;
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public boolean equals(java.lang.Object arg0);
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public java.lang.String toString();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public native int hashCode();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public final native java.lang.Class<?> getClass();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    also
+        public exceptional_behavior
+        requires true;
+        ensures true;
+        signals (CloneNotSupportedException e) true;
+        accessible true;
+        
+    */
+    protected native java.lang.Object clone() throws CloneNotSupportedException;
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public final native void notify();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    */
+    public final native void notifyAll();
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    also
+        public exceptional_behavior
+        requires true;
+        ensures true;
+        signals (InterruptedException e) true;
+        accessible true;
+        
+    */
+    public final void wait(long arg0) throws InterruptedException;
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    also
+        public exceptional_behavior
+        requires true;
+        ensures true;
+        signals (InterruptedException e) true;
+        accessible true;
+        
+    */
+    public final void wait(long arg0, int arg1) throws InterruptedException;
+
+    /*@ public normal_behavior
+        requires true;
+        ensures true;
+        accessible true;
+        
+    also
+        public exceptional_behavior
+        requires true;
+        ensures true;
+        signals (InterruptedException e) true;
+        accessible true;
+        
+    */
+    public final void wait() throws InterruptedException;
+}

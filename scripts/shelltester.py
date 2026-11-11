@@ -53,12 +53,12 @@ def resolve_windows_executable(command: str) -> str:
     return command
 
 
-def parse_test_file(filepath: str) -> tuple[list[str], str, bool]:
+def parse_test_file(filepath: str) -> tuple[list[str], str, bool, bool]:
     """
     Parse a test file with YAML-like frontmatter.
     
     Returns:
-        Tuple of (command_lines, expected_output, ignore_stderr)
+        Tuple of (command_lines, expected_output, ignore_stderr, sort_output)
     """
     with open(filepath, 'r', encoding='utf-8') as f:
         content = f.read()
@@ -81,6 +81,7 @@ def parse_test_file(filepath: str) -> tuple[list[str], str, bool]:
     # Parse command lines and options from header
     command_lines = []
     ignore_stderr = False
+    sort_output = False
     
     for line in header_content.split('\n'):
         line = line.strip()
@@ -93,6 +94,13 @@ def parse_test_file(filepath: str) -> tuple[list[str], str, bool]:
             # Parse ignoreStderr option
             value = line[13:].strip().lower()
             ignore_stderr = value in ('true', 'yes', '1')
+        elif line.startswith('sortOutput:'):
+            # Parse sortOutput option: compare the sorted line sets instead of the
+            # exact byte stream. The `vcg` report arrives in solver-completion
+            # order, which is nondeterministic across runs; the set of lines is
+            # stable, so sorting accepts any completion order.
+            value = line[11:].strip().lower()
+            sort_output = value in ('true', 'yes', '1')
         elif line and command_lines:
             # Additional lines after 'run:' are part of the command
             command_lines.append(line)
@@ -100,7 +108,7 @@ def parse_test_file(filepath: str) -> tuple[list[str], str, bool]:
     if not command_lines:
         raise ValueError(f"No 'run:' command found in header: {filepath}")
     
-    return command_lines, expected_output, ignore_stderr
+    return command_lines, expected_output, ignore_stderr, sort_output
 
 
 def run_command(command_lines: list[str], ignore_stderr: bool = False) -> tuple[str, int, str]:
@@ -146,9 +154,18 @@ def collect_test_files(args: list[str]) -> list[Path]:
     return test_files
 
 
-def compare_output(actual: str, expected: str) -> bool:
-    """Compare actual output with expected output."""
-    return actual == expected
+def compare_output(actual: str, expected: str, sort_output: bool = False) -> bool:
+    """Compare actual output with expected output.
+
+    With sort_output the comparison is over the sorted sets of *normalized* lines
+    (each line stripped), so nondeterministic solver-completion order does not
+    fail the test and the leading-whitespace artifact of whole-buffer stripping on
+    the first emitted line cancels out.
+    """
+    if not sort_output:
+        return actual == expected
+    norm = lambda s: sorted(line.strip() for line in s.split('\n'))
+    return norm(actual) == norm(expected)
 
 
 def run_single_test(filepath: Path) -> tuple[bool, str]:
@@ -157,7 +174,7 @@ def run_single_test(filepath: Path) -> tuple[bool, str]:
         return False, "File not found"
     
     try:
-        command_lines, expected, ignore_stderr = parse_test_file(str(filepath))
+        command_lines, expected, ignore_stderr, sort_output = parse_test_file(str(filepath))
     except ValueError as e:
         return False, str(e)
     
@@ -166,7 +183,7 @@ def run_single_test(filepath: Path) -> tuple[bool, str]:
     except Exception as e:
         return False, f"Command execution failed: {e}"
     
-    if compare_output(actual, expected):
+    if compare_output(actual, expected, sort_output):
         return True, "PASSED"
     else:
         # Write actual output to file beside the test file
@@ -210,6 +227,7 @@ def main():
         print("---")
         print("run: <shell command>")
         print("ignoreStderr: true|false (optional, default: false)")
+        print("sortOutput: true|false (optional, default: false; compare sorted lines)")
         print("---")
         print("<expected output>")
         sys.exit(1)

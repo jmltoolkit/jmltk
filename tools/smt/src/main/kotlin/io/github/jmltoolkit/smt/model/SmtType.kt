@@ -11,6 +11,10 @@ open class SmtType private constructor(private val name: String) {
 
     class Array(val from: SmtType, val to: SmtType) : SmtType("(Array " + from.name + " " + to.name + ")")
 
+    /** A sequence over [of] (`(Seq T)`) — the native-string content view in
+     *  UNBOUNDED mode. */
+    class Seq(val of: SmtType) : SmtType("(Seq " + of.name + ")")
+
     companion object {
         val FP32: SmtType = SmtType("(_ FloatingPoint 32)")
         val FP64: SmtType = SmtType("(_ FloatingPoint 64)")

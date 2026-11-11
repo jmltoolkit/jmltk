@@ -1,3 +1,4 @@
 *.java text eol=lf
 # Test expectation fixtures that are compared byte-for-byte against LF output
 *.symbols text eol=lf
+*.smt2 text eol=lf

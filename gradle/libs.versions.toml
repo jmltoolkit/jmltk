@@ -101,6 +101,7 @@ ktor-severhtml = { module = "io.ktor:ktor-server-html-builder", version.ref = "k
 ksp-symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 
 jacoco-cobertura = { module = "name.remal.jacoco-to-cobertura:name.remal.jacoco-to-cobertura.gradle.plugin", version = "2.0.4" }
+errorprone = {module="net.ltgt.errorprone:net.ltgt.errorprone.gradle.plugin", version="4.0.0"}
 
 [bundles]
 

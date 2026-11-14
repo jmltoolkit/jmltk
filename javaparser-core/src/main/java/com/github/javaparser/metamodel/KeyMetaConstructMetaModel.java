@@ -32,9 +32,7 @@ public class KeyMetaConstructMetaModel extends StatementMetaModel {
                 false);
     }
 
-    public PropertyMetaModel childPropertyMetaModel;
+    public PropertyMetaModel childrenPropertyMetaModel;
 
     public PropertyMetaModel kindPropertyMetaModel;
-
-    public PropertyMetaModel schemasPropertyMetaModel;
 }

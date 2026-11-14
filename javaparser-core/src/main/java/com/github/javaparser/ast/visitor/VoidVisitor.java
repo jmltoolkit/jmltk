@@ -271,8 +271,6 @@ public interface VoidVisitor<A> {
 
     void visit(KeyJumpLabelSV n, A arg);
 
-    void visit(KeyMetaConstructExpression n, A arg);
-
     void visit(KeyMetaConstruct n, A arg);
 
     void visit(KeyMetaConstructType n, A arg);

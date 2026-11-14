@@ -1,10 +1,6 @@
 # JMLtk — Agent Instructions
 
-JMLtk (jmltoolkit/jmltk) is a fork of JavaParser adding Java Modeling Language (JML) support: a Gradle
-multi-module build (root `jmlparser-parent`), core libraries in Java, tools in Kotlin.
-
-## Package Manager
-Use the Gradle wrapper: `./gradlew`.
+JMLtk (jmltoolkit/jmltk) is a fork of JavaParser adding Java Modeling Language (JML) support: Gradle, multi-module build; core libraries in Java, tools in Kotlin.:w
 
 ## Commands
 | Task              | Command                                                                   |
@@ -20,12 +16,15 @@ Use the Gradle wrapper: `./gradlew`.
 
 ## Conventions
 
+- Avoid newlines in Markdown, e.g., in PR descriptions
+
 ### Tests
 - Assertions from AssertJ or Google Truth are available
 - Use `var` modifier
+- e2e for shell scripts goes here: `tools/cli/shell-tests/` 
 
 ### Javadoc / KDoc
-- On AST classes, also add examples of the underlying syntax construct
+- On AST classes; always add examples of the underlying syntax construct
 
 ### Grammar
 - Grammar: `javaparser-core/src/main/javacc/java.jj`

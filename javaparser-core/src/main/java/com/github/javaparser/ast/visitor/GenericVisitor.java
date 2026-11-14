@@ -275,8 +275,6 @@ public interface GenericVisitor<R, A> {
 
     R visit(KeyJumpLabelSV n, A arg);
 
-    R visit(KeyMetaConstructExpression n, A arg);
-
     R visit(KeyMetaConstruct n, A arg);
 
     R visit(KeyMetaConstructType n, A arg);

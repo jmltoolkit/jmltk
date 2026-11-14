@@ -10,7 +10,10 @@ from the git history of the two forks that were merged into this repository:
   `-b2` … `-b7` before the merge, then the combined `-J<JML>-K<KeY>` scheme.
 
 Commit hashes are given for every entry so that each claim can be verified with `git show <hash>` / `git log`.
-Hashes that refer to a feature branch rather than to `main` are marked as such.
+Hashes that refer to a feature branch rather than to `main` are marked as such. A few historical hashes
+(`82b6d7869`, `b66825037`, `0b2a7a359`, `183af569e`, `3da7c7825`) come from pre-merge fork histories and are
+kept for provenance; they are not reachable from `main`, so `git show` only works if that history is present
+locally.
 
 ## Version scheme
 
@@ -262,13 +265,15 @@ version is set to `1.0.1` in `c25a757e1`; no `JMLtk-v1.0.1` tag exists yet.
 
 Second combined release. Completes the K13.6 feature level on this lineage: the KeY fork published K13.6 on
 2026-07-20 (`c26f62ea3`, tagged `KEY-JAVAPARSER-3.28.0-K13.6`), but that fix never crossed back into the JML
-fork's release line — this release cherry-picks it. Version commit: `0b2a7a359` "prepare release
-3.28.2-J8.0-K13.6"; cherry-pick commit: `183af569e`.
+fork's release line — this release cherry-picks it. The pre-merge prepare commit is `0b2a7a359` "prepare
+release 3.28.2-J8.0-K13.6" and the cherry-pick is `183af569e` (patch-identical to `c26f62ea3`); neither is
+reachable from `main`. The published commit is `0e5e605fb` on `main` / `33b8f38a2` at tag `JMLtk-v1.0.0`.
 
 **Fixed**
 
 - Method resolution for overloaded methods with array-typed arguments when the basetype is a primitive
-  integral type — cherry-picked from the KeY fork (`c26f62ea3` → `183af569e`): during the recursive descend
+  integral type — cherry-picked from the KeY fork (`c26f62ea3`; the pre-merge cherry-pick `183af569e` has the
+  same patch): during the recursive descend
   of an array type the primitive check now uses `equals` instead of `isAssignableBy`.
 - The other three K13.6 fixes from the KeY fork were already present in `3.28.2-J8.0-K13.5`: weak
   `JavaParserFacade` cache (`febe5a8a9`), call-context threading through `solveMethodAsUsage` (`f6b2260d4`),
@@ -277,7 +282,8 @@ fork's release line — this release cherry-picks it. Version commit: `0b2a7a359
 ### Version 3.28.2-J8.0-K13.5  (2026-10-25)
 
 First combined release, and the first release built with Gradle instead of Maven. Base
-JavaParser is 3.28.2. Release commit: `82b6d7869`/`b66825037` "prepare release".
+JavaParser is 3.28.2. Release commits: `82b6d7869`/`b66825037` "prepare release" (pre-merge forks; not
+reachable from `main`).
 
 **Added**
 
@@ -301,7 +307,8 @@ JavaParser is 3.28.2. Release commit: `82b6d7869`/`b66825037` "prepare release".
 
 **Fixed**
 
-- Grammar: precise error positions for malformed variable declarations (PRs #71/#72, `6782cb6fc`, `3da7c7825`)
+- Grammar: precise error positions for malformed variable declarations (PRs #71/#72, squashed as
+  `6782cb6fc`; the original PR commit `3da7c7825` is not reachable from `main`)
 - Method resolution for overloaded methods with array-typed arguments when the basetype is a primitive integral
   type (`7883cd9d0`)
 - CodeQL findings: unused imports, statements with no effect, unclosed files (`14327cd25`, `5194c58f1`,

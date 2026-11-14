@@ -10,13 +10,15 @@ from the git history of the two forks that were merged into this repository:
   `-b2` … `-b7` before the merge, then the combined `-J<JML>-K<KeY>` scheme.
 
 Commit hashes are given for every entry so that each claim can be verified with `git show <hash>` / `git log`.
+Hashes that refer to a feature branch rather than to `main` are marked as such.
 
 ## Version scheme
 
 Fork-local SemVer (`MAJOR.MINOR.PATCH`), independent of the upstream JavaParser version. Source of truth:
 `version=` in `gradle.properties`. Bump rules: patch = bugfix, minor = feature/upstream merge, major = breaking
 change; keep `-SNAPSHOT` between releases. Version `1.0.0` (2026-10-25) was the first SemVer release; it
-corresponds to the composite `3.28.2-J8.0-K13.6` below.
+corresponds to the composite `3.28.2-J8.0-K13.6` below. `main` carries the next minor (`1.2.0-SNAPSHOT`); the
+`1.0.x` maintenance line is released from `releases/JMLtk-v1.0.x` branches.
 
 Up to `1.0.0` the fork used the composite scheme `<JavaParser>-J<JML>-K<KeY>`:
 
@@ -30,49 +32,83 @@ Up to `1.0.0` the fork used the composite scheme `<JavaParser>-J<JML>-K<KeY>`:
   K13.6.
 
 Release markers found in the history (tags): `k1`, `k2`, `k3`, `v3.25.3-K3`, `v3.25.3-K5`, `K11.1`,
-`KEY-JAVAPARSER-3.28.0-K13.6`. Old releases were published from `pom.xml` (Maven); since the July 2026 Gradle
-migration the version lives in `gradle.properties`.
+`KEY-JAVAPARSER-3.28.0-K13.6`, `JMLtk-v1.0.0`. Old releases were published from `pom.xml` (Maven); since the
+July 2026 Gradle migration the version lives in `gradle.properties`.
 
 ---
 
 ## Unreleased — 1.2.0-SNAPSHOT
+
+This section covers all user-visible changes on `main` since `1.0.0`. The `1.1.0` line was never released, so
+work done while `gradle.properties` said `1.1.0-SNAPSHOT` is recorded here as well. The generic KeY
+meta-construct statement is additionally listed under `Unreleased — 1.0.1-SNAPSHOT`, because it is backported
+to the `1.0.x` maintenance line.
 
 Single-binding element quantification over arrays, ranges and `Iterable`/`SequencedCollection` (feature branch
 `weigl/quantarray`, design `doc/design/quantarray.md`, implementation plan `doc/design/quantarray-impl.md`):
 for-each style binder domains `(\forall int e : a; e > 0)`, `(\forall int i : 0..n; a[i] > 0)` and
 `(\forall var x : list; x != null)`, uniformly for `\forall`, `\exists`, `\sum`, `\product` and `\num_of`.
 Index+element multi-binding (`int i, T e : a[i]`) stays deferred. Feature ⇒ minor bump
-(`1.1.0-SNAPSHOT` → `1.2.0-SNAPSHOT`).
+(`1.1.0-SNAPSHOT` → `1.2.0-SNAPSHOT`). Merged to `main` as the squashed commit `a36ea22be` (PR #83); the
+per-phase hashes below refer to the `weigl/quantarray` feature branch (`origin/weigl/quantarray`), not to
+`main`.
 
 **Added**
 
 - AST: `JmlQuantifiedVariable extends VariableDeclarator` with one optional iterable/range domain per binding,
-  including metamodel/CSM/printer support (`8df3526a8`, `21e69bcaf`; printers `1bdf833d8`).
-- Grammar (Phase 2): an iterable domain binds exactly one variable — multi-binding domains are rejected with a
-  fix-it message; `var` in a binding is normalized to `VarType` and accepted (validator exemption in
-  `1bdf833d8`).
+  including metamodel/CSM/printer support (`cad7b3e33`; printers/CSM `63929f86f`).
+- Grammar (Phase 2, `8bedf4eeb`): an iterable domain binds exactly one variable — multi-binding domains are
+  rejected with a fix-it message; `var` in a binding is normalized to `VarType` and accepted (validator
+  exemption in `8bedf4eeb`).
 - Validation (Phase 4): the iterable must be pure and must not reference the bound variable; binding-kind
-  checks for ranges, arrays and `Iterable` generators (`f2d67de0f`).
+  checks for ranges, arrays and `Iterable` generators (`cbb0656a5`).
 - Type inference (Phase 6): the static type of a bound variable is the element type of its domain — component
-  type for arrays, first `Iterable<T>` type argument, `int` for ranges (`249c8fd05`, `ef6c83289`).
+  type for arrays, first `Iterable<T>` type argument, `int` for ranges (`46f413f44`, Phase 6).
 - Backends (Phase 7):
   - core `JmlQuantifierDesugarer` rewriting range/array domains into the classic index form, used by the KeY
-    path and the LSP quick-fix (`58dbc6ad7`);
+    path and the LSP quick-fix (`2b5a6cfcd`);
   - jml2java: enhanced-for (array/`Iterable`) and index-loop (range) translations with `\sum`/`\product`/
-    `\num_of` accumulation (`58dbc6ad7`);
+    `\num_of` accumulation (`2b5a6cfcd`);
   - smt: `forall` encodings for range/array domains, loud "not supported yet" for `Iterable`; also fixes
-    `SmtTermFactory.list(List<SExpr>)` dropping quantifier binder variables (`c622f256a`);
-  - wd: domain well-definedness (non-null, purity, evaluated once) for element domains (`1ea5178e9`);
-  - stat: `totalElementQuantifiers` plus per-binder `BINDER_ELEMENT_*` counters (`0c894f223`);
-  - lsp: "Expand quantifier domain" quick-fix, no crash on kind 4 (`da1a4fba7`).
-- Tests & corpus: `jmlparser-jml-tests` M1 suite (`249c8fd05`), desugarer unit tests, and the `QuantArray.java`
-  corpus fixture exercised by `FullExamplesTest` (all parser/backend suites green).
+    `SmtTermFactory.list(List<SExpr>)` dropping quantifier binder variables (`cada36591`);
+  - wd: domain well-definedness (non-null, purity, evaluated once) for element domains (`da286b21c`);
+  - stat: `totalElementQuantifiers` plus per-binder `BINDER_ELEMENT_*` counters (`9c1dcaf1d`);
+  - lsp: "Expand quantifier domain" quick-fix, no crash on kind 4 (`f8f156aec`).
+- Tests & corpus: `jmlparser-jml-tests` M1 suite (`28e1e7afc`), desugarer unit tests, the `QuantArray.java`
+  corpus fixture exercised by `FullExamplesTest`, and the ghost-array example `GhostArrayQuantifier.java`
+  (`879cff35c`; all parser/backend suites green). Review/formatting follow-ups: `710ccbbe8`, `40912bfdf`,
+  `ddb240755`.
+- Proof scripts on JML formatted statements (`//@ assert … \by { … };`, also `assume`/`set`): the grammar now
+  accepts an optional `\by` block after the expression, ported from KeY's
+  `assertionProof`/`proofCmd`/`proofCmdCase`/`proofArg`/`proofCmdSuffix` productions (`050050976`, PR #77).
+  Adds the `FROM_GOAL` token (`\from_goal`); `obtain` remains contextual. The proof-script AST was reworked into
+  a `JmlProofStmt` hierarchy — `JmlProofCmdStmt`, `JmlProofCaseStmt`, `JmlProofObtainStmt` (kinds `=`,
+  `\such_that`, `\from_goal`) and `JmlProofArg`; the old `JmlProofScript`/`JmlProofCmd`/`JmlProofCmdCase`
+  names and `Node.associatedSpecificationComments` are gone. Printers, visitors, metamodel and symbol-solver
+  support are updated.
+- JML math-mode modifiers: KeY's `spec_bigint_math` / `spec_java_math` / `spec_safe_math` pragmas now parse
+  beside the existing `code_*_math` modifiers, as class/type/method/field/constructor modifiers
+  (`Modifier(JML_SPEC_*_MATH)`; `ModifierValidator` accepts all six math keywords) (`4e3d2af0b`, PR #78).
+  Type-level pragmas are attached to the following type declaration by `JmlProcessor`. Also fixes
+  `JmlDocSanitizer`: the `@` of a single-line `@*/` closing is blanked unconditionally, so single-line JML
+  comments on line 1 (or on the same line as a declaration) no longer leave a stray `@`.
+- KeY label-after-keyword JML statements: `JmlExpressionStmt` gained an optional `label` (`SimpleName`), so
+  KeY's formatted `assert LAB: e;` / `set SN: x = …;` parse and round-trip next to the JML-standard prefix
+  form (`JmlLabelStmt`); grammar, CSM and pretty printer updated, regression tests in `JmlLabeledAssertTest`
+  (`42eded62c`, PR #86).
+- Lint: rule registration re-enabled and seven new JML lint rules added — `AssignableLocsetValidator`,
+  `DefaultNullityValidator`, `ExceptionVarCheck`, `JmlDuplicateNamesValidator`, `SignalsExceptionTypeCheck`,
+  `SpecVisibilityValidator`, `TrivialFormulaValidator` — plus KSP-based export of rule documentation via the
+  new `tools/build-helpers` processor module (`50560208f`, PR #68); the rules are exposed through the LSP.
+  Fixes the missing KSP provider service file (the `build-*` ignore pattern hid `build-helpers`), rule
+  initialization before use, and `DefaultNullityValidator` reading its config before initialization.
 - **Experimental** — `//@ lemma Name(params) \by { … };` proof-command lemmas as class-body declarations (only
   KeY's `assertionProof` script form — a definitional `lemma … = expr;` or `assert …` form is deliberately
-  **not** part of this port): `JmlLemmaDeclaration` AST node (`cafecb694`, Phase 1), `JavaToken`
+  **not** part of this port, `a193b16ad`): `JmlLemmaDeclaration` AST node (`cafecb694`, Phase 1), `JavaToken`
   kind renumber for the `LEMMA` token (`963e22c3e`), grammar incl. the mandatory `\by` script and the
   `use_lemma` proof command following the `obtain` pattern (`2f7a5dbba`, Phase 2),
-  `ConcreteSyntaxModel`/pretty-printer entries (`3a0e365f0`, Phase 3), language-level validation incl.
+  `ConcreteSyntaxModel`/pretty-printer entries (`3a0e365f0`, Phase 3; visitor methods restored in
+  `4c183a33a`), language-level validation incl.
   lemma modifier rules (`b5c6f61ec`, Phase 4), M1 parser/printer/lexical-preserving-printer test corpus
   with the VerifyThis 2025.1 MinExcludant0 miniature (`0a2b5207a`, Phase 5), symbol-solver resolution of
   lemma parameters from inside the lemma body and its `\by` script — `\seq`/`\bigint` parameter names
@@ -86,7 +122,8 @@ Index+element multi-binding (`int i, T e : a[i]`) stays deferred. Feature ⇒ mi
   — all of `\by`, `\lattice` and `\predicate` are optional and must appear in this fixed order. The values of
   `\by`/`\lattice` may be given as a string literal or as a plain identifier; both forms are normalized to a
   `StringLiteralExpr` in the AST, exposed as the `by`, `lattice`, `predicateVariable` and `predicates` properties
-  on `JmlMergePointStmt`. Includes metamodel, CSM, visitor and pretty-printer support, plus parser tests.
+  on `JmlMergePointStmt`. Includes metamodel, CSM, visitor and pretty-printer support, plus parser tests
+  (`5753c8615`; the option `\using` was renamed to `\by` in `ee02b030a`/`105b2c45b`; PR #90).
 - Examples: unblocked `key/firstTouch/11-StateMerging/A.java` (bare `merge_point;`) and rewrote
   `key/firstTouch/11-StateMerging/Gcd.java` from the legacy KeY `merge_proc`/`merge_params` syntax to the new
   `merge_point` options in `FullExamplesTest`.
@@ -96,6 +133,11 @@ Index+element multi-binding (`int i, T e : a[i]`) stays deferred. Feature ⇒ mi
 - Method-level `use_lemma` statements (`//@ use_lemma …;` outside a `\by {…}` proof script); lemma
   declarations as resolvable symbols — see `doc/design/lemmata-impl.md` → "Deferred / open".
 
+**Changed**
+
+- CI: the test matrix now includes macOS and Windows (`7605d114d`, PR #18); pushes to `releases/*` branches
+  run the test and formatting checks (`87f7d1329`, PR #96).
+
 **Fixed**
 
 - Model methods, ghost methods, model/ghost fields (and other class-level JML declarations) placed *inside
@@ -103,8 +145,10 @@ Index+element multi-binding (`int i, T e : a[i]`) stays deferred. Feature ⇒ mi
   within methods.` / `Ghost method ghostMethod is not allowed within methods.` / `Model field modelField
   is not allowed within methods.` — instead of the raw method-level grammar error ("Encountered unexpected
   token …") plus the generic `Could not handle the JML comment.` fallback (`JmlProcessor`; parser tests in
-  `ModelDeclarationInMethodTest`, commit `1381d5d73`). Local ghost variables (`/*@ ghost int local; */`),
+  `ModelDeclarationInMethodTest`, commit `7332d0126`). Local ghost variables (`/*@ ghost int local; */`),
   which JML deliberately allows inside methods, keep parsing.
+- Symbol resolution: interface methods with no explicit access modifier are public, not package-private, so
+  they are no longer discarded when called from another package (`MethodResolutionLogic`, `f680c8f6f`, PR #92).
 
 **Removed**
 
@@ -115,7 +159,7 @@ Index+element multi-binding (`int i, T e : a[i]`) stays deferred. Feature ⇒ mi
   are gone. The `MERGE_POINT` lexer token is gone as well: `merge_point` is no longer a reserved word and
   is recognized as a JML merge point contextually — the same identifier-by-image pattern as `obtain` and
   `use_lemma` — only when directly followed by `;` or one of the `\by` / `\lattice` / `\predicate` options,
-  in both the `merge_point` and the KeY `$mergePoint` spelling (PR #97, `b8136e914` + follow-up). The KeY
+  in both the `merge_point` and the KeY `$mergePoint` spelling (PR #97, `b8136e914` + `9a5e1ed85`). The KeY
   ProofJava form `merge_point ( expr );` therefore no longer parses as a merge point at all — with a
   following `(` it is an ordinary method invocation (`ExpressionStmt` of a `MethodCallExpr`) — and
   `merge_point` can be used as a plain identifier (fields, local variables, method names). **Breaking**:
@@ -131,7 +175,11 @@ function-call-style production `#name(arg1, …, argN)` replaces the 23 name-spe
 `KeyMetaConstructStatement()` alternatives, the construct name is lexed as `SVIDENTIFIER`
 instead of a dedicated token, and `KeyMetaConstruct` stores its arguments in a single ordered
 child list. Breaking API and grammar change; carried on the 1.0.x release line
-(`1.0.0` → `1.0.1-SNAPSHOT`).
+(`1.0.0` → `1.0.1-SNAPSHOT`). This is a deliberate exception to the bump rules above (a breaking change
+shipped as a patch on the maintenance line); the same change is also on `main` for `1.2.0-SNAPSHOT`.
+
+Mainline squash: `a2e5e4b23` (PR #95). On `releases/JMLtk-v1.0.1` the feature commit is `e11972fe6` and the
+version is set to `1.0.1` in `c25a757e1`; no `JMLtk-v1.0.1` tag exists yet.
 
 **Breaking**
 
@@ -247,7 +295,7 @@ JavaParser is 3.28.2. Release commit: `82b6d7869`/`b66825037` "prepare release".
 
 - Build migrated to Gradle; Maven build files removed (`d13918922`, `a384db3bc`); Spotless/Checkstyle alignment
   (`e0ee2bab4`, `1fb8c8376`); default branch `master` → `main` (`b5eb7957b`)
-- CodeQL workflow added; SonarQube removed (`4a724e15e`, `3913e89c2`)
+- CodeQL workflow added; SonarQube removed (`a4f72415e`, `3913e89c2`)
 - Upstream JavaParser 3.28.1 and 3.28.2 merged (includes phase-2 poly-expression inference for method/constructor
   references, multi-pattern case-label rules, OSGi support)
 
@@ -517,8 +565,15 @@ Tagged `k1`. Release commit: `211d31f46` "set non-snapshot" (merge of the `weigl
 | `3.28.0-K13.7-SNAPSHOT` | 2026-07-20 | `0336c93d6` | KeY |
 | `3.28.2-J8.0-K13.5` | 2026-10-25 | `82b6d7869` (release) | JML (jmltk) |
 | `3.28.2-J8.0-K13.6` | 2026-10-25 | `0b2a7a359` (prepare release) | JML (jmltk) |
-| `1.0.0` (= `3.28.2-J8.0-K13.6`) | 2026-10-25 | `0e5e605fb` (prepare and release) | JML (jmltk) |
+| `1.0.0` (= `3.28.2-J8.0-K13.6`) | 2026-10-25 | `0e5e605fb` (prepare and release, `main`); tag `JMLtk-v1.0.0` → `33b8f38a2` (same tree) | JML (jmltk) |
 | `1.1.0-SNAPSHOT` | 2026-10-25 | `df1e08542` (starting version) | JML (jmltk) |
+| `1.2.0-SNAPSHOT` | 2026-11-01/07 | `a36ea22be`, `37d5a8db4` | JML (jmltk) |
+| `1.0.1-SNAPSHOT` | 2026-11-08 | `3d5260a47` | JML (jmltk, `releases/JMLtk-v1.0.1`) |
+| `1.0.1` | 2026-11-14 | `c25a757e1` (set version) | JML (jmltk, `releases/JMLtk-v1.0.1`) |
+
+`222cd3086` briefly reset the working version on `main` to `1.1.0-SNAPSHOT` on 2026-11-02; the following
+`weigl/lemmata` merge (`37d5a8db4`) restored `1.2.0-SNAPSHOT`. The `1.0.1` maintenance branch is cut from
+`1.0.0` and does not contain the `1.2.0-SNAPSHOT` changes.
 
 JML `-b` iterations: `3.25.10-b2` (`f2ef7f2f0`, 2024-05-03), `3.25.10-b3` (`6cca21e71`, 2024-05-04),
 `3.25.10-b6` (`72507343c`, 2024-05-23), `3.26.2-b6` (`b89f51c48`, 2024-11-15), `3.26.2-b7`

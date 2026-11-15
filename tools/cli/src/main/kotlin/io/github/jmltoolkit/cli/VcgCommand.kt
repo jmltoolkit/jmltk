@@ -99,7 +99,7 @@ class VcgCommand : FileBasedCommand(name = "vcg") {
     ).file()
 
     override fun help(context: Context): String =
-        "Verification condition generation for Java + JML (SMT backend)."
+        "Verification condition generation for Java + JML (SMT backend, experimental)."
 
     override fun run() {
         if (files.isEmpty()) {

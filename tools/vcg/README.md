@@ -1,5 +1,9 @@
 # Verification Condition Generator (VCG)
 
+> **Status: experimental.** Semantics are under active development; constructs the
+> engine cannot model are rejected with structured diagnostics instead of being
+> approximated, and verdicts should not yet be treated as production proof results.
+
 This module implements a verification condition generator for Java programs annotated
 with JML. It translates a method or constructor and its contract into a set of SMT
 formulas that can be checked by an SMT solver (e.g. Z3, via `:tools:smt`).

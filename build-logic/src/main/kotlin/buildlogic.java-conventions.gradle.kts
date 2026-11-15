@@ -1,5 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
+import net.ltgt.gradle.errorprone.errorprone
 import com.diffplug.spotless.LineEnding
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 
@@ -14,6 +15,7 @@ plugins {
     id("com.github.ben-manes.versions")
     id("org.jetbrains.dokka")
     jacoco
+    id("net.ltgt.errorprone")
 }
 
 val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
@@ -26,6 +28,7 @@ repositories {
 }
 
 dependencies {
+    implementation("com.google.errorprone:error_prone_core:2.50.0")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -49,6 +52,12 @@ tasks.withType<JavaCompile> {
     //options.compilerArgs.add("-Xlint:all,-deprecation,-removal")
     options.compilerArgs.add("-Xlint:-dep-ann")
     //"-Werror", // Terminates compilation when warnings occur.
+    options.errorprone {
+        disableWarningsInGeneratedCode = true
+    }
+    options.compilerArgs.addAll(listOf(
+        "--should-stop=ifError=FLOW",
+        "-XDaddTypeAnnotationsToSymbol=true"))
 }
 
 tasks.withType<Javadoc> {

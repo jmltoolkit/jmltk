@@ -5,8 +5,10 @@
 package io.github.jmltoolkit.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.main
+import com.github.ajalt.clikt.core.UsageError
+import com.github.ajalt.clikt.core.parse
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
@@ -30,13 +32,24 @@ import io.github.jmltoolkit.prettyprinting.PpCommand
 import java.io.File
 import java.io.FileNotFoundException
 import kotlin.jvm.optionals.getOrNull
+import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
     val cmd = Main().subcommands(
         J2JCommand(), LintCommand(), PrettyPrintCommand(), PpCommand(), XPathCommand(),
         StatCommand(), WdCommand(), JmlStubCommand(), VcgCommand()
     )
-    cmd.main(args)
+    try {
+        cmd.parse(args)
+    } catch (e: UsageError) {
+        System.err.println(e.message ?: "Usage error")
+        exitProcess(2)
+    } catch (e: CliktError) {
+        e.message?.let { message ->
+            if (e.printError) System.err.println(message) else println(message)
+        }
+        exitProcess(e.statusCode)
+    }
 }
 
 /**

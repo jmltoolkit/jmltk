@@ -34,13 +34,25 @@ class JmlCommentsHelper(
     private val javaCommentsHelper = JavaCommentsHelper(lineSeparator, options)
 
     override fun rewrite(tok: Input.Tok, maxWidth: Int, column0: Int): String {
-        if (tok.isComment && tok.originalText.startsWith("/*@")) {
-            var text = tok.originalText
-            // TODO
-            return text
-        } else {
-            return javaCommentsHelper.rewrite(tok, maxWidth, column0)
+        if (tok.isComment && isJmlComment(tok.originalText)) {
+            return tok.originalText
         }
+        return javaCommentsHelper.rewrite(tok, maxWidth, column0)
+    }
+
+    private fun isJmlComment(text: String): Boolean {
+        if (text.startsWith("/*")) {
+            var i = 2
+            while (i < text.length && (text[i] == '+' || text[i] == '-')) i++
+            while (i < text.length && (text[i].isLetterOrDigit() || text[i] == '_')) i++
+            return i < text.length && text[i] == '@'
+        }
+        if (text.startsWith("//")) {
+            var i = 2
+            while (i < text.length && (text[i] == '+' || text[i] == '-')) i++
+            return i < text.length && text[i] == '@'
+        }
+        return false
     }
 
     // For non-javadoc-shaped block comments, shift the entire block to the correct

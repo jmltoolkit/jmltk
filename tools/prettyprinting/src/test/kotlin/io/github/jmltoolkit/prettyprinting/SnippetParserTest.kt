@@ -74,6 +74,38 @@ class SnippetParserTest {
     }
 
     @Test
+    fun `parses modern java syntax`() {
+        assertThat(parser.parse("record R(int x) {}").kind).isEqualTo(ParsedKind.COMPILATION_UNIT)
+        assertThat(
+            parser.parse("class A { String s = \"\"\"\n  hi\n  \"\"\"; }").kind
+        ).isEqualTo(ParsedKind.COMPILATION_UNIT)
+        assertThat(
+            parser.parse("class A { int f(int x) { return switch (x) { case 1 -> 1; default -> 0; }; } }").kind
+        ).isEqualTo(ParsedKind.COMPILATION_UNIT)
+    }
+
+    @Test
+    fun `keeps all members of a member snippet`() {
+        val result = parser.parse("int a = 1;\nint b = 2;")
+        assertThat(result.kind).isEqualTo(ParsedKind.MEMBER)
+        assertThat(result.nodes).hasSize(2)
+    }
+
+    @Test
+    fun `keeps class level jml clauses with the member`() {
+        val result = parser.parse("/*@ invariant x > 0; @*/\nint x = 1;")
+        assertThat(result.kind).isEqualTo(ParsedKind.MEMBER)
+        assertThat(result.nodes.size).isGreaterThanOrEqualTo(2)
+    }
+
+    @Test
+    fun `keeps leading jml statements`() {
+        val result = parser.parse("//@ assert x > 0;\nreturn 1;")
+        assertThat(result.kind).isEqualTo(ParsedKind.STATEMENT)
+        assertThat(result.nodes).hasSize(2)
+    }
+
+    @Test
     fun `falls back to plain for invalid input`() {
         val result = parser.parse("class {")
         assertThat(result.kind).isEqualTo(ParsedKind.PLAIN)

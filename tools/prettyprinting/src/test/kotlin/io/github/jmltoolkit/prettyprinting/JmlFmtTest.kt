@@ -27,4 +27,11 @@ class JmlFmtTest {
         assertThat(out).contains("/*@ requires x > 0; @*/")
         assertThat(out).contains("int f()")
     }
+
+    @Test
+    fun `preserves jml line comments`() {
+        val out = JmlFmt().pp("class A { //@ invariant x > 0;\n int x; }", 100)
+        assertThat(out).contains("//@ invariant x > 0;")
+        assertThat(out).doesNotContain("// @")
+    }
 }

@@ -57,4 +57,19 @@ class LatexRendererTest {
         assertThat(preamble).contains("\\definecolor{jmltkKt}{HTML}{B00040}")
         assertThat(preamble).contains("\\newcommand{\\jmlcOne}[1]{\\textcolor{jmltkCOne}{\\textit{#1}}}")
     }
+
+    @Test
+    fun `raw preamble includes font encoding`() {
+        val preamble = LatexRenderer(raw = true).preamble()
+        assertThat(preamble).contains("\\usepackage[T1]{fontenc}")
+        assertThat(preamble).contains("\\usepackage{textcomp}")
+    }
+
+    @Test
+    fun `minted mode keeps newlines outside macros`() {
+        val out = LatexRenderer(raw = false).render(
+            listOf(Span("/* a\nb */", StyleClass.COMMENT_MULTILINE))
+        )
+        assertThat(out).isEqualTo("\\PYG{cm}{/* a}\n\\PYG{cm}{b */}")
+    }
 }

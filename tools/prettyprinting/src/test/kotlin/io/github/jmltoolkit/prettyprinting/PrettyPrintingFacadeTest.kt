@@ -28,6 +28,20 @@ class PrettyPrintingFacadeTest {
     }
 
     @Test
+    fun `pretty prints every member of a snippet`() {
+        val out = facade.render("int a = 1;\nint b = 2;", RenderOptions(prettyPrint = true))
+        assertThat(out).contains("int a = 1;")
+        assertThat(out).contains("int b = 2;")
+    }
+
+    @Test
+    fun `pretty prints class level jml clauses with the member`() {
+        val out = facade.render("/*@ invariant x > 0; @*/\nint x = 1;", RenderOptions(prettyPrint = true))
+        assertThat(out).contains("invariant x > 0")
+        assertThat(out).contains("int x = 1;")
+    }
+
+    @Test
     fun `renders html with pygments classes`() {
         val out = facade.render("class A {}", RenderOptions(format = OutputFormat.HTML))
         assertThat(out).contains("<span class=\"kd\">class</span>")
@@ -65,6 +79,36 @@ class PrettyPrintingFacadeTest {
     fun `falls back to plain text for invalid input`() {
         val out = facade.render("class {", RenderOptions(format = OutputFormat.HTML))
         assertThat(out).contains("class {")
+    }
+
+    @Test
+    fun `warns on plain fallback`() {
+        val warnings = mutableListOf<String>()
+        val warningFacade = PrettyPrintingFacade(warning = { warnings.add(it) })
+        val out = warningFacade.render("class {", RenderOptions(format = OutputFormat.HTML))
+        assertThat(out).contains("class {")
+        assertThat(warnings).hasSize(1)
+    }
+
+    @Test
+    fun `html full with several inputs has one document`() {
+        val out = facade.renderAll(
+            listOf("class A {}", "class B {}"),
+            RenderOptions(format = OutputFormat.HTML, htmlFull = true),
+        )
+        assertThat(out).containsOnlyOnce("<!DOCTYPE html>")
+        assertThat(out).containsOnlyOnce("<html>")
+        assertThat(out).contains("<span class=\"nc\">A</span>")
+        assertThat(out).contains("<span class=\"nc\">B</span>")
+    }
+
+    @Test
+    fun `renderAll separates chunks with a blank line`() {
+        val out = facade.renderAll(
+            listOf("class A {}", "class B {}"),
+            RenderOptions(format = OutputFormat.ANSI, color = false),
+        )
+        assertThat(out).contains("}\n\n")
     }
 
     @Test

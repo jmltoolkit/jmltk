@@ -87,10 +87,10 @@ open class PpCommand(name: String = "pp") : CliktCommand(name = name) {
                 css = cssText,
                 color = ColorSupport.enabled(noColor),
             )
-        val facade = PrettyPrintingFacade()
+        val facade = PrettyPrintingFacade(warning = { System.err.println(it) })
         val rendered =
             try {
-                inputs.joinToString("\n") { facade.render(it, options) }
+                facade.renderAll(inputs, options)
             } catch (e: PrettyPrintingException) {
                 throw CliktError(e.message ?: "Cannot render input", statusCode = 3)
             }

@@ -36,7 +36,11 @@ data class ParsedSource(
 
 /** Detects and parses compilation units, members, statements, expressions, and JML snippets. */
 class SnippetParser {
-    private val configuration = ParserConfiguration().apply { setProcessJml(true) }
+    private val configuration =
+        ParserConfiguration().apply {
+            setProcessJml(true)
+            setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21)
+        }
 
     fun parse(
         text: String,
@@ -88,9 +92,10 @@ class SnippetParser {
         val wrapper = "class __JmltkSnippet {\n$text\n}"
         val unit = parseCu(wrapper) ?: return null
         val type = unit.getType(0)
-        val member = type.members.firstOrNull() ?: return null
+        val members = type.members.toList()
+        if (members.isEmpty()) return null
         val range = innerRange(type.tokenRange.orElse(null) ?: return null, "{", "}") ?: return null
-        return ParsedSource(text, ParsedKind.MEMBER, listOf(member), listOf(range), stripWrapperNewlines = true)
+        return ParsedSource(text, ParsedKind.MEMBER, members, listOf(range), stripWrapperNewlines = true)
     }
 
     private fun parseStatement(text: String): ParsedSource? {
@@ -98,13 +103,13 @@ class SnippetParser {
         val unit = parseCu(wrapper) ?: return null
         val method = unit.getType(0).methods.firstOrNull { it.nameAsString == "__m" } ?: return null
         val body = method.body.orElse(null) ?: return null
-        if (body.statements.size != 1) return null
-        val statement = body.statements.first()
+        val statements = body.statements.toList()
+        if (statements.isEmpty()) return null
         val range = innerRange(body.tokenRange.orElse(null) ?: return null, "{", "}") ?: return null
         return ParsedSource(
             text,
             ParsedKind.STATEMENT,
-            listOf(statement),
+            statements,
             listOf(range),
             stripWrapperNewlines = true,
         )

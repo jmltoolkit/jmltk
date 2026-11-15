@@ -12,16 +12,36 @@ class LatexRenderer(private val raw: Boolean = false) {
     fun render(spans: List<Span>): String =
         buildString {
             for ((style, text) in groups(spans)) {
-                when {
-                    style == StyleClass.TEXT -> append(if (text.isBlank()) text else escapeLatex(text))
-                    raw -> append("\\jml").append(style.latexMacro).append("{").append(escapeLatex(text)).append("}")
-                    else -> append("\\PYG{").append(style.cssClass).append("}{").append(escapePygments(text)).append("}")
+                if (style == StyleClass.TEXT) {
+                    append(if (text.isBlank()) text else escapeLatex(text))
+                } else {
+                    appendStyled(this, style, text)
                 }
             }
         }
 
+    private fun appendStyled(
+        result: StringBuilder,
+        style: StyleClass,
+        text: String,
+    ) {
+        text.split("\n").forEachIndexed { index, line ->
+            if (index > 0) result.append('\n')
+            if (line.isEmpty()) return@forEachIndexed
+            if (raw) {
+                result.append("\\jml").append(style.latexMacro).append("{")
+                result.append(escapeLatex(line)).append("}")
+            } else {
+                result.append("\\PYG{").append(style.cssClass).append("}{")
+                result.append(escapePygments(line)).append("}")
+            }
+        }
+    }
+
     fun preamble(): String =
         buildString {
+            append("\\usepackage[T1]{fontenc}\n")
+            append("\\usepackage{textcomp}\n")
             append("\\usepackage{xcolor}\n")
             for (style in StyleClass.values()) {
                 if (style == StyleClass.TEXT) continue

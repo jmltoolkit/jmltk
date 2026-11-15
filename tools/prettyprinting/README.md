@@ -34,6 +34,7 @@ Without `--format`, the output is plain text. `--pretty-print` is opt-in.
 | `--html-full` | HTML: emit a complete document |
 | `--css FILE` | HTML: inline this stylesheet in the full document |
 | `--no-color` | Force plain text (also honors `NO_COLOR`) |
+| `--version` | Print the project version |
 
 Multiple inputs are rendered independently and concatenated; in HTML each gets its own `<pre class="highlight">` block.
 
@@ -53,12 +54,13 @@ jmltk-pp -f html --html-full --css pygments.css Example.java
 jmltk-pp -f latex Example.java
 
 # LaTeX: semantic \jml macros plus the matching preamble
-jmltk-pp -f latex --latex-raw --latex-preamble Example.java
+jmltk-pp -f latex --latex-raw Example.java
+jmltk-pp -f latex --latex-raw --latex-preamble > preamble.tex
 
 # JML input
 printf 'requires x > 0;\nensures \\result > 0;' | jmltk-pp --language jml -f html
 ```
 
-HTML output uses Pygments class names only (`kd`, `kt`, `nc`, `nf`, `mi`, `cm`, `c1`, ...); no CSS is bundled. In minted mode the tool emits `\PYG{class}{text}` content intended for a context where minted's `\PYG` macros are available. In raw mode it emits `\jml<class>{text}` macros such as `\jmlkd{public}`; `--latex-preamble` prints the `xcolor` definitions, including the digit-class renames (`c1` -> `cOne`).
+HTML output uses Pygments class names only (`kd`, `kt`, `nc`, `nf`, `mi`, `cm`, `c1`, ...); no CSS is bundled. In minted mode the tool emits `\PYG{class}{text}` content intended for a context where minted's `\PYG` macros are available. In raw mode it emits `\jml<class>{text}` macros such as `\jmlkd{public}`; `--latex-preamble` prints only the `xcolor`/`fontenc` definitions, including the digit-class renames (`c1` -> `cOne`), and ignores its input.
 
-JML comments are preserved by the formatter and highlighted inside Java files; JML clause and expression inputs are lexed by the module's JML lexer. The formatter does not reflow JML comment layouts.
+Compilation-unit formatting preserves JML comments, including `//@` line comments, and highlights them inside Java files. Snippet formatting uses JavaParser's pretty printer and may normalize or drop comments around the snippet; use the original text (without `-p`) when comment layout matters. JML clause and expression inputs are lexed by the module's JML lexer.

@@ -26,6 +26,11 @@ repositories {
 }
 
 dependencies {
+    // Mordant < 3.1.0 uses the JDK 22 FFM MemoryLayout.varHandle signature and crashes with
+    // ClassCastException on JDK 21 terminals; 3.1.x falls back to JNA below JDK 22.
+    constraints {
+        implementation(libs.findLibrary("mordant").get())
+    }
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

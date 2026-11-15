@@ -24,6 +24,7 @@ spotless = "8.11.0"
 gson = "2.15.0"
 logback = "1.6.6"
 clickt = "5.1.0"
+mordant = "3.1.1"
 kotlin = "2.4.21"
 ktor = "3.6.1"
 kotlinx-serialization = "1.12.0"
@@ -70,6 +71,7 @@ org-hamcrest-hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "org-h
 org-hamcrest-hamcrest-library = { module = "org.hamcrest:hamcrest-library", version.ref = "org-hamcrest-hamcrest-library" }
 
 clickt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clickt" }
+mordant = { module = "com.github.ajalt.mordant:mordant", version.ref = "mordant" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 lombok = { module = "org.projectlombok:lombok", version = "1.18.48" }

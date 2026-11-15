@@ -66,6 +66,7 @@ rejected rather than approximated.
 
 **Added**
 
+- `tools/prettyprinting`: new `jmltk-pp` CLI (also `jmltk pp`, `jmltk format`) that pretty-prints Java/JML from files or stdin and highlights it for terminals (256-color ANSI), HTML (Pygments class names), and LaTeX (minted `\PYG` body or semantic `\jml` macros); snippets are auto-detected and JML comments are highlighted (`f4365af91`, feature branch `weigl/prettyprint-cli`, PR #101).
 - AST: `JmlQuantifiedVariable extends VariableDeclarator` with one optional iterable/range domain per binding,
   including metamodel/CSM/printer support (`cad7b3e33`; printers/CSM `63929f86f`).
 - Grammar (Phase 2, `8bedf4eeb`): an iterable domain binds exactly one variable — multi-binding domains are

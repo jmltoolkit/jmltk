@@ -1181,6 +1181,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
         wrapInJmlIfNeeded(() -> {
             printModifiers(n.getModifiers());
             printer.print("accessible");
+            printList(n.getHeaps(), "", "", "", "<", ">");
             printer.print(" ");
             n.getVariable().accept(this, arg);
             printer.print(" : ");
@@ -1353,7 +1354,7 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
         printComment(n.getComment(), arg);
         printer.print(n.getKind().value().jmlSymbol());
         if (n.getHeaps().isPresent()) {
-            n.getHeaps().get().accept(this, arg);
+            printList(n.getHeaps().get(), "", "", "", "<", ">");
         }
         printer.print(" ");
         if (n.getName().isPresent()) {

@@ -7330,6 +7330,7 @@ JmlProofCaseStmt JmlProofCaseStmt():
 
 JmlClause JmlLoopInvClause():
 {
+    NodeList<SimpleName> heaps = new NodeList<>();
     Expression expr;
     JavaToken begin;
     SimpleName label = null;
@@ -7342,10 +7343,10 @@ JmlClause JmlLoopInvClause():
     | <MAINTAINING_REDUNDANTLY>
     )
     {begin=token();}
-    ( JmlHeaps() )? //TODO weigl add to clause
+    (heaps=JmlHeaps())
 	[ LOOKAHEAD(2) label=SimpleName() ":"]
     expr=Expression()
-    {return new JmlSimpleExprClause(range(begin, token()), begin, label, expr);}
+    {return new JmlSimpleExprClause(range(begin, token()), begin, label, heaps, expr);}
 }
 
 JmlContract JmlLoopContract():
@@ -7657,7 +7658,7 @@ NodeList<SimpleName> JmlHeaps():
     SimpleName name;
 }
 {
-  name=JmlHeap() { names.add(name); }
+  (name=JmlHeap() { names.add(name); })*
   { return names; }
 }
 
@@ -7673,7 +7674,7 @@ JmlClause JmlAccessibleClause():
 {
   (<ACCESSIBLE> | <ACCESSIBLE_REDUNDANTLY>)
   { begin = token();}
-  (heaps=JmlHeaps())*
+  (heaps=JmlHeaps())
   [ LOOKAHEAD(2) label=SimpleName() ":"]
   exprs=ExpressionList()
   (<ESC_MEASURED_BY> e=Expression())? //TODO weigl: add measured by expression, new ast class
@@ -7693,7 +7694,7 @@ JmlClause JmlDefaultClause():
   | <ENSURES> | <ENSURES_FREE> | <ENSURES_REDUNDANTLY>
   )
   { begin = token();}
-  (heaps=JmlHeaps())?
+  (heaps=JmlHeaps())
   [LOOKAHEAD(5) name = SimpleName() ":"]
   e=Expression()
   { return new JmlSimpleExprClause(range(begin, token()), begin, name, heaps, e); }
@@ -7713,7 +7714,7 @@ JmlClause JmlMultiExprClauses():
   | <ASSIGNABLE_FREE>
   | <ASSIGNABLE_REDUNDANTLY> | <MODIFIABLE_REDUNDANTLY> | <MODIFIES_REDUNDANTLY> )
   { begin = token();}
-  (heaps=JmlHeaps())*
+  (heaps=JmlHeaps())
   [ LOOKAHEAD(2) label=SimpleName() ":"]
   exprs=ExpressionList()
   { return new JmlMultiExprClause(range(begin, token()), begin, label, heaps, exprs); }
@@ -8085,19 +8086,19 @@ JmlClassLevelDeclaration JmlClassAccessible(ModifierHolder modifiers):
     Expression var;
     Expression expr, measuredBy = null;
     NodeList<Expression> expressions = new NodeList<>();
-    NodeList<SimpleName> heaps = null;
+    NodeList<SimpleName> heaps = new NodeList<>();
 }
 {
   (<ACCESSIBLE>|<ACCESSIBLE_REDUNDANTLY>)
   {begin=token();}
-  [heaps=JmlHeaps()] //TODO weigl: add to declaration
+  (heaps=JmlHeaps())
   var=Expression() <COLON>
   expressions=ExpressionList()
   [<ESC_MEASURED_BY> measuredBy=Expression()]
   ";"
   {
     return new JmlClassAccessibleDeclaration(range(begin, token()), new NodeList<>(),
-                             modifiers.modifiers, var, expressions, measuredBy);}
+                             modifiers.modifiers, heaps, var, expressions, measuredBy);}
 }
 
 JmlClassLevelDeclaration JmlClassRepresents(ModifierHolder modifiers):

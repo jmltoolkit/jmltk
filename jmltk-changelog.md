@@ -155,11 +155,30 @@ rejected rather than approximated.
 
 **Changed**
 
-- CI: the test matrix now includes macOS and Windows (`7605d114d`, PR #18); pushes to `releases/*` branches
-  run the test and formatting checks (`87f7d1329`, PR #96).
+- CI: the test matrix now includes macOS (`7605d114d`, PR #18) but no longer Windows: `./gradlew test` hangs
+  in the VCG/SMT suite on the hosted Windows runners (the job stays in the Gradle test step for over an hour
+  with no output, while identical commits finish in under ten minutes on Linux and macOS), so the Windows
+  combination is disabled until those tests are Windows-safe (feature branch `fix/jml-multi-heaps-append`,
+  commit `e1efa5f19`, PR #102). Pushes to `releases/*` branches run the test and formatting checks
+  (`87f7d1329`, PR #96).
 
 **Fixed**
 
+- Parser: JML clauses now keep **all** heap specifiers instead of only the last one. `JmlHeaps()` returned
+  a single-element list, and both `JmlAccessibleClause` and `JmlMultiExprClauses` looped with
+  `(heaps=JmlHeaps())*`, reassigning the list on every iteration: `assignable<heap><savedHeap> a[0..3];`
+  parsed as `heaps = [savedHeap]` and the `<heap>` specifier was silently dropped. KeY then saw no assignable
+  clause for the base heap and `JMLSpecFactory.translateAssignable` widened the frame to `\everything`, which
+  made the JavaCard proofs `setArray1`, `setArray2` and `arrayFillNonAtomic` fail to close (the anonymisation
+  set included unrelated locations, so `isTransient(a)` and the transaction-depth side conditions could not
+  be discharged). `JmlHeaps()` now consumes every consecutive `<heap>` specifier into one list, so all call
+  sites use a single `(heaps=JmlHeaps())`. The two dropped-heap TODOs are fixed as well: `loop_invariant`
+  heaps are passed to the `JmlSimpleExprClause`, and class-level `accessible` declarations store them in a new
+  `heaps` property of `JmlClassAccessibleDeclaration` (metamodel, visitors and clone code regenerated). The
+  pretty printer now renders each specifier in angle brackets (`JmlMultiExprClause` used to concatenate the
+  names). Regression test `MultiHeapClauseTest` covers `assignable`, `accessible`, `loop_invariant`, the
+  class-level declaration, printing and the single-heap case (`9c4f5235c`, feature branch
+  `fix/jml-multi-heaps-append`, PR #102).
 - Parser: `assignable_free` (the free counterpart of `assignable`, used by KeY) is now a clause keyword:
   it parses into a `JmlMultiExprClause` with `JmlClauseKind.ASSIGNABLE_FREE`, in method and loop contracts
   alike (`ba2c0f3d3`, PR #100). It previously fell through the clause parser, and the leftover

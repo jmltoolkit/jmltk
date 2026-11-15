@@ -2306,6 +2306,10 @@ public abstract class GenericListVisitorAdapter<R, A> implements GenericVisitor<
             if (tmp != null) result.addAll(tmp);
         }
         {
+            tmp = n.getHeaps().accept(this, arg);
+            if (tmp != null) result.addAll(tmp);
+        }
+        {
             tmp = n.getJmlTags().accept(this, arg);
             if (tmp != null) result.addAll(tmp);
         }

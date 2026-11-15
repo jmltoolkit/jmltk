@@ -73,7 +73,6 @@ public class CopyNodeGenerator extends Generator {
 
     private boolean isUnwantedField(String s) {
         switch (s) {
-            case "associatedSpecificationComments":
             case "comment":
             case "orphanComments":
             case "observers":

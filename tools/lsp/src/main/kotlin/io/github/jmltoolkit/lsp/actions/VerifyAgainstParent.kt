@@ -4,16 +4,19 @@
  */
 package io.github.jmltoolkit.lsp.actions
 
+import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.jml.clauses.JmlContract
 import com.google.common.cache.CacheBuilder
 import io.github.jmltoolkit.lsp.JmlLanguageServer
-import io.github.jmltoolkit.lsp.asRange
-import org.eclipse.lsp4j.CodeLens
+import io.github.jmltoolkit.lsp.asLeft
+import org.eclipse.lsp4j.CodeAction
+import org.eclipse.lsp4j.Command
 import org.eclipse.lsp4j.MessageParams
 import org.eclipse.lsp4j.MessageType
+import org.eclipse.lsp4j.jsonrpc.messages.Either
 import java.util.concurrent.CompletableFuture
 
-class VerifyAgainstParent : LspAction<JmlContract> {
+class VerifyAgainstParent : LspAction {
     override val id: String = "jml.verify.liskov"
     override val title: String = "Verify against parent"
 
@@ -29,8 +32,18 @@ class VerifyAgainstParent : LspAction<JmlContract> {
         return CompletableFuture.completedFuture("")
     }
 
-    override fun createCodeLens(node: JmlContract): CodeLens {
-        cache.put(node.hashCode(), node)
-        return CodeLens(node.asRange, command(listOf(node.hashCode())), null)
-    }
+    override fun isCallableForNode(node: Node): Boolean = node is JmlContract
+
+    override fun createCodeAction(
+        uri: String,
+        node: Node
+    ): Either<Command, CodeAction>? =
+        if (node is JmlContract) {
+            // Remember the contract instance under the hashCode passed as command
+            // argument, so execute() can find it again and report on it.
+            cache.put(node.hashCode(), node)
+            command(listOf(node.hashCode())).asLeft()
+        } else {
+            null
+        }
 }

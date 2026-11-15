@@ -16,18 +16,27 @@ import com.github.javaparser.ast.visitor.CloneVisitor;
 import com.github.javaparser.metamodel.JavaParserMetaModel;
 import com.github.javaparser.metamodel.JmlClauseMetaModel;
 import com.github.javaparser.metamodel.OptionalProperty;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 import static com.github.javaparser.utils.CodeGenerationUtils.f;
+import static com.github.javaparser.utils.Utils.assertNotNull;
 
-/**
- * @author Alexander Weigl
- * @version 1 (2/21/21)
- */
+/// Base class of all JML specification clauses that appear in a method or loop contract. Concrete
+/// clauses provide preconditions, postconditions, frame conditions and related properties.
+///
+/// For example:
+/// ```
+/// requires x >= 0;
+/// ```
+///
+/// @author Alexander Weigl
+/// @version 1 (2/21/21)
 @NullMarked
 public abstract class JmlClause extends Node implements Jmlish, NodeWithOptionalSimpleName<JmlClause> {
 
@@ -35,21 +44,42 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     @Nullable
     private SimpleName name;
 
-    public JmlClause() {
-        this((SimpleName) null);
+    private JmlClauseKind kind;
+
+    public JmlClause(JmlClauseKind kind) {
+        this(kind, (SimpleName) null);
     }
 
     @AllFieldsConstructor
-    public JmlClause(@Nullable final SimpleName name) {
-        this(null, name);
+    public JmlClause(JmlClauseKind kind, @Nullable final SimpleName name) {
+        this(null, kind, name);
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public JmlClause setKind(final @NonNull() JmlClauseKind kind) {
+        assertNotNull(kind);
+        if (kind == this.kind) {
+            return this;
+        }
+        notifyPropertyChange(ObservableProperty.KIND, this.kind, kind);
+        if (this.kind != null) this.kind.setParentNode(null);
+        this.kind = kind;
+        setAsParentNodeOf(kind);
+        return this;
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
+    public JmlClause(TokenRange tokenRange, JmlClauseKind kind) {
+        this(tokenRange, kind, (SimpleName) null);
     }
 
     /**
      * This constructor is used by the parser and is considered private.
      */
     @Generated("com.github.javaparser.generator.core.node.MainConstructorGenerator")
-    public JmlClause(TokenRange tokenRange, SimpleName name) {
+    public JmlClause(TokenRange tokenRange, JmlClauseKind kind, SimpleName name) {
         super(tokenRange);
+        setKind(kind);
         setName(name);
         customInitialization();
     }
@@ -75,7 +105,10 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
         return JavaParserMetaModel.jmlClauseMetaModel;
     }
 
-    public abstract JmlClauseKind getKind();
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public JmlClauseKind getKind() {
+        return kind;
+    }
 
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
     public Optional<SimpleName> getName() {
@@ -119,6 +152,10 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     public boolean replace(Node node, Node replacementNode) {
         if (node == null) {
             return false;
+        }
+        if (node == kind) {
+            setKind((JmlClauseKind) replacementNode);
+            return true;
         }
         if (name != null) {
             if (node == name) {
@@ -305,5 +342,11 @@ public abstract class JmlClause extends Node implements Jmlish, NodeWithOptional
     @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
     public @Nullable() SimpleName name() {
         return name;
+    }
+
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public @NonNull() JmlClauseKind kind() {
+        return Objects.requireNonNull(kind);
     }
 }

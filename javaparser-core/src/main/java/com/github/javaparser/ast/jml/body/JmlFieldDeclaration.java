@@ -26,6 +26,10 @@ import java.util.function.Consumer;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * A JML field declaration: wraps a Java {@link com.github.javaparser.ast.body.FieldDeclaration}
+ * together with its JML tags, capturing specification-only fields (e.g. {@code ghost} or
+ * {@code model} fields).
+ *
  * @author Alexander Weigl
  * @version 1 (3/11/21)
  */

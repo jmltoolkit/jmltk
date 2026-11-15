@@ -1476,6 +1476,9 @@ public class ConcreteSyntaxModel {
                                         space(),
                                         list(PREDICATES, sequence(comma(), space())))),
                         semicolon()));
+        concreteSyntaxModelByClass.put(JmlBodyClauseKind.class, attribute(VALUE));
+        concreteSyntaxModelByClass.put(JmlClauseKind.class, attribute(VALUE));
+        concreteSyntaxModelByClass.put(JmlContractBehavior.class, attribute(VALUE));
         // endregion
         // region KEY
         concreteSyntaxModelByClass.put(

@@ -74,7 +74,7 @@ class VerifyMethodProgressTest : TestUtilities() {
         languageServer.client = client
 
         val action = VerifyMethod()
-        val lens = action.createCodeLens(jmlMethod("push"))!!
+        val lens = action.createCodeLens("file:///Test.java", jmlMethod("push"))!!
         action.execute(languageServer, lens.command.arguments).get()
 
         assertEquals(1, client.createProgressTokens.size, "exactly one progress session is created")

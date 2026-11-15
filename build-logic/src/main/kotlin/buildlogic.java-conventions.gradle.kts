@@ -47,6 +47,7 @@ tasks.withType<JavaCompile> {
 
     // See: https://docs.oracle.com/en/java/javase/12/tools/javac.html
     //options.compilerArgs.add("-Xlint:all,-deprecation,-removal")
+    options.compilerArgs.add("-Xlint:-dep-ann")
     //"-Werror", // Terminates compilation when warnings occur.
 }
 

@@ -360,6 +360,14 @@ public class ObjectIdentityHashCodeVisitor implements GenericVisitor<Integer, Vo
         return n.hashCode();
     }
 
+    public Integer visit(final JmlQuantifiedVariable n, final Void arg) {
+        return n.hashCode();
+    }
+
+    public Integer visit(final JmlMergePointStmt n, final Void arg) {
+        return n.hashCode();
+    }
+
     public Integer visit(final VoidType n, final Void arg) {
         return n.hashCode();
     }
@@ -795,12 +803,17 @@ public class ObjectIdentityHashCodeVisitor implements GenericVisitor<Integer, Vo
     }
 
     @Override
-    public Integer visit(final JmlQuantifiedVariable n, final Void arg) {
+    public Integer visit(final JmlBodyClauseKind n, final Void arg) {
         return n.hashCode();
     }
 
     @Override
-    public Integer visit(final JmlMergePointStmt n, final Void arg) {
+    public Integer visit(final JmlClauseKind n, final Void arg) {
+        return n.hashCode();
+    }
+
+    @Override
+    public Integer visit(final JmlContractBehavior n, final Void arg) {
         return n.hashCode();
     }
 

@@ -23,6 +23,8 @@ import java.util.Objects;
 import static com.github.javaparser.utils.Utils.assertNotNull;
 
 /**
+ * A single JML doc-comment: stores the raw text content of a JML specification comment.
+ *
  * @author Alexander Weigl
  * @version 1 (11/23/21)
  */

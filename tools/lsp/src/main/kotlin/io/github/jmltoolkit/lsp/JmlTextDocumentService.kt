@@ -433,7 +433,7 @@ class JmlTextDocumentService(private val server: JmlLanguageServer) : TextDocume
 
     override fun codeLens(params: CodeLensParams): CompletableFuture<MutableList<out CodeLens>> {
         Logger.info("codeLens: {}", params)
-        return repo[params.textDocument].applyOn(CodeLensCollector(), arrayListOf())
+        return repo[params.textDocument].applyOn(CodeLensCollector(params.textDocument.uri), arrayListOf())
     }
 
     override fun resolveCodeLens(unresolved: CodeLens): CompletableFuture<CodeLens> {

@@ -13,7 +13,7 @@ import org.eclipse.lsp4j.CodeLens
 /**
  * Runs through the AST and collect code lens actions.
  */
-class CodeLensCollector : ResultingVisitor<MutableList<out CodeLens>>() {
+class CodeLensCollector(private val uri: String = "") : ResultingVisitor<MutableList<out CodeLens>>() {
     override val result = arrayListOf<CodeLens>()
 
     override fun visit(n: JmlContract, arg: Unit?) {
@@ -24,7 +24,7 @@ class CodeLensCollector : ResultingVisitor<MutableList<out CodeLens>>() {
 
     override fun visit(n: MethodDeclaration, arg: Unit?) {
         if (n.contracts.isNotEmpty()) {
-            VerifyMethod().createCodeLens(n)?.let { result.add(it) }
+            VerifyMethod().createCodeLens(uri, n)?.let { result.add(it) }
         }
     }
 }

@@ -40,7 +40,7 @@ import com.github.javaparser.ast.expr.ThisExpr
 import com.github.javaparser.ast.expr.UnaryExpr
 import com.github.javaparser.ast.expr.VariableDeclarationExpr
 import com.github.javaparser.ast.jml.NodeWithContracts
-import com.github.javaparser.ast.jml.clauses.JmlClauseKind
+import com.github.javaparser.ast.jml.clauses.JmlClauseKeyword
 import com.github.javaparser.ast.jml.clauses.JmlContract
 import com.github.javaparser.ast.jml.clauses.JmlLabeledClause
 import com.github.javaparser.ast.jml.clauses.JmlMultiExprClause
@@ -2346,37 +2346,37 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         val I64_MAX = BigInteger.valueOf(Long.MAX_VALUE)
 
         val REQUIRES = setOf(
-            JmlClauseKind.REQUIRES, JmlClauseKind.REQUIRES_FREE, JmlClauseKind.PRE
+            JmlClauseKeyword.REQUIRES, JmlClauseKeyword.REQUIRES_FREE, JmlClauseKeyword.PRE
         )
         val ENSURES = setOf(
-            JmlClauseKind.ENSURES, JmlClauseKind.ENSURES_FREE, JmlClauseKind.POST
+            JmlClauseKeyword.ENSURES, JmlClauseKeyword.ENSURES_FREE, JmlClauseKeyword.POST
         )
         val LOOP_INVARIANTS = setOf(
-            JmlClauseKind.LOOP_INVARIANT, JmlClauseKind.LOOP_INVARIANT_FREE,
-            JmlClauseKind.MAINTAINING, JmlClauseKind.MAINTAINING_REDUNDANTLY,
-            JmlClauseKind.INVARIANT
+            JmlClauseKeyword.LOOP_INVARIANT, JmlClauseKeyword.LOOP_INVARIANT_FREE,
+            JmlClauseKeyword.MAINTAINING, JmlClauseKeyword.MAINTAINING_REDUNDANTLY,
+            JmlClauseKeyword.INVARIANT
         )
         val LOOP_VARIANTS = setOf(
-            JmlClauseKind.DECREASES, JmlClauseKind.DECREASING,
-            JmlClauseKind.DECREASES_REDUNDANTLY, JmlClauseKind.MEASURED_BY
+            JmlClauseKeyword.DECREASES, JmlClauseKeyword.DECREASING,
+            JmlClauseKeyword.DECREASES_REDUNDANTLY, JmlClauseKeyword.MEASURED_BY
         )
         val ASSIGNABLE = setOf(
-            JmlClauseKind.ASSIGNABLE, JmlClauseKind.ASSIGNABLE_REDUNDANTLY,
-            JmlClauseKind.MODIFIABLE, JmlClauseKind.MODIFIABLE_REDUNDANTLY,
-            JmlClauseKind.MODIFIES
+            JmlClauseKeyword.ASSIGNABLE, JmlClauseKeyword.ASSIGNABLE_REDUNDANTLY,
+            JmlClauseKeyword.MODIFIABLE, JmlClauseKeyword.MODIFIABLE_REDUNDANTLY,
+            JmlClauseKeyword.MODIFIES
         )
-        val BREAKS = setOf(JmlClauseKind.BREAKS, JmlClauseKind.BREAKS_REDUNDANTLY)
-        val CONTINUES = setOf(JmlClauseKind.CONTINUES, JmlClauseKind.CONTINUES_REDUNDANTLY)
-        val RETURNS = setOf(JmlClauseKind.RETURNS, JmlClauseKind.RETURNS_REDUNDANTLY)
+        val BREAKS = setOf(JmlClauseKeyword.BREAKS, JmlClauseKeyword.BREAKS_REDUNDANTLY)
+        val CONTINUES = setOf(JmlClauseKeyword.CONTINUES, JmlClauseKeyword.CONTINUES_REDUNDANTLY)
+        val RETURNS = setOf(JmlClauseKeyword.RETURNS, JmlClauseKeyword.RETURNS_REDUNDANTLY)
     }
 
-    private fun clauseExprs(contract: JmlContract, kinds: Set<JmlClauseKind>): List<Expression> {
+    private fun clauseExprs(contract: JmlContract, kinds: Set<JmlClauseKeyword>): List<Expression> {
         val res = mutableListOf<Expression>()
         for (c in contract.clauses) {
             when (c) {
-                is JmlSimpleExprClause -> if (c.kind in kinds) res.add(c.expression)
-                is JmlMultiExprClause -> if (c.kind in kinds) res.addAll(c.expressions)
-                is JmlLabeledClause -> if (c.kind in kinds) res.add(c.expression)
+                is JmlSimpleExprClause -> if (c.kind.value in kinds) res.add(c.expression)
+                is JmlMultiExprClause -> if (c.kind.value in kinds) res.addAll(c.expressions)
+                is JmlLabeledClause -> if (c.kind.value in kinds) res.add(c.expression)
                 else -> {}
             }
         }
@@ -2391,7 +2391,7 @@ class Vcg(private val ctx: VcgContext, private val options: VcgOptions) {
         return emptyList()
     }
 
-    private fun loopClauses(loop: Any, kinds: Set<JmlClauseKind>): List<Expression> =
+    private fun loopClauses(loop: Any, kinds: Set<JmlClauseKeyword>): List<Expression> =
         loopContracts(loop).flatMap { clauseExprs(it, kinds) }
 
     /** Create an expression translator against the current environment. */

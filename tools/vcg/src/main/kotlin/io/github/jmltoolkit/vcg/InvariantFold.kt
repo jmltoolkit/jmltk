@@ -11,7 +11,7 @@ import com.github.javaparser.ast.expr.BinaryExpr
 import com.github.javaparser.ast.expr.BooleanLiteralExpr
 import com.github.javaparser.ast.expr.Expression
 import com.github.javaparser.ast.expr.SimpleName
-import com.github.javaparser.ast.jml.body.JmlBodyClauseKind
+import com.github.javaparser.ast.jml.body.JmlBodyClauseKeyword
 import com.github.javaparser.ast.jml.body.JmlClassExprDeclaration
 import com.github.javaparser.ast.jml.expr.JmlLabelExpr
 
@@ -64,7 +64,7 @@ object InvariantFold {
         if (!seen.add(id)) return
         var n = 1
         for (m in cls.members) {
-            if (m !is JmlClassExprDeclaration || m.kind != JmlBodyClauseKind.INVARIANT) continue
+            if (m !is JmlClassExprDeclaration || m.kind.value != JmlBodyClauseKeyword.INVARIANT) continue
             if (staticOnly && !m.hasModifier(com.github.javaparser.ast.Modifier.DefaultKeyword.STATIC)) continue
             val label = m.name.orElse(null)?.asString() ?: "inv_${cls.nameAsString}_$n"
             n++

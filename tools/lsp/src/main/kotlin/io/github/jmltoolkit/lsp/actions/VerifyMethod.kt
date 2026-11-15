@@ -4,6 +4,7 @@
  */
 package io.github.jmltoolkit.lsp.actions
 
+import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.CallableDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.google.common.cache.CacheBuilder
@@ -41,7 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * @author Alexander Weigl
  * @version 1 (26.09.26)
  */
-class VerifyMethod : LspAction<MethodDeclaration> {
+class VerifyMethod : LspAction {
     override val id: String = "jml.verify.vcg"
     override val title: String = "Verify method (VCG)"
 
@@ -147,9 +148,10 @@ class VerifyMethod : LspAction<MethodDeclaration> {
         return Vcg(VcgContext.of(callable), options).verify()
     }
 
-    override fun createCodeLens(node: MethodDeclaration): CodeLens? {
-        if (node.contracts.isEmpty()) return null
-        cache.put(node.hashCode(), node)
-        return CodeLens(node.asRange, command(listOf(node.hashCode())), null)
+    override fun createCodeLens(uri: String, node: Node): CodeLens? {
+        val method = node as? MethodDeclaration ?: return null
+        if (method.contracts.isEmpty()) return null
+        cache.put(method.hashCode(), method)
+        return CodeLens(method.asRange, command(listOf(method.hashCode())), null)
     }
 }

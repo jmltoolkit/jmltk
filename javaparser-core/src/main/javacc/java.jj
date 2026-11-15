@@ -275,6 +275,7 @@ TOKEN : {
 | <JML_ASSERT: "assert">
 | <ASSERT_REDUNDANTLY: "assert_redundantly">
 | <ASSIGNABLE: "assignable">
+| <ASSIGNABLE_FREE: "assignable_free">
 | <ASSIGNABLE_REDUNDANTLY: "assignable_redundantly">
 | <ASSUME: "assume">
 | <ASSUME_REDUNDANTLY: "assume_redundantly">
@@ -7709,6 +7710,7 @@ JmlClause JmlMultiExprClauses():
 {
   ( <DIVERGES> | <DIVERGES_REDUNDANTLY> | <MEASURED_BY>
   | <ASSIGNABLE> |  <MODIFIABLE> | <MODIFIES>
+  | <ASSIGNABLE_FREE>
   | <ASSIGNABLE_REDUNDANTLY> | <MODIFIABLE_REDUNDANTLY> | <MODIFIES_REDUNDANTLY> )
   { begin = token();}
   (heaps=JmlHeaps())*

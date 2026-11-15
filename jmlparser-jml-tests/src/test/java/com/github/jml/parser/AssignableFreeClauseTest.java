@@ -9,7 +9,10 @@ import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.jml.clauses.JmlClause;
+import com.github.javaparser.ast.jml.clauses.JmlClauseKeyword;
+import com.github.javaparser.ast.jml.clauses.JmlMultiExprClause;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,5 +67,32 @@ class AssignableFreeClauseTest {
         assertThat(representedAsClause || !r.isSuccessful())
                 .as("assignable_free must be represented as a clause or rejected loudly")
                 .isTrue();
+    }
+
+    @Test
+    void assignableFreeIsParsedAsAFreeAssignableClause() {
+        ParseResult<CompilationUnit> r = javaParser.parse("""
+                class Foo {
+                    int field;
+                    /*@ normal_behavior
+                      @ ensures field == 21;
+                      @ assignable \\strictly_nothing;
+                      @ assignable_free field;
+                      @*/
+                    void m() { field = 21; }
+                }
+                """);
+
+        CompilationUnit cu = r.getResult().orElseThrow();
+        MethodDeclaration m =
+                cu.getClassByName("Foo").orElseThrow().getMethodsByName("m").get(0);
+
+        assertThat(m.getContracts()).hasSize(1);
+        assertThat(m.getContracts().get(0).getClauses())
+                .filteredOn(clause -> clause.getKind().getValue() == JmlClauseKeyword.ASSIGNABLE_FREE)
+                .singleElement()
+                .satisfies(clause -> assertThat(clause)
+                        .as("assignable_free is an assignable-style multi-expression clause")
+                        .isInstanceOf(JmlMultiExprClause.class));
     }
 }

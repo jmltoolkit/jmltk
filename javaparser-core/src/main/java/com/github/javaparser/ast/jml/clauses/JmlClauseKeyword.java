@@ -27,6 +27,7 @@ public enum JmlClauseKeyword implements JmlKeyword {
     MODIFIES(GeneratedJavaParserConstants.MODIFIES),
     MODIFIABLE(GeneratedJavaParserConstants.MODIFIABLE),
     ASSIGNABLE(GeneratedJavaParserConstants.ASSIGNABLE),
+    ASSIGNABLE_FREE(GeneratedJavaParserConstants.ASSIGNABLE_FREE),
     ACCESSIBLE(GeneratedJavaParserConstants.ACCESSIBLE),
     PRE(GeneratedJavaParserConstants.PRE),
     POST(GeneratedJavaParserConstants.POST),

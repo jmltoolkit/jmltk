@@ -164,6 +164,11 @@ rejected rather than approximated.
 
 **Fixed**
 
+- Build: `:dokkaGeneratePublicationHtml` failed with `Unexpected classifier: "#"`, breaking the Weekly Builds
+  job since the `tools/vcg` module was merged. Dokka treats every module's `README.md` as module documentation
+  and splits it at any `#` followed by `Module` or `Package`, so the vcg README's `## Module layout` heading was
+  parsed as a second module-doc fragment. The README now starts with Dokka's required `# Module vcg` header and
+  the section is named `## Source layout` (feature branch `fix/dokka-vcg-module-docs`, commit `81f34fcfe`).
 - Parser: JML clauses now keep **all** heap specifiers instead of only the last one. `JmlHeaps()` returned
   a single-element list, and both `JmlAccessibleClause` and `JmlMultiExprClauses` looped with
   `(heaps=JmlHeaps())*`, reassigning the list on every iteration: `assignable<heap><savedHeap> a[0..3];`

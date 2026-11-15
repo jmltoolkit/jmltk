@@ -1,4 +1,6 @@
-# Verification Condition Generator (VCG)
+# Module vcg
+
+## Verification Condition Generator (VCG)
 
 > **Status: experimental.** Semantics are under active development; constructs the
 > engine cannot model are rejected with structured diagnostics instead of being
@@ -49,7 +51,7 @@ methods (`jml.verify.vcg`). Activating it runs the generator and reports the
 `proven / failed / unknown` counts (and failing condition descriptions) to the
 client.
 
-## Module layout
+## Source layout
 
 | File | Purpose |
 | ---- | ------- |

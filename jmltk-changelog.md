@@ -208,7 +208,7 @@ rejected rather than approximated.
 ### Language Server Protocol & keyword-node AST (PR #61, `weigl/lsp`)
 
 Makes JML keywords first-class AST nodes and reworks the jmltk LSP server (code actions, document symbols,
-server plumbing). Rebased onto `main` after PR #99 (`d30a30786`); commit hashes below refer to the rebased `weigl/lsp` branch.
+server plumbing). Rebased onto `main` after PR #69 (`7db10d373`); commit hashes below refer to the rebased `weigl/lsp` branch.
 
 **Added**
 
@@ -217,14 +217,14 @@ server plumbing). Rebased onto `main` after PR #99 (`d30a30786`); commit hashes 
   behavior keyword, incl. British spellings and `feasible_behavior` → `behavior`), `JmlClauseKind`
   (wrapping `JmlClauseKeyword`, e.g. `requires`/`ensures`/`assignable`/`signals`/`forall`) and
   `JmlBodyClauseKind` (wrapping `JmlBodyClauseKeyword`, e.g. `invariant`/`constraint`/`axiom`/`initially`).
-  Clause/body-clause keywords are now child nodes with a token range (`80db3cf83`, `d5bc69712`).
+  Clause/body-clause keywords are now child nodes with a token range (`3fe1e049e`, `059960182`).
 - Grammar (`java.jj`): behavior and clause productions now build the keyword nodes; loop/model contracts pass
   `null` behavior where none is present.
 - LSP code actions reworked to a common `LspAction` interface discovered via `ServiceLoader`:
   `AddBehaviorKeyword`, `AddNameToClauseOrContract`, `AddQuantification`, `AddBoundary` +
   `ExpandQuantifierDomain` (via `JmlQuantifierDesugarer`), `AddStubs` code lens; reworked
-  `WellDefinednessCheck`, `VerifyAgainstParent`, `CreateKeyProjectFile`; `StartKey` removed (`e1dbf63f9`,
-  `deea26324`, `649b70fc9`).
+  `WellDefinednessCheck`, `VerifyAgainstParent`, `CreateKeyProjectFile`; `StartKey` removed (`2a6964969`,
+  `4060e3764`, `0bf519ce9`).
 - Document symbols: `JmlCatchSymbols` (contracts, clauses, JML fields/represents/accessible declarations) and
   `KeyCatchSymbols` (function declarations, predicates, schema variables, taclets).
 - Server/launcher: custom `Launcher` construction (executor service, message validation, new
@@ -232,7 +232,7 @@ server plumbing). Rebased onto `main` after PR #99 (`d30a30786`); commit hashes 
   expanded docs (`doc.md`, new `sol.md`), `eglot.el`.
 - Tests: `VariableDeclarationErrorPositionTest`, `CodeActionsUnitTest`, `JmlCatchSymbolsTest`,
   `KeyCatchSymbolsTest`, `CodeActionCollectorTest`, `ElementQuantifierCodeActionTest`, `JmlClauseKeywordTest`;
-  LSP suite grows 17 → 53 tests (instruction coverage 39.6% → 61.6%) (`e1dbf63f9`).
+  LSP suite grows 17 → 53 tests (instruction coverage 39.6% → 61.6%) (`2a6964969`).
 - Utility helpers in `tools/utils` (`JMLUtils`), `stat` counters, `lint` rule package move, `redux`
   `RecordClassBuilder`, `jmlstub` `JREClassStubGenerator` updated for the keyword nodes.
 
@@ -249,8 +249,8 @@ server plumbing). Rebased onto `main` after PR #99 (`d30a30786`); commit hashes 
   `Modifiers() Type() Identifier() (ArrayBracketPair())* ("," | "=" | ";")` so `int i = ;` is reported at the
   offending token instead of the statement start (regression `VariableDeclarationErrorPositionTest`).
 - Regenerated metamodel, `JavaParserMetaModel`, visitors and pretty-printers for the keyword nodes and the
-  merged `JmlQuantifiedVariable`/KeY label nodes (`beca43929`, `18697f160`, `497cdfdd4`, `a54708b6e`,
-  `96217f1ec`); canonical regeneration after the rebase is `59b908800`.
+  merged `JmlQuantifiedVariable`/KeY label nodes (`08e80b657`, `932199960`, `381bd2f68`, `982a4dd9d`,
+  `0285d722d`); canonical regeneration after the rebase is `efa77e201`.
 
 **Fixed**
 
@@ -259,14 +259,14 @@ server plumbing). Rebased onto `main` after PR #99 (`d30a30786`); commit hashes 
   `isCallableForNode`/`createCodeAction` so a failing action degrades to "no action" instead of aborting the
   request (`AddQuantification`'s unresolved-symbol path included).
 - `AddBehaviorKeyword` emits a valid VS Code snippet choice and drops the empty `NONE` keyword from the
-  choices (`deea26324`).
+  choices (`4060e3764`).
 - `JmlClauseKeyword` token constants corrected (`DETERMINES`/`LOOP_DETERMINES`/`SEPARATES`/
   `LOOP_SEPARATES` no longer point at `DURATION_REDUNDANTLY`); `DECREASING_REDUNDANTLY` added so
-  `decreasing_redundantly` loop contracts parse (`649b70fc9`).
+  `decreasing_redundantly` loop contracts parse (`0bf519ce9`).
 - Unimplemented actions no longer advertised: `WellDefinednessCheck` stops offering its quick-fix, `AddStubs`
   stops registering the code lens; `VerifyAgainstParent` cache populated so the offered command reports.
 - KeY label-after-keyword printing (`assert LAB: e;`) restored in the hand-maintained printers after the
-  rebase (`497cdfdd4`, `a54708b6e`, `96217f1ec`); `JmlProcessor`/grammar error-positioning restored.
+  rebase (`381bd2f68`, `982a4dd9d`, `0285d722d`); `JmlProcessor`/grammar error-positioning restored.
 
 ---
 

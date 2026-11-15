@@ -1,5 +1,6 @@
 plugins {
     id("standard-kotlin")
+    application
 }
 
 val googleJavaFormatExports =
@@ -16,13 +17,24 @@ val googleJavaFormatExports =
         "jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
     )
 
+application {
+    mainClass = "io.github.jmltoolkit.prettyprinting.MainKt"
+    applicationName = "jmltk-pp"
+    applicationDefaultJvmArgs = googleJavaFormatExports
+}
+
 dependencies {
     implementation(project(":tools:utils"))
+    implementation(libs.clickt)
     implementation(libs.google.java.format)
 }
 
 tasks.withType<JavaCompile> {
     options.compilerArgs.addAll(googleJavaFormatExports)
+}
+
+tasks.named<JavaExec>("run") {
+    standardInput = System.`in`
 }
 
 tasks.test {

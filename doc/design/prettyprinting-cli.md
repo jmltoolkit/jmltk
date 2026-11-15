@@ -84,7 +84,7 @@ If all fail, the input is rendered as plain text.
 - JML snippets: the parsed JML node's `toString()`.
 - Formatting happens before highlighting; the formatted text is re-parsed for tokenization.
 
-The current `JmlFmt.pp` has a bug: it returns `output.getLine(0)`, i.e. only the first line. It must return `output.toString()`. `JmlFmt` also moves from the default package to `io.github.jmltoolkit.prettyprinting`.
+The current `JmlFmt.pp` has two bugs: it never runs google-java-format's AST visitor, so it echoes the input, and it reads only `output.getLine(0)`. It will delegate to a small Java bridge, `com.google.googlejavaformat.java.JmltkFormatterBridge`, that runs the real visitor (`JavaInputAstVisitor`) with `JmlCommentsHelper` and joins all output lines. The bridge must live in google-java-format's package because `Trees.parse` is package-private. `JmlFmt` also moves from the default package to `io.github.jmltoolkit.prettyprinting`.
 
 ## Highlighting
 
@@ -151,19 +151,22 @@ Both modes use plain LaTeX escaping for text: `\{`, `\}`, `\#`, `\%`, `\&`, `\_`
 tools/prettyprinting/src/main/kotlin/io/github/jmltoolkit/prettyprinting/
   JmlFmt.kt            (moved, pp() fixed)
   StyleClass.kt        (Pygments class enum, ANSI palette)
-  SourceUnit.kt        (input text, parse kind, node)
-  SnippetParser.kt     (auto-detection and JML parsing)
+  Span.kt
+  SnippetParser.kt     (auto-detection, ParsedSource, JML parsing)
   Highlighter.kt       (Java token mapping)
   JmlLexer.kt          (JML body lexer)
-  Span.kt
-  render/TextRenderer.kt
-  render/AnsiRenderer.kt
-  render/HtmlRenderer.kt
-  render/LatexRenderer.kt
+  TextRenderer.kt
+  AnsiRenderer.kt
+  HtmlRenderer.kt
+  LatexRenderer.kt
   RenderOptions.kt     (format, language, snippet, width, flags)
-  PrettyPrinterFacade.kt (read -> format -> highlight -> render)
+  PrettyPrintingFacade.kt (format -> highlight -> render)
+  InputReader.kt       (files/stdin handling)
   PpCommand.kt         (Clikt command, shared by both entry points)
   Main.kt              (standalone main)
+
+tools/prettyprinting/src/main/java/com/google/googlejavaformat/java/
+  JmltkFormatterBridge.java  (runs the formatter AST visitor with a custom CommentsHelper)
 ```
 
 `tools/cli/src/main/kotlin/io/github/jmltoolkit/cli/Main.kt` registers `PpCommand` as `pp`; `PrettyPrintCommand` becomes a `PpCommand("format")` subclass.

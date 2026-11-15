@@ -26,13 +26,14 @@ import com.github.javaparser.ast.Node
 import io.github.jmltoolkit.lint.JmlLintingConfig
 import io.github.jmltoolkit.lint.JmlLintingFacade
 import io.github.jmltoolkit.lint.LintProblem
+import io.github.jmltoolkit.prettyprinting.PpCommand
 import java.io.File
 import java.io.FileNotFoundException
 import kotlin.jvm.optionals.getOrNull
 
 fun main(args: Array<String>) {
     val cmd = Main().subcommands(
-        J2JCommand(), LintCommand(), PrettyPrintCommand(), XPathCommand(),
+        J2JCommand(), LintCommand(), PrettyPrintCommand(), PpCommand(), XPathCommand(),
         StatCommand(), WdCommand(), JmlStubCommand(), VcgCommand()
     )
     cmd.main(args)

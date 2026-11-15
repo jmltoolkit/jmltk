@@ -8,15 +8,29 @@ plugins {
     alias(libs.plugins.shadow)
 }
 
+val googleJavaFormatExports =
+    listOf(
+        "--add-exports",
+        "jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+        "--add-exports",
+        "jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+        "--add-exports",
+        "jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+        "--add-exports",
+        "jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+        "--add-exports",
+        "jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+    )
+
 application {
     mainClass = "io.github.jmltoolkit.cli.MainKt"
     applicationName = "jmltk"
-    applicationDefaultJvmArgs = listOf("--enable-native-access=ALL-UNNAMED")
+    applicationDefaultJvmArgs = listOf("--enable-native-access=ALL-UNNAMED") + googleJavaFormatExports
 }
 
 tasks.named<CreateStartScripts>("startScripts") {
     applicationName = "jmltk"
-    defaultJvmOpts = listOf("--enable-native-access=ALL-UNNAMED")
+    defaultJvmOpts = listOf("--enable-native-access=ALL-UNNAMED") + googleJavaFormatExports
     shortenWindowsClasspathLine()
 }
 
@@ -56,7 +70,7 @@ fun createLauncher(name: String, mainClassName: String) =
     tasks.register<CreateStartScripts>("${name}StartScripts") {
         description = "Create a start script for $name"
         classpath = tasks.named<CreateStartScripts>("startScripts").get().classpath
-        defaultJvmOpts = listOf("--enable-native-access=ALL-UNNAMED")
+        defaultJvmOpts = listOf("--enable-native-access=ALL-UNNAMED") + googleJavaFormatExports
         applicationName = name
         mainClass.set(mainClassName)
         classpath = files(tasks.named("jar"), configurations.runtimeClasspath)

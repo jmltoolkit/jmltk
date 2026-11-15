@@ -3,13 +3,13 @@
  * algorithm for int-arrays algorithm.  It shows that the array
  * is sorted in  the end and that it contains  a permutation of
  * the original input.
- * <p>
+ *
  * The   proofs   for   the  main   method   sort(int[])   runs
  * automatically   while   the   other  two   methods   require
  * interaction.  You   can  load   the  files   "sort.key"  and
  * "split.key"  from the  example's  directory  to execute  the
  * according proof scripts.
- * <p>
+ *
  * The permutation property requires some interaction: The idea
  * is that the only actual modification on the array are swaps
  * within the "split" method. The sort method body contains
@@ -17,18 +17,21 @@
  * property. By a repeated appeal to the transitivity of the
  * permutation property, the entire algorithm can be proved to
  * only permute the array.
- * <p>
+ *
  * To establish  monotonicity, the key  is to specify  that the
  * currently  handled block  contains  only  numbers which  are
  * between   the    two   pivot   values    array[from-1]   and
  * array[to]. The first  and last block are exempt  from one of
  * these  conditions  since  they have  only  one  neighbouring
  * block.
- * <p>
+ *
  * The  example has  been  added  to show  the  power of  proof
  * scripts.
  *
- * @author Mattias Ulbrich, 2015
+ * Translated to the use of JML proof scripts in 2025. Currently,
+ * this still increases the size of proof.
+ *
+ * @author Mattias Ulbrich, 2015, 2025
  */
 
 class Quicksort {
@@ -39,8 +42,8 @@ class Quicksort {
       @  assignable array[*];
       @*/
     public void sort(int[] array) {
-        if (array.length > 0) {
-            sort(array, 0, array.length - 1);
+        if(array.length > 0) {
+            sort(array, 0, array.length-1);
         }
     }
 
@@ -57,10 +60,22 @@ class Quicksort {
       @  measured_by to - from + 1;
       @*/
     private void sort(int[] array, int from, int to) {
-        if (from < to) {
+        if(from < to) {
+            //@ ghost \seq seq0 = \dl_array2seq(array);
             int splitPoint = split(array, from, to);
-            sort(array, from, splitPoint - 1);
-            sort(array, splitPoint + 1, to);
+            //@ ghost \seq seq1 = \dl_array2seq(array);
+            sort(array, from, splitPoint-1);
+            //@ ghost \seq seq2 = \dl_array2seq(array);
+            sort(array, splitPoint+1, to);
+            //@ ghost \seq seq3 = \dl_array2seq(array);
+            /*@ assert \dl_seqPerm(seq3, seq0) \by {
+              @   assert \dl_seqPerm(seq1, seq0) \by auto;
+              @   assert \dl_seqPerm(seq2, seq0) \by auto;
+              @   auto;
+              @ }; */
+	    //@ assert (\forall int i; from<=i && i<to; array[i] <= array[i+1]);
+            //@ assert from > 0 ==> (\forall int x; from<=x && x<=to; array[x] > array[from-1]);
+            //@ assert to < array.length-1 ==> (\forall int x; from<=x && x<=to; array[x] <= array[to+1]);
         }
     }
 
@@ -92,17 +107,42 @@ class Quicksort {
           @ decreases to + to - j - i + 2;
           @ assignable array[from..to-1];
           @*/
-        for (int j = from; j < to; j++) {
-            if (array[j] <= pivot) {
+        for(int j = from; j < to; j++) {
+            if(array[j] <= pivot) {
                 int t = array[i];
                 array[i] = array[j];
                 array[j] = t;
+                /*@ assert \dl_seqPerm(\dl_array2seq(array), \old(\dl_array2seq(array))) \by {
+                  @  oss;
+                  @  rule "seqPermFromSwap";
+                  @  rule "andRight" \by {
+                  @    case "Case 1": // the first of the two conjuncts is easy
+                  @      auto;
+                  @    case "Case 2": // the 2nd requires instantiations:
+                  @      instantiate hide:true var:"iv" with:i;
+                  @      instantiate hide:true var:"jv" with:j;
+                  @      auto;
+                  @  }
+                  @ };  */
                 i++;
             }
         }
 
         array[to] = array[i];
         array[i] = pivot;
+
+         /*@ assert \dl_seqPerm(\dl_array2seq(array), \old(\dl_array2seq(array))) \by {
+           @  oss;
+           @  rule "seqPermFromSwap";
+           @  rule "andRight" \by {
+           @    case "Case 1": // the first of the two conjuncts is easy
+           @      auto;
+           @    case "Case 2": // the 2nd requires instantiations:
+           @      instantiate hide:true var:"iv" with:i;
+           @      instantiate hide:true var:"jv" with:to;
+           @      auto;
+           @  }
+           @ };  */
 
         return i;
 

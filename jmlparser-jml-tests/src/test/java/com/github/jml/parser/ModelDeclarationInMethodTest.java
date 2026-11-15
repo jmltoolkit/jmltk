@@ -9,6 +9,7 @@ import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.Problem;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.jml.stmt.JmlGhostStmt;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -88,6 +89,28 @@ class ModelDeclarationInMethodTest {
                 .anyMatch(
                         msg -> msg.contains("Ghost method ghostMethod") && msg.contains("not allowed within methods"));
         assertThat(messages(r)).noneMatch(msg -> msg.contains("Could not handle the JML comment"));
+    }
+
+    /**
+     * Regression for KeY's {@code heap/quicksort/Quicksort.java} line 70: a valid
+     * method-level {@code ghost} local followed by a KeY-only assertion proof script
+     * ({@code \by { ... }}) shares one {@link com.github.javaparser.ast.jml.doc.JmlDocStmt}
+     * with the script. The group cannot be parsed as method-level JML, and the
+     * class-level fallback used to pick up the ghost declaration as a misplaced
+     * {@code JmlFieldDeclaration}, although {@code ghost int x = ...;} inside a method
+     * is a local ghost variable, not a class member. The ghost statement must survive;
+     * the unsupported proof script may fall back to KeY's own grammar.
+     */
+    @Test
+    void ghostLocalBeforeUnsupportedProofScriptStaysMethodLevel() {
+        ParseResult<CompilationUnit> r = parse("//@ ghost int x = 0;\n        /*@ assert x == 0 \\by { auto; } */");
+        assertThat(messages(r))
+                .as("a method-level ghost local is not a misplaced class-level field")
+                .noneMatch(msg -> msg.contains("not allowed within methods"));
+        assertThat(r.getResult()).isPresent();
+        assertThat(r.getResult().get().findAll(JmlGhostStmt.class))
+                .as("the ghost local must not be dropped with the unsupported comment group")
+                .hasSize(1);
     }
 
     @Test

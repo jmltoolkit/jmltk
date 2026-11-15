@@ -143,6 +143,15 @@ per-phase hashes below refer to the `weigl/quantarray` feature branch (`origin/w
 
 **Fixed**
 
+- KeY proof scripts inside method bodies: a single-command `\by cmd;` form no longer needs a second `;`;
+  nested `rule "…" \by { case … }` scripts are no longer swallowed by the proof-command argument list
+  (`\by` is a valid identifier token, so it used to be taken as an argument); nested
+  `assert … \by auto;` commands inside a proof block parse (the `assert` keyword is lexed as
+  `JML_ASSERT`); and the Java ≥ 1.4 `assert`-identifier validation exempts proof-command names. This makes
+  KeY's `heap/quicksort/Quicksort.java` parse again — the ghost local grouped with its following `\by`
+  script is now a `JmlGhostStmt` → `ExpressionStmt` → `VariableDeclarationExpr` instead of being reported
+  as a misplaced class-level `JmlFieldDeclaration` (`java.jj`, `Java1_0Validator`,
+  `ModelDeclarationInMethodTest`; feature branch `weigl/fixjmltkkey`, pre-merge commit `8f9ab4462`, PR #99).
 - Model methods, ghost methods, model/ghost fields (and other class-level JML declarations) placed *inside
   a method body* are now rejected with a targeted problem — e.g. `Model method modelMethod is not allowed
   within methods.` / `Ghost method ghostMethod is not allowed within methods.` / `Model field modelField

@@ -2,7 +2,6 @@
  * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
  * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
  */
-
 package io.github.jmltoolkit.prettyprinting
 
 import com.google.common.base.CharMatcher

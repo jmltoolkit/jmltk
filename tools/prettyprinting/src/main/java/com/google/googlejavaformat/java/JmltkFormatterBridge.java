@@ -10,8 +10,10 @@ import com.google.googlejavaformat.DocBuilder;
 import com.google.googlejavaformat.OpsBuilder;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.util.Context;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
@@ -35,8 +37,8 @@ public final class JmltkFormatterBridge {
 
         JavaOutput output = new JavaOutput("\n", input, helper);
         OpsBuilder builder = new OpsBuilder(input, output);
-        JavaInputAstVisitor visitor =
-                new JavaInputAstVisitor(builder, JavaFormatterOptions.defaultOptions().indentationMultiplier());
+        JavaInputAstVisitor visitor = new JavaInputAstVisitor(
+                builder, JavaFormatterOptions.defaultOptions().indentationMultiplier());
         visitor.scan(unit, null);
         builder.sync(input.getText().length());
         builder.drain();

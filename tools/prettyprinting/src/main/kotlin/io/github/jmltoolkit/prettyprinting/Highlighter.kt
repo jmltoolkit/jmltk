@@ -42,10 +42,15 @@ class Highlighter(private val jmlLexer: JmlLexer = JmlLexer()) {
             -> listOf(Span(text, StyleClass.TEXT))
 
             JavaToken.Category.COMMENT -> listOf(Span(text, commentClass(text)))
+
             JavaToken.Category.KEYWORD -> listOf(Span(text, keywordClass(text)))
+
             JavaToken.Category.IDENTIFIER -> listOf(Span(text, nameClass(tokens, index)))
+
             JavaToken.Category.LITERAL -> literalSpans(text)
+
             JavaToken.Category.SEPARATOR -> listOf(Span(text, separatorClass(text)))
+
             JavaToken.Category.OPERATOR -> listOf(Span(text, operatorClass(text)))
         }
     }
@@ -114,12 +119,15 @@ class Highlighter(private val jmlLexer: JmlLexer = JmlLexer()) {
                 }
 
             text.startsWith("0b") || text.startsWith("0B") -> StyleClass.NUMBER_BINARY
+
             OCTAL.matches(text) -> StyleClass.NUMBER_OCT
+
             text.any { it == '.' || it == 'e' || it == 'E' } ||
                 text.endsWith('f') ||
                 text.endsWith('F') ||
                 text.endsWith('d') ||
                 text.endsWith('D') -> StyleClass.NUMBER_FLOAT
+
             else -> StyleClass.NUMBER_INTEGER
         }
 

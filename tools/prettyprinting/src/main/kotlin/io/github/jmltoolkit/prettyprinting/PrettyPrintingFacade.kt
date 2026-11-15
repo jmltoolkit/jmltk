@@ -28,7 +28,9 @@ class PrettyPrintingFacade(
 
         return when (options.format) {
             OutputFormat.TEXT -> TextRenderer().render(source)
+
             OutputFormat.ANSI -> AnsiRenderer(options.color).render(spans)
+
             OutputFormat.HTML -> {
                 val fragment = HtmlRenderer().renderFragment(spans)
                 if (options.htmlFull) HtmlRenderer().renderDocument(fragment, options.css) else fragment

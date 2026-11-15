@@ -156,12 +156,13 @@ rejected rather than approximated.
 
 **Changed**
 
-- CI: the test matrix now includes macOS (`7605d114d`, PR #18) but no longer Windows: `./gradlew test` hangs
-  in the VCG/SMT suite on the hosted Windows runners (the job stays in the Gradle test step for over an hour
-  with no output, while identical commits finish in under ten minutes on Linux and macOS), so the Windows
-  combination is disabled until those tests are Windows-safe (feature branch `fix/jml-multi-heaps-append`,
-  commit `e1efa5f19`, PR #102). Pushes to `releases/*` branches run the test and formatting checks
-  (`87f7d1329`, PR #96).
+- CI: the test matrix runs on macOS and Windows again (`7605d114d`, PR #18). The Windows combination had been
+  disabled in PR #102 after its jobs hung in the Gradle test step and the cache-save post steps failed; the
+  cause was repository cache pressure, not VCG/SMT: the repository held 40 Actions cache entries totalling about
+  10.4 GiB, above GitHub's 10 GiB limit, so cache saves raced and were evicted. The VCG/SMT tests pass on
+  Windows, and after clearing all caches the previously failing job completed in 15 minutes on a cold cache.
+  Windows is re-enabled (feature branch `ci/re-enable-windows-tests`, commit `1948b08d3`). Pushes to
+  `releases/*` branches run the test and formatting checks (`87f7d1329`, PR #96).
 
 **Fixed**
 

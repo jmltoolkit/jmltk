@@ -160,6 +160,13 @@ rejected rather than approximated.
 
 **Fixed**
 
+- Parser: `assignable_free` (the free counterpart of `assignable`, used by KeY) is now a clause keyword:
+  it parses into a `JmlMultiExprClause` with `JmlClauseKind.ASSIGNABLE_FREE`, in method and loop contracts
+  alike (`ba2c0f3d3`, PR #100). It previously fell through the clause parser, and the leftover
+  `assignable_free field;` matched the class-level JML fallback as a `FieldDeclaration`, inserting a bogus
+  field of that type into the class body (KeY's converter failed with `UnsolvedSymbolException`); loop
+  contracts rejected it loudly. The new lexer token shifts the numeric `JavaToken.Kind` values after
+  `ASSIGNABLE` by one (`JavaToken` regenerated).
 - KeY proof scripts inside method bodies: a single-command `\by cmd;` form no longer needs a second `;`;
   nested `rule "…" \by { case … }` scripts are no longer swallowed by the proof-command argument list
   (`\by` is a valid identifier token, so it used to be taken as an argument); nested

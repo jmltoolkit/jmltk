@@ -177,6 +177,7 @@ public class TokenTypes {
             case ASSERT_REDUNDANTLY:
             case JML_ASSERT:
             case ASSIGNABLE:
+            case ASSIGNABLE_FREE:
             case ASSIGNABLE_REDUNDANTLY:
             case ASSUME:
             case ASSUME_REDUNDANTLY:

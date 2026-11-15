@@ -4,8 +4,10 @@
  */
 package io.github.jmltoolkit.lsp
 
+import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.jml.clauses.ContractType
 import com.github.javaparser.ast.jml.clauses.JmlContract
+import io.github.jmltoolkit.lsp.actions.VerifyMethod
 import org.eclipse.lsp4j.CodeLens
 
 /**
@@ -17,6 +19,12 @@ class CodeLensCollector : ResultingVisitor<MutableList<out CodeLens>>() {
     override fun visit(n: JmlContract, arg: Unit?) {
         if (n.type == ContractType.METHOD) {
             // result.add(VerifyAgainstParent.createCodeLens(n))
+        }
+    }
+
+    override fun visit(n: MethodDeclaration, arg: Unit?) {
+        if (n.contracts.isNotEmpty()) {
+            VerifyMethod().createCodeLens(n)?.let { result.add(it) }
         }
     }
 }

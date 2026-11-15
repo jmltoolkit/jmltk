@@ -4,41 +4,169 @@
  */
 package io.github.jmltoolkit.smt.solver
 
+import io.github.jmltoolkit.smt.model.SExpr
 import java.io.IOException
 import java.io.InputStreamReader
 import java.io.PrintWriter
+import java.io.PushbackReader
 import java.util.concurrent.ForkJoinPool
 import java.util.concurrent.ForkJoinTask
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.locks.Condition
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * @author Alexander Weigl
  * @version 1 (08.08.22)
+ *
+ * @param defaultTimeoutMillis fallback deadline used by runs that do not pass an
+ *   explicit timeout, so no invocation blocks on the solver forever (0 disables the
+ *   fallback).
  */
-class Solver {
+open class Solver(private val defaultTimeoutMillis: Long = 60_000L) {
     fun runAsync(input: String): ForkJoinTask<SolverAnswer> = ForkJoinPool.commonPool().submit<SolverAnswer> { run(input) }
 
     @Throws(IOException::class)
-    fun run(input: String): SolverAnswer = run { writer: PrintWriter -> writer.println(input) }
+    open fun run(input: String): SolverAnswer = run { writer: PrintWriter -> writer.println(input) }
 
     @Throws(IOException::class)
-    protected fun startSmtSolver(): Process {
-        val pb = ProcessBuilder("sh", "-c", "z3 -smt2 -in")
-        return pb.start()
+    protected open fun startSmtSolver(): Process {
+        // Invoke the z3 binary directly (no `sh -c` wrapper): ProcessBuilder
+        // resolves it against PATH on every OS — `z3.exe` on Windows via the
+        // PATH entry added by the CI's SMT setup, `z3` on Linux/macOS.
+        return ProcessBuilder("z3", "-smt2", "-in").start()
     }
 
     @Throws(IOException::class)
-    fun run(query: AppendableTo): SolverAnswer {
+    open fun run(query: AppendableTo): SolverAnswer =
+        run(query, onForm = null, isCancelled = { false }, timeoutMillis = 0)
+
+    /**
+     * Runs [query] on the SMT solver and parses the answer stream incrementally.
+     *
+     * A watchdog thread terminates the solver process tree as soon as [isCancelled]
+     * becomes true, or once the deadline elapses. The deadline is [timeoutMillis]
+     * when positive, otherwise this solver's [defaultTimeoutMillis]. The watchdog
+     * waits on a condition (woken on each parsed answer rather than polling), so a
+     * cancellation is picked up at the latest when the next answer arrives and the
+     * deadline is hit exactly. A short-circuited (cancelled/timed-out) run returns
+     * the answers parsed so far; the reader unblocks because the terminating process
+     * closes its streams.
+     *
+     * @param onForm invoked for every top-level S-expression the solver emits (usually
+     *   one `sat`/`unsat`/`unknown` verdict per checked condition).
+     * @param isCancelled polled by the watchdog; must return `true` to abort the run.
+     * @param timeoutMillis hard deadline for the whole run (0 = use the configured default).
+     */
+    @Throws(IOException::class)
+    open fun run(
+        query: AppendableTo,
+        onForm: ((SExpr) -> Unit)?,
+        isCancelled: () -> Boolean,
+        timeoutMillis: Long,
+    ): SolverAnswer {
         val p = startSmtSolver()
+        val deadline = if (timeoutMillis > 0) timeoutMillis else defaultTimeoutMillis
+        val watchdog = Watchdog(p, isCancelled, deadline)
+        watchdog.start()
         try {
             PrintWriter(p.outputStream).use { out ->
-                InputStreamReader(p.inputStream).use {
-                    query.appendTo(out)
-                    out.close()
-                    return SolverAnswer(SExprParser.parseAll(it))
+                query.appendTo(out)
+                out.close()
+                val reader = PushbackReader(InputStreamReader(p.inputStream))
+                val answers = ArrayList<SExpr>(1024)
+                while (true) {
+                    val sexpr = try {
+                        SExprParser.parse(reader)
+                    } catch (e: Exception) {
+                        // a cancelled/timed-out run may cut the stream mid-form
+                        if (watchdog.triggered.get() || isCancelled()) null else throw e
+                    }
+                    if (sexpr == null) break
+                    answers.add(sexpr)
+                    onForm?.invoke(sexpr)
+                    watchdog.onProgress()
                 }
+                return SolverAnswer(answers)
             }
         } finally {
-            p.destroyForcibly()
+            watchdog.shutdown()
+            killTree(p)
         }
     }
+
+    /**
+     * A daemon monitoring the solver process. It kills the process when the caller
+     * cancels the run or the deadline is reached — crucial because the main thread
+     * may be blocked inside a read on the solver's output stream.
+     *
+     * The watchdog does not poll: it waits on a [Condition], signalled whenever the
+     * solver makes progress (so a fresh cancellation is observed at the next answer)
+     * and when [shutdown] is requested; the deadline is handled by the timed await
+     * itself. `awaitNanos` releases the lock while waiting, so the run loop can signal
+     * freely without contention.
+     */
+    private class Watchdog(
+        private val process: Process,
+        private val isCancelled: () -> Boolean,
+        timeoutMillis: Long,
+    ) {
+        /** Set once the watchdog terminated the process (cancellation or timeout). */
+        val triggered = AtomicBoolean(false)
+
+        private val lock = ReentrantLock()
+        private val stateChanged: Condition = lock.newCondition()
+        private var stopRequested = false
+
+        private val thread = Thread {
+            val deadline = if (timeoutMillis > 0) {
+                System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMillis)
+            } else {
+                Long.MAX_VALUE
+            }
+            lock.withLock {
+                while (true) {
+                    // the solver finished on its own, or the run is being torn down
+                    if (!process.isAlive || stopRequested) return@Thread
+                    if (isCancelled() || System.nanoTime() >= deadline) {
+                        triggered.set(true)
+                        killTree(process)
+                        return@Thread
+                    }
+                    // event-driven wait: up to the deadline, or until a signal arrives
+                    try {
+                        stateChanged.awaitNanos(deadline - System.nanoTime())
+                    } catch (e: InterruptedException) {
+                        return@Thread // shutdown() interrupted us
+                    }
+                }
+            }
+        }
+
+        /** Wakes the watchdog so it re-checks cancellation after solver progress. */
+        fun onProgress() {
+            lock.withLock { stateChanged.signal() }
+        }
+
+        fun start() {
+            thread.isDaemon = true
+            thread.start()
+        }
+
+        fun shutdown() {
+            lock.withLock {
+                stopRequested = true
+                stateChanged.signal()
+            }
+            thread.interrupt()
+        }
+    }
+}
+
+/** Hard-kills the solver process. z3 is spawned directly (no shell wrapper), so it is the only process. */
+private fun killTree(process: Process) {
+    runCatching { process.descendants().forEach { runCatching { it.destroyForcibly() } } }
+    runCatching { process.destroyForcibly() }
 }

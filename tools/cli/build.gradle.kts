@@ -20,10 +20,25 @@ tasks.named<CreateStartScripts>("startScripts") {
     shortenWindowsClasspathLine()
 }
 
-/** Replace Gradle's explicit CLASSPATH jar enumeration in the Windows start
- *  script with the Java classpath wildcard form. jmltk bundles 100+ jars, and
- *  the generated `set CLASSPATH=...` line exceeds cmd.exe's 8191-character line
+/** Keep the Windows start script below cmd.exe's 8191-character line limit.
+ *
+ *  jmltk bundles 100+ jars, and Gradle's `set CLASSPATH=...` line exceeds that
  *  limit on Windows, making the launcher unusable (`The input line is too long`).
+ *  There is no way to emit an explicit jar list here: cmd.exe expands
+ *  `%APP_HOME%` when the `set` executes, so the accumulated absolute-path
+ *  classpath (>8k chars for 115 jars plus each platform's workspace prefix)
+ *  blows the limit again on every continuation line, no matter how it is
+ *  chunked. The `%APP_HOME%\lib\*` wildcard keeps the script short and defers
+ *  expansion to the JVM.
+ *
+ *  A wildcard is only safe if every class exists exactly once: Java expands it
+ *  in directory-enumeration order, and the first jar to provide a class wins.
+ *  The CLI therefore excludes KeY's proofjava fork core
+ *  (`org.key-project.proofjava:javaparser-core`, pulled in transitively by the
+ *  LSP's key.core dependency) — see the `:tools:lsp` dependency below — so the
+ *  distribution carries exactly one `com.github.javaparser` implementation, the
+ *  JMLtk fork core, and directory order cannot select the wrong
+ *  `ParserConfiguration`.
  */
 fun CreateStartScripts.shortenWindowsClasspathLine() {
     doLast {
@@ -91,6 +106,17 @@ dependencies {
     implementation(project(":tools:stat"))
     implementation(project(":tools:jml2java"))
     implementation(project(":tools:jmlstub"))
+    implementation(project(":tools:vcg"))
 
-    implementation(project(":tools:lsp"))
+    // The LSP bundles KeY (key.core/key.ui) for its KeY integration actions.
+    // KeY's own JavaParser fork (org.key-project.proofjava:javaparser-core)
+    // duplicates the com.github.javaparser classes the rest of the CLI uses
+    // from the JMLtk fork core. The Windows start script resolves jars via the
+    // lib\* wildcard in directory order, so a duplicate ParserConfiguration is
+    // a coin toss — it crashed 'jmltk vcg' with NoSuchMethodError on
+    // setProcessJml. Ship exactly one com.github.javaparser implementation:
+    // the JMLtk fork core.
+    implementation(project(":tools:lsp")) {
+        exclude(group = "org.key-project.proofjava")
+    }
 }

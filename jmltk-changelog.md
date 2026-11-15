@@ -56,6 +56,14 @@ Index+element multi-binding (`int i, T e : a[i]`) stays deferred. Feature ⇒ mi
 per-phase hashes below refer to the `weigl/quantarray` feature branch (`origin/weigl/quantarray`), not to
 `main`.
 
+**VCG (`tools/vcg`, branch `weigl/vcg`, PR #69; experimental)** — JML `\sum` generalized quantifiers with a
+*bounded* integer range and a *direct array-read body* are modeled in the VCG as a lazily-declared recursive SMT
+function (`(define-fun-rec jmlSum a lo hi …)`, unfolding along the index range with `hi <= lo` → `0`), so KeY's
+firstTouch 08 for-each sum contract (`maintaining s == \sum int j; 0 <= j && j < \index; a[j]`) verifies in both
+BOUNDED and UNBOUNDED mode; every other `\sum` shape is rejected with a structured `UnsupportedFeatureException`.
+The whole tool is marked experimental: semantics are under active development, and unsupported constructs are
+rejected rather than approximated.
+
 **Added**
 
 - AST: `JmlQuantifiedVariable extends VariableDeclarator` with one optional iterable/range domain per binding,
@@ -130,6 +138,15 @@ per-phase hashes below refer to the `weigl/quantarray` feature branch (`origin/w
 - Examples: unblocked `key/firstTouch/11-StateMerging/A.java` (bare `merge_point;`) and rewrote
   `key/firstTouch/11-StateMerging/Gcd.java` from the legacy KeY `merge_proc`/`merge_params` syntax to the new
   `merge_point` options in `FullExamplesTest`.
+- **Experimental** — vcg: `\sum` encoding — range-bound checks, array-read-body validation (`KeySumBadShapes`),
+  and the BOUNDED length fold (`bv$length sym` → shared implicit `$len_<sym>` constant plus one ground `>= 0`
+  assert) that makes the recursive-function queries terminate under Z3; KeY loop-position `\index` binds the
+  type-tagged `$idxN` loop-counter register; `\strictly_nothing` joins the assignable whitelist (`e8c120ab9`).
+  The element/range-domain bindings introduced with #83 (`\forall int e : a; …`, `\sum int e : a; …`) are
+  rejected loudly — no desugaring exists, and expanding the body over the whole index type would be unsound.
+- cli: `jmltk vcg` end-to-end subprocess tests and shell fixtures for the four KeY firstTouch examples
+  (05-ReverseArray honest UNKNOWN/FAIL, 06-BinarySearch and 10-SITA proven via loop invariants, 08-Java5 proven
+  in both modes); the shell tester gained a `sortOutput` comparison mode (`d0ee30440`).
 
 **Deferred**
 
@@ -161,6 +178,16 @@ per-phase hashes below refer to the `weigl/quantarray` feature branch (`origin/w
   which JML deliberately allows inside methods, keep parsing.
 - Symbol resolution: interface methods with no explicit access modifier are public, not package-private, so
   they are no longer discarded when called from another package (`MethodResolutionLogic`, `f680c8f6f`, PR #92).
+- cli: Windows `jmltk` launcher loaded the wrong `ParserConfiguration` — the distribution shipped two
+  `com.github.javaparser` implementations, the fork core and KeY's proofjava fork
+  (`org.key-project.proofjava:javaparser-core:3.28.0-K13.6`, pulled in by the LSP's `key.core`). The Windows
+  start script must use the `%APP_HOME%\lib\*` classpath wildcard (cmd.exe cannot hold an explicit 100+-jar
+  classpath: `%APP_HOME%` expands to absolute paths and any single `set CLASSPATH=` line exceeds the
+  8191-character limit), and Java expands that wildcard in directory-enumeration order, so Windows could load
+  KeY's `ParserConfiguration` first and `jmltk vcg` crashed with `NoSuchMethodError` on
+  `ParserConfiguration.setProcessJml(boolean)`. The CLI runtime now excludes the proofjava fork, so the
+  distribution carries exactly one `com.github.javaparser` implementation (the fork core) and directory order
+  cannot matter (`63aaf0907`).
 
 **Removed**
 
@@ -267,6 +294,8 @@ version is set to `1.0.1` in `c25a757e1`; no `JMLtk-v1.0.1` tag exists yet.
 
 - The jmltoolkit.github.io documentation of the meta-construct names must be updated to the new
   camelCase identifiers and the generic `#name(…)` syntax.
+
+---
 
 ## Combined releases (JML + KeY, this repository)
 

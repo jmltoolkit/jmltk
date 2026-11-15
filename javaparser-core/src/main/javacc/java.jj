@@ -147,6 +147,29 @@ final class GeneratedJavaParser extends GeneratedJavaParserBase {
         Token after = getToken(2);
         return after.kind == SEMICOLON || after.kind == BY || after.kind == JML_IDENTIFIER;
     }
+
+    /* Contextual check for the argument list of a JML proof-script command (see
+     * {@code JmlProofArgList}). The list must stop before the tokens that delimit or
+     * continue a command: the {@code \by} proof-script suffix, the command terminator
+     * {@code ;}, the braces of a proof block, and the {@code case}/{@code default}
+     * labels inside it. JavaCC's FIRST-set approximation for expressions is too wide
+     * here because {@code \by} is a valid identifier token, so without this guard the
+     * loop would consume {@code \by} as an ordinary argument expression and never
+     * reach the nested proof script. */
+    boolean isJmlProofArgStart() {
+        switch (getToken(1).kind) {
+            case BY:
+            case SEMICOLON:
+            case LBRACE:
+            case RBRACE:
+            case CASE:
+            case _DEFAULT:
+            case EOF:
+                return false;
+            default:
+                return true;
+        }
+    }
 }
 PARSER_END(GeneratedJavaParser)
 
@@ -7084,10 +7107,9 @@ JmlStatement JmlStatement():
     { begin = token(); }
     [ LOOKAHEAD(<IDENTIFIER> ":") label=SimpleName() ":" ]
     expr=Expression()
-    ( <BY> script=JmlProofBlock()
-    | {}
+    ( <BY> script=JmlProofBlock() [ LOOKAHEAD(1) ";" ]
+    | ";"
     )
-    ";"
     { ret =  new JmlExpressionStmt(range(begin, token()), new NodeList<>(), expr, script, label); }
   | <GHOST> { begin = token(); }
     stmt=BlockStatement()
@@ -7234,11 +7256,28 @@ JmlProofStmt JmlProofCmdStmt():
     suffix=JmlProofCmdSuffix()
     { return new JmlProofCmdStmt(range(begin, token()), name, args, suffix); }
   |
-    name=SimpleName() { begin = token(); }
+    name=JmlProofCmdName() { begin = token(); }
     args=JmlProofArgList()
     suffix=JmlProofCmdSuffix()
     { return new JmlProofCmdStmt(range(begin, token()), name, args, suffix); }
   )
+}
+
+/*
+ * The name of a proof-script command. Most commands are plain identifiers, but a
+ * nested JML assertion inside a proof block ({@code assert P \by auto;}) is a command
+ * too; its keyword is lexed as {@code JML_ASSERT} rather than an identifier.
+ */
+SimpleName JmlProofCmdName():
+{
+    SimpleName ret;
+}
+{
+  (
+    <JML_ASSERT> { ret = new SimpleName(tokenRange(), token.image); }
+  | ret=SimpleName()
+  )
+  { return ret; }
 }
 
 NodeList<JmlProofStmt> JmlProofCmdSuffix():
@@ -7256,7 +7295,7 @@ NodeList<JmlProofArg> JmlProofArgList():
     JmlProofArg arg;
 }
 {
-  ( arg=JmlProofArg() { ret.add(arg); } )*
+  ( LOOKAHEAD( { isJmlProofArgStart() } ) arg=JmlProofArg() { ret.add(arg); } )*
   { return ret; }
 }
 

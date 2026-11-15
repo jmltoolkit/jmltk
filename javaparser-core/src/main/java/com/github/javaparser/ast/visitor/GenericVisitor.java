@@ -377,9 +377,11 @@ public interface GenericVisitor<R, A> {
 
     R visit(JmlProofObtainStmt n, A arg);
 
-    R visit(JmlQuantifiedVariable n, A arg);
-
-    R visit(JmlMergePointStmt n, A arg);
+    R visit(JmlBodyClauseKind n, A arg);
 
     R visit(JmlLemmaDeclaration n, A arg);
+
+    R visit(JmlClauseKind n, A arg);
+
+    R visit(JmlContractBehavior n, A arg);
 }

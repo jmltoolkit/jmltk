@@ -42,12 +42,10 @@ fun main(args: Array<String>) {
     try {
         cmd.parse(args)
     } catch (e: UsageError) {
-        System.err.println(e.message ?: "Usage error")
+        cmd.echoFormattedHelp(e)
         exitProcess(2)
     } catch (e: CliktError) {
-        e.message?.let { message ->
-            if (e.printError) System.err.println(message) else println(message)
-        }
+        cmd.echoFormattedHelp(e)
         exitProcess(e.statusCode)
     }
 }

@@ -14,12 +14,10 @@ fun main(args: Array<String>) {
     try {
         command.parse(args)
     } catch (e: UsageError) {
-        System.err.println(e.message ?: "Usage error")
+        command.echoFormattedHelp(e)
         exitProcess(2)
     } catch (e: CliktError) {
-        e.message?.let { message ->
-            if (e.printError) System.err.println(message) else println(message)
-        }
+        command.echoFormattedHelp(e)
         exitProcess(e.statusCode)
     }
 }

@@ -44,7 +44,7 @@ include(":tools:cli")
 include(":tools:lsp")
 include(":tools:web")
 include(":tools:jml2java")
+include(":tools:jjbmc")
 include(":tools:vcg")
-
 include(":tools:jmlstub")
 include(":tools:build-helpers")

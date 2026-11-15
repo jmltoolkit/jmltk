@@ -9,6 +9,10 @@ import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.Problem;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.expr.VariableDeclarationExpr;
+import com.github.javaparser.ast.jml.stmt.JmlExpressionStmt;
+import com.github.javaparser.ast.jml.stmt.JmlGhostStmt;
+import com.github.javaparser.ast.stmt.ExpressionStmt;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -88,6 +92,42 @@ class ModelDeclarationInMethodTest {
                 .anyMatch(
                         msg -> msg.contains("Ghost method ghostMethod") && msg.contains("not allowed within methods"));
         assertThat(messages(r)).noneMatch(msg -> msg.contains("Could not handle the JML comment"));
+    }
+
+    /**
+     * Regression for KeY's {@code heap/quicksort/Quicksort.java} line 70: a valid
+     * method-level {@code ghost} local followed by a KeY assertion proof script
+     * ({@code \by { ... }}) shares one {@link com.github.javaparser.ast.jml.doc.JmlDocStmt}
+     * with the script. The group must still parse as method-level JML: the ghost
+     * declaration becomes a {@link JmlGhostStmt} whose statement is an
+     * {@link ExpressionStmt} wrapping a {@link VariableDeclarationExpr}, not a misplaced
+     * class-level {@code JmlFieldDeclaration}.
+     */
+    @Test
+    void ghostLocalBeforeProofScriptStaysMethodLevel() {
+        ParseResult<CompilationUnit> r = parse(
+                "//@ ghost \\seq seq3 = \\dl_array2seq(array);\n"
+                        + "        /*@ assert \\dl_seqPerm(seq3, seq0) \\by { assert \\dl_seqPerm(seq1, seq0) \\by auto; auto; } */");
+        assertThat(messages(r))
+                .as("a method-level ghost local is not a misplaced class-level field")
+                .noneMatch(msg -> msg.contains("not allowed within methods"));
+        assertThat(r.getResult()).isPresent();
+
+        var ghost = r.getResult().get().findAll(JmlGhostStmt.class).getFirst();
+        assertThat(ghost.getStatement())
+                .isInstanceOfSatisfying(
+                        ExpressionStmt.class,
+                        expressionStmt -> assertThat(expressionStmt.getExpression())
+                                .isInstanceOfSatisfying(
+                                        VariableDeclarationExpr.class,
+                                        declaration -> assertThat(declaration.getVariables())
+                                                .singleElement()
+                                                .satisfies(variable -> assertThat(variable.getNameAsString())
+                                                        .isEqualTo("seq3"))));
+
+        assertThat(r.getResult().get().findAll(JmlExpressionStmt.class))
+                .as("the following assertion including its proof script must not be dropped")
+                .hasSize(1);
     }
 
     @Test

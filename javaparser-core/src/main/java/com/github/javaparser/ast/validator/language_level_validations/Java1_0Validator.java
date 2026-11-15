@@ -10,6 +10,7 @@ import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.*;
+import com.github.javaparser.ast.jml.proof.JmlProofCmdStmt;
 import com.github.javaparser.ast.modules.ModuleDeclaration;
 import com.github.javaparser.ast.nodeTypes.NodeWithIdentifier;
 import com.github.javaparser.ast.nodeTypes.NodeWithTypeArguments;
@@ -40,7 +41,8 @@ public class Java1_0Validator extends Validators {
 
     final Validator noAssertIdentifer = new TreeVisitorValidator((node, reporter) -> {
         if (node instanceof NodeWithIdentifier
-                && ((NodeWithIdentifier) node).getIdentifier().equals("assert")) {
+                && ((NodeWithIdentifier) node).getIdentifier().equals("assert")
+                && !isJmlProofScriptCommandName(node)) {
             reporter.report(
                     node,
                     new UpgradeJavaMessage(
@@ -49,6 +51,18 @@ public class Java1_0Validator extends Validators {
                             false));
         }
     });
+
+    /**
+     * A nested JML assertion inside a KeY proof script ({@code assert P \by auto;}) is a
+     * proof-script command whose name happens to be the {@code assert} keyword. It is not
+     * a Java identifier use, so the {@code assert}-identifier validation must not reject it.
+     */
+    private static boolean isJmlProofScriptCommandName(Node node) {
+        return node.getParentNode()
+                .filter(parent -> parent instanceof JmlProofCmdStmt)
+                .map(parent -> ((JmlProofCmdStmt) parent).getName() == node)
+                .orElse(false);
+    }
 
     final Validator noInnerClasses = new SimpleValidator<>(
             ClassOrInterfaceDeclaration.class,

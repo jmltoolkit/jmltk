@@ -1,0 +1,24 @@
+---
+run: tools/cli/build/install/jmltk/bin/jmltk pp --help
+ignoreStderr: true
+---
+Usage: jmltk pp [<options>] [<files>]...
+
+  Pretty-print and syntax-highlight Java/JML source.
+
+Options:
+  --version                            Show the version and exit
+  -p, --pretty-print                   Format the input before rendering
+  -f, --format=(TEXT|ANSI|HTML|LATEX)  Output format
+  --language=(JAVA|JML)                Input language
+  --snippet=(AUTO|CU|MEMBER|STMT|EXPR)
+                                       How to interpret Java input
+  -w, --width=<int>                    Pretty-print line width
+  --style=<text>                       Pygments/minted style name for LaTeX
+  --minted                             LaTeX: emit \PYG body content (default)
+  --latex-raw                          LaTeX: emit \jml* macros
+  --latex-preamble                     LaTeX raw: print macro/color definitions
+  --html-full                          HTML: emit a full document
+  --css=<path>                         HTML: inline this CSS file
+  --no-color                           Force plain text
+  -h, --help                           Show this message and exit

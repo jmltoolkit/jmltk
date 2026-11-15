@@ -2,13 +2,15 @@
  * jmltk is licensed under the Lesser GNU General Public License Version 2 and Apache License
  * SPDX-License-Identifier: LGPL-3.0-or-later Apache-2.0
  */
+package io.github.jmltoolkit.prettyprinting
+
 import com.google.common.base.CharMatcher
 import com.google.common.base.Strings
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.Range
-import com.google.googlejavaformat.*
-import com.google.googlejavaformat.java.*
-import java.util.*
+import com.google.googlejavaformat.CommentsHelper
+import com.google.googlejavaformat.Input
+import com.google.googlejavaformat.java.JavaCommentsHelper
+import com.google.googlejavaformat.java.JavaFormatterOptions
+import com.google.googlejavaformat.java.JmltkFormatterBridge
 import java.util.regex.Pattern
 
 /**
@@ -17,18 +19,12 @@ import java.util.regex.Pattern
  * @version 1 (30.06.24)
  */
 class JmlFmt {
-    fun pp(x: String): String? {
-        val input = JavaInput(x)
-        val output = JavaOutput("\n", input, JmlCommentsHelper("\n", JavaFormatterOptions.defaultOptions()))
-        val builder = OpsBuilder(input, output)
-        builder.drain()
-        val ops = builder.build()
-        val doc = DocBuilder().withOps(ops).build()
-        doc.computeBreaks(output.commentsHelper, 80, Doc.State(+0, 0))
-        doc.write(output)
-        output.flush()
-        return output.getLine(0)
-    }
+    fun pp(x: String, width: Int = 100): String =
+        JmltkFormatterBridge.format(
+            x,
+            JmlCommentsHelper("\n", JavaFormatterOptions.defaultOptions()),
+            width,
+        )
 }
 
 class JmlCommentsHelper(
@@ -38,13 +34,25 @@ class JmlCommentsHelper(
     private val javaCommentsHelper = JavaCommentsHelper(lineSeparator, options)
 
     override fun rewrite(tok: Input.Tok, maxWidth: Int, column0: Int): String {
-        if (tok.isComment && tok.originalText.startsWith("/*@")) {
-            var text = tok.originalText
-            // TODO
-            return text
-        } else {
-            return javaCommentsHelper.rewrite(tok, maxWidth, column0)
+        if (tok.isComment && isJmlComment(tok.originalText)) {
+            return tok.originalText
         }
+        return javaCommentsHelper.rewrite(tok, maxWidth, column0)
+    }
+
+    private fun isJmlComment(text: String): Boolean {
+        if (text.startsWith("/*")) {
+            var i = 2
+            while (i < text.length && (text[i] == '+' || text[i] == '-')) i++
+            while (i < text.length && (text[i].isLetterOrDigit() || text[i] == '_')) i++
+            return i < text.length && text[i] == '@'
+        }
+        if (text.startsWith("//")) {
+            var i = 2
+            while (i < text.length && (text[i] == '+' || text[i] == '-')) i++
+            return i < text.length && text[i] == '@'
+        }
+        return false
     }
 
     // For non-javadoc-shaped block comments, shift the entire block to the correct

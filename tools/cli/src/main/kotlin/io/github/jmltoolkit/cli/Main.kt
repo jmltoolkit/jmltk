@@ -5,8 +5,10 @@
 package io.github.jmltoolkit.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.main
+import com.github.ajalt.clikt.core.UsageError
+import com.github.ajalt.clikt.core.parse
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
@@ -26,16 +28,26 @@ import com.github.javaparser.ast.Node
 import io.github.jmltoolkit.lint.JmlLintingConfig
 import io.github.jmltoolkit.lint.JmlLintingFacade
 import io.github.jmltoolkit.lint.LintProblem
+import io.github.jmltoolkit.prettyprinting.PpCommand
 import java.io.File
 import java.io.FileNotFoundException
 import kotlin.jvm.optionals.getOrNull
+import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
     val cmd = Main().subcommands(
-        J2JCommand(), LintCommand(), PrettyPrintCommand(), XPathCommand(),
+        J2JCommand(), LintCommand(), PrettyPrintCommand(), PpCommand(), XPathCommand(),
         StatCommand(), WdCommand(), JmlStubCommand(), VcgCommand()
     )
-    cmd.main(args)
+    try {
+        cmd.parse(args)
+    } catch (e: UsageError) {
+        cmd.echoFormattedHelp(e)
+        exitProcess(2)
+    } catch (e: CliktError) {
+        cmd.echoFormattedHelp(e)
+        exitProcess(e.statusCode)
+    }
 }
 
 /**

@@ -66,6 +66,7 @@ rejected rather than approximated.
 
 **Added**
 
+- `tools/prettyprinting`: new `jmltk-pp` CLI (also `jmltk pp`, `jmltk format`) that pretty-prints Java/JML from files or stdin and highlights it for terminals (256-color ANSI), HTML (Pygments class names), and LaTeX (minted `\PYG` body or semantic `\jml` macros); snippets are auto-detected and JML comments are highlighted (`f4365af91`, feature branch `weigl/prettyprint-cli`, PR #101).
 - AST: `JmlQuantifiedVariable extends VariableDeclarator` with one optional iterable/range domain per binding,
   including metamodel/CSM/printer support (`cad7b3e33`; printers/CSM `63929f86f`).
 - Grammar (Phase 2, `8bedf4eeb`): an iterable domain binds exactly one variable — multi-binding domains are
@@ -164,6 +165,13 @@ rejected rather than approximated.
 
 **Fixed**
 
+- CLI/LSP: `jmltk` crashed on JDK 21 as soon as it ran on a real terminal, with
+  `ClassCastException: Cannot cast java.lang.Integer to java.lang.foreign.MemorySegment` at
+  `mordant...ffm.FfmLayoutsKt.varHandle`. Clikt 5.1.0 pulls Mordant 3.0.2, whose FFM terminal backend calls
+  `MemoryLayout.varHandle` with the JDK 22 signature (an extra `long` offset coordinate); the CLI's
+  `--enable-native-access` makes Mordant select that backend on JDK 21, where the preview FFM API yields a
+  different coordinate type. Mordant is now constrained to 3.1.1, which skips the FFM provider below Java 22
+  and falls back to JNA (feature branch `weigl/prettyprint-cli`, commit `db7d5d10b`, PR #101).
 - Build: `:dokkaGeneratePublicationHtml` failed with `Unexpected classifier: "#"`, breaking the Weekly Builds
   job since the `tools/vcg` module was merged. Dokka treats every module's `README.md` as module documentation
   and splits it at any `#` followed by `Module` or `Package`, so the vcg README's `## Module layout` heading was

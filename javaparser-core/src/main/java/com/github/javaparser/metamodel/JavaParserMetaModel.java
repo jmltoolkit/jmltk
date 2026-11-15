@@ -727,6 +727,9 @@ public final class JavaParserMetaModel {
                 .add(jmlClassAccessibleDeclarationMetaModel.modifiersPropertyMetaModel);
         jmlClassAccessibleDeclarationMetaModel
                 .getConstructorParameters()
+                .add(jmlClassAccessibleDeclarationMetaModel.heapsPropertyMetaModel);
+        jmlClassAccessibleDeclarationMetaModel
+                .getConstructorParameters()
                 .add(jmlClassAccessibleDeclarationMetaModel.variablePropertyMetaModel);
         jmlClassAccessibleDeclarationMetaModel
                 .getConstructorParameters()
@@ -4636,6 +4639,18 @@ public final class JavaParserMetaModel {
         jmlClassAccessibleDeclarationMetaModel
                 .getDeclaredPropertyMetaModels()
                 .add(jmlClassAccessibleDeclarationMetaModel.expressionsPropertyMetaModel);
+        jmlClassAccessibleDeclarationMetaModel.heapsPropertyMetaModel = new PropertyMetaModel(
+                jmlClassAccessibleDeclarationMetaModel,
+                "heaps",
+                com.github.javaparser.ast.expr.SimpleName.class,
+                Optional.of(simpleNameMetaModel),
+                false,
+                false,
+                true,
+                false);
+        jmlClassAccessibleDeclarationMetaModel
+                .getDeclaredPropertyMetaModels()
+                .add(jmlClassAccessibleDeclarationMetaModel.heapsPropertyMetaModel);
         jmlClassAccessibleDeclarationMetaModel.jmlTagsPropertyMetaModel = new PropertyMetaModel(
                 jmlClassAccessibleDeclarationMetaModel,
                 "jmlTags",

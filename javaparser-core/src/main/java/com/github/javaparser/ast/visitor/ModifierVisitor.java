@@ -1855,6 +1855,7 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
         NodeList<AnnotationExpr> annotations = modifyList(n.getAnnotations(), arg);
         NodeList<Modifier> modifiers = modifyList(n.getModifiers(), arg);
         NodeList<Expression> expressions = modifyList(n.getExpressions(), arg);
+        NodeList<SimpleName> heaps = modifyList(n.getHeaps(), arg);
         NodeList<SimpleName> jmlTags = modifyList(n.getJmlTags(), arg);
         Expression measuredBy =
                 n.getMeasuredBy().map(s -> (Expression) s.accept(this, arg)).orElse(null);
@@ -1864,6 +1865,7 @@ public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
         n.setAnnotations(annotations);
         n.setModifiers(modifiers);
         n.setExpressions(expressions);
+        n.setHeaps(heaps);
         n.setJmlTags(jmlTags);
         n.setMeasuredBy(measuredBy);
         n.setVariable(variable);

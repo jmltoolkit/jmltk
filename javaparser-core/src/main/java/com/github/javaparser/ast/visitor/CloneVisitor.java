@@ -1537,6 +1537,7 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
     @Override
     public Visitable visit(final JmlClassAccessibleDeclaration n, final Object arg) {
         NodeList<Expression> expressions = cloneList(n.getExpressions(), arg);
+        NodeList<SimpleName> heaps = cloneList(n.getHeaps(), arg);
         NodeList<SimpleName> jmlTags = cloneList(n.getJmlTags(), arg);
         Expression measuredBy = cloneNode(n.getMeasuredBy(), arg);
         NodeList<Modifier> modifiers = cloneList(n.getModifiers(), arg);
@@ -1544,7 +1545,7 @@ public class CloneVisitor implements GenericVisitor<Visitable, Object> {
         NodeList<AnnotationExpr> annotations = cloneList(n.getAnnotations(), arg);
         Comment comment = cloneNode(n.getComment(), arg);
         JmlClassAccessibleDeclaration r = new JmlClassAccessibleDeclaration(
-                n.getTokenRange().orElse(null), jmlTags, modifiers, variable, expressions, measuredBy);
+                n.getTokenRange().orElse(null), jmlTags, modifiers, heaps, variable, expressions, measuredBy);
         r.setComment(comment);
         n.getOrphanComments().stream().map(Comment::clone).forEach(r::addOrphanComment);
         copyData(n, r);

@@ -39,6 +39,8 @@ public class JmlClassAccessibleDeclaration extends JmlClassLevelDeclaration<JmlC
 
     private NodeList<Modifier> modifiers;
 
+    private NodeList<SimpleName> heaps;
+
     private Expression variable;
 
     private NodeList<Expression> expressions;
@@ -49,17 +51,18 @@ public class JmlClassAccessibleDeclaration extends JmlClassLevelDeclaration<JmlC
     private NodeList<SimpleName> jmlTags;
 
     public JmlClassAccessibleDeclaration() {
-        this(null, new NodeList<>(), new NodeList<>(), null, new NodeList<>(), null);
+        this(null, new NodeList<>(), new NodeList<>(), new NodeList<>(), null, new NodeList<>(), null);
     }
 
     @AllFieldsConstructor
     public JmlClassAccessibleDeclaration(
             NodeList<SimpleName> jmlTags,
             NodeList<Modifier> modifiers,
+            NodeList<SimpleName> heaps,
             Expression variable,
             NodeList<Expression> expressions,
             Expression measuredBy) {
-        this(null, jmlTags, modifiers, variable, expressions, measuredBy);
+        this(null, jmlTags, modifiers, heaps, variable, expressions, measuredBy);
     }
 
     /**
@@ -70,12 +73,14 @@ public class JmlClassAccessibleDeclaration extends JmlClassLevelDeclaration<JmlC
             TokenRange tokenRange,
             NodeList<SimpleName> jmlTags,
             NodeList<Modifier> modifiers,
+            NodeList<SimpleName> heaps,
             Expression variable,
             NodeList<Expression> expressions,
             Expression measuredBy) {
         super(tokenRange);
         setJmlTags(jmlTags);
         setModifiers(modifiers);
+        setHeaps(heaps);
         setVariable(variable);
         setExpressions(expressions);
         setMeasuredBy(measuredBy);
@@ -97,6 +102,24 @@ public class JmlClassAccessibleDeclaration extends JmlClassLevelDeclaration<JmlC
         if (this.modifiers != null) this.modifiers.setParentNode(null);
         this.modifiers = modifiers;
         setAsParentNodeOf(modifiers);
+        return this;
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public NodeList<SimpleName> getHeaps() {
+        return heaps;
+    }
+
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public JmlClassAccessibleDeclaration setHeaps(final @NonNull() NodeList<SimpleName> heaps) {
+        assertNotNull(heaps);
+        if (heaps == this.heaps) {
+            return this;
+        }
+        notifyPropertyChange(ObservableProperty.HEAPS, this.heaps, heaps);
+        if (this.heaps != null) this.heaps.setParentNode(null);
+        this.heaps = heaps;
+        setAsParentNodeOf(heaps);
         return this;
     }
 
@@ -133,6 +156,12 @@ public class JmlClassAccessibleDeclaration extends JmlClassLevelDeclaration<JmlC
                 return true;
             }
         }
+        for (int i = 0; i < heaps.size(); i++) {
+            if (heaps.get(i) == node) {
+                heaps.remove(i);
+                return true;
+            }
+        }
         for (int i = 0; i < jmlTags.size(); i++) {
             if (jmlTags.get(i) == node) {
                 jmlTags.remove(i);
@@ -163,6 +192,12 @@ public class JmlClassAccessibleDeclaration extends JmlClassLevelDeclaration<JmlC
         for (int i = 0; i < expressions.size(); i++) {
             if (expressions.get(i) == node) {
                 expressions.set(i, (Expression) replacementNode);
+                return true;
+            }
+        }
+        for (int i = 0; i < heaps.size(); i++) {
+            if (heaps.get(i) == node) {
+                heaps.set(i, (SimpleName) replacementNode);
                 return true;
             }
         }
@@ -332,5 +367,11 @@ public class JmlClassAccessibleDeclaration extends JmlClassLevelDeclaration<JmlC
     @Generated("com.github.javaparser.generator.core.node.TypeCastingGenerator")
     public void ifJmlClassAccessibleDeclaration(Consumer<JmlClassAccessibleDeclaration> action) {
         action.accept(this);
+    }
+
+    @com.github.javaparser.ast.key.IgnoreLexPrinting()
+    @Generated("com.github.javaparser.generator.core.node.PropertyGenerator")
+    public @NonNull() NodeList<SimpleName> heaps() {
+        return Objects.requireNonNull(heaps);
     }
 }

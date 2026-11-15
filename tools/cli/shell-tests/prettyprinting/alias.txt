@@ -1,0 +1,5 @@
+---
+run: tools/cli/build/install/jmltk/bin/jmltk format -f html tools/cli/shell-tests/prettyprinting/Small.java
+---
+<pre class="highlight"><code><span class="kd">class</span> <span class="nc">Small</span> <span class="p">{</span><span class="p">}</span>
+</code></pre>

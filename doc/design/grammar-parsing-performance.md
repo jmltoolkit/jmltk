@@ -227,6 +227,13 @@ Only if P1–P3 plateau and the profile still shows a meaningful token-manager s
 
 No lexical behavior change is acceptable; parity via `--verify` plus full test suite.
 
+#### P4 result (evaluated 2026-11-19, not shipped)
+
+The baseline profile still puts roughly 14% of end-to-end samples in
+`GeneratedJavaParserTokenManager`, but no safe, targeted lexical change was identified. The
+visible cost is the keyword/identifier DFA and NFA fallback, both of which would require the large
+contextual-keyword redesign explicitly out of scope. Per the abort rule, no lexer edit was made.
+
 ## 6. Measurement protocol
 
 - JDK 21, same machine, no other heavy load.

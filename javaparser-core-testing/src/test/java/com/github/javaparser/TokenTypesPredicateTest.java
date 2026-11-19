@@ -4,9 +4,9 @@
  */
 package com.github.javaparser;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /** Pins the fast kind predicates to the general category classification. */
 class TokenTypesPredicateTest {
@@ -16,8 +16,7 @@ class TokenTypesPredicateTest {
         for (int kind = 0; kind < GeneratedJavaParserConstants.tokenImage.length; kind++) {
             JavaToken.Category category = TokenTypes.getCategory(kind);
             assertEquals(category.isWhitespace(), TokenTypes.isWhitespace(kind), "isWhitespace kind " + kind);
-            assertEquals(
-                    category.isEndOfLine(), TokenTypes.isEndOfLineToken(kind), "isEndOfLineToken kind " + kind);
+            assertEquals(category.isEndOfLine(), TokenTypes.isEndOfLineToken(kind), "isEndOfLineToken kind " + kind);
             assertEquals(
                     category.isWhitespaceButNotEndOfLine(),
                     TokenTypes.isWhitespaceButNotEndOfLine(kind),

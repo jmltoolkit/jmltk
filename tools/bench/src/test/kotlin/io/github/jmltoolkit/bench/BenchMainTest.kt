@@ -83,4 +83,63 @@ class BenchMainTest {
             0.0,
             0.0,
         )
+
+    @Test
+    fun `ast change exits 1`() {
+        val corpus = "path:src/test/resources/corpus"
+        val file = Files.createTempFile("baseline", ".json")
+        assertEquals(
+            0,
+            runMain(arrayOf("--corpus", corpus, "--mode", "grammar", "--warmup", "0", "--rounds", "1", "--json", file.toString())),
+        )
+        val baseline = readResult(file)
+        assertEquals(setOf("src/test/resources/corpus/One.java"), baseline.astHashes.orEmpty().keys)
+        writeResult(baseline.copy(astHashes = baseline.astHashes.orEmpty().mapValues { "deadbeef" }), file)
+        assertEquals(
+            1,
+            runMain(
+                arrayOf(
+                    "--corpus",
+                    corpus,
+                    "--mode",
+                    "grammar",
+                    "--warmup",
+                    "0",
+                    "--rounds",
+                    "1",
+                    "--baseline",
+                    file.toString(),
+                    "--verify",
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun `matching ast exits 0`() {
+        val corpus = "path:src/test/resources/corpus"
+        val file = Files.createTempFile("baseline", ".json")
+        assertEquals(
+            0,
+            runMain(arrayOf("--corpus", corpus, "--mode", "grammar", "--warmup", "0", "--rounds", "1", "--json", file.toString())),
+        )
+        assertEquals(
+            0,
+            runMain(
+                arrayOf(
+                    "--corpus",
+                    corpus,
+                    "--mode",
+                    "grammar",
+                    "--warmup",
+                    "0",
+                    "--rounds",
+                    "1",
+                    "--baseline",
+                    file.toString(),
+                    "--verify",
+                ),
+            ),
+        )
+    }
 }

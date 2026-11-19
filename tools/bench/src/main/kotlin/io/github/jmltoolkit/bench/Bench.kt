@@ -10,6 +10,7 @@ import com.google.gson.GsonBuilder
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.security.MessageDigest
 import kotlin.streams.asSequence
 
 enum class BenchMode {
@@ -43,6 +44,7 @@ data class BenchResult(
     val rounds: List<RoundSample>,
     val medianMillis: Double,
     val bestMillis: Double,
+    val astHashes: Map<String, String>? = null,
 )
 
 private data class SourceFile(
@@ -143,6 +145,17 @@ fun verifyParity(
     if (baseline.fail != current.fail) {
         differences += "fail: ${baseline.fail} -> ${current.fail}"
     }
+    val baselineHashes = baseline.astHashes.orEmpty()
+    val currentHashes = current.astHashes.orEmpty()
+    (baselineHashes.keys + currentHashes.keys).sorted().forEach { file ->
+        val before = baselineHashes[file]
+        val after = currentHashes[file]
+        when {
+            before == null -> differences += "AST added: $file"
+            after == null -> differences += "AST missing: $file"
+            before != after -> differences += "AST changed: $file"
+        }
+    }
     val missing = baseline.failures.toSet() - current.failures.toSet()
     val added = current.failures.toSet() - baseline.failures.toSet()
     missing.sorted().forEach { differences += "no longer fails: $it" }
@@ -190,8 +203,32 @@ fun runBenchmark(config: BenchConfig): BenchResult {
         rounds = rounds,
         medianMillis = median(rounds.map { it.millis }),
         bestMillis = rounds.minOf { it.millis },
+        astHashes = if (config.json != null || config.verify) parseHashes(sources, parserConfig) else null,
     )
 }
+
+private fun parseHashes(
+    sources: List<SourceFile>,
+    parserConfiguration: ParserConfiguration,
+): Map<String, String> {
+    val parser = JavaParser(parserConfiguration)
+    val hashes = mutableMapOf<String, String>()
+    for (source in sources) {
+        val result = parser.parse(source.text)
+        if (result.isSuccessful) {
+            hashes[source.displayName] = fingerprint(result.getResult().orElseThrow().toString())
+        }
+    }
+    return hashes
+}
+
+/** A short structural fingerprint: 64 bits of SHA-256 is ample for benchmark parity checks. */
+private fun fingerprint(text: String): String =
+    MessageDigest
+        .getInstance("SHA-256")
+        .digest(text.toByteArray(Charsets.UTF_8))
+        .joinToString("") { "%02x".format(it) }
+        .take(16)
 
 private fun parserConfiguration(config: BenchConfig): ParserConfiguration {
     val isJml = config.corpus == "jml"

@@ -12,4 +12,4 @@ Tools for the processing of JML based on the jml-parser
 ```
 
 Corpora: `plain`, `jml`, or `path:<directory>`. Modes: `grammar` (processors/validators disabled) and `full` (default processors at language level `JAVA_21`).
-`--verify` exits nonzero when the ok/fail file set differs from the baseline; `--json` is written only after a successful verify and must not name the same file as `--baseline`.
+`--verify` exits nonzero when files, bytes, ok/fail, the failing-file set, or any per-file AST fingerprint differs from the baseline; `--json` is written only after a successful verify and must not name the same file as `--baseline`.

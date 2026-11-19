@@ -78,10 +78,11 @@ Responsibilities:
 - **CLI.** `--corpus`, `--mode`, `--warmup N`, `--rounds N`, `--json <file>`,
   `--baseline <json>`, `--verify`.
 - **Output.** Per-round ms, MiB/s, ok/fail, median and best-of-N; with `--baseline`, deltas.
-- **`--verify`.** Parse-result parity check: files, bytes, ok/fail counts and the sets of
-  successfully/failing files must equal the recorded baseline. A speedup that changes acceptance
-  fails verification. The run fails with status 1 before `--json` is written, and `--json` may
-  not name the same file as `--baseline`.
+- **`--verify`.** Parse-result parity check: files, bytes, ok/fail counts, the sets of
+  successfully/failing files, and a per-file 64-bit structural fingerprint (the pretty-printed
+  AST's SHA-256 prefix) must equal the recorded baseline. A speedup that changes acceptance or
+  the produced tree fails verification. The run fails with status 1 before `--json` is written,
+  and `--json` may not name the same file as `--baseline`.
 - **Invocation.** `./gradlew :tools:bench:run --args="..."`. Not wired into CI gates initially
   because shared runners are too noisy; usage documented in `tools/README.md`.
 - Baseline JSONs are committed under `tools/bench/baseline/`.
@@ -325,8 +326,8 @@ The `full` mode pins language level `JAVA_21`; without it, 10 pattern-matching f
 `plain` corpus fail on upstream's `POPULAR` (`JAVA_11`) default.
 
 Machine variance (load average around 5, swap full) made sub-3% claims unmeasurable; the harness
-therefore reports best-of-N alongside the median. Two follow-ups are now better justified than
-further blind grammar edits: an AST-parity mode for `--verify` (structural hash per file) so
-lookahead changes can be accepted without relying on error-message heuristics, and the
+therefore reports best-of-N alongside the median. Shipped as the first follow-up: `--verify` now compares a per-file structural fingerprint
+(64-bit SHA-256 prefix of the pretty-printed AST) in addition to acceptance, so lookahead changes
+can be judged without relying on error-message heuristics. The remaining follow-up is the
 contextual-keyword lexer redesign that would shrink `Identifier()`'s FIRST set and the keyword DFA
 at once.

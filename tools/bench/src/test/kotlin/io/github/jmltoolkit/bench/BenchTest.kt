@@ -98,4 +98,25 @@ class BenchTest {
         assertFalse(verifyParity(baseline, baseline.copy(files = 3)).isEmpty())
         assertFalse(verifyParity(baseline, baseline.copy(bytes = 11)).isEmpty())
     }
+
+    @Test
+    fun `verify reports changed ast hash`() {
+        val baseline =
+            BenchResult(
+                "path:corpus",
+                BenchMode.GRAMMAR,
+                1,
+                10,
+                1,
+                0,
+                emptyList(),
+                listOf(RoundSample(1.0, 2.0)),
+                1.0,
+                1.0,
+                mapOf("One.java" to "aaaa"),
+            )
+        assertTrue(verifyParity(baseline, baseline).isEmpty())
+        assertFalse(verifyParity(baseline, baseline.copy(astHashes = mapOf("One.java" to "bbbb"))).isEmpty())
+        assertFalse(verifyParity(baseline, baseline.copy(astHashes = emptyMap())).isEmpty())
+    }
 }

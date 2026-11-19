@@ -157,6 +157,7 @@ rejected rather than approximated.
 
 **Changed**
 
+- Parser: JML primary prefixes (`\forall`, `\let`, labels) are gated by `processJml`, so plain-Java parsing no longer probes them on every `(`; plain grammar parsing is ~15% faster in `tools/bench` (`f084c2094`; feature branch `perf/grammar-optimization`, not yet merged). JML quantifier syntax no longer parses when `processJml=false`, matching the flag's meaning.
 - Parser: `Identifier()` now short-circuits speculative lookahead with an O(1) token-kind predicate, cutting parse time by ~33% (plain grammar), ~27% (JML grammar), ~23% (JML full) and ~18% (plain full) in `tools/bench` (`527f6b795`; feature branch `perf/grammar-optimization`, not yet merged).
 - CI: the test matrix runs on macOS and Windows again (`7605d114d`, PR #18). The Windows combination had been
   disabled in PR #102 after its jobs hung in the Gradle test step and the cache-save post steps failed; the

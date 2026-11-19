@@ -157,6 +157,7 @@ rejected rather than approximated.
 
 **Changed**
 
+- Parser: `Identifier()` now short-circuits speculative lookahead with an O(1) token-kind predicate, cutting parse time by ~33% (plain grammar), ~27% (JML grammar), ~23% (JML full) and ~18% (plain full) in `tools/bench` (`527f6b795`; feature branch `perf/grammar-optimization`, not yet merged).
 - CI: the test matrix runs on macOS and Windows again (`7605d114d`, PR #18). The Windows combination had been
   disabled in PR #102 after its jobs hung in the Gradle test step and the cache-save post steps failed; the
   cause was repository cache pressure, not VCG/SMT: the repository held 40 Actions cache entries totalling about

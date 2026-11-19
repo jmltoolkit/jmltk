@@ -152,17 +152,30 @@ improves at least one corpus/mode beyond noise and regresses none.
   scratch grammar that JavaCC invokes such a production directly during syntactic lookahead,
   where it consumes tokens and throws, breaking speculation.
 
-#### P1 result (evaluated 2026-11-19, not shipped)
+#### P1 result (shipped 2026-11-19, second attempt)
 
-The predicate covered exactly the grammar's `Identifier()` kinds, and the short-circuit was
-verified in the generated lookahead routine. It still changed speculative-lookahead outcomes:
-14 `FragmentTest` class-level fragments that are known-unsupported and skipped at baseline began
-failing assertions because their diagnostics changed (production-wide abort bypassed the choice's
-expected-token bookkeeping). Two variants were tried and rejected: gating with `jj_lookingAhead`
-(ineffective — the generator sets it true *around* predicate evaluation) and a fallback
-`<IDENTIFIER>` branch (still aborted the production). P1 was fully reverted with no grammar
-change. Any future attempt must preserve `FragmentTest` behavior and expected-token diagnostics,
-not just acceptance of the main corpora.
+The first attempt was rejected because `FragmentTest` inferred "known unsupported" from problem
+message text: P1's diagnostic changes un-skipped 14 fragments even though acceptance was unchanged.
+After Phase 1 replaced that heuristic with an explicit manifest, P1 was retried with
+
+```java
+LOOKAHEAD({ !jj_lookingAhead || TokenTypes.isIdentifierKind(getToken(1).kind) })
+```
+
+and a 165-kind boolean table. The generator sets `jj_lookingAhead` only around speculative
+evaluation, so the guard is a no-op in real parsing (real-parse error messages are unchanged) and
+only short-circuits failed lookaheads.
+
+Measured on JDK 21 (warmup 5, rounds 7, `--verify`):
+
+| Corpus/mode | median | best | AST parity |
+|---|---|---|---|
+| plain/grammar | −33.2% | −32.7% | differences limited to the edited `TokenTypes.java` |
+| plain/full | −18.0% | −22.9% | differences limited to the edited `TokenTypes.java` |
+| jml/grammar | −27.3% | −41.0% | clean |
+| jml/full | −23.0% | −19.2% | clean |
+
+Baselines were re-recorded on the new state.
 
 ### P2 — Replace full-rule lookaheads with token-set/bounded decisions
 
@@ -296,13 +309,14 @@ negative results, and any individually verified wins.
 
 ## 12. Results (2026-11-19)
 
-Shipped: the `tools/bench` harness, its four baseline files, and the documentation/design records.
+Shipped: the `tools/bench` harness and its four baselines, `--verify` AST fingerprints, the
+explicit fragment manifest plus `ParserInvariantsTest` (Phase 1), and P1 (O(1) identifier
+rejection in speculative lookahead).
 
-Rejected on correctness gates before throughput measurement:
+Rejected on correctness gates:
 
 | Candidate | Outcome |
 |---|---|
-| P1 `Identifier()` semantic guard | Reverted: changed speculative-lookahead outcomes; broke 14 known-unsupported `FragmentTest` fragments |
 | P3 JML primary-prefix gating | Reverted: even `LOOKAHEAD({ true })` perturbed lookahead in `FragmentTest` |
 
 Measured, no repeatable win:
@@ -313,31 +327,33 @@ Measured, no repeatable win:
 | `Statement()` 24→2 lookahead | Reverted: 3/3 A/B pairs 3–8% slower |
 | P4 lexer tuning | No safe candidate without the out-of-scope contextual-keyword redesign |
 
-Recorded baseline medians on this host (harness, warmup 5 / rounds 7):
+P1 was rejected on its first attempt for the same class of reason as P3 (diagnostic-sensitive
+fragment skipping) and shipped on a second attempt after Phase 1 made the fragment gate explicit;
+its measured deltas are in the P1 result subsection.
+
+Recorded baseline medians on this host after P1 (harness, warmup 5 / rounds 7):
 
 | Corpus/mode | Median ms | Best ms | ok/fail |
 |---|---|---|---|
-| plain/grammar | 2717 | 2293 | 981/0 |
-| plain/full | 3631 | 3138 | 981/0 |
-| jml/grammar | 9283 | 7957 | 2958/1 |
-| jml/full | 14490 | 13408 | 2755/204 |
+| plain/grammar | 1920 | 1836 | 981/0 |
+| plain/full | 2687 | 2535 | 981/0 |
+| jml/grammar | 5265 | 5061 | 2958/1 |
+| jml/full | 11342 | 10997 | 2755/204 |
 
 The `full` mode pins language level `JAVA_21`; without it, 10 pattern-matching files in the
 `plain` corpus fail on upstream's `POPULAR` (`JAVA_11`) default.
 
 Machine variance (load average around 5, swap full) made sub-3% claims unmeasurable; the harness
-therefore reports best-of-N alongside the median. Shipped as the first follow-up: `--verify` now compares a per-file structural fingerprint
-(64-bit SHA-256 prefix of the pretty-printed AST) in addition to acceptance, so lookahead changes
-can be judged without relying on error-message heuristics. The remaining follow-up is the
+therefore reports best-of-N alongside the median. The remaining follow-up is the
 contextual-keyword lexer redesign that would shrink `Identifier()`'s FIRST set and the keyword DFA
-at once.
+at once; with P1 in place, the failed-lookahead part of that cost is already gone.
 
 ## 13. JVM comparison (Java 21 / 25 / 27)
 
-Measured 2026-11-19 with the shipped harness on the same host, using vendor-matched Temurin
-builds: 21.0.13, 25.0.5, 27.0.1.1. The `tools/bench` distribution was built once and its launcher
-was run directly with a per-run `JAVA_HOME`, so the Gradle toolchain (Java 21) did not pin the
-measured JVM.
+Measured 2026-11-19 after P1, with the shipped harness on the same host, using vendor-matched
+Temurin builds: 21.0.13, 25.0.5, 27.0.1.1. The `tools/bench` distribution was built once and its
+launcher was run directly with a per-run `JAVA_HOME`, so the Gradle toolchain (Java 21) did not pin
+the measured JVM.
 
 Method: unpinned, warmup 3, 5 measured rounds, medians; acceptance was identical in every run
 (`plain` 981/0, `jml/grammar` 2958/1, `jml/full` 2755/204 — the 204 are validator rejections, not
@@ -345,31 +361,29 @@ parse failures).
 
 | Corpus/mode | JDK | median ms | best ms | median MiB/s | vs Java 21 (median) |
 |---|---|---|---|---|---|
-| plain/grammar | 21 | 2333 | 2186 | 2.52 | — |
-| plain/grammar | 25 | 3979 | 2331 | 1.48 | 70.6% slower* |
-| plain/grammar | 27 | 2246 | 2217 | 2.61 | 3.7% faster |
-| plain/full | 21 | 4809 | 3686 | 1.22 | — |
-| plain/full | 25 | 3250 | 2764 | 1.81 | 32.4% faster |
-| plain/full | 27 | 2783 | 2550 | 2.11 | 42.1% faster |
-| jml/grammar | 21 | 7955 | 4448* | 2.13 | — |
-| jml/grammar | 25 | 8844 | 7777 | 1.92 | 11.2% slower |
-| jml/grammar | 27 | 4593 | 4357 | 3.69 | 42.3% faster |
-| jml/full | 21 | 14770 | 13908 | 1.15 | — |
-| jml/full | 25 | 13329 | 12950 | 1.27 | 9.8% faster |
-| jml/full | 27 | 6940 | 6604 | 2.44 | 53.0% faster |
-
-\* The Java 25 plain/grammar median and the Java 21 jml/grammar best are single-run artifacts
-(their own best/median spread is ~70%): grammar mode has no repeatable JVM signal on plain Java.
+| plain/grammar | 21 | 1961 | 1840 | 3.00 | — |
+| plain/grammar | 25 | 1889 | 1544 | 3.11 | 3.7% faster |
+| plain/grammar | 27 | 1682 | 1561 | 3.50 | 14.3% faster |
+| plain/full | 21 | 3036 | 2921 | 1.94 | — |
+| plain/full | 25 | 2516 | 2331 | 2.34 | 17.1% faster |
+| plain/full | 27 | 2866 | 2475 | 2.05 | 5.6% faster |
+| jml/grammar | 21 | 3652 | 3612 | 4.65 | — |
+| jml/grammar | 25 | 4571 | 4514 | 3.71 | 25.2% slower |
+| jml/grammar | 27 | 3639 | 3016 | 4.66 | 0.4% faster |
+| jml/full | 21 | 11251 | 10598 | 1.51 | — |
+| jml/full | 25 | 9643 | 9548 | 1.76 | 14.3% faster |
+| jml/full | 27 | 7952 | 7432 | 2.13 | 29.3% faster |
 
 Findings:
 
-- **Java 27 is substantially faster for JML**: ~42% faster parsing (`jml/grammar`) and ~53%
-  faster end-to-end (`jml/full`) than Java 21, and ~48% faster than Java 25 in `full`. It is also
-  the fastest option for `plain/full`.
-- **Java 25 beats 21 in full mode** (+32% plain, +10% JML) and is at parity in grammar mode.
-- Grammar mode is effectively flat between 21 and 27 on plain Java; the host is noisy enough that
-  only the JML/27 result is large enough to stand out, and it reproduced in three independent
-  passes (pinned, Red Hat 25, Temurin 25).
+- **Java 27 is still the fastest overall**: −14% on `plain/grammar` and −29% on `jml/full`
+  versus Java 21, with `jml/grammar` at parity on the median but −16% on best.
+- **Java 25 wins the plain full case** (−17% vs 21) and is −14% on `jml/full`, but is clearly
+  slower on `jml/grammar` (+25%).
+- P1 substantially shrank the JVM gap: before P1, Java 27 was ~2× faster on JML full; after P1 the
+  remaining difference is ~29%, because a large JIT-sensitive lookahead cost is simply gone.
+- Grammar-mode differences on plain Java remain within host noise; only the JML/27 result is
+  large enough to stand out.
 
 These numbers are host- and load-dependent; reproduce with:
 
@@ -380,9 +394,3 @@ JAVA_HOME=/path/to/jdk-27 tools/bench/build/install/bench/bin/bench \
 ```
 
 Raw measurement JSONs were intentionally not committed.
-
-Phase 1 follow-up (shipped): `FragmentTest` now skips an explicit 68-entry
-`jmlparser-jml-tests/src/test/resources/fragments/known-unsupported.txt` manifest instead of
-matching problem-message substrings, and `ParserInvariantsTest` pins truncated input,
-keyword-like identifiers, `processJml=false` JML markers, and scoped generic types. A listed
-fragment that starts parsing now fails the test, so the manifest can only shrink.

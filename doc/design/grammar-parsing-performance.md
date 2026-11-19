@@ -149,6 +149,18 @@ improves at least one corpus/mode beyond noise and regresses none.
   scratch grammar that JavaCC invokes such a production directly during syntactic lookahead,
   where it consumes tokens and throws, breaking speculation.
 
+#### P1 result (evaluated 2026-11-19, not shipped)
+
+The predicate covered exactly the grammar's `Identifier()` kinds, and the short-circuit was
+verified in the generated lookahead routine. It still changed speculative-lookahead outcomes:
+14 `FragmentTest` class-level fragments that are known-unsupported and skipped at baseline began
+failing assertions because their diagnostics changed (production-wide abort bypassed the choice's
+expected-token bookkeeping). Two variants were tried and rejected: gating with `jj_lookingAhead`
+(ineffective — the generator sets it true *around* predicate evaluation) and a fallback
+`<IDENTIFIER>` branch (still aborted the production). P1 was fully reverted with no grammar
+change. Any future attempt must preserve `FragmentTest` behavior and expected-token diagnostics,
+not just acceptance of the main corpora.
+
 ### P2 — Replace full-rule lookaheads with token-set/bounded decisions
 
 Candidate sites, each evaluated separately:

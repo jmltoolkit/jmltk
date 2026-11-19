@@ -1,6 +1,6 @@
 # Grammar parsing performance — design
 
-- **Status:** approved design, implementation not started
+- **Status:** implemented — benchmark shipped; grammar candidates P1–P4 evaluated, none shipped (negative results recorded below)
 - **Date:** 2026-11-19
 - **Branch:** `perf/grammar-optimization`
 - **Scope owner:** JMLtk core parser (`javaparser-core/src/main/javacc/java.jj`)
@@ -201,6 +201,22 @@ slower in 2 pairs (+1%, +16%). No repeatable beyond-noise win, so it was reverte
   Java tokens. JML stays lexically active so markers still tokenize.
 - If the measured benefit is within noise, do not ship this item; record the negative result
   in the changelog note and the benchmark report.
+
+#### P3 result (evaluated 2026-11-19, not shipped)
+
+Added `processJml` plumbing (including `enableJml` setting it for `parseJml*` entry points) and a
+production-start `LOOKAHEAD({ isProcessJml() })` guard on `JmlPrimaryPrefix()`. One
+`FragmentTest` class-level fragment (`decl_385738584`, nested `\forall` inside `ensures`) failed.
+Replacing the guard with `LOOKAHEAD({ true })` failed identically, proving that a leading
+semantic lookahead on this production perturbs speculative lookahead regardless of its value.
+The task was reverted per its own abort rule.
+
+#### Statement lookahead experiment (evaluated 2026-11-19, not shipped)
+
+`Statement()`'s `LOOKAHEAD(24) StatementExpression()` was reduced to `LOOKAHEAD(2)`. All core and
+JML tests passed, but three interleaved A/B pairs on plain/grammar (best-of-7) showed the change
+3–8% **slower** every time (base 2289–2344 ms vs new 2374–2498 ms). Reverted. Smaller lookahead
+here appears to route more statements through a longer parse path, outweighing the saved scan.
 
 ### P4 — Lexer tuning (stretch, measured like every other item)
 

@@ -131,6 +131,18 @@ fun verifyParity(
     if (baseline.mode != current.mode) {
         differences += "mode: ${baseline.mode} -> ${current.mode}"
     }
+    if (baseline.files != current.files) {
+        differences += "files: ${baseline.files} -> ${current.files}"
+    }
+    if (baseline.bytes != current.bytes) {
+        differences += "bytes: ${baseline.bytes} -> ${current.bytes}"
+    }
+    if (baseline.ok != current.ok) {
+        differences += "ok: ${baseline.ok} -> ${current.ok}"
+    }
+    if (baseline.fail != current.fail) {
+        differences += "fail: ${baseline.fail} -> ${current.fail}"
+    }
     val missing = baseline.failures.toSet() - current.failures.toSet()
     val added = current.failures.toSet() - baseline.failures.toSet()
     missing.sorted().forEach { differences += "no longer fails: $it" }
@@ -183,7 +195,10 @@ fun runBenchmark(config: BenchConfig): BenchResult {
 
 private fun parserConfiguration(config: BenchConfig): ParserConfiguration {
     val isJml = config.corpus == "jml"
-    val parserConfiguration = ParserConfiguration().setProcessJml(isJml)
+    val parserConfiguration =
+        ParserConfiguration()
+            .setProcessJml(isJml)
+            .setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21)
     if (config.mode == BenchMode.GRAMMAR) {
         parserConfiguration.processors.clear()
     }

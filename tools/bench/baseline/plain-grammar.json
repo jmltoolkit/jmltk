@@ -8,34 +8,34 @@
   "failures": [],
   "rounds": [
     {
-      "millis": 3812.561319,
-      "megabytesPerSecond": 1.5406676592512802
+      "millis": 2358.292936,
+      "megabytesPerSecond": 2.4907380391253073
     },
     {
-      "millis": 3932.424505,
-      "megabytesPerSecond": 1.4937069778776855
+      "millis": 3173.068359,
+      "megabytesPerSecond": 1.8511703053718245
     },
     {
-      "millis": 2716.989711,
-      "megabytesPerSecond": 2.161910992638169
+      "millis": 3215.930263,
+      "megabytesPerSecond": 1.826497915914448
     },
     {
-      "millis": 2697.148216,
-      "megabytesPerSecond": 2.177815030056807
+      "millis": 2326.286646,
+      "megabytesPerSecond": 2.525006938932367
     },
     {
-      "millis": 2425.367589,
-      "megabytesPerSecond": 2.4218555363467846
+      "millis": 2716.631094,
+      "megabytesPerSecond": 2.1621963821546775
     },
     {
-      "millis": 2625.014489,
-      "megabytesPerSecond": 2.2376600006247442
+      "millis": 4847.842038,
+      "megabytesPerSecond": 1.2116504368444736
     },
     {
-      "millis": 2683.262403,
-      "megabytesPerSecond": 2.1890851660756128
+      "millis": 2292.844021,
+      "megabytesPerSecond": 2.5618358114625988
     }
   ],
-  "medianMillis": 2697.148216,
-  "bestMillis": 2425.367589
+  "medianMillis": 2716.631094,
+  "bestMillis": 2292.844021
 }

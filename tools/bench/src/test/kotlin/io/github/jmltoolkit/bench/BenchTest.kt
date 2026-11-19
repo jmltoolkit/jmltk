@@ -79,4 +79,23 @@ class BenchTest {
         assertFalse(verifyParity(baseline, current).isEmpty())
         assertTrue(verifyParity(baseline, baseline).isEmpty())
     }
+
+    @Test
+    fun `verify reports changed file count and bytes`() {
+        val baseline =
+            BenchResult(
+                "plain",
+                BenchMode.FULL,
+                2,
+                10,
+                2,
+                0,
+                emptyList(),
+                listOf(RoundSample(1.0, 2.0)),
+                1.0,
+                1.0,
+            )
+        assertFalse(verifyParity(baseline, baseline.copy(files = 3)).isEmpty())
+        assertFalse(verifyParity(baseline, baseline.copy(bytes = 11)).isEmpty())
+    }
 }

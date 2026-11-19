@@ -11,5 +11,5 @@ Tools for the processing of JML based on the jml-parser
 ./gradlew :tools:bench:run --args="--corpus plain --mode grammar --baseline tools/bench/baseline/plain-grammar.json --verify"
 ```
 
-Corpora: `plain`, `jml`, or `path:<directory>`. Modes: `grammar` (validators disabled) and `full`.
-`--verify` exits nonzero when the ok/fail file set differs from the baseline.
+Corpora: `plain`, `jml`, or `path:<directory>`. Modes: `grammar` (processors/validators disabled) and `full` (default processors at language level `JAVA_21`).
+`--verify` exits nonzero when the ok/fail file set differs from the baseline; `--json` is written only after a successful verify and must not name the same file as `--baseline`.

@@ -15,8 +15,8 @@ repository, so any "optimization" would otherwise be unverifiable.
 
 | Corpus | Files | Bytes | Mode | Throughput |
 |---|---|---|---|---|
-| `javaparser-core/src/main/java` | 798 | 4.9 MB | JML off | ~2.8 s ≈ 1.6 MB/s |
-| `jmlparser-jml-tests/.../fullexamples` | 2,959 | 17.8 MB | JML on | ~15 s ≈ 1.1 MB/s |
+| `javaparser-core/src/main/java` | 798 | 4.7 MiB | JML off | ~2.8 s ≈ 1.6 MiB/s |
+| `jmlparser-jml-tests/.../fullexamples` | 2,959 | 17.0 MiB | JML on | ~15 s ≈ 1.1 MiB/s |
 
 The committed harness measures a slightly wider `plain` corpus (it also includes the
 symbol-solver main sources) and records its own fresh baseline, so the table above is only the
@@ -73,13 +73,15 @@ Responsibilities:
 - **Modes.**
   - `grammar`: clear `ParserConfiguration.getProcessors()` before timing; measures tokenizer,
     grammar and AST construction only.
-  - `full`: default processors/validators; measures real end-to-end `parse()`.
+  - `full`: default processors/validators at language level `JAVA_21`; measures real end-to-end
+    `parse()` without upstream's older `POPULAR` default.
 - **CLI.** `--corpus`, `--mode`, `--warmup N`, `--rounds N`, `--json <file>`,
   `--baseline <json>`, `--verify`.
-- **Output.** Per-round ms, MB/s, ok/fail, median; with `--baseline`, per-corpus/-mode deltas.
-- **`--verify`.** Parse-result parity check: the set of successfully parsed files and the set
-  of failing files must equal the recorded baseline. A speedup that changes acceptance fails
-  verification.
+- **Output.** Per-round ms, MiB/s, ok/fail, median and best-of-N; with `--baseline`, deltas.
+- **`--verify`.** Parse-result parity check: files, bytes, ok/fail counts and the sets of
+  successfully/failing files must equal the recorded baseline. A speedup that changes acceptance
+  fails verification. The run fails with status 1 before `--json` is written, and `--json` may
+  not name the same file as `--baseline`.
 - **Invocation.** `./gradlew :tools:bench:run --args="..."`. Not wired into CI gates initially
   because shared runners are too noisy; usage documented in `tools/README.md`.
 - Baseline JSONs are committed under `tools/bench/baseline/`.
@@ -295,13 +297,18 @@ negative results, and any individually verified wins.
 
 Shipped: the `tools/bench` harness, its four baseline files, and the documentation/design records.
 
-Rejected after measurement:
+Rejected on correctness gates before throughput measurement:
 
 | Candidate | Outcome |
 |---|---|
 | P1 `Identifier()` semantic guard | Reverted: changed speculative-lookahead outcomes; broke 14 known-unsupported `FragmentTest` fragments |
-| P2 redundant numeric lookaheads | Reverted: interleaved A/B showed no repeatable win |
 | P3 JML primary-prefix gating | Reverted: even `LOOKAHEAD({ true })` perturbed lookahead in `FragmentTest` |
+
+Measured, no repeatable win:
+
+| Candidate | Outcome |
+|---|---|
+| P2 redundant numeric lookaheads | Reverted: interleaved A/B showed no repeatable win |
 | `Statement()` 24→2 lookahead | Reverted: 3/3 A/B pairs 3–8% slower |
 | P4 lexer tuning | No safe candidate without the out-of-scope contextual-keyword redesign |
 
@@ -309,10 +316,13 @@ Recorded baseline medians on this host (harness, warmup 5 / rounds 7):
 
 | Corpus/mode | Median ms | Best ms | ok/fail |
 |---|---|---|---|
-| plain/grammar | 2697 | 2425 | 981/0 |
-| plain/full | 3658 | 3577 | 971/10 |
-| jml/grammar | 7928 | 7852 | 2958/1 |
-| jml/full | 14169 | 13754 | 2755/204 |
+| plain/grammar | 2717 | 2293 | 981/0 |
+| plain/full | 3631 | 3138 | 981/0 |
+| jml/grammar | 9283 | 7957 | 2958/1 |
+| jml/full | 14490 | 13408 | 2755/204 |
+
+The `full` mode pins language level `JAVA_21`; without it, 10 pattern-matching files in the
+`plain` corpus fail on upstream's `POPULAR` (`JAVA_11`) default.
 
 Machine variance (load average around 5, swap full) made sub-3% claims unmeasurable; the harness
 therefore reports best-of-N alongside the median. Two follow-ups are now better justified than

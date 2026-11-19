@@ -3,50 +3,39 @@
   "mode": "FULL",
   "files": 981,
   "bytes": 6159220,
-  "ok": 971,
-  "fail": 10,
-  "failures": [
-    "javaparser-core/src/main/java/com/github/javaparser/ast/nodeTypes/NodeWithModifiers.java",
-    "javaparser-core/src/main/java/com/github/javaparser/jml/JmlDocSanitizer.java",
-    "javaparser-core/src/main/java/com/github/javaparser/jml/JmlProcessor.java",
-    "javaparser-core/src/main/java/com/github/javaparser/jml/JmlQuantifierDesugarer.java",
-    "javaparser-core/src/main/java/com/github/javaparser/printer/DefaultPrettyPrinterVisitor.java",
-    "javaparser-core/src/main/java/com/github/javaparser/printer/lexicalpreservation/LexicalDifferenceCalculator.java",
-    "javaparser-core/src/main/java/com/github/javaparser/resolution/types/ResolvedPrimitiveType.java",
-    "javaparser-symbol-solver-core/src/main/java/com/github/javaparser/symbolsolver/javaparsermodel/JavaParserFacade.java",
-    "javaparser-symbol-solver-core/src/main/java/com/github/javaparser/symbolsolver/javaparsermodel/JavaParserFactory.java",
-    "javaparser-symbol-solver-core/src/main/java/com/github/javaparser/symbolsolver/javaparsermodel/declarations/JmlJavaParserQuantifiedVariableDeclaration.java"
-  ],
+  "ok": 981,
+  "fail": 0,
+  "failures": [],
   "rounds": [
     {
-      "millis": 5525.939387,
-      "megabytesPerSecond": 1.062966766684823
+      "millis": 5811.186925,
+      "megabytesPerSecond": 1.0107900501059348
     },
     {
-      "millis": 4258.128857,
-      "megabytesPerSecond": 1.379453304575208
+      "millis": 3463.734026,
+      "megabytesPerSecond": 1.6958259147510257
     },
     {
-      "millis": 3657.849009,
-      "megabytesPerSecond": 1.6058317083737512
+      "millis": 4201.904676,
+      "megabytesPerSecond": 1.3979112750095388
     },
     {
-      "millis": 3607.691329,
-      "megabytesPerSecond": 1.6281575632258596
+      "millis": 3631.445045,
+      "megabytesPerSecond": 1.617507590038638
     },
     {
-      "millis": 3618.671558,
-      "megabytesPerSecond": 1.6232172024869087
+      "millis": 3137.653902,
+      "megabytesPerSecond": 1.872064321482868
     },
     {
-      "millis": 3576.752675,
-      "megabytesPerSecond": 1.6422410093243873
+      "millis": 3646.690156,
+      "megabytesPerSecond": 1.610745545088669
     },
     {
-      "millis": 3824.960681,
-      "megabytesPerSecond": 1.535673282152545
+      "millis": 3563.927016,
+      "megabytesPerSecond": 1.6481510133976613
     }
   ],
-  "medianMillis": 3657.849009,
-  "bestMillis": 3576.752675
+  "medianMillis": 3631.445045,
+  "bestMillis": 3137.653902
 }

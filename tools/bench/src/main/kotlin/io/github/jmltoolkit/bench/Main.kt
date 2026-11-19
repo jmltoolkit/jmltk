@@ -4,55 +4,99 @@
  */
 package io.github.jmltoolkit.bench
 
+import java.nio.file.Path
 import java.util.Locale
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
+    exitProcess(runMain(args))
+}
+
+fun runMain(args: Array<String>): Int {
     val config =
         try {
             parseBenchConfig(args)
         } catch (e: IllegalArgumentException) {
             System.err.println(e.message)
-            exitProcess(2)
+            return 2
         }
 
     if (config.verify && config.baseline == null) {
         System.err.println("--verify requires --baseline <json>")
-        exitProcess(2)
+        return 2
+    }
+    if (config.baseline != null && config.json != null && samePath(config.baseline, config.json)) {
+        System.err.println("--json must not be the same file as --baseline")
+        return 2
     }
 
-    val result = runBenchmark(config)
-    println("${result.corpus}/${result.mode}: ${result.files} files, ${result.bytes} bytes, ${result.ok} ok, ${result.fail} fail")
-    result.rounds.forEachIndexed { index, round ->
-        println("round ${index + 1}: ${format(round.millis)} ms, ${format(round.megabytesPerSecond)} MB/s")
-    }
-    val bytes = result.bytes
-    val medianMbps = (bytes / 1_048_576.0) / (result.medianMillis / 1000.0)
-    val bestMbps = (bytes / 1_048_576.0) / (result.bestMillis / 1000.0)
-    println("median: ${format(result.medianMillis)} ms, ${format(medianMbps)} MB/s")
-    println("best:   ${format(result.bestMillis)} ms, ${format(bestMbps)} MB/s")
+    val baseline =
+        config.baseline?.let { path ->
+            try {
+                readResult(path)
+            } catch (e: Exception) {
+                System.err.println("Cannot read baseline $path: ${e.message}")
+                return 2
+            }
+        }
 
-    config.json?.let { writeResult(result, it) }
+    val result =
+        try {
+            runBenchmark(config)
+        } catch (e: IllegalArgumentException) {
+            System.err.println(e.message)
+            return 2
+        } catch (e: java.io.IOException) {
+            System.err.println(e.message)
+            return 2
+        }
 
-    config.baseline?.let { baselinePath ->
-        val baseline = readResult(baselinePath)
-        println(
-            "baseline best: ${format(baseline.bestMillis)} ms -> ${format(result.bestMillis)} ms " +
-                "(${format(percentDelta(baseline.bestMillis, result.bestMillis))}%)",
-        )
-        println(
-            "baseline median: ${format(baseline.medianMillis)} ms -> ${format(result.medianMillis)} ms " +
-                "(${format(percentDelta(baseline.medianMillis, result.medianMillis))}%)",
-        )
+    printResult(result)
+
+    if (baseline != null) {
+        printComparison(baseline, result)
         if (config.verify) {
             val differences = verifyParity(baseline, result)
             if (differences.isNotEmpty()) {
                 differences.forEach { System.err.println(it) }
-                exitProcess(1)
+                return 1
             }
             println("verify: ok/fail set matches baseline")
         }
     }
+
+    config.json?.let { writeResult(result, it) }
+    return 0
 }
+
+private fun printResult(result: BenchResult) {
+    println("${result.corpus}/${result.mode}: ${result.files} files, ${result.bytes} bytes, ${result.ok} ok, ${result.fail} fail")
+    result.rounds.forEachIndexed { index, round ->
+        println("round ${index + 1}: ${format(round.millis)} ms, ${format(round.megabytesPerSecond)} MiB/s")
+    }
+    val medianMbps = (result.bytes / 1_048_576.0) / (result.medianMillis / 1000.0)
+    val bestMbps = (result.bytes / 1_048_576.0) / (result.bestMillis / 1000.0)
+    println("median: ${format(result.medianMillis)} ms, ${format(medianMbps)} MiB/s")
+    println("best:   ${format(result.bestMillis)} ms, ${format(bestMbps)} MiB/s")
+}
+
+private fun printComparison(
+    baseline: BenchResult,
+    result: BenchResult,
+) {
+    println(
+        "baseline best: ${format(baseline.bestMillis)} ms -> ${format(result.bestMillis)} ms " +
+            "(${format(percentDelta(baseline.bestMillis, result.bestMillis))}%)",
+    )
+    println(
+        "baseline median: ${format(baseline.medianMillis)} ms -> ${format(result.medianMillis)} ms " +
+            "(${format(percentDelta(baseline.medianMillis, result.medianMillis))}%)",
+    )
+}
+
+private fun samePath(
+    first: Path,
+    second: Path,
+): Boolean = first.toAbsolutePath().normalize() == second.toAbsolutePath().normalize()
 
 private fun format(value: Double): String = String.format(Locale.ROOT, "%.3f", value)

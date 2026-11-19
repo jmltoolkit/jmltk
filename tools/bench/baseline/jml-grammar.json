@@ -10,34 +10,34 @@
   ],
   "rounds": [
     {
-      "millis": 9045.939561,
-      "megabytesPerSecond": 1.8758164320481667
+      "millis": 7957.026441,
+      "megabytesPerSecond": 2.1325205084659564
     },
     {
-      "millis": 8336.59885,
-      "megabytesPerSecond": 2.0354250428924474
+      "millis": 9282.605153,
+      "megabytesPerSecond": 1.8279913658025628
     },
     {
-      "millis": 8288.042029,
-      "megabytesPerSecond": 2.047349906342805
+      "millis": 9528.044582,
+      "megabytesPerSecond": 1.7809028836719165
     },
     {
-      "millis": 7852.267292,
-      "megabytesPerSecond": 2.160971021596036
+      "millis": 8410.526712,
+      "megabytesPerSecond": 2.0175338183788147
     },
     {
-      "millis": 7928.243123,
-      "megabytesPerSecond": 2.140262578806689
+      "millis": 9560.72136,
+      "megabytesPerSecond": 1.7748160868730078
     },
     {
-      "millis": 7909.976413,
-      "megabytesPerSecond": 2.1452051416930535
+      "millis": 8845.446591,
+      "megabytesPerSecond": 1.9183341278781092
     },
     {
-      "millis": 7899.694331,
-      "megabytesPerSecond": 2.147997297218256
+      "millis": 9441.595158,
+      "megabytesPerSecond": 1.7972092414342407
     }
   ],
-  "medianMillis": 7928.243123,
-  "bestMillis": 7852.267292
+  "medianMillis": 9282.605153,
+  "bestMillis": 7957.026441
 }

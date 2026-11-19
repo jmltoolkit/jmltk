@@ -380,3 +380,9 @@ JAVA_HOME=/path/to/jdk-27 tools/bench/build/install/bench/bin/bench \
 ```
 
 Raw measurement JSONs were intentionally not committed.
+
+Phase 1 follow-up (shipped): `FragmentTest` now skips an explicit 68-entry
+`jmlparser-jml-tests/src/test/resources/fragments/known-unsupported.txt` manifest instead of
+matching problem-message substrings, and `ParserInvariantsTest` pins truncated input,
+keyword-like identifiers, `processJml=false` JML markers, and scoped generic types. A listed
+fragment that starts parsing now fails the test, so the manifest can only shrink.

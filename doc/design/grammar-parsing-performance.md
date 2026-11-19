@@ -209,6 +209,12 @@ Tests and `--verify` parity were green, but an interleaved A/B against a pre-cha
 (three pairs, plain/grammar, best-of-7 rounds) showed the change faster in 1 pair (−20%) and
 slower in 2 pairs (+1%, +16%). No repeatable beyond-noise win, so it was reverted.
 
+A post-P1 retry targeted the hottest annotation/modifier path: removing the `LOOKAHEAD(2)` at the
+head of the `Modifiers()` and `ModifiersReq()` loops. The body's FIRST set looks disjoint from the
+follow set, but the check is load-bearing for JML modifier/documentation overlaps: removing it
+produced 68 failures across the core and JML suites. Reverted; the parser now enters P2's sites
+only with a targeted semantic predicate, if at all.
+
 ### P3 — JML/KeY gating (measurement-gated)
 
 - Expose `ParserConfiguration.isProcessJml()` in `GeneratedJavaParserBase` (set when the

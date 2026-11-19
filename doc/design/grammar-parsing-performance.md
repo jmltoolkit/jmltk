@@ -265,10 +265,19 @@ No lexical behavior change is acceptable; parity via `--verify` plus full test s
 
 #### P4 result (evaluated 2026-11-19, not shipped)
 
-The baseline profile still puts roughly 14% of end-to-end samples in
-`GeneratedJavaParserTokenManager`, but no safe, targeted lexical change was identified. The
-visible cost is the keyword/identifier DFA and NFA fallback, both of which would require the large
-contextual-keyword redesign explicitly out of scope. Per the abort rule, no lexer edit was made.
+Post-P1 profiling puts the token manager at ~57–60% of grammar-mode samples, with
+`jjMoveNfa_0` the top leaf and `CommonTokenAction` next; the keyword DFA is not hot, so the
+contextual-keyword redesign was deferred. One safe candidate was implemented: direct-kind
+implementations of `TokenTypes.isEndOfLineToken`, `isComment` and
+`isWhitespaceButNotEndOfLine` (with a boolean EOL table covering the lexer-internal tokens that
+`getCategory` classifies as EOL), removing up to four `getCategory` switches per token from
+`CommonTokenAction`. A new `TokenTypesPredicateTest` pinned equivalence with `getCategory` for
+every token kind — and caught the lexer-internal EOL hack.
+
+It measured slower on plain/grammar in two consecutive runs (+14.0% and +9.2% for median/best) and
+neutral on JML/grammar (−0.6% median), so the production change was reverted. `getCategory`'s
+tableswitch is already optimal; the remaining lexer cost is the NFA itself. The equivalence test
+is kept as a guard for future changes.
 
 ## 6. Measurement protocol
 
@@ -346,7 +355,7 @@ Measured, no repeatable win:
 | P2 redundant numeric lookaheads | Reverted: interleaved A/B showed no repeatable win |
 | P2 `Modifiers()` loop lookahead | Reverted: load-bearing; removal broke 68 tests |
 | `Statement()` 24→2 lookahead | Reverted: 3/3 A/B pairs 3–8% slower |
-| P4 lexer tuning | No safe candidate without changing generated token-manager behavior |
+| P4 lexer tuning | Reverted: direct-kind predicates measured slower; the NFA remains the lexer cost |
 
 P1 and P3 were both rejected on their first attempts for the same reason — diagnostic-sensitive
 fragment skipping — and shipped after Phase 1 replaced that heuristic with an explicit manifest.

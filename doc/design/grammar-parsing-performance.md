@@ -331,3 +331,52 @@ therefore reports best-of-N alongside the median. Shipped as the first follow-up
 can be judged without relying on error-message heuristics. The remaining follow-up is the
 contextual-keyword lexer redesign that would shrink `Identifier()`'s FIRST set and the keyword DFA
 at once.
+
+## 13. JVM comparison (Java 21 / 25 / 27)
+
+Measured 2026-11-19 with the shipped harness on the same host, using vendor-matched Temurin
+builds: 21.0.13, 25.0.5, 27.0.1.1. The `tools/bench` distribution was built once and its launcher
+was run directly with a per-run `JAVA_HOME`, so the Gradle toolchain (Java 21) did not pin the
+measured JVM.
+
+Method: unpinned, warmup 3, 5 measured rounds, medians; acceptance was identical in every run
+(`plain` 981/0, `jml/grammar` 2958/1, `jml/full` 2755/204 — the 204 are validator rejections, not
+parse failures).
+
+| Corpus/mode | JDK | median ms | best ms | median MiB/s | vs Java 21 (median) |
+|---|---|---|---|---|---|
+| plain/grammar | 21 | 2333 | 2186 | 2.52 | — |
+| plain/grammar | 25 | 3979 | 2331 | 1.48 | 70.6% slower* |
+| plain/grammar | 27 | 2246 | 2217 | 2.61 | 3.7% faster |
+| plain/full | 21 | 4809 | 3686 | 1.22 | — |
+| plain/full | 25 | 3250 | 2764 | 1.81 | 32.4% faster |
+| plain/full | 27 | 2783 | 2550 | 2.11 | 42.1% faster |
+| jml/grammar | 21 | 7955 | 4448* | 2.13 | — |
+| jml/grammar | 25 | 8844 | 7777 | 1.92 | 11.2% slower |
+| jml/grammar | 27 | 4593 | 4357 | 3.69 | 42.3% faster |
+| jml/full | 21 | 14770 | 13908 | 1.15 | — |
+| jml/full | 25 | 13329 | 12950 | 1.27 | 9.8% faster |
+| jml/full | 27 | 6940 | 6604 | 2.44 | 53.0% faster |
+
+\* The Java 25 plain/grammar median and the Java 21 jml/grammar best are single-run artifacts
+(their own best/median spread is ~70%): grammar mode has no repeatable JVM signal on plain Java.
+
+Findings:
+
+- **Java 27 is substantially faster for JML**: ~42% faster parsing (`jml/grammar`) and ~53%
+  faster end-to-end (`jml/full`) than Java 21, and ~48% faster than Java 25 in `full`. It is also
+  the fastest option for `plain/full`.
+- **Java 25 beats 21 in full mode** (+32% plain, +10% JML) and is at parity in grammar mode.
+- Grammar mode is effectively flat between 21 and 27 on plain Java; the host is noisy enough that
+  only the JML/27 result is large enough to stand out, and it reproduced in three independent
+  passes (pinned, Red Hat 25, Temurin 25).
+
+These numbers are host- and load-dependent; reproduce with:
+
+```bash
+./gradlew :tools:bench:installDist
+JAVA_HOME=/path/to/jdk-27 tools/bench/build/install/bench/bin/bench \
+    --corpus jml --mode full --warmup 3 --rounds 5
+```
+
+Raw measurement JSONs were intentionally not committed.

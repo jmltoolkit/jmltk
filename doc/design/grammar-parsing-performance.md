@@ -290,3 +290,33 @@ dominant parser-side hotspot; end-to-end gains will be much smaller because post
 validation accounts for roughly 60% of the measured baseline and is out of scope. If
 measurement contradicts this expectation, the design still delivers the benchmark, the
 negative results, and any individually verified wins.
+
+## 12. Results (2026-11-19)
+
+Shipped: the `tools/bench` harness, its four baseline files, and the documentation/design records.
+
+Rejected after measurement:
+
+| Candidate | Outcome |
+|---|---|
+| P1 `Identifier()` semantic guard | Reverted: changed speculative-lookahead outcomes; broke 14 known-unsupported `FragmentTest` fragments |
+| P2 redundant numeric lookaheads | Reverted: interleaved A/B showed no repeatable win |
+| P3 JML primary-prefix gating | Reverted: even `LOOKAHEAD({ true })` perturbed lookahead in `FragmentTest` |
+| `Statement()` 24→2 lookahead | Reverted: 3/3 A/B pairs 3–8% slower |
+| P4 lexer tuning | No safe candidate without the out-of-scope contextual-keyword redesign |
+
+Recorded baseline medians on this host (harness, warmup 5 / rounds 7):
+
+| Corpus/mode | Median ms | Best ms | ok/fail |
+|---|---|---|---|
+| plain/grammar | 2697 | 2425 | 981/0 |
+| plain/full | 3658 | 3577 | 971/10 |
+| jml/grammar | 7928 | 7852 | 2958/1 |
+| jml/full | 14169 | 13754 | 2755/204 |
+
+Machine variance (load average around 5, swap full) made sub-3% claims unmeasurable; the harness
+therefore reports best-of-N alongside the median. Two follow-ups are now better justified than
+further blind grammar edits: an AST-parity mode for `--verify` (structural hash per file) so
+lookahead changes can be accepted without relying on error-message heuristics, and the
+contextual-keyword lexer redesign that would shrink `Identifier()`'s FIRST set and the keyword DFA
+at once.

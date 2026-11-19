@@ -183,6 +183,16 @@ Rules:
 - Predicates are total: `false` on EOF/unknown kinds, never throw.
 - When a site is ambiguous by construction, keep full-rule lookahead and document why.
 
+#### P2 result (evaluated 2026-11-19, not shipped)
+
+Removed the two redundant `LOOKAHEAD(2)` guards before `TypeArguments` in
+`ClassOrInterfaceType`, plus two `;` lookaheads (compilation-unit leading semicolons and
+`ResourceSpecification`). The two comma lookaheads were **kept**: enum constants and array
+initializers allow a trailing comma, so `("," entry)* [","]` needs the two-token check.
+Tests and `--verify` parity were green, but an interleaved A/B against a pre-change worktree
+(three pairs, plain/grammar, best-of-7 rounds) showed the change faster in 1 pair (−20%) and
+slower in 2 pairs (+1%, +16%). No repeatable beyond-noise win, so it was reverted.
+
 ### P3 — JML/KeY gating (measurement-gated)
 
 - Expose `ParserConfiguration.isProcessJml()` in `GeneratedJavaParserBase` (set when the

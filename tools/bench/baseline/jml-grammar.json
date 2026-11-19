@@ -10,36 +10,36 @@
   ],
   "rounds": [
     {
-      "millis": 7982.792188,
-      "megabytesPerSecond": 2.1256374551934383
+      "millis": 5173.719388,
+      "megabytesPerSecond": 3.2797530749726036
     },
     {
-      "millis": 8223.585199,
-      "megabytesPerSecond": 2.063397126827576
+      "millis": 5264.58268,
+      "megabytesPerSecond": 3.223146658195969
     },
     {
-      "millis": 8089.078796,
-      "megabytesPerSecond": 2.097707600552638
+      "millis": 5335.041792,
+      "megabytesPerSecond": 3.180579034504099
     },
     {
-      "millis": 8173.200309,
-      "megabytesPerSecond": 2.0761172405322457
+      "millis": 5276.017202,
+      "megabytesPerSecond": 3.21616124856569
     },
     {
-      "millis": 8340.733608,
-      "megabytesPerSecond": 2.0344160201403687
+      "millis": 5251.389764,
+      "megabytesPerSecond": 3.231244077170422
     },
     {
-      "millis": 8171.240677,
-      "megabytesPerSecond": 2.076615136254709
+      "millis": 5352.296935,
+      "megabytesPerSecond": 3.170325241276693
     },
     {
-      "millis": 8115.881427,
-      "megabytesPerSecond": 2.0907799386259294
+      "millis": 5061.298147,
+      "megabytesPerSecond": 3.352602747162047
     }
   ],
-  "medianMillis": 8171.240677,
-  "bestMillis": 7982.792188,
+  "medianMillis": 5264.58268,
+  "bestMillis": 5061.298147,
   "astHashes": {
     "jmlparser-jml-tests/src/test/resources/fullexamples/key/InformationFlow/BlockContracts/src/contract/IFBlockExamples.java": "672490a68dae3b09",
     "jmlparser-jml-tests/src/test/resources/fullexamples/key/InformationFlow/BlockContracts/src/contract/IFEfficiencyExamples.java": "67439b7d6494968e",

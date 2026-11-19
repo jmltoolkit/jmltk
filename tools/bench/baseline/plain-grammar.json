@@ -2,42 +2,42 @@
   "corpus": "plain",
   "mode": "GRAMMAR",
   "files": 981,
-  "bytes": 6159220,
+  "bytes": 6167280,
   "ok": 981,
   "fail": 0,
   "failures": [],
   "rounds": [
     {
-      "millis": 2775.809603,
-      "megabytesPerSecond": 2.1160997197889233
+      "millis": 2640.721215,
+      "megabytesPerSecond": 2.227261440805268
     },
     {
-      "millis": 4716.828787,
-      "megabytesPerSecond": 1.245304883502379
+      "millis": 1841.69721,
+      "megabytesPerSecond": 3.1935632557568665
     },
     {
-      "millis": 2777.433498,
-      "megabytesPerSecond": 2.114862489894152
+      "millis": 1919.889345,
+      "megabytesPerSecond": 3.0634976715733258
     },
     {
-      "millis": 2705.111099,
-      "megabytesPerSecond": 2.1714043187605516
+      "millis": 1993.43249,
+      "megabytesPerSecond": 2.9504769123563035
     },
     {
-      "millis": 2671.650423,
-      "megabytesPerSecond": 2.198599739145477
+      "millis": 2018.390336,
+      "megabytesPerSecond": 2.9139936082640547
     },
     {
-      "millis": 2729.922865,
-      "megabytesPerSecond": 2.1516688249342546
+      "millis": 1879.015494,
+      "megabytesPerSecond": 3.1301373282268092
     },
     {
-      "millis": 2625.607444,
-      "megabytesPerSecond": 2.237154657874935
+      "millis": 1835.899791,
+      "megabytesPerSecond": 3.2036479152722652
     }
   ],
-  "medianMillis": 2729.922865,
-  "bestMillis": 2625.607444,
+  "medianMillis": 1919.889345,
+  "bestMillis": 1835.899791,
   "astHashes": {
     "javaparser-core/src/main/java/com/github/javaparser/CommentsInserter.java": "4c82baeaa7e3abad",
     "javaparser-core/src/main/java/com/github/javaparser/HasParentNode.java": "760357b54c827f6d",
@@ -57,7 +57,7 @@
     "javaparser-core/src/main/java/com/github/javaparser/Range.java": "f8b3f0717812ee23",
     "javaparser-core/src/main/java/com/github/javaparser/StaticJavaParser.java": "df33a13e664b3c06",
     "javaparser-core/src/main/java/com/github/javaparser/TokenRange.java": "69bb33bc9d4e8bc5",
-    "javaparser-core/src/main/java/com/github/javaparser/TokenTypes.java": "06d5f6d43e9e2749",
+    "javaparser-core/src/main/java/com/github/javaparser/TokenTypes.java": "c561629ecf5bd22e",
     "javaparser-core/src/main/java/com/github/javaparser/UnicodeEscapeProcessingProvider.java": "33d4946617473f15",
     "javaparser-core/src/main/java/com/github/javaparser/ast/AbstractModifier.java": "db8952de1a87057d",
     "javaparser-core/src/main/java/com/github/javaparser/ast/AccessSpecifier.java": "e4c1387558a66a68",

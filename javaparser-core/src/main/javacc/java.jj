@@ -3556,6 +3556,7 @@ String Identifier():
     String ret;
 }
 {
+    LOOKAHEAD({ !jj_lookingAhead || TokenTypes.isIdentifierKind(getToken(1).kind) })
     (
         <IDENTIFIER> | <SVIDENTIFIER> | <KEYIDENTIFIER> | <JML_IDENTIFIER> |
         // TODO: Explain why these keywords are explicitly flagged up as "included", and why they're not already covered by {@code <IDENTIFIER>}.

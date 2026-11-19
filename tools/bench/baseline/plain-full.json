@@ -2,46 +2,46 @@
   "corpus": "plain",
   "mode": "FULL",
   "files": 981,
-  "bytes": 6167280,
+  "bytes": 6167379,
   "ok": 981,
   "fail": 0,
   "failures": [],
   "rounds": [
     {
-      "millis": 3544.417772,
-      "megabytesPerSecond": 1.659391447743237
+      "millis": 2643.921453,
+      "megabytesPerSecond": 2.224601243417976
     },
     {
-      "millis": 2535.383786,
-      "megabytesPerSecond": 2.319797330314685
+      "millis": 2653.593218,
+      "megabytesPerSecond": 2.2164930600313517
     },
     {
-      "millis": 2910.452549,
-      "megabytesPerSecond": 2.02084605024974
+      "millis": 2553.58909,
+      "megabytesPerSecond": 2.3032957709900233
     },
     {
-      "millis": 2682.638179,
-      "megabytesPerSecond": 2.1924598643706763
+      "millis": 2719.754393,
+      "megabytesPerSecond": 2.1625742997166513
     },
     {
-      "millis": 2699.781773,
-      "megabytesPerSecond": 2.1785377606836436
+      "millis": 2658.189652,
+      "megabytesPerSecond": 2.2126603899078234
     },
     {
-      "millis": 2686.878664,
-      "megabytesPerSecond": 2.1889996808899213
+      "millis": 2684.705344,
+      "megabytesPerSecond": 2.1908068850043834
     },
     {
-      "millis": 2657.772622,
-      "megabytesPerSecond": 2.2129720538922526
+      "millis": 2641.599129,
+      "megabytesPerSecond": 2.226556969705626
     }
   ],
-  "medianMillis": 2686.878664,
-  "bestMillis": 2535.383786,
+  "medianMillis": 2653.593218,
+  "bestMillis": 2553.58909,
   "astHashes": {
     "javaparser-core/src/main/java/com/github/javaparser/CommentsInserter.java": "6dff0c963aff25d6",
     "javaparser-core/src/main/java/com/github/javaparser/HasParentNode.java": "39f1663e390d969b",
-    "javaparser-core/src/main/java/com/github/javaparser/JavaParser.java": "fdb5a647d4b60ad3",
+    "javaparser-core/src/main/java/com/github/javaparser/JavaParser.java": "3f4a7af8a96be728",
     "javaparser-core/src/main/java/com/github/javaparser/JavaParserAdapter.java": "eb0efd4503c385d1",
     "javaparser-core/src/main/java/com/github/javaparser/JavaToken.java": "c7f94b9b1e874778",
     "javaparser-core/src/main/java/com/github/javaparser/JavadocParser.java": "74df9d4bb70d22f8",

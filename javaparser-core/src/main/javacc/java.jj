@@ -4715,6 +4715,7 @@ Expression JmlPrimaryPrefix():
     Expression iterable;
 }
 {
+  LOOKAHEAD({ isProcessJml() })
   (  LOOKAHEAD(2)
      "(" {begin=token();}
       (<LBLNEG>|<LBLPOS>|<LBL>) {quant=token();}

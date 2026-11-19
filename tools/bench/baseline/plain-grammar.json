@@ -1,0 +1,41 @@
+{
+  "corpus": "plain",
+  "mode": "GRAMMAR",
+  "files": 981,
+  "bytes": 6159220,
+  "ok": 981,
+  "fail": 0,
+  "failures": [],
+  "rounds": [
+    {
+      "millis": 3812.561319,
+      "megabytesPerSecond": 1.5406676592512802
+    },
+    {
+      "millis": 3932.424505,
+      "megabytesPerSecond": 1.4937069778776855
+    },
+    {
+      "millis": 2716.989711,
+      "megabytesPerSecond": 2.161910992638169
+    },
+    {
+      "millis": 2697.148216,
+      "megabytesPerSecond": 2.177815030056807
+    },
+    {
+      "millis": 2425.367589,
+      "megabytesPerSecond": 2.4218555363467846
+    },
+    {
+      "millis": 2625.014489,
+      "megabytesPerSecond": 2.2376600006247442
+    },
+    {
+      "millis": 2683.262403,
+      "megabytesPerSecond": 2.1890851660756128
+    }
+  ],
+  "medianMillis": 2697.148216,
+  "bestMillis": 2425.367589
+}

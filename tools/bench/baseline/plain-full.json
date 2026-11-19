@@ -1,0 +1,52 @@
+{
+  "corpus": "plain",
+  "mode": "FULL",
+  "files": 981,
+  "bytes": 6159220,
+  "ok": 971,
+  "fail": 10,
+  "failures": [
+    "javaparser-core/src/main/java/com/github/javaparser/ast/nodeTypes/NodeWithModifiers.java",
+    "javaparser-core/src/main/java/com/github/javaparser/jml/JmlDocSanitizer.java",
+    "javaparser-core/src/main/java/com/github/javaparser/jml/JmlProcessor.java",
+    "javaparser-core/src/main/java/com/github/javaparser/jml/JmlQuantifierDesugarer.java",
+    "javaparser-core/src/main/java/com/github/javaparser/printer/DefaultPrettyPrinterVisitor.java",
+    "javaparser-core/src/main/java/com/github/javaparser/printer/lexicalpreservation/LexicalDifferenceCalculator.java",
+    "javaparser-core/src/main/java/com/github/javaparser/resolution/types/ResolvedPrimitiveType.java",
+    "javaparser-symbol-solver-core/src/main/java/com/github/javaparser/symbolsolver/javaparsermodel/JavaParserFacade.java",
+    "javaparser-symbol-solver-core/src/main/java/com/github/javaparser/symbolsolver/javaparsermodel/JavaParserFactory.java",
+    "javaparser-symbol-solver-core/src/main/java/com/github/javaparser/symbolsolver/javaparsermodel/declarations/JmlJavaParserQuantifiedVariableDeclaration.java"
+  ],
+  "rounds": [
+    {
+      "millis": 5525.939387,
+      "megabytesPerSecond": 1.062966766684823
+    },
+    {
+      "millis": 4258.128857,
+      "megabytesPerSecond": 1.379453304575208
+    },
+    {
+      "millis": 3657.849009,
+      "megabytesPerSecond": 1.6058317083737512
+    },
+    {
+      "millis": 3607.691329,
+      "megabytesPerSecond": 1.6281575632258596
+    },
+    {
+      "millis": 3618.671558,
+      "megabytesPerSecond": 1.6232172024869087
+    },
+    {
+      "millis": 3576.752675,
+      "megabytesPerSecond": 1.6422410093243873
+    },
+    {
+      "millis": 3824.960681,
+      "megabytesPerSecond": 1.535673282152545
+    }
+  ],
+  "medianMillis": 3657.849009,
+  "bestMillis": 3576.752675
+}

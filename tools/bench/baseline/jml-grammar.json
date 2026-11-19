@@ -1,0 +1,43 @@
+{
+  "corpus": "jml",
+  "mode": "GRAMMAR",
+  "files": 2959,
+  "bytes": 17792785,
+  "ok": 2958,
+  "fail": 1,
+  "failures": [
+    "jmlparser-jml-tests/src/test/resources/fullexamples/openjml/test/gitbug711/Loop.java"
+  ],
+  "rounds": [
+    {
+      "millis": 9045.939561,
+      "megabytesPerSecond": 1.8758164320481667
+    },
+    {
+      "millis": 8336.59885,
+      "megabytesPerSecond": 2.0354250428924474
+    },
+    {
+      "millis": 8288.042029,
+      "megabytesPerSecond": 2.047349906342805
+    },
+    {
+      "millis": 7852.267292,
+      "megabytesPerSecond": 2.160971021596036
+    },
+    {
+      "millis": 7928.243123,
+      "megabytesPerSecond": 2.140262578806689
+    },
+    {
+      "millis": 7909.976413,
+      "megabytesPerSecond": 2.1452051416930535
+    },
+    {
+      "millis": 7899.694331,
+      "megabytesPerSecond": 2.147997297218256
+    }
+  ],
+  "medianMillis": 7928.243123,
+  "bestMillis": 7852.267292
+}

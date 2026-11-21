@@ -32,7 +32,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.github.javaparser.GeneratedJavaParserConstants.*;
-import static com.github.javaparser.GeneratedJavaParserConstants.INVARIANT;
 import static com.github.javaparser.ast.observer.ObservableProperty.*;
 import static com.github.javaparser.ast.observer.ObservableProperty.BY;
 import static com.github.javaparser.ast.observer.ObservableProperty.TYPE;
@@ -1319,7 +1318,14 @@ public class ConcreteSyntaxModel {
                         semicolon()));
         concreteSyntaxModelByClass.put(
                 JmlClassExprDeclaration.class,
-                sequence(child(MODIFIERS), space(), token(INVARIANT), space(), child(EXPRESSION), semicolon()));
+                sequence(
+                        child(MODIFIERS),
+                        space(),
+                        child(KIND),
+                        space(),
+                        conditional(NAME, IS_PRESENT, sequence(child(NAME), token(COLON), space())),
+                        child(EXPRESSION),
+                        semicolon()));
         concreteSyntaxModelByClass.put(JmlClassAccessibleDeclaration.class, sequence());
         concreteSyntaxModelByClass.put(JmlContract.class, sequence());
         concreteSyntaxModelByClass.put(

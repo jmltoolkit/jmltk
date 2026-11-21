@@ -3721,10 +3721,6 @@ Expression ConditionalExpression():
     { return ret; }
 }
 
-//TODO weigl
-// add <EQUIVALENCE> <IMPLICATION: "==>"> ,  <IMPLICATION_BACKWARD: "<==">
-// add <: <% <%=
-
 /**
  */
 Expression JmlEquivExpression():

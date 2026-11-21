@@ -155,6 +155,7 @@ public class ModifierValidator extends VisitorValidator {
                     STRICTFP,
                     SEALED,
                     NON_SEALED,
+                    JML_MODEL,
                     JML_PURE,
                     JML_STRICTLY_PURE,
                     JML_NULLABLE,
@@ -187,6 +188,7 @@ public class ModifierValidator extends VisitorValidator {
                     STRICTFP,
                     SEALED,
                     NON_SEALED,
+                    JML_MODEL,
                     JML_PURE,
                     JML_STRICTLY_PURE,
                     JML_NULLABLE,
@@ -215,6 +217,7 @@ public class ModifierValidator extends VisitorValidator {
                     STRICTFP,
                     SEALED,
                     NON_SEALED,
+                    JML_MODEL,
                     JML_PURE,
                     JML_STRICTLY_PURE,
                     JML_NULLABLE,
@@ -239,9 +242,10 @@ public class ModifierValidator extends VisitorValidator {
 
     private void validateInterfaceModifiers(TypeDeclaration<?> n, ProblemReporter reporter) {
         if (n.isTopLevelType()) {
-            validateModifiers(n, reporter, PUBLIC, ABSTRACT, STRICTFP, SEALED, NON_SEALED);
+            validateModifiers(n, reporter, PUBLIC, ABSTRACT, STRICTFP, SEALED, NON_SEALED, JML_MODEL);
         } else if (n.isNestedType()) {
-            validateModifiers(n, reporter, PUBLIC, PROTECTED, PRIVATE, ABSTRACT, STATIC, STRICTFP, SEALED, NON_SEALED);
+            validateModifiers(
+                    n, reporter, PUBLIC, PROTECTED, PRIVATE, ABSTRACT, STATIC, STRICTFP, SEALED, NON_SEALED, JML_MODEL);
         }
     }
 

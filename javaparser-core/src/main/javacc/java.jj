@@ -7905,19 +7905,26 @@ ArbitraryNodeContainer JmlTypeLevelStart():
     NodeList<Node> ret = new NodeList<>();
     NodeList<ImportDeclaration> imports = new NodeList<>();
     ModifierHolder modifiers;
+    TypeDeclaration<?> type;
 }
 {
-    //TODO weigl add JML model classes
     [ LOOKAHEAD(2)
       imports=JmlImportDeclarations()
       {ret.addAll(imports);}
     ]
-    ( modifiers = Modifiers()
-      {
-        ret.addAll(modifiers.modifiers);
-        ret.addAll(modifiers.annotations);
-      }
-    )
+    (
+      modifiers = Modifiers()
+      (
+        LOOKAHEAD(<EOF>) <EOF>
+        {
+          ret.addAll(modifiers.modifiers);
+          ret.addAll(modifiers.annotations);
+          return new ArbitraryNodeContainer(ret);
+        }
+      |
+        type = ClassOrInterfaceDeclaration(modifiers) { ret.add(type); }
+      )
+    )*
     <EOF>
     {
         return new ArbitraryNodeContainer(ret);

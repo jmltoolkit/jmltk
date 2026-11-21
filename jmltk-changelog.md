@@ -66,6 +66,7 @@ rejected rather than approximated.
 
 **Added**
 
+- JML: type-level JML docs may declare model types (`/*@ model class VVV {} @*/`); parsed declarations are inserted into the compilation unit, and `model` is accepted as a class/interface modifier (`4477492e6`; feature branch `perf/grammar-optimization`, not yet merged).
 - `tools/bench`: new parse benchmark (`--corpus plain|jml|path:<dir>`, `--mode grammar|full`, `--baseline`, `--verify`) that separates grammar cost from validator cost, reports per-round medians and best-of-N, and verifies per-file AST fingerprints against committed baselines; four baselines live under `tools/bench/baseline/` (`da0b05cdb`, feature branch `perf/grammar-optimization`, not yet merged).
 - `tools/prettyprinting`: new `jmltk-pp` CLI (also `jmltk pp`, `jmltk format`) that pretty-prints Java/JML from files or stdin and highlights it for terminals (256-color ANSI), HTML (Pygments class names), and LaTeX (minted `\PYG` body or semantic `\jml` macros); snippets are auto-detected and JML comments are highlighted (`f4365af91`, feature branch `weigl/prettyprint-cli`, PR #101).
 - AST: `JmlQuantifiedVariable extends VariableDeclarator` with one optional iterable/range domain per binding,

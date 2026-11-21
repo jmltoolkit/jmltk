@@ -169,6 +169,7 @@ rejected rather than approximated.
 
 **Fixed**
 
+- `tools/bench`: baseline file names are normalized to `/` instead of platform separators, so the committed baselines and `--verify` work on Windows as well as Linux/macOS (`e59bac74d`; feature branch `perf/grammar-optimization`, not yet merged).
 - CLI/LSP: `jmltk` crashed on JDK 21 as soon as it ran on a real terminal, with
   `ClassCastException: Cannot cast java.lang.Integer to java.lang.foreign.MemorySegment` at
   `mordant...ffm.FfmLayoutsKt.varHandle`. Clikt 5.1.0 pulls Mordant 3.0.2, whose FFM terminal backend calls

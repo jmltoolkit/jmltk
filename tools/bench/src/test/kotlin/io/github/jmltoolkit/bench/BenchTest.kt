@@ -5,6 +5,7 @@
 package io.github.jmltoolkit.bench
 
 import java.nio.file.Files
+import java.nio.file.Paths
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -78,6 +79,14 @@ class BenchTest {
         val current = baseline.copy(fail = 0, ok = 2, failures = emptyList())
         assertFalse(verifyParity(baseline, current).isEmpty())
         assertTrue(verifyParity(baseline, baseline).isEmpty())
+    }
+
+    @Test
+    fun `display names use forward slashes on every platform`() {
+        assertEquals(
+            "src/test/resources/corpus/One.java",
+            portableName(Paths.get("src\\test\\resources\\corpus\\One.java")),
+        )
     }
 
     @Test

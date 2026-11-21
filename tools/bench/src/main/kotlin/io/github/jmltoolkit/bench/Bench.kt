@@ -52,6 +52,9 @@ private data class SourceFile(
     val text: String,
 )
 
+/** Stable names for JSON baselines across platforms: Windows separators become '/'. */
+internal fun portableName(path: Path): String = path.toString().replace('\\', '/')
+
 private val gson = GsonBuilder().setPrettyPrinting().create()
 
 fun parseBenchConfig(args: Array<String>): BenchConfig {
@@ -292,7 +295,7 @@ private fun loadSources(
                     .asSequence()
                     .filter { Files.isRegularFile(it) && it.fileName.toString().endsWith(".java") }
                     .map { path ->
-                        val display = if (path.startsWith(repoRoot)) repoRoot.relativize(path).toString() else path.toString()
+                        val display = portableName(if (path.startsWith(repoRoot)) repoRoot.relativize(path) else path)
                         SourceFile(display, Files.readString(path))
                     }
                     .toList()

@@ -8547,7 +8547,7 @@ KeyStatementSV StatementSV() :
     KeyStatementSV result;
 }
 {
-  <SVIDENTIFIER> //TODO weigl remove SEMICOLON?
+  <SVIDENTIFIER>
   { return new KeyStatementSV(token().toTokenRange(), token().getText()); }
 }
 

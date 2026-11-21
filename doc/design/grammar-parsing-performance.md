@@ -279,6 +279,18 @@ neutral on JML/grammar (−0.6% median), so the production change was reverted. 
 tableswitch is already optimal; the remaining lexer cost is the NFA itself. The equivalence test
 is kept as a guard for future changes.
 
+The profile also showed JML doc lookaheads (`JmlDocs`, `JmlDocStatements`) in samples even for
+plain Java. Gating `JmlDocs()` by `processJml` was attempted and reverted: JML doc markers are
+source text and must parse with `processJml=false`
+(`ParserInvariantsTest.jmlMarkersParseWithProcessingDisabled`,
+`KeYParsingTests.testGhostModifier`). Unlike `\forall`/`\let` expression syntax (P3), JML doc
+markers are not opt-in.
+
+Finally, per-byte throughput does not explain the JML runtime: in grammar mode JML parses at
+304 ms/MiB versus 314 ms/MiB for plain Java, and 1.74 versus 1.89 ms/file. The 2.8× total time is
+the 2.9× larger corpus. Only `full` mode is slower per byte for JML (629 vs 451 ms/MiB), and that
+gap is validation/post-processing, not parsing.
+
 ## 6. Measurement protocol
 
 - JDK 21, same machine, no other heavy load.

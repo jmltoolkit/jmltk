@@ -1169,7 +1169,12 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
         wrapInJmlIfNeeded(() -> {
             printOrphanCommentsBeforeThisChildNode(n);
             printModifiers(n.getModifiers());
-            printer.print("invariant ");
+            printer.print(n.getKind().value().jmlSymbol());
+            printer.print(" ");
+            if (n.getName().isPresent()) {
+                n.getName().get().accept(this, arg);
+                printer.print(": ");
+            }
             n.getInvariant().accept(this, arg);
             printer.print(";");
         });

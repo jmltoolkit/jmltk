@@ -8052,15 +8052,17 @@ JmlClassLevelDeclaration JmlMethodDeclaration(ModifierHolder modifier):
 }
 
 JmlClassLevelDeclaration JmlClassExpr(ModifierHolder modifiers):
-{ Expression expr; JavaToken begin, kind; SimpleName id;}
+{ Expression expr; JavaToken begin, kind; SimpleName id = null;}
 {
   (<AXIOM> | <INVARIANT> | <INVARIANT_REDUNDANTLY> | <INVARIANT_FREE> | <INITIALLY> | <CONSTRAINT> | <CONSTRAINT_REDUNDANTLY>)
   {kind=token();}
-  [ LOOKAHEAD(3) id=SimpleName() ":" ] //TODO weigl
+  [ LOOKAHEAD(3) id=SimpleName() ":" ]
   expr=Expression() ";"
   {
     begin = orIfInvalid(modifiers.begin, kind);
-    return new JmlClassExprDeclaration(range(begin, token()), kind, modifiers.modifiers, expr);
+    JmlClassExprDeclaration ret = new JmlClassExprDeclaration(range(begin, token()), kind, modifiers.modifiers, expr);
+    ret.setName(id);
+    return ret;
   }
 }
 

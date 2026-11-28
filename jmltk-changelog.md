@@ -66,6 +66,9 @@ rejected rather than approximated.
 
 **Added**
 
+- JML: type-level JML docs may declare model types (`/*@ model class VVV {} @*/`); parsed declarations are inserted into the compilation unit, and `model` is accepted as a class/interface modifier (`4477492e6`; feature branch `perf/grammar-optimization`, not yet merged).
+- JML: class-level expression labels (`invariant positive: ...`) are retained on `JmlClassExprDeclaration` and printed, and the pretty printer now emits the actual clause kind (`axiom`, `constraint`, `initially`, `invariant`) instead of always `invariant` (`0caf3defc`; feature branch `perf/grammar-optimization`, not yet merged).
+- `tools/bench`: new parse benchmark (`--corpus plain|jml|path:<dir>`, `--mode grammar|full`, `--baseline`, `--verify`) that separates grammar cost from validator cost, reports per-round medians and best-of-N, and verifies per-file AST fingerprints against committed baselines; four baselines live under `tools/bench/baseline/` (`da0b05cdb`, feature branch `perf/grammar-optimization`, not yet merged).
 - `tools/prettyprinting`: new `jmltk-pp` CLI (also `jmltk pp`, `jmltk format`) that pretty-prints Java/JML from files or stdin and highlights it for terminals (256-color ANSI), HTML (Pygments class names), and LaTeX (minted `\PYG` body or semantic `\jml` macros); snippets are auto-detected and JML comments are highlighted (`f4365af91`, feature branch `weigl/prettyprint-cli`, PR #101).
 - AST: `JmlQuantifiedVariable extends VariableDeclarator` with one optional iterable/range domain per binding,
   including metamodel/CSM/printer support (`cad7b3e33`; printers/CSM `63929f86f`).
@@ -156,6 +159,8 @@ rejected rather than approximated.
 
 **Changed**
 
+- Parser: JML primary prefixes (`\forall`, `\let`, labels) are gated by `processJml`, so plain-Java parsing no longer probes them on every `(`; plain grammar parsing is ~15% faster in `tools/bench` (`f084c2094`; feature branch `perf/grammar-optimization`, not yet merged). JML quantifier syntax no longer parses when `processJml=false`, matching the flag's meaning.
+- Parser: `Identifier()` now short-circuits speculative lookahead with an O(1) token-kind predicate, cutting parse time by ~33% (plain grammar), ~27% (JML grammar), ~23% (JML full) and ~18% (plain full) in `tools/bench` (`527f6b795`; feature branch `perf/grammar-optimization`, not yet merged).
 - CI: the test matrix runs on macOS and Windows again (`7605d114d`, PR #18). The Windows combination had been
   disabled in PR #102 after its jobs hung in the Gradle test step and the cache-save post steps failed; the
   cause was repository cache pressure, not VCG/SMT: the repository held 40 Actions cache entries totalling about
@@ -166,6 +171,7 @@ rejected rather than approximated.
 
 **Fixed**
 
+- `tools/bench`: baseline file names are normalized to `/` instead of platform separators, so the committed baselines and `--verify` work on Windows as well as Linux/macOS (`e59bac74d`; feature branch `perf/grammar-optimization`, not yet merged).
 - CLI/LSP: `jmltk` crashed on JDK 21 as soon as it ran on a real terminal, with
   `ClassCastException: Cannot cast java.lang.Integer to java.lang.foreign.MemorySegment` at
   `mordant...ffm.FfmLayoutsKt.varHandle`. Clikt 5.1.0 pulls Mordant 3.0.2, whose FFM terminal backend calls

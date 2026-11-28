@@ -81,6 +81,16 @@ abstract class GeneratedJavaParserBase {
     List<Problem> problems = new ArrayList<>();
     /* Configuration flag whether we store tokens and tokenranges */
     boolean storeTokens;
+    /* Configuration flag whether JML constructs may be parsed */
+    private boolean processJml = false;
+
+    void setProcessJml(boolean processJml) {
+        this.processJml = processJml;
+    }
+
+    boolean isProcessJml() {
+        return processJml;
+    }
 
     /* Resets the parser for reuse, gaining a little performance */
     void reset(Provider provider) {

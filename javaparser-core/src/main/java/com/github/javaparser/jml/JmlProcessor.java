@@ -228,6 +228,9 @@ public class JmlProcessor extends Processor {
                 for (Node child : t.getChildren()) {
                     if (child instanceof ImportDeclaration) {
                         parent.addImport((ImportDeclaration) child);
+                    } else if (child instanceof TypeDeclaration<?>) {
+                        // A type-level JML doc may declare model types, e.g. `model class VVV {}`.
+                        members.add(pos++, (TypeDeclaration<?>) child);
                     } else if (child instanceof Modifier) {
                         if (next != null) {
                             next.getModifiers().add((Modifier) child);

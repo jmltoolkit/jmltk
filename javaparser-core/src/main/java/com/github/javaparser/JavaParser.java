@@ -80,6 +80,7 @@ public final class JavaParser {
         astParser.setTabSize(configuration.getTabSize());
         astParser.setStoreTokens(configuration.isStoreTokens());
         astParser.setKeyMetaConstructNames(configuration.getKeyMetaConstructNames());
+        astParser.setProcessJml(configuration.isProcessJml());
         ParserConfiguration.LanguageLevel languageLevel = configuration.getLanguageLevel();
         if (languageLevel != null) {
             if (languageLevel.isYieldSupported()) {
@@ -512,6 +513,7 @@ public final class JavaParser {
     // region JML
     private <T> ParseStart<T> enableJml(ParseStart<T> start) {
         return it -> {
+            it.setProcessJml(true);
             it.token_source.SwitchTo(GeneratedJavaParserConstants.JML_MULTI_CONTRACT);
             return start.parse(it);
         };

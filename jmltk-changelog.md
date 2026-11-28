@@ -228,6 +228,14 @@ rejected rather than approximated.
   `ParserConfiguration.setProcessJml(boolean)`. The CLI runtime now excludes the proofjava fork, so the
   distribution carries exactly one `com.github.javaparser` implementation (the fork core) and directory order
   cannot matter (`63aaf0907`).
+- Pretty printer: `JmlDoc` content is printed verbatim again. `JmlDoc.getContent()` holds the complete JML
+  comment, including its delimiters (`//@ …` or `/*@ … */`), but `DefaultPrettyPrinterVisitor.visit(JmlDoc)`
+  wrapped it in a fresh single-line JML comment, doubling the markers (`//@ //@ requires true;`,
+  `//@ /*@ nullable */`) whenever a raw `JmlDoc` was printed outside an open JML comment — exactly the doubled
+  markers observed in KeY's `KeyJavaPipelineTest` snapshots (KeY issue #3759, where `SpecialJavaPrinter`
+  works around it). The visitor now emits `getContent()` verbatim, matching `PrettyPrintVisitor` and the
+  pre-`dd3c446dc` behavior; regression test `JmlDocPrintingTest` covers line and block comments, both
+  programmatically built and parsed (feature branch `fix/jml-doc-double-print`, commit `ab18765b4`, PR #108).
 
 **Removed**
 

@@ -1319,7 +1319,10 @@ public class DefaultPrettyPrinterVisitor implements VoidVisitor<Void> {
 
     @Override
     public void visit(JmlDoc n, Void arg) {
-        wrapInJmlIfNeeded(() -> printer.print(n.getContent()));
+        // The content already is the complete JML comment, including its delimiters
+        // (e.g. `//@ requires true;` or `/*@ nullable */`), so wrapInJmlIfNeeded would
+        // double the markers (`//@ //@ ...` or `//@ /*@ ... */`). Print it verbatim.
+        printer.print(n.getContent());
     }
 
     @Override
